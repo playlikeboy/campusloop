@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getDb } from "@/db";
+import { buildMetadata } from "@/lib/seo";
 import { PlaylistDetailClient } from "./playlist-detail-client";
 
 export const dynamic = "force-dynamic";
@@ -20,27 +21,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
   });
 
-  if (!playlist) {
-    return {
-      title: "Study Playlist",
-    };
-  }
+  if (!playlist) return { title: "Study playlist", robots: { index: false, follow: false } };
 
-  const college = playlist.institution?.name ? ` • ${playlist.institution.name}` : "";
-  const branchInfo = playlist.branch ? ` (${playlist.branch})` : "";
-
-  return {
-    title: `${playlist.title}${branchInfo}`,
+  const branch = playlist.branch && playlist.branch !== "All" ? playlist.branch : "all branches";
+  const college = playlist.institution?.name ? ` at ${playlist.institution.name}` : "";
+  return buildMetadata({
+    title: playlist.title,
     description:
-      playlist.description ||
-      `Curated bundle of ${playlist.itemsCount} exam papers, handwritten notes, and formulas for ${playlist.branch} on CampusLoop.${college}`,
-    openGraph: {
-      title: playlist.title,
-      description:
-        playlist.description ||
-        `Curated study playlist for ${playlist.branch} on CampusLoop. Free zero-login reading & download.`,
-    },
-  };
+      playlist.description?.slice(0, 160) ||
+      `${playlist.itemsCount} notes and PYQs for ${branch}${college}, grouped into one study playlist.`,
+    path: `/academics/study-material/playlists/${playlist.slug}`,
+    // Only public playlists belong in search results.
+    noindex: playlist.visibility !== "PUBLIC",
+  });
 }
 
 export default async function PlaylistDetailPage({ params }: Props) {

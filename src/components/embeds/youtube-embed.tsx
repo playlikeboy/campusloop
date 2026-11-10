@@ -15,7 +15,7 @@ export function YouTubeEmbed({ videoId, rawUrl }: YouTubeEmbedProps) {
 
   return (
     <div
-      className="mt-3 overflow-hidden rounded-2xl border border-border/40 bg-black/5 dark:bg-black/40 shadow-xs"
+      className="mt-3 overflow-hidden rounded-2xl border border-border bg-black/5 dark:bg-black/40 shadow-xs"
       onClick={(e) => e.stopPropagation()}
     >
       {isPlaying ? (
@@ -36,16 +36,16 @@ export function YouTubeEmbed({ videoId, rawUrl }: YouTubeEmbedProps) {
           <img
             src={thumbnailUrl}
             alt="YouTube Video Thumbnail"
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-300"
             loading="lazy"
           />
           <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-            <div className="flex size-14 items-center justify-center rounded-full bg-danger/90 text-white shadow-xl backdrop-blur-xs transition-transform duration-200 group-hover:scale-110 group-active:scale-95">
+            <div className="flex size-14 items-center justify-center rounded-full bg-danger/90 text-white shadow-lg transition-transform duration-200 group-active:scale-95">
               <Play className="ml-1 size-6 fill-white text-white" />
             </div>
           </div>
           <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between">
-            <span className="inline-flex items-center gap-1.5 rounded-md bg-black/75 px-2 py-1 text-[11px] font-bold text-white backdrop-blur-md">
+            <span className="inline-flex items-center gap-1.5 rounded-md bg-black/75 px-2 py-1 text-xs font-bold text-white">
               <Video className="size-3.5 text-danger" />
               YouTube Video
             </span>
@@ -54,7 +54,7 @@ export function YouTubeEmbed({ videoId, rawUrl }: YouTubeEmbedProps) {
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="rounded-md bg-black/60 px-2 py-1 text-[10px] font-semibold text-white/90 hover:text-white backdrop-blur-md hover:underline"
+              className="rounded-md bg-black/60 px-2 py-1 text-xs font-semibold text-white/90 hover:text-white hover:underline"
             >
               Watch on YouTube
             </a>

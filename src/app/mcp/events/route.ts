@@ -370,7 +370,7 @@ const CAMPUSLOOP_EVENTS_OPENAPI_SPEC = {
         operationId: "create_remote_event",
         summary: "Create and publish a remote event, hackathon, or student opportunity",
         description:
-          "Publish a remote opportunity (Devfolio, Unstop, MLH hackathon, fellowship, virtual workshop) to 1,350+ campus feeds across India.",
+          "Publish a remote opportunity (Devfolio, Unstop, MLH hackathon, fellowship, virtual workshop) to campus feeds across India.",
         parameters: [
           {
             name: "apikey",

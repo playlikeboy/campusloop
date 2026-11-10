@@ -1,42 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { Search, UserCheck } from "lucide-react";
 import Link from "next/link";
-import useSWR from "swr";
+import { useState } from "react";
 import { toast } from "sonner";
-import {
-  ArrowLeft,
-  CheckCircle2,
-  Clock,
-  QrCode,
-  Search,
-  UserCheck,
-  X,
-} from "lucide-react";
+import useSWR from "swr";
+import { ManageHeader } from "@/components/events/manage-header";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Input } from "@/components/ui/input";
+import { SegmentedControl } from "@/components/ui/segmented-control";
+import { Skeleton } from "@/components/ui/skeleton";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn } from "@/lib/utils";
 
 interface RegistrationItem {
   id: string;
-  profileId: string;
-  registrationType: "SOLO" | "TEAM";
   teamName: string | null;
   contactPhone: string | null;
   status: "CONFIRMED" | "ATTENDED" | "WAITLISTED" | "CANCELLED";
-  createdAt: string;
   profile?: {
-    id: string;
     displayName: string;
     username: string;
     avatarUrl: string | null;
-    course: string | null;
-    branch: string | null;
-    year: number | null;
-    institution?: {
-      name: string;
-    } | null;
+    institution?: { name: string } | null;
   } | null;
 }
 
@@ -46,260 +35,157 @@ interface CheckInClientProps {
   eventTitle: string;
 }
 
+type View = "PENDING" | "CHECKED_IN";
+
+function matches(reg: RegistrationItem, q: string) {
+  if (!q) return true;
+  return [reg.profile?.displayName, reg.profile?.username, reg.id, reg.teamName, reg.contactPhone].some((v) =>
+    v?.toLowerCase().includes(q)
+  );
+}
+
 export function CheckInClient({ eventId, initialSlug, eventTitle }: CheckInClientProps) {
   const [search, setSearch] = useState("");
-  const [viewTab, setViewTab] = useState<"PENDING" | "CHECKED_IN">("PENDING");
-  const [admittingId, setAdmittingId] = useState<string | null>(null);
-
+  const [view, setView] = useState<View>("PENDING");
+  const [busyId, setBusyId] = useState<string | null>(null);
   const { data, error, isLoading, mutate } = useSWR<{
-    event: {
-      id: string;
-      slug: string;
-      title: string;
-      registrations: RegistrationItem[];
-    };
+    event: { slug: string; registrations: RegistrationItem[] };
   }>(`/api/events/${eventId}`, fetcher);
 
   const registrations = data?.event?.registrations || [];
   const slug = data?.event?.slug || initialSlug;
+  const pending = registrations.filter((r) => r.status === "CONFIRMED");
+  const attended = registrations.filter((r) => r.status === "ATTENDED");
+  const q = search.trim().toLowerCase();
+  const shown = (view === "PENDING" ? pending : attended).filter((r) => matches(r, q));
 
-  const pendingList = registrations.filter((r) => r.status === "CONFIRMED");
-  const attendedList = registrations.filter((r) => r.status === "ATTENDED");
-
-  const currentList = viewTab === "PENDING" ? pendingList : attendedList;
-
-  const filtered = currentList.filter((reg) => {
-    if (!search.trim()) return true;
-    const q = search.toLowerCase();
-    const name = reg.profile?.displayName?.toLowerCase() || "";
-    const user = reg.profile?.username?.toLowerCase() || "";
-    const regId = reg.id.toLowerCase();
-    const team = reg.teamName?.toLowerCase() || "";
-    const phone = reg.contactPhone?.toLowerCase() || "";
-    return name.includes(q) || user.includes(q) || regId.includes(q) || team.includes(q) || phone.includes(q);
-  });
-
-  async function handleAdmit(regId: string) {
-    setAdmittingId(regId);
-    try {
-      sounds.pop();
-      haptics.success();
-      const res = await fetch(`/api/events/${eventId}/registrations/${regId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "ATTENDED" }),
-      });
-      if (!res.ok) throw new Error("Failed to check in");
-      await mutate();
-      toast.success("Attendee admitted successfully!");
-    } catch {
-      toast.error("Could not complete check-in");
-    } finally {
-      setAdmittingId(null);
-    }
-  }
-
-  async function handleUndo(regId: string) {
-    setAdmittingId(regId);
+  async function setStatus(regId: string, status: "ATTENDED" | "CONFIRMED") {
+    setBusyId(regId);
     try {
       const res = await fetch(`/api/events/${eventId}/registrations/${regId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "CONFIRMED" }),
+        body: JSON.stringify({ status }),
       });
-      if (!res.ok) throw new Error("Failed to undo check in");
+      if (!res.ok) throw new Error();
+      if (status === "ATTENDED") {
+        sounds.pop();
+        haptics.success();
+      }
       await mutate();
-      toast.info("Check-in reversed to Confirmed");
+      toast.success(status === "ATTENDED" ? "Checked in." : "Check-in undone.");
     } catch {
-      toast.error("Could not revert check-in");
+      toast.error("That didn't save. Check your connection and try again.");
     } finally {
-      setAdmittingId(null);
+      setBusyId(null);
     }
   }
-
-  const totalAttendees = registrations.length;
-  const totalAttended = attendedList.length;
-  const progressPercent = totalAttendees > 0 ? Math.round((totalAttended / totalAttendees) * 100) : 0;
 
   return (
-    <div className="w-full max-w-2xl mx-auto py-6 space-y-5">
-      {/* ─── Top Bar ─── */}
-      <div className="flex items-center justify-between pb-3 border-b border-border/30">
-        <div className="flex items-center gap-3 min-w-0">
-          <Link
-            href={`/events/manage/${slug}`}
-            className="p-2 rounded-xl border border-border/40 bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors shrink-0"
-          >
-            <ArrowLeft className="size-4" />
-          </Link>
-          <div className="min-w-0">
-            <span className="text-[11px] font-medium text-muted-foreground block">
-              Check-in
-            </span>
-            <h1 className="text-lg font-black text-foreground truncate">{eventTitle}</h1>
-          </div>
-        </div>
+    <div className="mx-auto w-full max-w-2xl space-y-5 px-4 py-6">
+      <ManageHeader
+        slug={slug}
+        title="Check-in"
+        eventTitle={eventTitle}
+        action={
+          <Button asChild variant="outline">
+            <Link href={`/events/manage/${slug}/attendees`}>Everyone</Link>
+          </Button>
+        }
+      />
 
-        <Link
-          href={`/events/manage/${slug}/attendees`}
-          className="text-xs font-bold text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-lg border border-border/40 bg-card shrink-0"
-        >
-          Full Roster
-        </Link>
-      </div>
+      <p className="text-sm text-fg" aria-live="polite">
+        <span className="font-semibold tabular-nums">{attended.length}</span> of{" "}
+        <span className="tabular-nums">{registrations.length}</span> checked in
+      </p>
 
-      {/* ─── Live Admission Progress Banner ─── */}
-      <div className="p-4 sm:p-5 rounded-2xl border border-success bg-success-subtle space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl sm:text-3xl font-black text-foreground">{totalAttended}</span>
-              <span className="text-xs text-muted-foreground">/ {totalAttendees} admitted</span>
-            </div>
-          </div>
-
-          <div className="size-12 rounded-full border-2 border-success flex items-center justify-center font-black text-sm text-success bg-background/80">
-            {progressPercent}%
-          </div>
-        </div>
-
-        <div className="w-full h-2 rounded-full bg-muted/60 overflow-hidden">
-          <div
-            className="h-full bg-success transition-colors duration-300 rounded-full"
-            style={{ width: `${progressPercent}%` }}
-          />
-        </div>
-      </div>
-
-      {/* ─── Search Omnibar ─── */}
       <div className="relative">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-        <input
-          type="text"
+        <Search
+          aria-hidden="true"
+          className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-fg-subtle"
+        />
+        <Input
+          type="search"
+          aria-label="Search people"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Lookup by student name, @username, or ticket ID..."
-          className="w-full pl-10 pr-9 py-2.5 rounded-2xl border border-border/60 bg-card text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-success shadow-2xs"
-          autoFocus
+          placeholder="Name, @username, phone or ticket ID"
+          className="pl-10"
         />
-        {search && (
-          <button
-            type="button"
-            onClick={() => setSearch("")}
-            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-          >
-            <X className="size-4" />
-          </button>
-        )}
       </div>
 
-      {/* ─── Tab Switcher ─── */}
-      <div className="flex items-center gap-1.5 p-1 rounded-xl bg-muted/50 border border-border/40">
-        <button
-          type="button"
-          onClick={() => setViewTab("PENDING")}
-          className={cn(
-            "flex-1 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5",
-            viewTab === "PENDING"
-              ? "bg-background text-foreground shadow-xs"
-              : "text-muted-foreground hover:text-foreground"
-          )}
-        >
-          <Clock className="size-3.5 text-warning" />
-          <span>Pending Admission ({pendingList.length})</span>
-        </button>
+      <SegmentedControl<View>
+        aria-label="Show"
+        fullWidth
+        value={view}
+        onChange={setView}
+        options={[
+          { value: "PENDING", label: `Not in yet (${pending.length})` },
+          { value: "CHECKED_IN", label: `Checked in (${attended.length})` },
+        ]}
+      />
 
-        <button
-          type="button"
-          onClick={() => setViewTab("CHECKED_IN")}
-          className={cn(
-            "flex-1 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5",
-            viewTab === "CHECKED_IN"
-              ? "bg-background text-foreground shadow-xs"
-              : "text-muted-foreground hover:text-foreground"
-          )}
-        >
-          <CheckCircle2 className="size-3.5 text-success" />
-          <span>Admitted ({attendedList.length})</span>
-        </button>
-      </div>
-
-      {/* ─── Admission List ─── */}
       {isLoading ? (
-        <div className="space-y-3">
+        <div className="space-y-2" aria-busy="true">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-20 rounded-2xl bg-card/40 border border-border/30 animate-pulse" />
+            <Skeleton key={i} className="h-16 w-full rounded-lg" />
           ))}
         </div>
-      ) : filtered.length > 0 ? (
-        <div className="space-y-2.5">
-          {filtered.map((reg) => (
-            <div
-              key={reg.id}
-              className="p-3.5 sm:p-4 rounded-2xl border border-border/40 bg-card/50 flex items-center justify-between gap-3 text-xs"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                {reg.profile?.avatarUrl ? (
-                  <img
-                    src={reg.profile.avatarUrl}
-                    alt=""
-                    className="size-10 rounded-full object-cover shrink-0 border border-border/40"
-                  />
-                ) : (
-                  <div className="size-10 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center shrink-0 text-xs">
-                    {reg.profile?.displayName?.[0] || "S"}
+      ) : error ? (
+        <EmptyState
+          title="The list didn't load"
+          description="Check your connection and try again."
+          action={<Button onClick={() => mutate()}>Try again</Button>}
+        />
+      ) : shown.length === 0 ? (
+        <EmptyState
+          size="compact"
+          title={
+            q
+              ? "No one matches that search"
+              : view === "PENDING"
+                ? "Everyone is checked in"
+                : "No one checked in yet"
+          }
+        />
+      ) : (
+        <ul className="divide-y divide-border rounded-lg border border-border bg-surface">
+          {shown.map((reg) => {
+            const name = reg.profile?.displayName || "Student";
+            return (
+              <li key={reg.id} className="flex items-center justify-between gap-3 p-3 sm:p-4">
+                <div className="flex min-w-0 items-center gap-3">
+                  <Avatar size="lg">
+                    {reg.profile?.avatarUrl && <AvatarImage src={reg.profile.avatarUrl} alt="" />}
+                    <AvatarFallback>{name[0]}</AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-fg">{name}</p>
+                    <p className="truncate text-xs text-fg-muted">
+                      {reg.profile?.username ? `@${reg.profile.username}` : "No username"}
+                      {reg.teamName && ` · Team ${reg.teamName}`}
+                    </p>
+                    <p className="truncate font-mono text-xs text-fg-subtle">Ticket {reg.id.slice(0, 8)}</p>
                   </div>
-                )}
-
-                <div className="min-w-0">
-                  <p className="font-bold text-foreground text-sm truncate">
-                    {reg.profile?.displayName || "Student"}
-                  </p>
-                  <p className="text-[11px] text-muted-foreground truncate">
-                    @{reg.profile?.username || "student"}
-                    {reg.teamName && ` · Team: ${reg.teamName}`}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground/80 truncate">
-                    ID: {reg.id.slice(0, 10)}... · {reg.profile?.institution?.name || "Campus"}
-                  </p>
                 </div>
-              </div>
-
-              <div className="shrink-0">
-                {viewTab === "PENDING" ? (
-                  <button
-                    type="button"
-                    disabled={admittingId === reg.id}
-                    onClick={() => handleAdmit(reg.id)}
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-success hover:bg-success active:scale-95 text-white font-bold transition-[opacity,transform] cursor-pointer shadow-xs"
-                  >
-                    <UserCheck className="size-4" />
-                    <span>Admit</span>
-                  </button>
+                {view === "PENDING" ? (
+                  <Button loading={busyId === reg.id} onClick={() => setStatus(reg.id, "ATTENDED")}>
+                    {busyId !== reg.id && <UserCheck aria-hidden="true" />}
+                    Check in
+                  </Button>
                 ) : (
-                  <button
-                    type="button"
-                    disabled={admittingId === reg.id}
-                    onClick={() => handleUndo(reg.id)}
-                    className="px-3 py-1.5 rounded-xl border border-border/50 text-muted-foreground hover:text-foreground text-xs font-semibold cursor-pointer"
+                  <Button
+                    variant="ghost"
+                    loading={busyId === reg.id}
+                    onClick={() => setStatus(reg.id, "CONFIRMED")}
                   >
                     Undo
-                  </button>
+                  </Button>
                 )}
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="py-16 text-center space-y-2 rounded-2xl border border-dashed border-border/50 p-6">
-          <QrCode className="size-8 text-muted-foreground/40 mx-auto" />
-          <h3 className="text-sm font-bold text-foreground">
-            {viewTab === "PENDING" ? "No pending attendees" : "No admitted attendees yet"}
-          </h3>
-          <p className="text-xs text-muted-foreground">
-            {search ? "No students matching your search query." : "All attendees are already processed!"}
-          </p>
-        </div>
+              </li>
+            );
+          })}
+        </ul>
       )}
     </div>
   );

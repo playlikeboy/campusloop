@@ -1,13 +1,10 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { privateMetadata } from "@/lib/seo";
 import { getCachedAuthUser } from "@/lib/server-cache";
 import { FoodOrdersClient } from "./food-orders-client";
 
-export const metadata: Metadata = {
-  title: "Food & Canteen Orders",
-  description: "Track your live canteen and hostel food delivery orders.",
-  robots: { index: false, follow: false },
-};
+export const metadata: Metadata = privateMetadata("Food orders");
 
 export default async function FoodOrdersPage() {
   const user = await getCachedAuthUser();

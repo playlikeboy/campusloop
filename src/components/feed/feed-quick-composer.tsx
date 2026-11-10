@@ -1,25 +1,25 @@
 "use client";
 
-import { BarChart3, HelpCircle, ImageIcon, Loader2, VenetianMask } from "lucide-react";
+import { BarChart3, HelpCircle, ImageIcon, VenetianMask } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { QuestionSticker } from "@/components/ui/stickers";
 import { MAX_POST_CHARS } from "@/constants";
 import type { FeedPost } from "@/hooks/use-feed";
 import type { useProfile } from "@/hooks/use-profile";
 import { confirmOptimisticPost, optimisticAddPost, revertOptimisticPost } from "@/lib/feed-mutations";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn } from "@/lib/utils";
 
 type Profile = ReturnType<typeof useProfile>["profile"];
 
 const SHORTCUTS = [
-  { type: "NORMAL", icon: ImageIcon, label: "Add photo or video" },
-  { type: "POLL", icon: BarChart3, label: "Create a poll" },
-  { type: "QUESTION", icon: HelpCircle, label: "Ask a question" },
-  { type: "CONFESSION", icon: VenetianMask, label: "Post anonymously" },
+  { type: "NORMAL", icon: ImageIcon, label: "Photo" },
+  { type: "POLL", icon: BarChart3, label: "Poll" },
+  { type: "QUESTION", icon: HelpCircle, label: "Question" },
+  { type: "CONFESSION", icon: VenetianMask, label: "Anonymous" },
 ] as const;
 
 function buildOptimisticPost(text: string, profile: Profile, scope: "CAMPUS" | "GLOBAL"): FeedPost {
@@ -53,7 +53,7 @@ function buildOptimisticPost(text: string, profile: Profile, scope: "CAMPUS" | "
   };
 }
 
-/** Desktop inline composer: type and post plain text, or jump to the full editor. */
+/** Desktop inline composer in the question-box style: type and post plain text, or jump to the full editor. */
 export function FeedQuickComposer({ profile, scope }: { profile: Profile; scope: "CAMPUS" | "GLOBAL" }) {
   const router = useRouter();
   const [text, setText] = useState("");
@@ -89,7 +89,7 @@ export function FeedQuickComposer({ profile, scope }: { profile: Profile; scope:
       });
       if (!res.ok) {
         const err = (await res.json().catch(() => ({}))) as { error?: string };
-        throw new Error(err.error || "Failed to publish post");
+        throw new Error(err.error || "Couldn't post. Try again in a moment.");
       }
       const serverPost = (await res.json()) as { id: string; createdAt?: string | Date };
       confirmOptimisticPost(optimisticPost.id, {
@@ -101,83 +101,46 @@ export function FeedQuickComposer({ profile, scope }: { profile: Profile; scope:
     } catch (err: unknown) {
       revertOptimisticPost(optimisticPost.id);
       setText(trimmed);
-      toast.error(err instanceof Error ? err.message : "Failed to publish post.");
+      toast.error(err instanceof Error ? err.message : "Couldn't post. Check your internet and try again.");
     } finally {
       setIsPosting(false);
     }
   }
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        publish();
-      }}
-      className="hidden md:flex gap-3 border-b border-border/40 px-5 pt-4 pb-3"
-    >
-      <Avatar className="size-10 shrink-0 rounded-full">
-        <AvatarImage src={profile?.avatarUrl || ""} />
-        <AvatarFallback className="bg-muted text-sm font-semibold text-foreground">
-          {profile?.displayName?.[0] || "U"}
-        </AvatarFallback>
-      </Avatar>
-
-      <div className="min-w-0 flex-1">
-        <label htmlFor="feed-quick-composer" className="sr-only">
-          Write a post
-        </label>
-        <textarea
-          id="feed-quick-composer"
-          rows={trimmed ? 3 : 1}
-          placeholder="What's happening on campus?"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-              e.preventDefault();
-              publish();
-            }
-          }}
-          className="w-full resize-none border-0 bg-transparent py-2 text-lg leading-snug text-foreground placeholder:text-muted-foreground outline-none focus:ring-0"
-        />
-
-        <div className="flex items-center justify-between gap-2 pt-1">
-          <div className="-ml-2 flex items-center">
-            {SHORTCUTS.map((shortcut) => (
-              <button
-                key={shortcut.type}
-                type="button"
-                title={shortcut.label}
-                aria-label={shortcut.label}
-                onClick={() => openFullEditor(shortcut.type)}
-                className="flex size-9 items-center justify-center rounded-full text-primary hover:bg-primary/10 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-              >
-                <shortcut.icon className="size-4.5" />
-              </button>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-3">
-            {text.length > MAX_POST_CHARS - 200 && (
-              <span
-                className={cn(
-                  "text-xs tabular-nums",
-                  overLimit ? "text-destructive" : "text-muted-foreground"
-                )}
-              >
-                {MAX_POST_CHARS - text.length}
-              </span>
-            )}
-            <button
-              type="submit"
-              disabled={!canPost}
-              className="flex h-9 min-w-18 items-center justify-center rounded-full bg-foreground px-4 text-sm font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-            >
-              {isPosting ? <Loader2 className="size-4 animate-spin" /> : "Post"}
-            </button>
-          </div>
-        </div>
+    <section aria-label="Write a post" className="hidden md:block border-b border-border px-5 pt-4 pb-3">
+      <QuestionSticker
+        variant="flat"
+        prompt="What's happening on campus?"
+        placeholder="Share a thought, ask something, or start a poll"
+        value={text}
+        onChange={setText}
+        onSubmit={() => publish()}
+        submitLabel="Post"
+        maxLength={MAX_POST_CHARS}
+        loading={isPosting}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+            e.preventDefault();
+            publish();
+          }
+        }}
+      />
+      <div className="mt-2 flex flex-wrap items-center gap-1">
+        {SHORTCUTS.map((shortcut) => (
+          <Button
+            key={shortcut.type}
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => openFullEditor(shortcut.type)}
+            className="text-fg-muted hover:text-fg"
+          >
+            <shortcut.icon className="size-4" aria-hidden />
+            {shortcut.label}
+          </Button>
+        ))}
       </div>
-    </form>
+    </section>
   );
 }

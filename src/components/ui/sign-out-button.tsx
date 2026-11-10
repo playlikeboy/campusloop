@@ -1,13 +1,20 @@
 "use client";
 
-import { Loader2, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { useState } from "react";
+import { Button, type ButtonSize, type ButtonVariant } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 interface SignOutButtonProps {
   className?: string;
   children?: React.ReactNode;
+  /**
+   * "button" renders a kit Button (pick its look with `buttonVariant`),
+   * "icon" a 44px icon button, "menu-item" a full-width row for menus.
+   */
   variant?: "icon" | "button" | "menu-item";
+  buttonVariant?: ButtonVariant;
+  size?: ButtonSize;
   showText?: boolean;
 }
 
@@ -15,11 +22,13 @@ export function SignOutButton({
   className,
   children,
   variant = "button",
+  buttonVariant = "outline",
+  size = "md",
   showText = true,
 }: SignOutButtonProps) {
   const [isSigningOut, setIsSigningOut] = useState(false);
 
-  async function handleSignOut(e: React.MouseEvent) {
+  function handleSignOut(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
     if (isSigningOut) return;
@@ -34,51 +43,49 @@ export function SignOutButton({
 
   if (variant === "icon") {
     return (
-      <button
+      <Button
         type="button"
+        variant="ghost"
+        size="icon"
         onClick={handleSignOut}
-        disabled={isSigningOut}
-        className={cn(
-          "flex size-7 items-center justify-center rounded-full text-muted-foreground hover:text-destructive transition-colors cursor-pointer disabled:opacity-50",
-          className
-        )}
-        title="Sign Out"
+        loading={isSigningOut}
+        className={cn("text-fg-muted hover:text-danger", className)}
         aria-label="Sign out"
       >
-        {isSigningOut ? <Loader2 className="size-3.5 animate-spin" /> : <LogOut className="size-3.5" />}
-      </button>
+        {!isSigningOut && <LogOut aria-hidden />}
+      </Button>
     );
   }
 
   if (variant === "menu-item") {
     return (
-      <button
+      <Button
         type="button"
+        variant="ghost"
         onClick={handleSignOut}
-        disabled={isSigningOut}
+        loading={isSigningOut}
         className={cn(
-          "flex w-full items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-semibold text-destructive hover:bg-destructive/10 transition-colors cursor-pointer text-left disabled:opacity-50",
+          "w-full justify-start rounded-md px-3 font-medium text-danger hover:bg-danger-subtle",
           className
         )}
       >
-        {isSigningOut ? <Loader2 className="size-3.5 animate-spin" /> : <LogOut className="size-3.5" />}
-        {children || <span>Sign Out</span>}
-      </button>
+        {!isSigningOut && <LogOut aria-hidden />}
+        {children || <span>Sign out</span>}
+      </Button>
     );
   }
 
   return (
-    <button
+    <Button
       type="button"
+      variant={buttonVariant}
+      size={size}
       onClick={handleSignOut}
-      disabled={isSigningOut}
-      className={cn(
-        "flex items-center gap-1.5 rounded-full border border-border bg-transparent px-3.5 py-1.5 text-xs font-bold text-fg-muted hover:border-danger/30 hover:bg-danger-subtle hover:text-danger transition-colors cursor-pointer active:scale-95 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
-        className
-      )}
+      loading={isSigningOut}
+      className={className}
     >
-      {isSigningOut ? <Loader2 className="size-3.5 animate-spin" /> : <LogOut className="size-3.5" />}
+      {!isSigningOut && <LogOut aria-hidden />}
       {children || (showText ? <span>Sign out</span> : null)}
-    </button>
+    </Button>
   );
 }

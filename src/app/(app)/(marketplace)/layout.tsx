@@ -3,32 +3,11 @@ import { MarketplaceShellClient } from "@/components/marketplace/marketplace-she
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 import { isViewerProfile } from "@/lib/viewer";
 
+// Pages set their own title and robots. Most marketplace pages need sign-in and are noindex.
 export const metadata: Metadata = {
   title: {
-    default: "Campus Marketplace | Verified Local Canteens, Rentals & Campus Services",
+    default: "Marketplace",
     template: "%s · CampusLoop",
-  },
-  description:
-    "Order food from campus canteens, book bike rentals, schedule barber appointments, get laundry picked up, order 20L water cans, and shop hostel essentials.",
-  openGraph: {
-    title: "CampusLoop Marketplace | Food, Bike Rentals, Barber, Laundry & Essentials",
-    description: "Verified local campus businesses, food delivery, bike rentals, and hostel services.",
-    url: "https://campusloop.space/marketplace",
-    siteName: "CampusLoop Marketplace",
-    images: [
-      {
-        url: "https://campusloop.space/og-marketplace.png",
-        width: 1536,
-        height: 1024,
-        alt: "CampusLoop Marketplace",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "CampusLoop Marketplace | Night Canteens, Rentals & Campus Services",
-    description: "Verified local campus businesses, food delivery, bike rentals, and hostel services.",
-    images: ["https://campusloop.space/og-marketplace.png"],
   },
 };
 

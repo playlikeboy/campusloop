@@ -1,187 +1,134 @@
 "use client";
 
-import { Copy, Download, Printer, QrCode, Zap } from "lucide-react";
+import { Copy, Download, Printer } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
 import { CampusQrCode, generateBrandedQrDataUrl } from "@/components/common/campus-qr-code";
+import { LoadError } from "@/components/merchant/load-error";
+import { MerchantPage } from "@/components/merchant/merchant-page";
+import { copyText, storeUrl } from "@/components/merchant/merchant-utils";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 
 export function MerchantQrClient() {
-  const [isDownloading, setIsDownloading] = useState(false);
-  const { data } = useSWR<{ merchant: any }>("/api/merchant/store", fetcher);
+  const [downloading, setDownloading] = useState(false);
+  const { data, error, isLoading, mutate } = useSWR<{ merchant: any }>("/api/merchant/store", fetcher);
   const merchant = data?.merchant;
+  const targetUrl = merchant ? storeUrl(merchant.id) : "";
 
-  const baseUrl = typeof window !== "undefined" ? window.location.origin : "https://campusloop.space";
-
-  const targetUrl = merchant
-    ? `${baseUrl}/marketplace/store/${merchant.id}`
-    : `${baseUrl}/marketplace`;
-
-  function handleCopyLink() {
-    sounds.tap();
-    haptics.light();
-    navigator.clipboard.writeText(targetUrl);
-    toast.success("Store link copied to clipboard!");
-  }
-
-  function handlePrint() {
-    sounds.tap();
-    haptics.light();
-    window.print();
-  }
-
-  async function handleDownloadQr() {
+  async function handleDownload() {
+    if (!targetUrl) return;
     sounds.tap();
     haptics.success();
-    setIsDownloading(true);
+    setDownloading(true);
     try {
       const dataUrl = await generateBrandedQrDataUrl({
         value: targetUrl,
         size: 1080,
         logoUrl: "/logo.png",
-        // ds-allow: QR modules are rasterised to PNG; the scanner needs pure black on white, not theme tokens
+        // ds-allow: QR modules are rasterised to PNG; scanners need pure black on white, not theme tokens
         darkColor: "#000000",
         // ds-allow: see above
         lightColor: "#ffffff",
       });
-
       const a = document.createElement("a");
       a.href = dataUrl;
       a.download = `${(merchant?.name || "campus-store").toLowerCase().replace(/[^a-z0-9]+/g, "-")}-qr.png`;
       document.body.appendChild(a);
       a.click();
-      document.body.removeChild(a);
-      toast.success("High-res QR Code PNG downloaded!");
+      a.remove();
+      toast.success("QR code saved to your downloads");
     } catch {
-      toast.error("Failed to generate QR download");
+      toast.error("Couldn't make the QR image. Try again, or print this page instead.");
     } finally {
-      setIsDownloading(false);
+      setDownloading(false);
     }
   }
 
   return (
-    <main className="max-w-2xl mx-auto p-4 space-y-6 select-none pb-24">
-      {/* ─── Printable CSS Injection ─── */}
+    <MerchantPage
+      width="narrow"
+      title="QR poster"
+      description="Print it for your counter. Students scan it to see your menu and order."
+      className="print:max-w-none"
+    >
       <style jsx global>{`
         @media print {
           body * {
             visibility: hidden;
           }
-          #printable-qr-poster, #printable-qr-poster * {
+          #qr-poster,
+          #qr-poster * {
             visibility: visible;
           }
-          #printable-qr-poster {
+          #qr-poster {
             position: absolute;
-            left: 0;
-            top: 0;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: white !important;
-            color: black !important;
-            border: none !important;
+            inset: 0;
+            margin: auto;
             box-shadow: none !important;
-            padding: 40px !important;
-          }
-          .no-print {
-            display: none !important;
+            transform: none !important;
           }
         }
       `}</style>
 
-      <div className="no-print">
-        <h1 className="text-xl font-bold text-foreground tracking-tight flex items-center gap-2">
-          <QrCode className="size-5 text-primary" />
-          <span>Offline QR Codes &amp; Table Posters</span>
-          <Zap className="size-4 text-primary animate-pulse" />
-        </h1>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          Print ultra high-resolution table standees and counter checkout posters with embedded CampusLoop
-          crest
-        </p>
-      </div>
-
-      {/* ─── QR Code Poster Card ─── */}
-      <div
-        id="printable-qr-poster"
-        className="p-8 rounded-3xl bg-card border border-border flex flex-col items-center text-center space-y-5 shadow-xl max-w-sm mx-auto transition-colors"
-      >
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-center gap-2 pb-0.5">
-            <img src="/logo.png" alt="CampusLoop" className="size-5 object-contain" />
-            <span className="text-xs font-bold tracking-tight text-foreground">
-              Campus<span className="text-primary">Loop</span>
-            </span>
+      {error && !merchant ? (
+        <LoadError what="your store link" onRetry={mutate} />
+      ) : isLoading || !merchant ? (
+        <Skeleton className="mx-auto h-[26rem] w-full max-w-xs rounded-sticker" />
+      ) : (
+        <div
+          id="qr-poster"
+          className="sticker-pop mx-auto flex max-w-xs flex-col items-center gap-4 rounded-sticker border border-sticker-border bg-sticker p-6 text-center text-sticker-fg shadow-sticker"
+        >
+          <div className="flex items-center gap-2">
+            <img src="/logo.png" alt="" className="size-6 object-contain" />
+            <span className="font-display text-sm font-bold">CampusLoop</span>
           </div>
-          <span className="text-[10px] font-bold text-success bg-success-subtle px-3 py-1 rounded-full border border-success/25 inline-block">
-            Verified Campus Partner
-          </span>
-          <h2 className="text-xl font-bold text-foreground pt-1">{merchant?.name || "Campus Store"}</h2>
-          <p className="text-xs text-muted-foreground font-medium">
-            Scan with camera to view live menu &amp; order
-          </p>
-        </div>
-
-        {/* Dynamic High-Res Branded QR Code */}
-        <div className="p-3 rounded-2xl bg-white border border-border shadow-inner">
-          <CampusQrCode
-            value={targetUrl}
-            size={220}
-            logoUrl="/logo.png"
-            bordered={false}
-            // ds-allow: QR modules must stay pure black for scanners
-            darkColor="#000000"
-          />
-        </div>
-
-        <div className="space-y-1 text-center">
-          <p className="text-xs font-bold text-foreground inline-flex items-center gap-1">
-            <Zap className="size-3 text-warning fill-warning" />
-            <span>Quick Order · Instant Campus Delivery &amp; Pickup</span>
-          </p>
-          <p className="text-[10px] text-muted-foreground font-medium">
-            Powered by CampusLoop Marketplace · campusloop.space
-          </p>
-        </div>
-
-        {/* Action Buttons (Hidden when printing) */}
-        <div className="no-print flex flex-col gap-2 w-full pt-2">
-          <div className="flex items-center gap-2 w-full">
-            <button
-              type="button"
-              onClick={handlePrint}
-              className="flex-1 h-11 rounded-2xl bg-foreground text-background font-bold text-xs flex items-center justify-center gap-2 cursor-pointer hover:opacity-90 transition-opacity shadow-sm active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              <Printer className="size-4" />
-              <span>Print Poster</span>
-            </button>
-
-            <button
-              type="button"
-              disabled={isDownloading}
-              onClick={handleDownloadQr}
-              className="flex-1 h-11 rounded-2xl bg-primary/10 text-primary border border-primary/20 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer hover:bg-primary/20 transition-colors active:scale-95 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              <Download className="size-4" />
-              <span>Download PNG</span>
-            </button>
+          <h2 className="sticker-caption text-2xl leading-tight">{merchant.name}</h2>
+          <div className="rounded-md bg-surface p-2">
+            <CampusQrCode
+              value={targetUrl}
+              size={220}
+              logoUrl="/logo.png"
+              bordered={false}
+              // ds-allow: QR modules must stay pure black for scanners
+              darkColor="#000000"
+            />
           </div>
-
-          <button
-            type="button"
-            onClick={handleCopyLink}
-            className="w-full h-10 rounded-xl bg-muted hover:bg-muted/80 text-foreground font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-          >
-            <Copy className="size-3.5" />
-            <span>Copy Store Link</span>
-          </button>
+          <p className="text-base font-semibold">Scan to see the menu and order</p>
+          <p className="text-sm text-fg-muted">campusloop.space</p>
         </div>
+      )}
+
+      <div className="mx-auto flex max-w-xs flex-col gap-2 print:hidden">
+        <Button
+          size="lg"
+          disabled={!merchant}
+          onClick={() => {
+            sounds.tap();
+            window.print();
+          }}
+        >
+          <Printer />
+          Print poster
+        </Button>
+        <Button variant="outline" loading={downloading} disabled={!merchant} onClick={handleDownload}>
+          <Download />
+          Download QR image
+        </Button>
+        <Button
+          variant="ghost"
+          disabled={!merchant}
+          onClick={() => void copyText(targetUrl, "Store link copied")}
+        >
+          <Copy />
+          Copy store link
+        </Button>
       </div>
-    </main>
+    </MerchantPage>
   );
 }

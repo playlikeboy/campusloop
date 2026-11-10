@@ -1,7 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { type ReactNode, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
@@ -32,6 +32,7 @@ export function DrawerPanel({
   children: ReactNode;
   className?: string;
 }) {
+  const reduceMotion = useReducedMotion();
   const closeRef = useRef<HTMLButtonElement>(null);
   const restoreFocus = useRef<HTMLElement | null>(null);
 
@@ -75,9 +76,11 @@ export function DrawerPanel({
             initial={{ x: "-100%" }}
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
-            transition={{ type: "spring", damping: 32, stiffness: 320 }}
+            transition={
+              reduceMotion ? { duration: 0 } : { type: "tween", duration: 0.32, ease: [0.16, 1, 0.3, 1] }
+            }
             className={cn(
-              "fixed inset-y-0 left-0 z-[var(--z-modal)] flex w-[86%] max-w-sm flex-col bg-surface shadow-lg",
+              "fixed inset-y-0 left-0 z-[var(--z-modal)] flex w-[86%] max-w-sm flex-col rounded-r-xl bg-surface-raised shadow-lg",
               hideFrom,
               "pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]",
               className
@@ -89,7 +92,7 @@ export function DrawerPanel({
                 ref={closeRef}
                 type="button"
                 onClick={onClose}
-                className="flex size-11 shrink-0 items-center justify-center rounded-md text-fg-muted hover:bg-surface-muted hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="flex size-11 shrink-0 items-center justify-center rounded-full text-fg-muted transition-ui hover:bg-surface-muted hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 aria-label="Close menu"
               >
                 <X className="size-5" />
@@ -106,7 +109,7 @@ export function DrawerPanel({
   );
 }
 
-/** One row in a drawer section. 44px tap target, tonal active state with a leading bar. */
+/** One row in a drawer section. 44px tap target, tonal violet active state. */
 export function DrawerLink({
   href,
   label,
@@ -127,9 +130,9 @@ export function DrawerLink({
   external?: boolean;
 }) {
   const className = cn(
-    "group relative flex min-h-11 items-center gap-3 rounded-md px-3 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+    "group relative flex min-h-11 items-center gap-3 rounded-full px-3 text-[0.9375rem] font-medium transition-ui focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
     active
-      ? "bg-brand-subtle text-brand-text"
+      ? "bg-brand-subtle font-semibold text-brand-text"
       : tone === "primary"
         ? "text-brand-text hover:bg-brand-subtle"
         : tone === "danger"
@@ -138,8 +141,12 @@ export function DrawerLink({
   );
   const content = (
     <>
-      {active && <span className="absolute inset-y-2.5 left-0 w-0.5 rounded-full bg-brand" aria-hidden="true" />}
-      <Icon className={cn("size-5 shrink-0", !active && tone === "default" && "text-fg-muted group-hover:text-fg")} />
+      <Icon
+        className={cn(
+          "size-5 shrink-0",
+          !active && tone === "default" && "text-fg-muted group-hover:text-fg"
+        )}
+      />
       <span className="min-w-0 flex-1 truncate">{label}</span>
       {badge}
     </>
@@ -154,7 +161,13 @@ export function DrawerLink({
   }
 
   return (
-    <Link href={href} prefetch onClick={onNavigate} aria-current={active ? "page" : undefined} className={className}>
+    <Link
+      href={href}
+      prefetch
+      onClick={onNavigate}
+      aria-current={active ? "page" : undefined}
+      className={className}
+    >
       {content}
     </Link>
   );
@@ -163,7 +176,7 @@ export function DrawerLink({
 export function DrawerSection({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="mt-5 first:mt-1">
-      <h3 className="px-3 pb-1.5 text-xs font-semibold text-fg-subtle">{title}</h3>
+      <h3 className="px-3 pb-1 font-display text-sm font-bold text-fg">{title}</h3>
       <div className="space-y-0.5">{children}</div>
     </section>
   );

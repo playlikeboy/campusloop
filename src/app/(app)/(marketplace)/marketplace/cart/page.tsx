@@ -1,13 +1,10 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { privateMetadata } from "@/lib/seo";
 import { getCachedAuthUser } from "@/lib/server-cache";
 import { CartClient } from "./cart-client";
 
-export const metadata: Metadata = {
-  title: "Your Cart | Campus Marketplace",
-  description: "Review items in your campus marketplace cart and proceed to checkout.",
-  robots: { index: false, follow: false },
-};
+export const metadata: Metadata = privateMetadata("Your cart");
 
 export default async function CartPage() {
   const user = await getCachedAuthUser();

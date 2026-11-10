@@ -1,12 +1,17 @@
 "use client";
 
-import { Bookmark, ChevronLeft, ChevronRight, Heart, Loader2, Plus, Send, Share2, X } from "lucide-react";
+import { Bookmark, ChevronLeft, ChevronRight, Heart, Loader2, Send, Share2, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { decodeStoryText, splitStoryClasses } from "@/components/stories/story-format";
+import { StoryHighlightDialog } from "@/components/stories/story-highlight-dialog";
+import { StoryStickerStack } from "@/components/stories/story-stickers";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { StoryProgress } from "@/components/ui/stickers";
 import { haptics } from "@/lib/haptics";
+import { SITE_URL } from "@/lib/seo";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
 
@@ -33,6 +38,18 @@ interface StoryViewerClientProps {
   initialLikesCount?: number;
 }
 
+const STORY_MS = 7000;
+
+const glassless =
+  "flex size-11 cursor-pointer items-center justify-center rounded-full bg-black/45 text-white transition-ui hover:bg-black/65 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white";
+
+function timeAgo(iso: string) {
+  const mins = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
+  if (mins < 1) return "now";
+  if (mins < 60) return `${mins}m`;
+  return `${Math.round(mins / 60)}h`;
+}
+
 export function StoryViewerClient({
   story,
   prevStoryId,
@@ -46,157 +63,85 @@ export function StoryViewerClient({
 
   const [liked, setLiked] = useState(initialLiked);
   const [likesCount, setLikesCount] = useState(initialLikesCount);
-  const [showHeartBurst, setShowHeartBurst] = useState(false);
+  const [showHeart, setShowHeart] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [isReplying, setIsReplying] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+  const [isHeld, setIsHeld] = useState(false);
+  const [showHighlightDialog, setShowHighlightDialog] = useState(false);
+  const [posted, setPosted] = useState("");
 
-  // Touch Swipe Gesture Tracking
-  const touchStartX = useRef<number | null>(null);
-  const touchStartY = useRef<number | null>(null);
-  const touchStartTime = useRef<number>(0);
+  const touchStart = useRef<{ x: number; y: number; t: number } | null>(null);
 
-  // Highlights Modal State
-  const [showHighlightModal, setShowHighlightModal] = useState(false);
-  const [highlights, setHighlights] = useState<{ id: string; title: string; coverUrl?: string | null }[]>([]);
-  const [isLoadingHighlights, setIsLoadingHighlights] = useState(false);
-  const [newHighlightTitle, setNewHighlightTitle] = useState("");
-  const [isSavingHighlight, setIsSavingHighlight] = useState(false);
+  const { background, text: textClasses } = splitStoryClasses(story.backgroundColor);
+  const { stickers, body } = decodeStoryText(story.text);
+  const paused = isHeld || replyText.trim().length > 0 || showHighlightDialog;
 
-  const navigatePrev = useCallback(() => {
-    if (prevStoryId) {
-      sounds.pop();
+  useEffect(() => setPosted(timeAgo(story.createdAt)), [story.createdAt]);
+
+  const go = useCallback(
+    (id: string | null | undefined) => {
       haptics.light();
-      router.push(`/story/${prevStoryId}`);
-    } else {
-      sounds.tap();
-      haptics.light();
-      router.push("/feeds");
-    }
-  }, [prevStoryId, router]);
+      if (id) {
+        sounds.pop();
+        router.push(`/story/${id}`);
+      } else {
+        sounds.tap();
+        router.push("/feeds");
+      }
+    },
+    [router]
+  );
+  const navigatePrev = useCallback(() => go(prevStoryId), [go, prevStoryId]);
+  const navigateNext = useCallback(() => go(nextStoryId), [go, nextStoryId]);
+  const closeViewer = useCallback(() => go(null), [go]);
 
-  const navigateNext = useCallback(() => {
-    if (nextStoryId) {
-      sounds.pop();
-      haptics.light();
-      router.push(`/story/${nextStoryId}`);
-    } else {
-      sounds.tap();
-      haptics.light();
-      router.push("/feeds");
-    }
-  }, [nextStoryId, router]);
-
-  const closeViewer = useCallback(() => {
-    sounds.tap();
-    haptics.light();
-    router.push("/feeds");
-  }, [router]);
-
-  // Auto-progress bar timer & auto-advance (pauses on touch/mouse hold or when typing)
-  useEffect(() => {
-    setProgress(0);
-    const interval = 50;
-    const duration = 7000; // 7 seconds
-    const step = (interval / duration) * 100;
-
-    const timer = setInterval(() => {
-      if (isPaused || replyText.trim().length > 0 || showHighlightModal) return;
-
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(timer);
-          navigateNext();
-          return 100;
-        }
-        return prev + step;
-      });
-    }, interval);
-
-    return () => clearInterval(timer);
-  }, [isPaused, replyText, showHighlightModal, navigateNext]);
-
-  // Keyboard navigation
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      if (replyText.length > 0 || showHighlightModal) return;
-
-      if (e.key === "ArrowLeft") {
-        navigatePrev();
-      } else if (e.key === "ArrowRight" || e.key === " ") {
-        navigateNext();
-      } else if (e.key === "Escape") {
-        closeViewer();
-      }
+      if (replyText.length > 0 || showHighlightDialog) return;
+      const el = e.target as HTMLElement | null;
+      if (el?.closest("input, textarea, [contenteditable='true']")) return;
+      if (e.key === "ArrowLeft") navigatePrev();
+      else if (e.key === "ArrowRight") navigateNext();
+      else if (e.key === "Escape") closeViewer();
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [navigatePrev, navigateNext, closeViewer, replyText, showHighlightModal]);
+  }, [navigatePrev, navigateNext, closeViewer, replyText, showHighlightDialog]);
 
-  // Touch Swipe Handlers
   function handleTouchStart(e: React.TouchEvent) {
-    setIsPaused(true);
-    touchStartX.current = e.touches[0].clientX;
-    touchStartY.current = e.touches[0].clientY;
-    touchStartTime.current = Date.now();
+    setIsHeld(true);
+    touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now() };
   }
 
   function handleTouchEnd(e: React.TouchEvent) {
-    if (!replyText.trim()) setIsPaused(false);
+    setIsHeld(false);
+    const start = touchStart.current;
+    touchStart.current = null;
+    if (!start) return;
+    const dx = e.changedTouches[0].clientX - start.x;
+    const dy = e.changedTouches[0].clientY - start.y;
 
-    if (touchStartX.current === null || touchStartY.current === null) return;
-    const touchEndX = e.changedTouches[0].clientX;
-    const touchEndY = e.changedTouches[0].clientY;
-    const deltaX = touchEndX - touchStartX.current;
-    const deltaY = touchEndY - touchStartY.current;
-    const duration = Date.now() - touchStartTime.current;
-
-    touchStartX.current = null;
-    touchStartY.current = null;
-
-    // Swipe down to dismiss
-    if (deltaY > 80 && Math.abs(deltaY) > Math.abs(deltaX)) {
-      closeViewer();
-      return;
-    }
-
-    // Horizontal swipes
-    if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY)) {
-      if (deltaX < 0) {
-        // Swiped Left -> Next story
-        navigateNext();
-      } else {
-        // Swiped Right -> Prev story
-        navigatePrev();
-      }
-      return;
-    }
-
-    // Fast Tap detection (< 250ms and small displacement)
-    if (duration < 250 && Math.abs(deltaX) < 15 && Math.abs(deltaY) < 15) {
-      const screenWidth = window.innerWidth;
-      const tapX = touchEndX;
-      if (tapX < screenWidth * 0.35) {
-        navigatePrev();
-      } else {
-        navigateNext();
-      }
+    if (dy > 80 && Math.abs(dy) > Math.abs(dx)) return closeViewer();
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) return dx < 0 ? navigateNext() : navigatePrev();
+    if (Date.now() - start.t < 250 && Math.abs(dx) < 15 && Math.abs(dy) < 15) {
+      const target = e.target as HTMLElement;
+      if (target.closest("a,button,input,form")) return;
+      if (e.changedTouches[0].clientX < window.innerWidth * 0.35) navigatePrev();
+      else navigateNext();
     }
   }
 
   async function handleLike() {
     const nextLiked = !liked;
-    const nextCount = nextLiked ? likesCount + 1 : Math.max(0, likesCount - 1);
-
+    const prevCount = likesCount;
     setLiked(nextLiked);
-    setLikesCount(nextCount);
+    setLikesCount(nextLiked ? prevCount + 1 : Math.max(0, prevCount - 1));
 
     if (nextLiked) {
       sounds.pop();
       haptics.heartbeat();
-      setShowHeartBurst(true);
-      setTimeout(() => setShowHeartBurst(false), 900);
+      setShowHeart(true);
+      setTimeout(() => setShowHeart(false), 700);
     } else {
       haptics.light();
     }
@@ -211,28 +156,29 @@ export function StoryViewerClient({
       }
     } catch {
       setLiked(!nextLiked);
-      setLikesCount(likesCount);
+      setLikesCount(prevCount);
+      toast.error("Couldn't save your like. Check your connection.");
     }
   }
 
   async function handleShare() {
     sounds.tap();
     haptics.light();
-    const url = `https://campusloop.space/story/${story.id}`;
-    if (typeof window !== "undefined" && navigator.share) {
+    const url = `${SITE_URL}/story/${story.id}`;
+    if (typeof navigator !== "undefined" && navigator.share) {
       try {
-        await navigator.share({
-          title: `${story.author.displayName}'s Campus Vibe`,
-          text: `Check out this 24h campus vibe from @${story.author.username} on CampusLoop:`,
-          url,
-        });
+        await navigator.share({ title: `${story.author.displayName}'s story`, url });
         return;
       } catch (err) {
         if ((err as Error).name === "AbortError") return;
       }
     }
-    navigator.clipboard.writeText(url);
-    toast.success("Story link copied to clipboard!");
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copied");
+    } catch {
+      toast.error("Couldn't copy the link.");
+    }
   }
 
   async function handleSendReply(e: React.FormEvent) {
@@ -243,7 +189,7 @@ export function StoryViewerClient({
     haptics.success();
     setIsReplying(true);
     try {
-      const res = await fetch(`/api/chat`, {
+      const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -251,363 +197,190 @@ export function StoryViewerClient({
           content: `Replied to your story: "${replyText.trim()}"`,
         }),
       });
-
-      if (!res.ok) {
-        throw new Error("Failed to send message");
-      }
-
-      toast.success(`Reply sent to @${story.author.username}!`);
+      if (!res.ok) throw new Error();
+      toast.success(`Sent to @${story.author.username}`);
       setReplyText("");
-      setIsPaused(false);
     } catch {
-      toast.error("Could not send reply. Try messaging directly.");
+      toast.error("Couldn't send your reply. Try again, or message them from Chat.");
     } finally {
       setIsReplying(false);
     }
   }
 
-  async function openHighlightModal() {
-    setIsPaused(true);
-    setShowHighlightModal(true);
-    setIsLoadingHighlights(true);
-    try {
-      const res = await fetch("/api/highlights");
-      if (res.ok) {
-        const data = (await res.json()) as { id: string; title: string; coverUrl?: string | null }[];
-        setHighlights(data);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsLoadingHighlights(false);
-    }
-  }
-
-  async function handleAddToExistingHighlight(highlightId: string, currentStoryIds: string[] = []) {
-    setIsSavingHighlight(true);
-    try {
-      const updatedStoryIds = Array.from(new Set([...currentStoryIds, story.id]));
-      const res = await fetch(`/api/highlights`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: highlights.find((h) => h.id === highlightId)?.title || "Highlight",
-          storyIds: updatedStoryIds,
-        }),
-      });
-
-      if (!res.ok) throw new Error();
-      toast.success("Added to Highlight! ⭐");
-      setShowHighlightModal(false);
-      setIsPaused(false);
-    } catch {
-      toast.error("Failed to add to highlight");
-    } finally {
-      setIsSavingHighlight(false);
-    }
-  }
-
-  async function handleCreateNewHighlight(e: React.FormEvent) {
-    e.preventDefault();
-    if (!newHighlightTitle.trim() || isSavingHighlight) return;
-
-    setIsSavingHighlight(true);
-    try {
-      const res = await fetch(`/api/highlights`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: newHighlightTitle.trim(),
-          coverUrl: story.mediaUrl || null,
-          storyIds: [story.id],
-        }),
-      });
-
-      if (!res.ok) throw new Error();
-      toast.success(`Created highlight "${newHighlightTitle}"!`);
-      setShowHighlightModal(false);
-      setNewHighlightTitle("");
-      setIsPaused(false);
-    } catch {
-      toast.error("Failed to create highlight");
-    } finally {
-      setIsSavingHighlight(false);
-    }
-  }
-
-  const bgClass = story.backgroundColor || "bg-black";
-
   return (
-    <div className="dark fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-95 md:bg-opacity-85 backdrop-blur-md select-none p-0 md:p-4 touch-manipulation">
-      {/* Prev Arrow Control (Desktop & Tablet) */}
+    <div className="dark fixed inset-0 z-50 flex touch-manipulation select-none items-center justify-center bg-black md:p-4">
       <button
+        type="button"
         onClick={navigatePrev}
-        className="hidden md:flex h-12 w-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white items-center justify-center cursor-pointer transition-transform mr-4 shadow-lg active:scale-90"
-        aria-label="Previous story"
+        className={cn(glassless, "mr-4 hidden md:flex")}
+        aria-label={prevStoryId ? "Previous story" : "Back to feed"}
       >
-        <ChevronLeft className="size-6" />
+        <ChevronLeft className="size-6" aria-hidden />
       </button>
 
-      {/* Story Mobile Container Canvas */}
-      <div
-        className="relative w-full h-full md:h-[680px] md:w-[390px] md:rounded-3xl overflow-hidden shadow-2xl flex flex-col justify-between"
-        onMouseDown={() => setIsPaused(true)}
-        onMouseUp={() => {
-          if (!replyText.trim()) setIsPaused(false);
-        }}
+      <article
+        aria-label={`Story by ${story.author.displayName}`}
+        className={cn(
+          "relative flex h-full w-full flex-col justify-between overflow-hidden text-white md:h-[min(92dvh,844px)] md:w-[min(430px,100vw)] md:rounded-xl",
+          story.mediaUrl ? "bg-black" : background
+        )}
+        onMouseDown={() => setIsHeld(true)}
+        onMouseUp={() => setIsHeld(false)}
+        onMouseLeave={() => setIsHeld(false)}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         onDoubleClick={handleLike}
       >
-        {/* Visual Background: Image or Vibrant Gradient */}
-        {story.mediaUrl ? (
+        {story.mediaUrl && (
           <img
             src={story.mediaUrl}
-            alt="Story Media"
-            className="absolute inset-0 w-full h-full object-cover z-0"
+            alt={body ? `Story photo: ${body.slice(0, 80)}` : `Story photo from ${story.author.displayName}`}
+            className="absolute inset-0 z-0 h-full w-full object-cover"
           />
-        ) : (
-          <div className={cn("absolute inset-0 w-full h-full z-0", bgClass)} />
         )}
 
-        {/* Dark Vignette Overlay for Crisp Readability */}
-        <div className="absolute inset-0 bg-linear-to-b from-black/65 via-transparent to-black/85 z-10 pointer-events-none" />
-
-        {/* Double-Click Animated Floating Heart Burst */}
-        {showHeartBurst && (
-          <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none animate-in zoom-in-75 fade-in duration-200">
-            <Heart className="size-28 text-danger fill-danger scale-110 transition-transform" />
+        {showHeart && (
+          <div
+            className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center"
+            aria-hidden
+          >
+            <Heart className="sticker-pop size-28 fill-danger text-danger" />
           </div>
         )}
 
-        {/* ─── Top Header: Progress Bars & Author Profile ─── */}
-        <div className="relative z-20 p-3 pt-[max(0.75rem,env(safe-area-inset-top))] flex flex-col gap-2.5 w-full pointer-events-auto">
-          {/* Segmented Progress Bar */}
-          <div className="w-full h-1 bg-white/25 rounded-full overflow-hidden backdrop-blur-xs">
-            <div
-              className="h-full bg-white transition-colors duration-75 ease-linear rounded-full"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
+        {/* Progress + author */}
+        <header className="relative z-20 flex w-full flex-col gap-3 bg-linear-to-b from-black/50 to-transparent p-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+          <StoryProgress
+            key={story.id}
+            count={1}
+            current={0}
+            duration={STORY_MS}
+            paused={paused}
+            onComplete={navigateNext}
+            tone="onField"
+          />
 
-          {/* Author Header */}
-          <div className="flex items-center justify-between w-full">
+          <div className="flex w-full items-center justify-between gap-2">
             <Link
               href={`/@${story.author.username}`}
-              className="flex items-center gap-2.5 hover:opacity-90 transition-opacity"
+              className="flex min-w-0 items-center gap-2.5 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
             >
-              <Avatar className="h-9 w-9 border-2 border-white/40 shadow-md">
-                <AvatarImage src={story.author.avatarUrl || ""} />
-                <AvatarFallback className="text-xs font-bold bg-surface text-primary">
+              <Avatar className="size-9">
+                <AvatarImage src={story.author.avatarUrl || ""} alt="" />
+                <AvatarFallback className="bg-sticker text-sm font-semibold text-sticker-fg">
                   {story.author.displayName[0]}
                 </AvatarFallback>
               </Avatar>
-              <div>
-                <p className="text-xs font-black text-white flex items-center gap-1 leading-tight">
-                  <span>{story.author.displayName}</span>
-                  {story.author.institution && (
-                    <span className="text-[10px] font-normal text-white/80">
-                      • {story.author.institution.name.split(",")[0]}
-                    </span>
-                  )}
-                </p>
-                <p className="text-[10px] text-white/70">@{story.author.username}</p>
-              </div>
+              <span className="min-w-0 leading-tight">
+                <span className="block truncate text-sm font-semibold">
+                  {story.author.displayName}
+                  {posted && <span className="font-normal text-white/80"> · {posted}</span>}
+                </span>
+                {story.author.institution && (
+                  <span className="block truncate text-xs text-white/80">
+                    {story.author.institution.name.split(",")[0]}
+                  </span>
+                )}
+              </span>
             </Link>
 
-            {/* Close Button */}
-            <button
-              onClick={closeViewer}
-              className="h-8 w-8 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center backdrop-blur-md cursor-pointer transition-colors active:scale-90"
-              aria-label="Close story"
-            >
-              <X className="size-4.5" />
+            <button type="button" onClick={closeViewer} className={glassless} aria-label="Close story">
+              <X className="size-5" aria-hidden />
             </button>
           </div>
-        </div>
+        </header>
 
-        {/* ─── Story Text & Interactive Stickers Content ─── */}
-        <div className="relative z-20 flex-1 flex items-center justify-center p-6 text-center pointer-events-none">
-          {story.text && (
-            <div className="max-w-[320px] space-y-3">
-              <p
-                className={cn(
-                  "text-xl sm:text-2xl font-black tracking-tight leading-relaxed break-words whitespace-pre-wrap drop-shadow-2xl text-white",
-                  story.mediaUrl
-                    ? "bg-black/50 px-4 py-2.5 rounded-2xl backdrop-blur-md border border-white/15 inline-block"
-                    : ""
-                )}
-              >
-                {story.text}
-              </p>
-            </div>
+        {/* Story content */}
+        <div className="pointer-events-none relative z-20 flex flex-1 flex-col items-center justify-center gap-4 px-6 py-4">
+          <StoryStickerStack stickers={stickers} linkMentions />
+          {body && (
+            <p
+              className={cn(
+                "w-full max-w-[22rem] whitespace-pre-wrap break-words leading-tight",
+                textClasses || "sticker-caption text-center text-2xl",
+                story.mediaUrl && "rounded-lg bg-black/55 px-4 py-3"
+              )}
+            >
+              {body}
+            </p>
           )}
         </div>
 
-        {/* ─── Mobile Tap / Arrow Floating Guides ─── */}
-        <div className="absolute inset-y-24 left-0 w-1/3 z-15 cursor-pointer opacity-0 hover:opacity-10 transition-opacity flex items-center pl-2 pointer-events-auto">
-          <div
-            onClick={navigatePrev}
-            className="h-10 w-10 rounded-full bg-black/30 text-white flex items-center justify-center backdrop-blur-xs"
-          >
-            <ChevronLeft className="size-5" />
-          </div>
-        </div>
-        <div className="absolute inset-y-24 right-0 w-1/3 z-15 cursor-pointer opacity-0 hover:opacity-10 transition-opacity flex items-center justify-end pr-2 pointer-events-auto">
-          <div
-            onClick={navigateNext}
-            className="h-10 w-10 rounded-full bg-black/30 text-white flex items-center justify-center backdrop-blur-xs"
-          >
-            <ChevronRight className="size-5" />
-          </div>
-        </div>
-
-        {/* ─── Bottom Actions Bar (Reply / Like / Share / Highlight) ─── */}
-        <div className="relative z-20 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] flex items-center gap-2 w-full bg-linear-to-t from-black/80 to-transparent pointer-events-auto">
+        {/* Reply / like / share */}
+        <footer className="relative z-20 flex w-full items-center gap-2 bg-linear-to-t from-black/50 to-transparent p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
           {!isOwner ? (
-            <form onSubmit={handleSendReply} className="flex-1 relative flex items-center">
+            <form onSubmit={handleSendReply} className="relative flex flex-1 items-center">
+              <label htmlFor="story-reply" className="sr-only">
+                Reply to {story.author.displayName}
+              </label>
               <input
+                id="story-reply"
                 type="text"
-                placeholder={`Reply to ${story.author.displayName.split(" ")[0]}...`}
+                placeholder={`Reply to ${story.author.displayName.split(" ")[0]}…`}
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
-                onFocus={() => setIsPaused(true)}
-                onBlur={() => {
-                  if (!replyText.trim()) setIsPaused(false);
-                }}
-                className="w-full h-10 rounded-full bg-white/15 border border-white/20 pl-4 pr-10 text-xs text-white placeholder:text-white/60 focus:outline-none focus:border-white/60 backdrop-blur-md transition-colors"
+                maxLength={500}
+                className="h-11 w-full rounded-full border border-white/50 bg-black/35 pr-12 pl-4 text-sm text-white caret-white transition-ui placeholder:text-white/75 focus:border-white focus:outline-none"
               />
               <button
                 type="submit"
                 disabled={!replyText.trim() || isReplying}
-                className="absolute right-1.5 h-7 w-7 rounded-full bg-white text-black flex items-center justify-center disabled:opacity-0 transition-opacity cursor-pointer active:scale-90"
+                aria-label="Send reply"
+                className="absolute right-0.5 flex size-10 cursor-pointer items-center justify-center rounded-full bg-sticker text-sticker-fg transition-ui disabled:opacity-0"
               >
-                {isReplying ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
+                {isReplying ? (
+                  <Loader2 className="size-4 animate-spin" aria-hidden />
+                ) : (
+                  <Send className="size-4" aria-hidden />
+                )}
               </button>
             </form>
           ) : (
             <div className="flex-1">
               <button
-                onClick={openHighlightModal}
-                className="flex items-center gap-1.5 h-10 px-4 rounded-full bg-white/15 border border-white/20 text-xs font-bold text-white hover:bg-white/25 backdrop-blur-md transition-colors cursor-pointer active:scale-95"
+                type="button"
+                onClick={() => setShowHighlightDialog(true)}
+                className="inline-flex h-11 cursor-pointer items-center gap-2 rounded-full bg-black/45 px-4 text-sm font-semibold text-white transition-ui hover:bg-black/65 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
               >
-                <Bookmark className="size-3.5" />
-                <span>Add to Highlight</span>
+                <Bookmark className="size-4" aria-hidden />
+                Add to highlight
               </button>
             </div>
           )}
 
-          {/* Like Button */}
           <button
+            type="button"
             onClick={handleLike}
-            className={cn(
-              "h-10 px-3 rounded-full flex items-center gap-1.5 backdrop-blur-md transition-transform active:scale-90 cursor-pointer",
-              liked
-                ? "bg-danger/30 border border-danger/50 text-danger"
-                : "bg-white/15 border border-white/20 text-white hover:bg-white/25"
-            )}
+            aria-pressed={liked}
+            aria-label={liked ? "Unlike story" : "Like story"}
+            className={cn(glassless, "w-auto min-w-11 gap-1.5 px-3")}
           >
-            <Heart
-              className={cn(
-                "size-4.5 transition-transform",
-                liked && "fill-danger text-danger scale-110"
-              )}
-            />
-            {likesCount > 0 && <span className="text-xs font-bold">{likesCount}</span>}
+            <Heart className={cn("size-5", liked && "fill-danger text-danger")} aria-hidden />
+            {likesCount > 0 && <span className="text-sm font-semibold tabular-nums">{likesCount}</span>}
           </button>
 
-          {/* Share Button */}
-          <button
-            onClick={handleShare}
-            className="h-10 w-10 rounded-full bg-white/15 border border-white/20 text-white hover:bg-white/25 flex items-center justify-center backdrop-blur-md transition-colors active:scale-90 cursor-pointer"
-            aria-label="Share story"
-          >
-            <Share2 className="size-4" />
+          <button type="button" onClick={handleShare} className={glassless} aria-label="Share story">
+            <Share2 className="size-5" aria-hidden />
           </button>
-        </div>
-      </div>
+        </footer>
+      </article>
 
-      {/* Next Arrow Control (Desktop & Tablet) */}
       <button
+        type="button"
         onClick={navigateNext}
-        className="hidden md:flex h-12 w-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white items-center justify-center cursor-pointer transition-transform ml-4 shadow-lg active:scale-90"
-        aria-label="Next story"
+        className={cn(glassless, "ml-4 hidden md:flex")}
+        aria-label={nextStoryId ? "Next story" : "Back to feed"}
       >
-        <ChevronRight className="size-6" />
+        <ChevronRight className="size-6" aria-hidden />
       </button>
 
-      {/* ─── Highlights Management Modal ─── */}
-      {showHighlightModal && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
-          <div className="bg-surface border border-border w-full max-w-sm rounded-3xl p-5 text-fg space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold flex items-center gap-1.5">
-                <Bookmark className="size-4 text-brand-text" />
-                <span>Story Highlights</span>
-              </h3>
-              <button
-                onClick={() => {
-                  setShowHighlightModal(false);
-                  setIsPaused(false);
-                }}
-                className="h-7 w-7 rounded-full bg-surface-muted hover:bg-surface-muted flex items-center justify-center text-fg-subtle hover:text-fg"
-              >
-                <X className="size-4" />
-              </button>
-            </div>
-
-            {/* Existing Highlights */}
-            {isLoadingHighlights ? (
-              <div className="py-6 flex justify-center">
-                <Loader2 className="size-6 animate-spin text-fg-muted" />
-              </div>
-            ) : highlights.length > 0 ? (
-              <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                {highlights.map((h) => (
-                  <button
-                    key={h.id}
-                    onClick={() => handleAddToExistingHighlight(h.id)}
-                    disabled={isSavingHighlight}
-                    className="w-full flex items-center justify-between p-2.5 rounded-xl bg-surface-muted/60 hover:bg-surface-muted border border-border/50 text-left transition-colors cursor-pointer"
-                  >
-                    <span className="text-xs font-semibold">{h.title}</span>
-                    <Plus className="size-3.5 text-fg-subtle" />
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <p className="text-xs text-fg-subtle text-center py-2">
-                No highlights created yet. Make your first one below!
-              </p>
-            )}
-
-            {/* Create New Highlight Form */}
-            <form onSubmit={handleCreateNewHighlight} className="space-y-2 pt-2 border-t border-border">
-              <input
-                type="text"
-                placeholder="Highlight title (e.g. Campus Fest 2026)..."
-                value={newHighlightTitle}
-                onChange={(e) => setNewHighlightTitle(e.target.value)}
-                maxLength={30}
-                className="w-full h-9 rounded-xl bg-surface-muted border border-border px-3 text-xs text-white placeholder:text-fg-muted focus:outline-none focus:border-brand"
-              />
-              <button
-                type="submit"
-                disabled={!newHighlightTitle.trim() || isSavingHighlight}
-                className="w-full h-9 rounded-xl bg-brand hover:bg-brand-hover text-brand-fg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer"
-              >
-                {isSavingHighlight ? (
-                  <Loader2 className="size-3.5 animate-spin" />
-                ) : (
-                  <>
-                    <Plus className="size-3.5" />
-                    <span>Create & Add Story</span>
-                  </>
-                )}
-              </button>
-            </form>
-          </div>
-        </div>
+      {isOwner && (
+        <StoryHighlightDialog
+          open={showHighlightDialog}
+          onOpenChange={setShowHighlightDialog}
+          storyId={story.id}
+          storyMediaUrl={story.mediaUrl}
+        />
       )}
     </div>
   );

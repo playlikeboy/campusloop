@@ -79,7 +79,7 @@ export function openGoogleCalendar(event: CalendarEvent): void {
   const url = createGoogleCalendarUrl(event);
   if (typeof window !== "undefined") {
     window.open(url, "_blank", "noopener,noreferrer");
-    toast.success("Opening Google Calendar 📅");
+    toast.success("Opening Google Calendar");
   }
 }
 
@@ -170,7 +170,7 @@ export function downloadAppleCalendarIcs(event: CalendarEvent): void {
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
 
-    toast.success("Apple Calendar invite ready (.ics) 🍏📅");
+    toast.success("Calendar file downloaded. Open it to add the event.");
   } catch {
     toast.error("Failed to generate calendar invite");
   }

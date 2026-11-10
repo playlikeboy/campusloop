@@ -134,7 +134,7 @@ export function PostDetailSkeleton() {
       <div className="pointer-events-none absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] h-[340px] sm:w-[480px] sm:h-[480px] bg-brand-subtle/60 blur-[140px] rounded-full -z-10" />
 
       {/* Top Header & Subheader Filter Tabs Skeleton */}
-      <header className="absolute top-0 inset-x-0 z-30 px-4 pt-2.5 pb-1 bg-gradient-to-b from-background/95 via-background/85 to-transparent backdrop-blur-md">
+      <header className="absolute top-0 inset-x-0 z-30 px-4 pt-2.5 pb-1 bg-background">
         <div className="flex items-center justify-between gap-2 mt-3 border-b border-border/20 pb-1.5">
           <div className="flex items-center gap-5 sm:gap-6 py-0.5">
             <Skeleton className="h-4 w-16 rounded-full" />
@@ -184,7 +184,7 @@ export function PostDetailSkeleton() {
       </div>
 
       {/* Right Floating Side Action Rail Skeleton (Like, Comment, Loop, Bookmark, Share, More) */}
-      <div className="absolute inset-x-0 bottom-2 sm:inset-x-auto sm:right-4 sm:bottom-6 z-30 flex flex-row sm:flex-col items-center justify-center gap-1.5 sm:gap-2.5 px-3 sm:px-0 select-none shrink-0 rounded-2xl border border-border/50 bg-background/90 py-1.5 shadow-sm backdrop-blur-xl sm:rounded-none sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 sm:shadow-none sm:backdrop-blur-none">
+      <div className="absolute inset-x-0 bottom-2 sm:inset-x-auto sm:right-4 sm:bottom-6 z-30 flex flex-row sm:flex-col items-center justify-center gap-1.5 sm:gap-2.5 px-3 sm:px-0 select-none shrink-0 rounded-2xl border border-border/50 bg-background py-1.5 shadow-sm sm:rounded-none sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 sm:shadow-none sm:-none">
         {/* 1. Like */}
         <div className="flex flex-col items-center gap-1">
           <Skeleton className="size-10 sm:size-12 rounded-full border border-border/40" />
@@ -217,7 +217,7 @@ export function ProfileSkeleton() {
   return (
     <div className="max-w-2xl mx-auto w-full select-none border-x border-border/20 min-h-screen">
       {/* Sticky Header */}
-      <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b border-border/30 px-4 py-2.5 flex items-center gap-4">
+      <div className="sticky top-0 z-30 bg-background border-b border-border/30 px-4 py-2.5 flex items-center gap-4">
         <Skeleton className="size-8 rounded-full" />
         <div className="space-y-1">
           <Skeleton className="h-4 w-28 rounded-md" />
@@ -278,7 +278,7 @@ export function NotificationsSkeleton() {
   return (
     <div className="max-w-2xl mx-auto w-full select-none border-x border-border/20 min-h-screen">
       {/* Header */}
-      <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b border-border/30 px-4 py-3 flex items-center justify-between">
+      <div className="sticky top-0 z-30 bg-background border-b border-border/30 px-4 py-3 flex items-center justify-between">
         <Skeleton className="h-5 w-32 rounded-md" />
         <Skeleton className="h-4 w-20 rounded-full" />
       </div>
@@ -451,7 +451,7 @@ export function ChatThreadSkeleton() {
   return (
     <div className="flex flex-col h-full w-full bg-background select-none overflow-hidden">
       {/* Sticky Header Skeleton */}
-      <div className="border-b border-border/40 bg-card/95 backdrop-blur-md px-3 sm:px-4 py-2.5 pt-[max(0.6rem,env(safe-area-inset-top))] flex items-center justify-between shrink-0">
+      <div className="border-b border-border/40 bg-card px-3 sm:px-4 py-2.5 pt-[max(0.6rem,env(safe-area-inset-top))] flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
           <Skeleton className="size-8 rounded-full sm:hidden" />
           <div className="relative">
@@ -595,7 +595,7 @@ export function AppShellSkeleton() {
   return (
     <div className="w-full max-w-2xl mx-auto min-h-screen select-none border-x border-border/20">
       {/* Top Header Placeholder */}
-      <div className="sticky top-0 z-30 flex items-center justify-between border-b border-border/30 bg-background/80 px-4 py-3 backdrop-blur-md">
+      <div className="sticky top-0 z-30 flex items-center justify-between border-b border-border/30 bg-background px-4 py-3">
         <div className="flex items-center gap-2.5">
           <Skeleton className="size-8 rounded-full" />
           <Skeleton className="h-5 w-24 rounded-lg" />

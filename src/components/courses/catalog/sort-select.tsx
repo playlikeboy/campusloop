@@ -3,12 +3,18 @@
 import { ArrowUpDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-/** Sort dropdown; each option maps to a precomputed catalog URL. */
-export function SortSelect({ value, options }: { value: string; options: { value: string; label: string; href: string }[] }) {
+/** Sort dropdown; each option maps to a ready-made catalog URL. */
+export function SortSelect({
+  value,
+  options,
+}: {
+  value: string;
+  options: { value: string; label: string; href: string }[];
+}) {
   const router = useRouter();
   return (
-    <label className="relative inline-flex h-10 items-center gap-2 rounded-full bg-muted/70 pl-4 pr-3 text-sm font-semibold text-foreground hover:bg-muted">
-      <ArrowUpDown className="size-4 text-muted-foreground" aria-hidden />
+    <label className="relative inline-flex h-11 shrink-0 items-center gap-2 rounded-full bg-surface-muted pl-4 pr-3 text-sm font-semibold text-fg transition-ui hover:bg-surface-sunken focus-within:ring-2 focus-within:ring-ring">
+      <ArrowUpDown className="size-4 text-fg-muted" aria-hidden />
       <span className="sr-only">Sort by</span>
       <select
         value={value}
@@ -16,10 +22,12 @@ export function SortSelect({ value, options }: { value: string; options: { value
           const next = options.find((o) => o.value === e.target.value);
           if (next) router.push(next.href, { scroll: false });
         }}
-        className="appearance-none bg-transparent pr-1 focus-visible:outline-none cursor-pointer"
+        className="cursor-pointer appearance-none bg-transparent pr-1 focus-visible:outline-none"
       >
         {options.map((o) => (
-          <option key={o.value} value={o.value}>{o.label}</option>
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
         ))}
       </select>
     </label>

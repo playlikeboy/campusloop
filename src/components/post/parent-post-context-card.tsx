@@ -43,16 +43,16 @@ export function ParentPostContextCard({ post }: { post: ParentPostContextProps }
   const commentsCount = post.commentsCount ?? 0;
 
   return (
-    <div className="rounded-2xl border border-border/50 bg-card/60 backdrop-blur-xs p-4 sm:p-5 shadow-2xs space-y-3 transition-colors">
+    <div className="rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-3 transition-colors">
       {/* Context Badge Row */}
-      <div className="flex items-center justify-between gap-2 border-b border-border/30 pb-2.5">
+      <div className="flex items-center justify-between gap-2 border-b border-border pb-2.5">
         <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
           <MessageCircle className="size-3.5 text-primary" />
-          <span>Parent Discussion</span>
+          <span>Original post</span>
         </div>
 
         {post.institution && (
-          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground/80 bg-muted/40 px-2 py-0.5 rounded-full border border-border/30 truncate max-w-[200px]">
+          <span className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground/80 bg-muted/40 px-2 py-0.5 rounded-full border border-border truncate max-w-[200px]">
             <Building2 className="size-3 text-muted-foreground" />
             <span className="truncate">{collegeName}</span>
           </span>
@@ -63,13 +63,13 @@ export function ParentPostContextCard({ post }: { post: ParentPostContextProps }
       <div className="flex items-center gap-3">
         {!isAnon ? (
           <Link href={`/@${handle}`} className="shrink-0">
-            <Avatar className="size-8 rounded-full border border-border/40 hover:opacity-90 transition-opacity">
+            <Avatar className="size-8 rounded-full border border-border hover:opacity-90 transition-opacity">
               <AvatarImage src={avatarUrl} />
               <AvatarFallback className="text-xs font-bold bg-muted">{fallback}</AvatarFallback>
             </Avatar>
           </Link>
         ) : (
-          <Avatar className="size-8 rounded-full border border-border/40 bg-muted shrink-0">
+          <Avatar className="size-8 rounded-full border border-border bg-muted shrink-0">
             <AvatarFallback className="text-xs font-bold">{fallback}</AvatarFallback>
           </Avatar>
         )}
@@ -83,11 +83,9 @@ export function ParentPostContextCard({ post }: { post: ParentPostContextProps }
             ) : (
               <span className="font-bold text-foreground truncate">{authorName}</span>
             )}
-            <span className="text-muted-foreground/70 text-[11px] truncate">@{handle}</span>
+            <span className="text-muted-foreground/70 text-xs truncate">@{handle}</span>
             <span className="text-muted-foreground/40">·</span>
-            <span className="text-muted-foreground/70 text-[11px] shrink-0">
-              {formatTimeAgo(post.createdAt)}
-            </span>
+            <span className="text-muted-foreground/70 text-xs shrink-0">{formatTimeAgo(post.createdAt)}</span>
           </div>
         </div>
       </div>

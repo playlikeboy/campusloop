@@ -26,7 +26,6 @@ import {
   Rocket,
   Share2,
   ShieldCheck,
-  Sparkles,
   Tag,
   Trash2,
   UploadCloud,
@@ -38,14 +37,24 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { SearchableCombobox, type ComboboxOption } from "@/components/ui/searchable-combobox";
+import { type ComboboxOption, SearchableCombobox } from "@/components/ui/searchable-combobox";
+import { getYoutubeEmbedInfo, isYoutubeUrl } from "@/lib/academics/youtube";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { uploadMediaFile } from "@/lib/upload";
 import { cn } from "@/lib/utils";
-import { getYoutubeEmbedInfo, isYoutubeUrl } from "@/lib/academics/youtube";
 
-export type AttachmentType = "PDF" | "PPT" | "DOCX" | "IMAGE" | "DRIVE" | "LINK" | "VIDEO" | "HTML" | "CODE" | "OTHER";
+export type AttachmentType =
+  | "PDF"
+  | "PPT"
+  | "DOCX"
+  | "IMAGE"
+  | "DRIVE"
+  | "LINK"
+  | "VIDEO"
+  | "HTML"
+  | "CODE"
+  | "OTHER";
 
 export interface UploadAttachmentItem {
   id: string;
@@ -81,42 +90,42 @@ const RESOURCE_TYPES = [
   {
     id: "NOTES",
     label: "Lecture Notes",
-    desc: "Classroom slides, topper handwritten notes, and professor summaries",
+    desc: "Class notes, slides or handwritten notes",
     icon: BookOpen,
     badgeColor: "bg-brand-subtle text-brand-text border-brand-subtle-border",
   },
   {
     id: "PYQ",
     label: "PYQs & Solutions",
-    desc: "Past semester endsem/midsem exam papers with step-by-step solutions",
+    desc: "Past midsem and endsem papers, with answers if you have them",
     icon: FileQuestion,
     badgeColor: "bg-brand-subtle text-brand-text border-brand-subtle-border",
   },
   {
     id: "CHEAT_SHEET",
     label: "Formula Cheat Sheet",
-    desc: "Quick 15-minute exam revision sheets, formulas, and concept mind-maps",
+    desc: "Short revision sheets with formulas and key ideas",
     icon: Zap,
     badgeColor: "bg-brand-subtle text-brand-text border-brand-subtle-border",
   },
   {
     id: "LAB_MANUAL",
     label: "Lab Manual & Code",
-    desc: "Lab experiments, circuit diagrams, viva questions, and source code",
+    desc: "Experiments, diagrams, viva questions and code",
     icon: FlaskConical,
     badgeColor: "bg-brand-subtle text-brand-text border-brand-subtle-border",
   },
   {
     id: "MODULE",
     label: "Unit / Module Pack",
-    desc: "Comprehensive unit-wise notes tailored to specific syllabus chapters",
+    desc: "Notes for one unit or chapter",
     icon: Layers,
     badgeColor: "bg-brand-subtle text-brand-text border-brand-subtle-border",
   },
   {
     id: "BOOK",
     label: "Reference Solutions",
-    desc: "Problem solutions for standard university prescribed textbooks",
+    desc: "Solutions to textbook problems",
     icon: Bookmark,
     badgeColor: "bg-brand-subtle text-brand-text border-brand-subtle-border",
   },
@@ -212,7 +221,9 @@ function getAttachmentIcon(type: string) {
   }
 }
 
-async function fetchLinkPreview(url: string): Promise<{ title?: string; image?: string; siteName?: string } | null> {
+async function fetchLinkPreview(
+  url: string
+): Promise<{ title?: string; image?: string; siteName?: string } | null> {
   try {
     const res = await fetch(`/api/embed/preview?url=${encodeURIComponent(url)}`);
     if (!res.ok) return null;
@@ -285,8 +296,13 @@ export function UploadAcademicClient() {
     haptics.light();
   }
 
-  function setModuleAttachments(moduleId: string, updater: (atts: UploadAttachmentItem[]) => UploadAttachmentItem[]) {
-    setModules((prev) => prev.map((m) => (m.id === moduleId ? { ...m, attachments: updater(m.attachments) } : m)));
+  function setModuleAttachments(
+    moduleId: string,
+    updater: (atts: UploadAttachmentItem[]) => UploadAttachmentItem[]
+  ) {
+    setModules((prev) =>
+      prev.map((m) => (m.id === moduleId ? { ...m, attachments: updater(m.attachments) } : m))
+    );
   }
 
   // Handle direct multiple files upload into a specific module
@@ -302,7 +318,7 @@ export function UploadAcademicClient() {
       const isHtml = inferredType === "HTML";
       const sizeLimitBytes = isHtml ? 3 * 1024 * 1024 : 50 * 1024 * 1024;
       if (file.size > sizeLimitBytes) {
-        toast.error(`"${file.name}" exceeds maximum allowed size of ${isHtml ? "3MB" : "50MB"}`);
+        toast.error(`"${file.name}" is too big. Max size is ${isHtml ? "3 MB" : "50 MB"}.`);
         continue;
       }
 
@@ -339,12 +355,14 @@ export function UploadAcademicClient() {
                 item.id === tempId ? { ...item, url: res.url, status: "ready", uploadProgress: 100 } : item
               )
             );
-            toast.success(`Uploaded "${file.name}"!`);
+            toast.success(`Uploaded "${file.name}"`);
           } else {
             setModuleAttachments(moduleId, (atts) =>
-              atts.map((item) => (item.id === tempId ? { ...item, status: "error", error: "Upload failed" } : item))
+              atts.map((item) =>
+                item.id === tempId ? { ...item, status: "error", error: "Upload failed" } : item
+              )
             );
-            toast.error(`Failed to upload "${file.name}"`);
+            toast.error(`Couldn't upload "${file.name}". Try again.`);
           }
         })
         .catch((err) => {
@@ -355,7 +373,7 @@ export function UploadAcademicClient() {
                 : item
             )
           );
-          toast.error(`Error uploading "${file.name}"`);
+          toast.error(`Couldn't upload "${file.name}". Check your connection and try again.`);
         });
     }
 
@@ -367,11 +385,11 @@ export function UploadAcademicClient() {
     const draft = getLinkDraft(moduleId);
     const raw = draft.url.trim();
     if (!raw) {
-      toast.error("Please enter a link or Google Drive URL");
+      toast.error("Paste a link first.");
       return;
     }
     if (!raw.startsWith("http://") && !raw.startsWith("https://")) {
-      toast.error("Link must start with https:// or http://");
+      toast.error("Links must start with https:// or http://");
       return;
     }
 
@@ -397,7 +415,7 @@ export function UploadAcademicClient() {
 
     setModuleAttachments(moduleId, (atts) => [...atts, newAtt]);
     setLinkDraft(moduleId, { isOpen: false, url: "", title: "" });
-    toast.success("Link attached!");
+    toast.success("Link added");
 
     // Creative feature: automatically fetch a preview for the pasted link.
     if (inferredType === "VIDEO") {
@@ -472,7 +490,7 @@ export function UploadAcademicClient() {
 
   function handleGenerateTitle() {
     if (!subjectCode.trim() && !subjectName.trim()) {
-      toast.info("Add a Subject Code or Subject Name in Advanced details first to auto-generate a title");
+      toast.info("Add a subject code or name in More details first, then try again.");
       return;
     }
     sounds.tap();
@@ -496,15 +514,15 @@ export function UploadAcademicClient() {
     e.preventDefault();
 
     if (!title.trim()) {
-      toast.error("Give your study pack a title first");
+      toast.error("Add a title first.");
       return;
     }
     if (hasUploading) {
-      toast.info("Please wait for all files to finish uploading before publishing");
+      toast.info("Wait for your files to finish uploading.");
       return;
     }
     if (readyAttachmentsCount === 0) {
-      toast.error("Attach at least one file or link to a module before publishing");
+      toast.error("Add at least one file or link first.");
       return;
     }
 
@@ -560,18 +578,18 @@ export function UploadAcademicClient() {
         // Lightweight milestone toast derived from the (already-existing) points total — no new schema.
         const points = Number(json.item?.uploader?.points || 0);
         if (points <= 20) {
-          toast.success("First contribution! You just helped future students.");
+          toast.success("Your first upload is live. Thanks for sharing.");
         } else if (points <= 180) {
-          toast.success("Rising contributor! Keep sharing great notes.");
+          toast.success("Uploaded. Thanks for sharing.");
         } else {
-          toast.success("Top contributor status! Your uploads are shaping the vault.");
+          toast.success("Uploaded. Thanks for sharing.");
         }
       } else {
-        toast.error(json.error || "Failed to publish academic resource");
+        toast.error(json.error || "Couldn't publish. Check the fields and try again.");
         setIsSubmitting(false);
       }
     } catch {
-      toast.error("Network error while submitting resource");
+      toast.error("Couldn't reach the server. Check your connection and try again.");
       setIsSubmitting(false);
     }
   }
@@ -584,11 +602,11 @@ export function UploadAcademicClient() {
     const canShare = typeof navigator !== "undefined" && typeof navigator.share === "function";
     if (canShare) {
       navigator
-        .share({ title: published.title, text: `Check out ${published.title} on CampusLoop!`, url: shareUrl })
+        .share({ title: published.title, text: `${published.title} on CampusLoop`, url: shareUrl })
         .catch(() => {});
     } else if (typeof navigator !== "undefined" && navigator.clipboard) {
       navigator.clipboard.writeText(shareUrl);
-      toast.success("Link copied — share it with your batch!");
+      toast.success("Link copied. Share it with your class.");
     }
   }
 
@@ -607,10 +625,9 @@ export function UploadAcademicClient() {
           <PartyPopper className="size-8" />
         </div>
         <div className="space-y-1.5">
-          <h1 className="text-xl font-black text-foreground">You just helped future students!</h1>
+          <h1 className="text-2xl text-fg">Your notes are up</h1>
           <p className="text-sm text-muted-foreground">
-            “{published.title}” is live on the Study Vault. Notes shared by top contributors get 5x more
-            views — share yours now and watch it climb the Trending feed.
+            “{published.title}” is now live. Share it with your class so they can find it.
           </p>
         </div>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 pt-2">
@@ -645,13 +662,13 @@ export function UploadAcademicClient() {
               className="flex items-center gap-1 hover:text-foreground transition-colors cursor-pointer"
             >
               <ArrowLeft className="size-3.5" />
-              <span>Academic Vault</span>
+              <span>Study material</span>
             </Link>
             <span>/</span>
-            <span className="text-foreground">Upload Studio</span>
+            <span className="text-foreground">Upload</span>
           </div>
 
-          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-foreground flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <span>Upload study material</span>
             <span className="flex size-6.5 items-center justify-center rounded-md bg-brand-subtle text-brand-text border border-brand-subtle-border">
               <UploadCloud className="size-3.5" />
@@ -663,8 +680,8 @@ export function UploadAcademicClient() {
           <div className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-reward-subtle border border-reward/30 text-reward-text">
             <Zap className="size-4 text-reward fill-reward shrink-0" />
             <div className="text-left">
-              <p className="text-xs font-black">+20 Loop Points</p>
-              <p className="text-[10px] text-muted-foreground">Credited on verified upload</p>
+              <p className="text-xs font-bold">+20 Loop Points</p>
+              <p className="text-xs text-fg-muted">For each upload</p>
             </div>
           </div>
         </div>
@@ -678,7 +695,7 @@ export function UploadAcademicClient() {
             <div className="rounded-xl border border-border bg-surface p-5 sm:p-6 space-y-2">
               <label className="text-xs font-bold text-foreground flex items-center justify-between">
                 <span>Title</span>
-                <span className="text-[10px] text-fg-muted">Required</span>
+                <span className="text-xs text-fg-muted">Required</span>
               </label>
               <input
                 type="text"
@@ -718,7 +735,9 @@ export function UploadAcademicClient() {
                     onMoveUp={() => moveModule(module.id, "up")}
                     onMoveDown={() => moveModule(module.id, "down")}
                     onFilesUpload={(e) => handleFilesUpload(module.id, e)}
-                    onToggleLinkPanel={() => setLinkDraft(module.id, { isOpen: !getLinkDraft(module.id).isOpen })}
+                    onToggleLinkPanel={() =>
+                      setLinkDraft(module.id, { isOpen: !getLinkDraft(module.id).isOpen })
+                    }
                     onLinkUrlChange={(url) => setLinkDraft(module.id, { url })}
                     onLinkTitleChange={(linkTitle) => setLinkDraft(module.id, { title: linkTitle })}
                     onAddLink={() => handleAddExternalLink(module.id)}
@@ -744,11 +763,11 @@ export function UploadAcademicClient() {
             <div className="rounded-xl border border-border bg-surface p-5 sm:p-6 space-y-2">
               <label className="text-xs font-bold text-foreground flex items-center justify-between">
                 <span>What's included?</span>
-                <span className="text-[10px] text-muted-foreground font-normal">Optional</span>
+                <span className="text-xs text-muted-foreground font-normal">Optional</span>
               </label>
               <textarea
                 rows={2}
-                placeholder="A short note about the whole study pack — topics, chapters, professor, exam year..."
+                placeholder="Topics, chapters, professor, exam year"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className="w-full rounded-2xl border border-border/40 bg-muted/30 p-3.5 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:bg-background transition-colors resize-none"
@@ -764,14 +783,13 @@ export function UploadAcademicClient() {
                   haptics.light();
                   setIsAdvancedOpen((v) => !v);
                 }}
+                aria-expanded={isAdvancedOpen}
                 className="w-full flex items-center justify-between gap-2 p-5 sm:p-6 cursor-pointer"
               >
                 <div className="text-left">
-                  <h2 className="text-sm font-bold text-fg">
-                    Advanced details
-                  </h2>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
-                    Course info, category &amp; tags — all optional
+                  <h2 className="text-sm font-bold text-fg">More details</h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Course, category and tags. All optional.
                   </p>
                 </div>
                 <ChevronDown
@@ -786,9 +804,7 @@ export function UploadAcademicClient() {
                 <div className="px-5 sm:px-6 pb-6 space-y-5 border-t border-border/30 pt-5">
                   {/* What are you uploading? */}
                   <div className="space-y-3">
-                    <h3 className="text-xs font-semibold text-fg-muted">
-                      What are you uploading?
-                    </h3>
+                    <h3 className="text-xs font-semibold text-fg-muted">What are you uploading?</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                       {RESOURCE_TYPES.map((type) => {
                         const Icon = type.icon;
@@ -824,8 +840,8 @@ export function UploadAcademicClient() {
                                 </div>
                               )}
                             </div>
-                            <p className="text-xs font-black text-foreground">{type.label}</p>
-                            <p className="text-[10px] text-muted-foreground line-clamp-1 mt-0.5 leading-snug">
+                            <p className="text-xs font-bold text-foreground">{type.label}</p>
+                            <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5 leading-snug">
                               {type.desc}
                             </p>
                           </button>
@@ -837,16 +853,13 @@ export function UploadAcademicClient() {
                   {/* Course details */}
                   <div className="space-y-3 pt-2 border-t border-border/20">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-xs font-semibold text-fg-muted">
-                        Course details
-                      </h3>
+                      <h3 className="text-xs font-semibold text-fg-muted">Course details</h3>
                       <button
                         type="button"
                         onClick={handleGenerateTitle}
-                        className="flex items-center gap-1 text-[11px] font-bold text-primary hover:underline cursor-pointer"
+                        className="flex min-h-10 items-center gap-1 text-sm font-semibold text-brand-text hover:underline cursor-pointer"
                       >
-                        <Sparkles className="size-3" />
-                        <span>Generate title from this</span>
+                        <span>Use as title</span>
                       </button>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -857,7 +870,7 @@ export function UploadAcademicClient() {
                           placeholder="e.g. CS201, EC304, MA101"
                           value={subjectCode}
                           onChange={(e) => setSubjectCode(e.target.value.toUpperCase())}
-                          className="h-10 w-full rounded-2xl border border-border/40 bg-muted/30 px-3.5 text-xs sm:text-sm font-mono font-bold uppercase tracking-wider text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:bg-background transition-colors"
+                          className="h-10 w-full rounded-2xl border border-border/40 bg-muted/30 px-3.5 text-xs sm:text-sm font-mono font-bold text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:bg-background transition-colors"
                         />
                       </div>
                       <div className="space-y-1.5">
@@ -875,9 +888,7 @@ export function UploadAcademicClient() {
 
                   {/* Academic details */}
                   <div className="space-y-3 pt-2 border-t border-border/20">
-                    <h3 className="text-xs font-semibold text-fg-muted">
-                      Academic details
-                    </h3>
+                    <h3 className="text-xs font-semibold text-fg-muted">Academic details</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div className="space-y-1.5 sm:col-span-1">
                         <label className="text-xs font-bold text-foreground">Target Branch</label>
@@ -886,7 +897,7 @@ export function UploadAcademicClient() {
                           value={branch}
                           onChange={(val) => setBranch(val)}
                           placeholder="Select branch..."
-                          searchPlaceholder="Search branch (e.g. CSE, IT, Mech)..."
+                          searchPlaceholder="Search branch, e.g. CSE"
                           clearable={false}
                         />
                       </div>
@@ -931,7 +942,7 @@ export function UploadAcademicClient() {
                   <Tag className="absolute left-3.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
                   <input
                     type="text"
-                    placeholder="Add exam tag (e.g. Endsem2024, TopperNotes)..."
+                    placeholder="Add a tag, e.g. Endsem2024"
                     value={tagInput}
                     onChange={(e) => setTagInput(e.target.value)}
                     onKeyDown={(e) => {
@@ -972,14 +983,14 @@ export function UploadAcademicClient() {
               </div>
 
               <div className="space-y-1.5 pt-2 border-t border-border/20">
-                <span className="text-[11px] font-semibold text-muted-foreground">Quick suggestions:</span>
+                <span className="text-xs font-semibold text-muted-foreground">Quick suggestions:</span>
                 <div className="flex flex-wrap items-center gap-1.5">
                   {COMMON_TAG_SUGGESTIONS.filter((s) => !tags.includes(s)).map((s) => (
                     <button
                       key={s}
                       type="button"
                       onClick={() => handleAddTag(s)}
-                      className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-muted/30 hover:bg-muted/60 text-muted-foreground hover:text-foreground border border-border/40 transition-colors cursor-pointer"
+                      className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-muted/30 hover:bg-muted/60 text-muted-foreground hover:text-foreground border border-border/40 transition-colors cursor-pointer"
                     >
                       +{s}
                     </button>
@@ -992,23 +1003,16 @@ export function UploadAcademicClient() {
           {/* ─── RIGHT COLUMN: Live Preview & Publish ─── */}
           <div className="lg:col-span-4 space-y-5 lg:sticky lg:top-20">
             <div className="rounded-xl border border-border bg-surface p-5 space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-fg-muted">
-                  Live Vault Preview
-                </span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
-                  100% Verified
-                </span>
-              </div>
+              <h2 className="font-sans text-sm font-semibold text-fg-muted">Preview</h2>
 
               <div className="rounded-lg border border-border bg-bg p-4 space-y-3">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="px-2 py-0.5 rounded-md bg-brand-subtle text-brand-text font-mono text-[11px] font-bold">
+                  <span className="px-2 py-0.5 rounded-md bg-brand-subtle text-brand-text font-mono text-xs font-bold">
                     {subjectCode.trim() || "General"}
                   </span>
                   <span
                     className={cn(
-                      "px-2 py-0.5 rounded-md text-[10px] font-semibold border",
+                      "px-2 py-0.5 rounded-md text-xs font-semibold border",
                       currentType.badgeColor
                     )}
                   >
@@ -1017,21 +1021,21 @@ export function UploadAcademicClient() {
                 </div>
 
                 <div>
-                  <h4 className="text-sm font-black text-foreground line-clamp-2 leading-snug">
-                    {title.trim() || "Document Title Preview"}
+                  <h4 className="text-sm font-bold text-foreground line-clamp-2 leading-snug">
+                    {title.trim() || "Your title"}
                   </h4>
                   {subjectName.trim() && (
-                    <p className="text-[11px] text-muted-foreground truncate mt-0.5">{subjectName.trim()}</p>
+                    <p className="text-xs text-muted-foreground truncate mt-0.5">{subjectName.trim()}</p>
                   )}
                 </div>
 
                 <p className="text-xs text-muted-foreground/90 line-clamp-2 leading-relaxed">
-                  {description.trim() || "Curated notes covering core examination topics and syllabus modules."}
+                  {description.trim() || "Your description shows here."}
                 </p>
 
                 {modules.some((m) => m.attachments.length > 0) && (
                   <div className="space-y-1.5 pt-1.5 border-t border-border/30">
-                    <span className="text-[10px] font-semibold text-fg-muted">
+                    <span className="text-xs font-semibold text-fg-muted">
                       Modules ({modules.filter((m) => m.attachments.length > 0).length})
                     </span>
                     <div className="space-y-1">
@@ -1041,7 +1045,7 @@ export function UploadAcademicClient() {
                         .map((m, i) => (
                           <div
                             key={m.id}
-                            className="flex items-center gap-1.5 text-[11px] text-foreground font-semibold truncate bg-muted/30 px-2 py-1 rounded-lg"
+                            className="flex items-center gap-1.5 text-xs text-foreground font-semibold truncate bg-muted/30 px-2 py-1 rounded-lg"
                           >
                             <Package className="size-3 text-muted-foreground shrink-0" />
                             <span className="truncate">
@@ -1054,7 +1058,7 @@ export function UploadAcademicClient() {
                   </div>
                 )}
 
-                <div className="flex items-center gap-2 text-[11px] text-muted-foreground pt-1 border-t border-border/30">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground pt-1 border-t border-border/30">
                   <span>Sem {semester}</span>
                   <span>•</span>
                   <span className="truncate">{branch}</span>
@@ -1063,24 +1067,24 @@ export function UploadAcademicClient() {
                 {tags.length > 0 && (
                   <div className="flex flex-wrap gap-1 pt-1">
                     {tags.slice(0, 3).map((t) => (
-                      <span key={t} className="text-[10px] font-mono text-primary">
+                      <span key={t} className="text-xs font-mono text-primary">
                         #{t}
                       </span>
                     ))}
-                    {tags.length > 3 && <span className="text-[10px] text-muted-foreground">+{tags.length - 3}</span>}
+                    {tags.length > 3 && (
+                      <span className="text-xs text-muted-foreground">+{tags.length - 3}</span>
+                    )}
                   </div>
                 )}
               </div>
 
               <div className="space-y-2 pt-2 border-t border-border/30 text-xs">
-                <span className="text-xs font-semibold text-fg-muted">
-                  Readiness Checklist
-                </span>
+                <span className="text-xs font-semibold text-fg-muted">Readiness Checklist</span>
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
                     <div
                       className={cn(
-                        "size-4 rounded-full flex items-center justify-center shrink-0 text-[10px]",
+                        "size-4 rounded-full flex items-center justify-center shrink-0 text-xs",
                         hasTitle ? "bg-success-subtle text-success" : "bg-muted text-muted-foreground"
                       )}
                     >
@@ -1094,7 +1098,7 @@ export function UploadAcademicClient() {
                   <div className="flex items-center gap-2">
                     <div
                       className={cn(
-                        "size-4 rounded-full flex items-center justify-center shrink-0 text-[10px]",
+                        "size-4 rounded-full flex items-center justify-center shrink-0 text-xs",
                         readyAttachmentsCount > 0
                           ? "bg-success-subtle text-success"
                           : "bg-muted text-muted-foreground"
@@ -1123,22 +1127,19 @@ export function UploadAcademicClient() {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="size-4 animate-spin" />
-                    <span>Publishing Material...</span>
+                    <span>Publishing…</span>
                   </>
                 ) : (
                   <>
                     <Rocket className="size-4" />
-                    <span>Publish to Vault (+20 LP)</span>
+                    <span>Publish</span>
                   </>
                 )}
               </button>
 
-              <div className="flex items-start gap-2 text-[11px] text-muted-foreground/80 leading-snug pt-1">
-                <ShieldCheck className="size-4 text-success shrink-0 mt-0.5" />
-                <span>
-                  Resources are distributed under verified student fair-use for academic learning &amp; peer
-                  collaboration.
-                </span>
+              <div className="flex items-start gap-2 text-xs text-muted-foreground/80 leading-snug pt-1">
+                <ShieldCheck className="size-4 text-fg-subtle shrink-0 mt-0.5" aria-hidden="true" />
+                <span>Only upload material you are allowed to share.</span>
               </div>
             </div>
           </div>
@@ -1195,12 +1196,16 @@ function ModuleEditor({
     <div className="rounded-2xl border border-border/40 bg-muted/10 p-4 space-y-3">
       {/* Module header */}
       <div className="flex items-center gap-2">
-        <span className="flex size-6 items-center justify-center rounded-full bg-muted text-[11px] font-black text-muted-foreground shrink-0">
+        <span className="flex size-6 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground shrink-0">
           {index + 1}
         </span>
         <input
           type="text"
-          placeholder={totalModules > 1 ? `Module ${index + 1} title (optional) e.g. Unit 1 — Arrays` : "Module title (optional)"}
+          placeholder={
+            totalModules > 1
+              ? `Module ${index + 1} title (optional) e.g. Unit 1 — Arrays`
+              : "Module title (optional)"
+          }
           value={module.title}
           onChange={(e) => onUpdateField({ title: e.target.value })}
           className="flex-1 min-w-0 bg-transparent text-sm font-bold text-foreground placeholder:text-muted-foreground/70 placeholder:font-medium outline-none"
@@ -1212,7 +1217,7 @@ function ModuleEditor({
                 type="button"
                 onClick={onMoveUp}
                 disabled={index === 0}
-                className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-20 transition-colors cursor-pointer"
+                className="flex size-10 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-20 transition-colors cursor-pointer"
                 title="Move module up"
                 aria-label="Move module up"
               >
@@ -1222,7 +1227,7 @@ function ModuleEditor({
                 type="button"
                 onClick={onMoveDown}
                 disabled={index === totalModules - 1}
-                className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-20 transition-colors cursor-pointer"
+                className="flex size-10 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-20 transition-colors cursor-pointer"
                 title="Move module down"
                 aria-label="Move module down"
               >
@@ -1231,7 +1236,7 @@ function ModuleEditor({
               <button
                 type="button"
                 onClick={onRemove}
-                className="p-1 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
+                className="flex size-10 items-center justify-center rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
                 title="Remove module"
                 aria-label="Remove module"
               >
@@ -1269,8 +1274,8 @@ function ModuleEditor({
           <div className="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 group-hover:scale-105 transition-transform mb-1.5">
             <UploadCloud className="size-4" />
           </div>
-          <p className="text-[11px] font-black text-foreground">Add files</p>
-          <p className="text-[10px] text-muted-foreground mt-0.5">PDF, PPT, DOCX, HTML, images</p>
+          <p className="text-xs font-bold text-foreground">Add files</p>
+          <p className="text-xs text-muted-foreground mt-0.5">PDF, PPT, DOCX, HTML, images</p>
         </label>
 
         <button
@@ -1286,8 +1291,8 @@ function ModuleEditor({
           <div className="flex size-9 items-center justify-center rounded-md bg-brand-subtle text-brand-text border border-brand-subtle-border group-hover:scale-105 transition-transform mb-1.5">
             <Link2 className="size-4" />
           </div>
-          <p className="text-[11px] font-black text-foreground">Add link</p>
-          <p className="text-[10px] text-muted-foreground mt-0.5">Drive, Web, YouTube — auto preview</p>
+          <p className="text-xs font-bold text-foreground">Add link</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Drive, Web, YouTube — auto preview</p>
         </button>
       </div>
 
@@ -1320,7 +1325,7 @@ function ModuleEditor({
             <button
               type="button"
               onClick={onAddLink}
-              className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-black bg-primary text-primary-foreground hover:opacity-90 shadow-xs transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold bg-primary text-primary-foreground hover:opacity-90 shadow-xs transition-colors cursor-pointer"
             >
               <Plus className="size-3.5" />
               <span>Attach Link</span>
@@ -1362,7 +1367,7 @@ function ModuleEditor({
                       placeholder="File title"
                       className="w-full bg-transparent text-xs font-bold text-foreground outline-none focus:underline"
                     />
-                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground flex-wrap">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
                       <span className="px-1.5 py-0.2 rounded-sm bg-surface-muted font-mono font-bold text-fg">
                         {att.type}
                       </span>
@@ -1391,7 +1396,7 @@ function ModuleEditor({
                       type="button"
                       onClick={() => onMoveAttachment(idx, "up")}
                       disabled={idx === 0}
-                      className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-20 transition-colors cursor-pointer"
+                      className="flex size-10 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-20 transition-colors cursor-pointer"
                       title="Move up"
                       aria-label="Move attachment up"
                     >
@@ -1401,7 +1406,7 @@ function ModuleEditor({
                       type="button"
                       onClick={() => onMoveAttachment(idx, "down")}
                       disabled={idx === module.attachments.length - 1}
-                      className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-20 transition-colors cursor-pointer"
+                      className="flex size-10 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-20 transition-colors cursor-pointer"
                       title="Move down"
                       aria-label="Move attachment down"
                     >
@@ -1410,7 +1415,7 @@ function ModuleEditor({
                     <button
                       type="button"
                       onClick={() => onRemoveAttachment(att.id)}
-                      className="p-1 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer ml-1"
+                      className="flex size-10 items-center justify-center rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer ml-1"
                       title="Remove"
                       aria-label="Remove attachment"
                     >
@@ -1426,7 +1431,7 @@ function ModuleEditor({
                       placeholder="Notes for this video (shown under the player)"
                       value={att.notes || ""}
                       onChange={(e) => onUpdateAttachment(att.id, { notes: e.target.value })}
-                      className="w-full bg-muted/30 rounded-lg px-2.5 py-1.5 text-[11px] text-foreground placeholder:text-muted-foreground outline-none border border-border/30 focus:border-primary transition-colors"
+                      className="w-full bg-muted/30 rounded-lg px-2.5 py-1.5 text-xs text-foreground placeholder:text-muted-foreground outline-none border border-border/30 focus:border-primary transition-colors"
                     />
                   </div>
                 )}

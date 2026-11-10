@@ -1,0 +1,192 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-10T00:00:00Z",
+  "title": "Design System: CampusLoop",
+  "extensions": {
+    "colorMeta": {
+      "loop-violet": { "role": "primary", "displayName": "Loop Violet", "canonical": "#6b3df5", "darkValue": "#7650fa", "tonalRamp": ["#24164f", "#3a1a91", "#4a20bd", "#5a2be0", "#6b3df5", "#9474ff", "#d0c0ff", "#f2edff"] },
+      "loop-violet-deep": { "role": "primary", "displayName": "Loop Violet Deep", "canonical": "#5a2be0", "darkValue": "#b8a2ff", "tonalRamp": ["#24164f", "#3a1a91", "#4a20bd", "#5a2be0", "#6b3df5", "#9474ff", "#d0c0ff", "#f2edff"] },
+      "violet-mist": { "role": "primary", "displayName": "Violet Mist", "canonical": "#f2edff", "darkValue": "#24164f" },
+      "violet-mist-border": { "role": "primary", "displayName": "Violet Mist Border", "canonical": "#d0c0ff", "darkValue": "#3a1a91" },
+      "poll-fill": { "role": "primary", "displayName": "Poll Fill", "canonical": "#e4daff", "darkValue": "#24164f" },
+      "sticker-yellow": { "role": "secondary", "displayName": "Sticker Yellow", "canonical": "#ffd43b", "darkValue": "#ffd43b", "tonalRamp": ["#3a2f08", "#5a4504", "#7a5a00", "#a37800", "#d9a90f", "#ffd43b", "#ffe27a", "#fff6cc"] },
+      "sticker-yellow-text": { "role": "secondary", "displayName": "Sticker Yellow Text", "canonical": "#7a5a00", "darkValue": "#ffe27a" },
+      "sticker-yellow-subtle": { "role": "secondary", "displayName": "Sticker Yellow Subtle", "canonical": "#fff6cc", "darkValue": "#3a2f08" },
+      "crush-pink": { "role": "tertiary", "displayName": "Crush Pink", "canonical": "#d92a6a", "darkValue": "#ff5c93", "tonalRamp": ["#45152a", "#7e1940", "#b81d57", "#d92a6a", "#ff5c93", "#ff8db4", "#ffb9d0", "#ffe4ee"] },
+      "crush-pink-text": { "role": "tertiary", "displayName": "Crush Pink Text", "canonical": "#b81d57", "darkValue": "#ff8db4" },
+      "crush-pink-subtle": { "role": "tertiary", "displayName": "Crush Pink Subtle", "canonical": "#ffe4ee", "darkValue": "#45152a" },
+      "mint": { "role": "tertiary", "displayName": "Mint", "canonical": "#3ddc97", "darkValue": "#3ddc97", "tonalRamp": ["#0e3a2a", "#0a6e4d", "#0b7a55", "#1fae74", "#3ddc97", "#6ee9b5", "#a8f2d2", "#ddf8ec"] },
+      "mint-text": { "role": "tertiary", "displayName": "Mint Text", "canonical": "#0a6e4d", "darkValue": "#6ee9b5" },
+      "mint-subtle": { "role": "tertiary", "displayName": "Mint Subtle", "canonical": "#ddf8ec", "darkValue": "#0e3a2a" },
+      "success-green": { "role": "status", "displayName": "Success Green", "canonical": "#0b7a55", "darkValue": "#3ddc97" },
+      "danger-red": { "role": "status", "displayName": "Danger Red", "canonical": "#b81d31", "darkValue": "#ff7a85", "tonalRamp": ["#4a1219", "#7d1824", "#b81d31", "#d3263b", "#ec4c5d", "#ff7a85", "#ffb0b7", "#ffe5e8"] },
+      "danger-subtle": { "role": "status", "displayName": "Danger Subtle", "canonical": "#ffe5e8", "darkValue": "#4a1219" },
+      "warning-amber": { "role": "status", "displayName": "Warning Amber", "canonical": "#a84f05", "darkValue": "#ffb547", "tonalRamp": ["#452c08", "#6e3c06", "#a84f05", "#d66f10", "#f2932a", "#ffb547", "#ffd49a", "#fff0d9"] },
+      "warning-subtle": { "role": "status", "displayName": "Warning Subtle", "canonical": "#fff0d9", "darkValue": "#452c08" },
+      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "#15131d", "darkValue": "#f5f3fa", "tonalRamp": ["#0d0a17", "#15131d", "#2a2439", "#3d384d", "#57526a", "#6c6780", "#a7a1ba", "#cbc6d9", "#e2deec", "#ebe8f3", "#f5f3fa", "#fcfbff"] },
+      "ink-muted": { "role": "neutral", "displayName": "Ink Muted", "canonical": "#57526a", "darkValue": "#cbc6d9" },
+      "ink-subtle": { "role": "neutral", "displayName": "Ink Subtle", "canonical": "#6c6780", "darkValue": "#a7a1ba" },
+      "paper": { "role": "neutral", "displayName": "Paper", "canonical": "#ffffff", "darkValue": "#120e1f" },
+      "paper-muted": { "role": "neutral", "displayName": "Paper Muted", "canonical": "#f5f3fa", "darkValue": "#211b30" },
+      "paper-sunken": { "role": "neutral", "displayName": "Paper Sunken", "canonical": "#ebe8f3", "darkValue": "#0d0a17" },
+      "hairline": { "role": "neutral", "displayName": "Hairline", "canonical": "#e2deec", "darkValue": "#2a2439" },
+      "hairline-strong": { "role": "neutral", "displayName": "Hairline Strong", "canonical": "#cbc6d9", "darkValue": "#3d384d" },
+      "night-ground": { "role": "neutral", "displayName": "Night Ground", "canonical": "#0d0a17" },
+      "night-surface": { "role": "neutral", "displayName": "Night Surface", "canonical": "#120e1f" },
+      "night-raised": { "role": "neutral", "displayName": "Night Raised", "canonical": "#211b30" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Landing hero headline only; font-stretch 88%." },
+      "display-small": { "displayName": "Display Small", "purpose": "Secondary marketing heroes and big section openers." },
+      "headline": { "displayName": "Headline", "purpose": "Section headings on Persuade surfaces." },
+      "sticker-caption": { "displayName": "Sticker Caption", "purpose": "Sticker prompts, poll questions, story captions, countdown digits, Loop Points numbers; font-stretch 82%, scales 1.125rem to 2.75rem." },
+      "title": { "displayName": "Title", "purpose": "Card titles and in-app h3/h4." },
+      "lead": { "displayName": "Lead", "purpose": "Paragraph under a hero headline, about 42ch." },
+      "body": { "displayName": "Body", "purpose": "All reading text and fields; fields stay 16px on touch." },
+      "label": { "displayName": "Label", "purpose": "Buttons, chips, nav rows." },
+      "caption": { "displayName": "Caption", "purpose": "Badges, poll footers, bottom-nav labels, meta." },
+      "mono": { "displayName": "Mono", "purpose": "Real code only." }
+    },
+    "shadows": [
+      { "name": "shadow-xs", "value": "0 1px 2px 0 rgb(21 19 29 / 0.06)", "darkValue": "0 1px 2px 0 rgb(0 0 0 / 0.4)", "purpose": "Selected tab in a pill tab group." },
+      { "name": "shadow-sm", "value": "0 2px 8px -2px rgb(21 19 29 / 0.1), 0 1px 2px 0 rgb(21 19 29 / 0.05)", "darkValue": "0 2px 8px -2px rgb(0 0 0 / 0.5), 0 1px 2px 0 rgb(0 0 0 / 0.3)", "purpose": "Popovers and raised controls." },
+      { "name": "shadow-lg", "value": "0 16px 36px -12px rgb(21 19 29 / 0.24), 0 4px 10px -4px rgb(21 19 29 / 0.1)", "darkValue": "0 16px 36px -12px rgb(0 0 0 / 0.7), 0 4px 10px -4px rgb(0 0 0 / 0.4)", "purpose": "Dialogs and sheets." },
+      { "name": "shadow-sticker", "value": "0 6px 16px -6px rgb(21 19 29 / 0.26), 0 2px 4px -1px rgb(21 19 29 / 0.08)", "darkValue": "0 6px 16px -6px rgb(0 0 0 / 0.7), 0 2px 4px -1px rgb(0 0 0 / 0.4)", "purpose": "Lifted sticker tiles, Loop Points pill, compose button, on-field button." },
+      { "name": "shadow-sticker-lift", "value": "0 12px 26px -8px rgb(21 19 29 / 0.3), 0 3px 6px -2px rgb(21 19 29 / 0.1)", "darkValue": "0 12px 26px -8px rgb(0 0 0 / 0.75), 0 3px 6px -2px rgb(0 0 0 / 0.45)", "purpose": "The landing story frame." }
+    ],
+    "motion": [
+      { "name": "ease-standard", "value": "cubic-bezier(0.2, 0.8, 0.2, 1)", "purpose": "Default easing for state transitions." },
+      { "name": "ease-out-expo", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Sticker pop and poll fill." },
+      { "name": "dur-fast", "value": "120ms", "purpose": "Press feedback." },
+      { "name": "dur-base", "value": "180ms", "purpose": "Colour and state changes (transition-ui)." },
+      { "name": "dur-slow", "value": "320ms", "purpose": "Chat message send settle." },
+      { "name": "dur-pop", "value": "460ms", "purpose": "Sticker pop: scale 0.86 and slight rotate to rest, visible from frame one." },
+      { "name": "dur-fill", "value": "700ms", "purpose": "Poll bar clip-path fill." }
+    ],
+    "breakpoints": [
+      { "name": "md", "value": "768px", "purpose": "Gutter 24px; touch field sizing ends." },
+      { "name": "lg", "value": "1024px", "purpose": "Gutter 32px; desktop rail replaces bottom bar." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one action colour as a pill. Every primary action.",
+      "html": "<button class=\"ds-btn-primary\">Join with college email</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; height: 44px; padding: 0 16px; border: 1px solid transparent; border-radius: 9999px; background: var(--brand, #6b3df5); color: var(--brand-fg, #ffffff); font-family: var(--font-body, Figtree, sans-serif); font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: background-color 180ms cubic-bezier(0.2, 0.8, 0.2, 1), transform 120ms cubic-bezier(0.2, 0.8, 0.2, 1); } .ds-btn-primary:hover { background: var(--brand-hover, #5a2be0); } .ds-btn-primary:active { transform: scale(0.97); } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--bg, #ffffff), 0 0 0 4px var(--ring, #6b3df5); }"
+    },
+    {
+      "name": "On-Field Button",
+      "kind": "button",
+      "refersTo": "button-on-field",
+      "description": "White sticker button for the violet story field on landing heroes only.",
+      "html": "<div class=\"ds-field\"><button class=\"ds-btn-onfield\">Join with college email</button></div>",
+      "css": ".ds-field { background: var(--story-field, #6b3df5); padding: 32px; border-radius: 22px; } .ds-btn-onfield { display: inline-flex; align-items: center; height: 52px; padding: 0 24px; border: 1px solid transparent; border-radius: 9999px; background: var(--sticker-bg, #ffffff); color: var(--brand-text, #5a2be0); font-family: var(--font-body, Figtree, sans-serif); font-size: 1rem; font-weight: 600; box-shadow: var(--shadow-sticker, 0 6px 16px -6px rgb(21 19 29 / 0.26), 0 2px 4px -1px rgb(21 19 29 / 0.08)); cursor: pointer; transition: background-color 180ms cubic-bezier(0.2, 0.8, 0.2, 1), transform 120ms cubic-bezier(0.2, 0.8, 0.2, 1); } .ds-btn-onfield:hover { background: var(--brand-subtle, #f2edff); } .ds-btn-onfield:active { transform: scale(0.97); } .ds-btn-onfield:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--story-field, #6b3df5), 0 0 0 4px #ffffff; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Muted pill for the second choice next to a primary.",
+      "html": "<button class=\"ds-btn-secondary\">Maybe later</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; height: 44px; padding: 0 16px; border: 1px solid transparent; border-radius: 9999px; background: var(--surface-muted, #f5f3fa); color: var(--fg, #15131d); font-family: var(--font-body, Figtree, sans-serif); font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: background-color 180ms cubic-bezier(0.2, 0.8, 0.2, 1), transform 120ms cubic-bezier(0.2, 0.8, 0.2, 1); } .ds-btn-secondary:hover { background: var(--surface-sunken, #ebe8f3); } .ds-btn-secondary:active { transform: scale(0.97); } .ds-btn-secondary:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--bg, #ffffff), 0 0 0 4px var(--ring, #6b3df5); }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "White field, strong hairline, violet focus.",
+      "html": "<input class=\"ds-input\" placeholder=\"you@college.ac.in\" />",
+      "css": ".ds-input { width: 280px; height: 44px; padding: 8px 14px; border: 1px solid var(--border-strong, #cbc6d9); border-radius: 14px; background: var(--surface, #ffffff); color: var(--fg, #15131d); font-family: var(--font-body, Figtree, sans-serif); font-size: 1rem; outline: none; transition: border-color 180ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 180ms cubic-bezier(0.2, 0.8, 0.2, 1); } .ds-input::placeholder { color: var(--fg-subtle, #6c6780); } .ds-input:focus-visible { border-color: var(--brand, #6b3df5); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring, #6b3df5) 25%, transparent); }"
+    },
+    {
+      "name": "Filter Chips",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Borderless pills; selected fills violet because it is a pressable choice.",
+      "html": "<div class=\"ds-chips\"><button class=\"ds-chip\" aria-pressed=\"true\">Notes</button><button class=\"ds-chip\" aria-pressed=\"false\">PYQs</button><button class=\"ds-chip\" aria-pressed=\"false\">Events</button></div>",
+      "css": ".ds-chips { display: flex; gap: 8px; } .ds-chip { height: 40px; padding: 0 16px; border: 0; border-radius: 9999px; background: var(--surface-muted, #f5f3fa); color: var(--fg-muted, #57526a); font-family: var(--font-body, Figtree, sans-serif); font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: background-color 180ms cubic-bezier(0.2, 0.8, 0.2, 1), color 180ms cubic-bezier(0.2, 0.8, 0.2, 1), transform 120ms cubic-bezier(0.2, 0.8, 0.2, 1); } .ds-chip:hover { background: var(--surface-sunken, #ebe8f3); color: var(--fg, #15131d); } .ds-chip:active { transform: scale(0.97); } .ds-chip[aria-pressed=\"true\"] { background: var(--brand, #6b3df5); color: var(--brand-fg, #ffffff); } .ds-chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--bg, #ffffff), 0 0 0 4px var(--ring, #6b3df5); }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Calm Operate container: hairline, no shadow, 20px corners.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-title\">DBMS unit 3 notes</div><div class=\"ds-card-desc\">Shared by a senior in CSE. 42 saves.</div></div>",
+      "css": ".ds-card { width: 300px; padding: 16px; border: 1px solid var(--border, #e2deec); border-radius: 20px; background: var(--surface, #ffffff); color: var(--fg, #15131d); font-family: var(--font-body, Figtree, sans-serif); } .ds-card-title { font-family: var(--font-display, 'Bricolage Grotesque', sans-serif); font-size: 1.125rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.375; } .ds-card-desc { margin-top: 4px; font-size: 0.875rem; color: var(--fg-muted, #57526a); }"
+    },
+    {
+      "name": "Sidebar Navigation",
+      "kind": "nav",
+      "refersTo": "nav-row",
+      "description": "Desktop rail rows: pills, active in violet mist.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-row\" aria-current=\"page\" href=\"#\">Home</a><a class=\"ds-nav-row\" href=\"#\">Academics</a><a class=\"ds-nav-row\" href=\"#\">Campus Match</a></nav>",
+      "css": ".ds-nav { display: flex; flex-direction: column; gap: 4px; width: 232px; padding: 8px 12px; background: var(--surface, #ffffff); border-right: 1px solid var(--border, #e2deec); } .ds-nav-row { display: flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 9999px; color: var(--fg-muted, #57526a); font-family: var(--font-body, Figtree, sans-serif); font-size: 0.9375rem; font-weight: 500; text-decoration: none; transition: background-color 180ms cubic-bezier(0.2, 0.8, 0.2, 1), color 180ms cubic-bezier(0.2, 0.8, 0.2, 1); } .ds-nav-row:hover { background: var(--surface-muted, #f5f3fa); color: var(--fg, #15131d); } .ds-nav-row[aria-current=\"page\"] { background: var(--brand-subtle, #f2edff); color: var(--brand-text, #5a2be0); font-weight: 600; } .ds-nav-row:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--ring, #6b3df5); }"
+    },
+    {
+      "name": "Poll Sticker",
+      "kind": "custom",
+      "refersTo": "sticker",
+      "description": "Signature: a Story poll. Results fill as violet bars; chosen bar is darker and bold.",
+      "html": "<div class=\"ds-poll\"><p class=\"ds-poll-q\">Canteen or hostel mess tonight?</p><div class=\"ds-poll-opt ds-chosen\"><span class=\"ds-poll-bar\" style=\"width:64%\"></span><span class=\"ds-poll-row\"><span>Canteen</span><span>64%</span></span></div><div class=\"ds-poll-opt\"><span class=\"ds-poll-bar\" style=\"width:36%\"></span><span class=\"ds-poll-row\"><span>Mess</span><span>36%</span></span></div><p class=\"ds-poll-foot\">128 votes</p></div>",
+      "css": ".ds-poll { display: flex; flex-direction: column; gap: 8px; width: 300px; padding: 16px; border-radius: 22px; background: var(--sticker-bg, #ffffff); color: var(--sticker-fg, #15131d); box-shadow: var(--shadow-sticker, 0 6px 16px -6px rgb(21 19 29 / 0.26), 0 2px 4px -1px rgb(21 19 29 / 0.08)); font-family: var(--font-body, Figtree, sans-serif); } .ds-poll-q { margin: 0; padding: 0 4px 4px; font-family: var(--font-display, 'Bricolage Grotesque', sans-serif); font-size: 1.25rem; font-weight: 800; font-stretch: 82%; letter-spacing: -0.02em; line-height: 1; } .ds-poll-opt { position: relative; min-height: 44px; overflow: hidden; border-radius: 10px; background: var(--poll-track, #f5f3fa); } .ds-poll-bar { position: absolute; inset: 0 auto 0 0; background: var(--poll-fill, #e4daff); transition: width 700ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-chosen .ds-poll-bar { background: var(--poll-fill-chosen, #d0c0ff); } .ds-poll-row { position: relative; display: flex; justify-content: space-between; align-items: center; min-height: 44px; padding: 8px 14px; font-size: 0.875rem; font-weight: 500; } .ds-chosen .ds-poll-row { font-weight: 700; } .ds-poll-row span:last-child { font-weight: 700; font-variant-numeric: tabular-nums; } .ds-poll-foot { margin: 0; padding: 0 4px; font-size: 0.75rem; font-weight: 500; color: var(--fg-muted, #57526a); }"
+    },
+    {
+      "name": "Question Sticker",
+      "kind": "custom",
+      "refersTo": "sticker-header",
+      "description": "Signature: violet header strip with caption prompt over a white body.",
+      "html": "<div class=\"ds-question\"><div class=\"ds-question-head\">Ask the seniors anything</div><div class=\"ds-question-body\">Which elective is easiest in sem 5?</div></div>",
+      "css": ".ds-question { width: 300px; overflow: hidden; border-radius: 22px; background: var(--sticker-bg, #ffffff); color: var(--sticker-fg, #15131d); box-shadow: var(--shadow-sticker, 0 6px 16px -6px rgb(21 19 29 / 0.26), 0 2px 4px -1px rgb(21 19 29 / 0.08)); font-family: var(--font-body, Figtree, sans-serif); } .ds-question-head { padding: 12px 16px; background: var(--sticker-header, #6b3df5); color: var(--sticker-header-fg, #ffffff); font-family: var(--font-display, 'Bricolage Grotesque', sans-serif); font-size: 1.125rem; font-weight: 800; font-stretch: 82%; letter-spacing: -0.02em; line-height: 1; } .ds-question-body { padding: 16px; font-size: 1rem; }"
+    },
+    {
+      "name": "Mention and Loop Points",
+      "kind": "chip",
+      "refersTo": "mention-tag",
+      "description": "Signature pills: violet-mist @mention and the yellow Loop Points sticker (yellow means rewards only).",
+      "html": "<div class=\"ds-pills\"><a class=\"ds-mention\" href=\"#\">@riya.cse</a><span class=\"ds-points\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"8\" cy=\"8\" r=\"6\"/><path d=\"M18.09 10.37A6 6 0 1 1 10.34 18\"/><path d=\"M7 6h1v4\"/><path d=\"m16.71 13.88.7.71-2.82 2.82\"/></svg><b>1,240</b><span>Loop Points</span></span></div>",
+      "css": ".ds-pills { display: flex; align-items: center; gap: 12px; font-family: var(--font-body, Figtree, sans-serif); } .ds-mention { display: inline-flex; align-items: center; height: 28px; padding: 0 10px; border-radius: 9999px; background: var(--brand-subtle, #f2edff); color: var(--brand-text, #5a2be0); font-size: 0.875rem; font-weight: 600; text-decoration: none; transition: background-color 180ms cubic-bezier(0.2, 0.8, 0.2, 1), color 180ms cubic-bezier(0.2, 0.8, 0.2, 1); } .ds-mention:hover { background: var(--brand, #6b3df5); color: var(--brand-fg, #ffffff); } .ds-mention:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--ring, #6b3df5); } .ds-points { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border-radius: 9999px; background: var(--reward, #ffd43b); color: var(--reward-fg, #15131d); font-size: 0.875rem; font-weight: 600; box-shadow: var(--shadow-sticker, 0 6px 16px -6px rgb(21 19 29 / 0.26), 0 2px 4px -1px rgb(21 19 29 / 0.08)); } .ds-points b { font-family: var(--font-display, 'Bricolage Grotesque', sans-serif); font-weight: 800; font-stretch: 82%; font-size: 1.15em; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Campus Story",
+    "overview": "CampusLoop speaks in the sticker language students already use on Instagram and Snapchat Stories. Polls, question boxes, @mentions and countdowns are the real controls of the product, not decoration laid over it. The ground is plain white with near-black ink. One violet, taken from the logo C, does every pressable job. Three other colours exist, and each one means exactly one thing.\n\nThe world has two registers. Persuade surfaces (landing, marketing) may flood a full-bleed violet story field, lift stickers with a soft shadow, tilt them a few degrees and let one pop into place. Operate surfaces (feed, chat, settings, admin, forms) stay calm: hairline-bordered cards, plain rows, and the same sticker primitives in their flat variant. Both registers share one token set and one dark \"night\" version, where every semantic token is redefined under `.dark` on a deep violet-black ground.\n\nDensity is phone-first. Controls are at least 44px tall on touch, everything is pill- or tile-shaped, and heavy condensed Bricolage captions carry the voice while Figtree does the reading.",
+    "keyCharacteristics": [
+      "White ground, ink text, Loop Violet as the single action colour.",
+      "Colour by meaning: yellow is Loop Points, pink is Campus Match, mint is verified.",
+      "Stickers are the component vocabulary: rounded tiles, violet header strips, filling poll bars, countdown tiles, @mention pills.",
+      "Heavy, slightly condensed display type; quiet humanist body.",
+      "Soft offset shadows with real blur; flat with a hairline when calm.",
+      "One authored motion moment per screen: the sticker pop."
+    ],
+    "rules": [
+      { "name": "The One Action Colour Rule", "body": "Anything you can press that is not a status action is Loop Violet or a neutral. No second action hue exists.", "section": "colors" },
+      { "name": "The Colour Means One Thing Rule", "body": "Yellow is Loop Points, pink is Campus Match, mint is verified or safe. A colour from these families never appears for decoration or category tinting.", "section": "colors" },
+      { "name": "The Night Version Rule", "body": "Dark mode redefines semantic tokens under `.dark`. Components never hand-pick their own dark colours.", "section": "colors" },
+      { "name": "The Caption Voice Rule", "body": "Bricolage at 800 with negative tracking is the voice of the product. Headings h1 and h2 are 800 at 88% width; sticker captions are 800 at 82% width. Body copy is never set in the display face.", "section": "typography" },
+      { "name": "The Tabular Numbers Rule", "body": "Counts, timers, points and percentages use tabular figures.", "section": "typography" },
+      { "name": "The Border Or Shadow Rule", "body": "A surface carries a hairline border or a shadow, never both. A sticker's `flat` variant swaps the shadow for a hairline.", "section": "elevation" },
+      { "name": "The Real Blur Rule", "body": "Every shadow has an offset and a blur. No zero-blur block shadows, no zero-offset glows.", "section": "elevation" }
+    ],
+    "dos": [
+      "**Do** use Loop Violet for every pressable primary action and nothing decorative.",
+      "**Do** keep yellow for Loop Points, pink for Campus Match, mint for verified or safe.",
+      "**Do** build interactive moments from the sticker primitives (poll, question, countdown, mention, Loop Points) before inventing a new widget.",
+      "**Do** use the `flat` sticker variant and hairline cards on Operate screens; reserve lift, tilt and pop for Persuade screens.",
+      "**Do** keep every control at 44px or taller on touch, and fields at 16px text.",
+      "**Do** label example content on marketing surfaces with the dashed Example badge."
+    ],
+    "donts": [
+      "**Don't** use gradient text, decorative backdrop blur, glass panels, or `transition-all`.",
+      "**Don't** put a border and a shadow on the same surface, or use zero-blur block shadows.",
+      "**Don't** use emoji as icons; icons are line icons.",
+      "**Don't** add thick coloured side stripes to cards or rows.",
+      "**Don't** put eyebrow labels above headings or number sections 01/02/03.",
+      "**Don't** build page structure from identical icon-card grids, nested cards, or hero metric rows.",
+      "**Don't** use raw hex or palette classes outside `src/styles` and `src/components/ui`; use semantic tokens.",
+      "**Don't** use the violet story field outside landing and marketing heroes."
+    ]
+  }
+}

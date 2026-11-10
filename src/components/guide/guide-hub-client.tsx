@@ -1,10 +1,13 @@
 "use client";
 
-import { ArrowRight, Search, X } from "lucide-react";
+import { ArrowRight, Search, SearchX, X } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Input } from "@/components/ui/input";
 import type { GuideCategory } from "@/lib/guide/types";
-import { cn } from "@/lib/utils";
 
 export interface GuideCardData {
   slug: string;
@@ -12,6 +15,11 @@ export interface GuideCardData {
   summary: string;
   category: GuideCategory;
   keywords: string[];
+}
+
+/** Valid, space-free element id for a category heading. */
+function categoryId(name: string) {
+  return `cat-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
 }
 
 /** Searchable, filterable index of every guide. Data is passed in from the server page. */
@@ -38,73 +46,88 @@ export function GuideHubClient({
 
   return (
     <div className="space-y-6">
-      <div className="space-y-3">
-        <label className="relative block">
-          <span className="sr-only">Search the guide</span>
-          <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search features, e.g. notes, payments, dating, events"
-            className="h-12 w-full rounded-2xl bg-muted/60 pl-11 pr-11 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-          />
-          {query && (
-            <button
-              type="button"
-              onClick={() => setQuery("")}
-              aria-label="Clear search"
-              className="absolute right-2 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
-            >
-              <X className="size-4" />
-            </button>
-          )}
+      <div className="relative">
+        <label htmlFor="guide-search" className="sr-only">
+          Search the guide
         </label>
-        <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar" role="tablist" aria-label="Filter by category">
-          {(["All", ...categories.map((c) => c.name)] as const).map((name) => (
-            <button
-              key={name}
-              type="button"
-              role="tab"
-              aria-selected={active === name}
-              onClick={() => setActive(name)}
-              className={cn(
-                "h-9 shrink-0 rounded-full px-4 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer",
-                active === name ? "bg-foreground text-background" : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
-              )}
-            >
-              {name}
-            </button>
-          ))}
-        </div>
+        <Search
+          className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-fg-subtle"
+          aria-hidden="true"
+        />
+        <Input
+          id="guide-search"
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search, like “notes”, “events” or “payments”"
+          className="h-12 rounded-full pr-12 pl-11 text-base"
+        />
+        {query && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => setQuery("")}
+            aria-label="Clear search"
+            className="absolute top-1/2 right-1.5 -translate-y-1/2"
+          >
+            <X aria-hidden="true" />
+          </Button>
+        )}
       </div>
 
+      <fieldset className="-mx-[var(--gutter)] flex min-w-0 gap-2 overflow-x-auto px-[var(--gutter)] pb-1 no-scrollbar sm:mx-0 sm:flex-wrap sm:px-0">
+        <legend className="sr-only">Topic</legend>
+        {(["All", ...categories.map((c) => c.name)] as const).map((name) => (
+          <Chip key={name} selected={active === name} onSelectedChange={() => setActive(name)}>
+            {name}
+          </Chip>
+        ))}
+      </fieldset>
+
       {filtered.length === 0 ? (
-        <div className="rounded-2xl bg-card/60 p-10 text-center shadow-2xs">
-          <p className="font-semibold text-foreground">No guides match "{query}"</p>
-          <p className="mt-1 text-sm text-muted-foreground">Try a broader word like "notes", "chat" or "orders".</p>
-        </div>
+        <EmptyState
+          icon={SearchX}
+          bordered
+          title="No guides match that"
+          description="Try a broader word like “notes” or “chat”."
+          action={
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setQuery("");
+                setActive("All");
+              }}
+            >
+              Show all guides
+            </Button>
+          }
+        />
       ) : (
         visibleCategories.map((cat) => (
-          <section key={cat.name} aria-labelledby={`cat-${cat.name}`} className="space-y-3 pt-2">
-            <div>
-              <h2 id={`cat-${cat.name}`} className="text-lg font-bold text-foreground">{cat.name}</h2>
-              <p className="text-sm text-muted-foreground">{cat.blurb}</p>
-            </div>
-            <ul className="grid gap-2 sm:grid-cols-2">
+          <section key={cat.name} aria-labelledby={categoryId(cat.name)} className="pt-4">
+            <h3 id={categoryId(cat.name)} className="text-xl text-fg">
+              {cat.name}
+            </h3>
+            <p className="text-sm text-fg-muted">{cat.blurb}</p>
+            <ul className="mt-3 divide-y divide-border rounded-lg border border-border bg-surface">
               {filtered
                 .filter((g) => g.category === cat.name)
                 .map((g) => (
                   <li key={g.slug}>
                     <Link
                       href={`/guide/${g.slug}`}
-                      className="group flex h-full items-start gap-3 rounded-2xl bg-card/60 p-4 shadow-2xs transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                      className="group flex items-start gap-3 px-4 py-3.5 transition-ui hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
                     >
                       <span className="min-w-0 flex-1">
-                        <span className="block font-semibold text-foreground">{g.title}</span>
-                        <span className="mt-0.5 block text-sm leading-relaxed text-muted-foreground">{g.summary}</span>
+                        <span className="block font-semibold text-fg">{g.title}</span>
+                        <span className="mt-0.5 block text-sm text-fg-muted">{g.summary}</span>
                       </span>
-                      <ArrowRight className="mt-1 size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" aria-hidden />
+                      <ArrowRight
+                        className="mt-1 size-4 shrink-0 text-fg-subtle group-hover:text-fg"
+                        aria-hidden="true"
+                      />
                     </Link>
                   </li>
                 ))}

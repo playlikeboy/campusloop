@@ -1,9 +1,11 @@
 "use client";
 
-import { ArrowUpRight, BookOpen, Flame, PenTool, Sparkles, Users } from "lucide-react";
+import { ChevronRight, Hash, PenTool, Users } from "lucide-react";
 import Link from "next/link";
 import useSWR from "swr";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { QuestionSticker } from "@/components/ui/stickers";
 import { useScrollIsolation } from "@/hooks/use-scroll-isolation";
 import { fetcher } from "@/lib/api";
 
@@ -31,7 +33,7 @@ const DEFAULT_TOPICS = [
 ];
 
 export function ArticlesRightSidebar() {
-  const scrollRef = useScrollIsolation<HTMLElement>();
+  const scrollRef = useScrollIsolation<HTMLDivElement>();
   const { data: topAuthorsData } = useSWR<{ authors: TopAuthor[] }>("/api/articles/top-authors", fetcher, {
     dedupingInterval: 60000,
   });
@@ -45,124 +47,90 @@ export function ArticlesRightSidebar() {
   const topics = rawTopics.length > 0 ? rawTopics : DEFAULT_TOPICS;
 
   return (
-    <aside
+    <div
       ref={scrollRef}
-      className="w-full lg:w-80 shrink-0 space-y-6 sticky top-4 h-[calc(100vh-2rem)] max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain no-scrollbar pr-1 pb-16"
+      className="no-scrollbar w-full shrink-0 space-y-6 pb-16 lg:sticky lg:top-4 lg:max-h-[calc(100dvh-2rem)] lg:overflow-y-auto lg:overscroll-contain lg:pr-1"
     >
-      {/* ─── Write For CampusLoop Callout ─── */}
-      <div className="relative overflow-hidden rounded-2xl border border-primary/25 bg-gradient-to-br from-primary/10 via-card to-background p-5 shadow-xs">
-        <div className="space-y-2.5 relative z-10">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-primary tracking-wide">
-            <Sparkles className="size-3.5" />
-            <span>Student Publications</span>
-          </div>
-          <h3 className="text-base font-bold text-foreground tracking-tight leading-snug">
-            Write placement roadmaps &amp; guides
-          </h3>
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            Share your interview debriefs, tech deep-dives, and campus insights with students across 1,350+
-            colleges.
-          </p>
-          <div className="pt-2">
-            <Link
-              href="/articles/new"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 active:scale-95 transition-ui shadow-xs"
-            >
-              <PenTool className="size-3.5" />
-              <span>Start Writing</span>
-            </Link>
-          </div>
-        </div>
-      </div>
+      <QuestionSticker prompt="Got a story worth telling?" variant="flat">
+        <p className="text-sm text-fg-muted">
+          Your placement prep, an interview, a project or hostel life. Write it once and help the next batch.
+        </p>
+        <Button asChild size="sm" className="mt-4">
+          <Link href="/articles/new">
+            <PenTool className="size-4" />
+            Write an article
+          </Link>
+        </Button>
+      </QuestionSticker>
 
-      {/* ─── Trending Campus Topics ─── */}
-      <div className="rounded-2xl border border-border/40 bg-card/60 p-4 space-y-3">
-        <div className="flex items-center gap-2 text-foreground font-bold text-sm">
-          <Flame className="size-4 text-brand-text" />
-          <span>Trending Topics</span>
-        </div>
-        <div className="flex flex-wrap gap-1.5 pt-1">
+      <section aria-labelledby="articles-topics" className="space-y-3">
+        <h2 id="articles-topics" className="flex items-center gap-2 text-base text-fg">
+          <Hash aria-hidden className="size-4 text-fg-subtle" />
+          Popular tags
+        </h2>
+        <div className="flex flex-wrap gap-2">
           {topics.map((t) => (
             <Link
               key={t.tag}
               href={`/articles?tag=${encodeURIComponent(t.tag)}`}
-              className="px-2.5 py-1 rounded-lg border border-border/50 bg-muted/40 hover:bg-muted text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+              className="inline-flex h-8 items-center rounded-full bg-surface-muted px-3 text-xs font-medium text-fg-muted transition-ui hover:bg-surface-sunken hover:text-fg"
             >
               #{t.tag}
             </Link>
           ))}
         </div>
-      </div>
+      </section>
 
-      {/* ─── Top Campus Writers ─── */}
       {topAuthors.length > 0 && (
-        <div className="rounded-2xl border border-border/40 bg-card/60 p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-foreground font-bold text-sm">
-              <Users className="size-4 text-primary" />
-              <span>Top Student Authors</span>
-            </div>
-          </div>
-
-          <div className="divide-y divide-border/20 pt-1">
-            {topAuthors.slice(0, 5).map((author) => (
-              <div
-                key={author.id}
-                className="flex items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0"
-              >
-                <Link href={`/@${author.username.replace(/^@/, "")}`} className="flex items-center gap-2.5 min-w-0 group">
-                  <Avatar className="size-8 border border-border/40 shrink-0">
-                    <AvatarImage src={author.avatarUrl || ""} />
-                    <AvatarFallback className="text-xs font-bold bg-muted text-foreground">
-                      {author.displayName?.[0] || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="min-w-0">
-                    <h4 className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">
-                      {author.displayName}
-                    </h4>
-                    <p className="text-[11px] text-muted-foreground truncate">
-                      @{author.username} · {author.articleCount || 1}{" "}
-                      {author.articleCount === 1 ? "article" : "articles"}
-                    </p>
-                  </div>
-                </Link>
-
-                <Link
-                  href={`/@${author.username.replace(/^@/, "")}`}
-                  className="p-1.5 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors shrink-0"
-                  title="View author profile"
-                >
-                  <ArrowUpRight className="size-3.5" />
-                </Link>
-              </div>
-            ))}
-          </div>
-        </div>
+        <section aria-labelledby="articles-writers" className="space-y-2">
+          <h2 id="articles-writers" className="flex items-center gap-2 text-base text-fg">
+            <Users aria-hidden className="size-4 text-fg-subtle" />
+            Writers to follow
+          </h2>
+          <ul className="divide-y divide-border">
+            {topAuthors.slice(0, 5).map((author) => {
+              const handle = author.username.replace(/^@/, "");
+              const count = author.articleCount || 1;
+              return (
+                <li key={author.id}>
+                  <Link
+                    href={`/@${handle}`}
+                    className="group flex min-h-14 items-center gap-3 py-2 transition-ui"
+                  >
+                    <Avatar className="size-9 shrink-0">
+                      <AvatarImage src={author.avatarUrl || ""} alt="" />
+                      <AvatarFallback className="bg-surface-muted text-xs font-semibold text-fg">
+                        {author.displayName?.[0] || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-semibold text-fg group-hover:text-brand-text">
+                        {author.displayName}
+                      </span>
+                      <span className="block truncate text-xs text-fg-muted">
+                        @{handle} · {count} {count === 1 ? "article" : "articles"}
+                      </span>
+                    </span>
+                    <ChevronRight aria-hidden className="size-4 shrink-0 text-fg-subtle" />
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
       )}
 
-      {/* ─── Editorial Guidelines ─── */}
-      <div className="rounded-2xl border border-border/40 bg-card/40 p-4 space-y-2 text-xs">
-        <div className="flex items-center gap-1.5 font-bold text-foreground">
-          <BookOpen className="size-3.5 text-primary" />
-          <span>Campus Editorial Rules</span>
-        </div>
-        <p className="text-[11px] text-muted-foreground leading-relaxed">
-          Original placement experiences, tech articles, and verified student insights. High signal, zero
-          spam.
-        </p>
-        <div className="flex flex-wrap gap-x-3 gap-y-1 pt-1 text-[11px] font-semibold text-muted-foreground">
-          <Link href="/safety" className="hover:text-foreground hover:underline">
-            Guidelines
-          </Link>
-          <Link href="/articles/dashboard" className="hover:text-foreground hover:underline">
-            Dashboard
-          </Link>
-          <Link href="/contact" className="hover:text-foreground hover:underline">
-            Support
-          </Link>
-        </div>
-      </div>
-    </aside>
+      <nav aria-label="Article links" className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-fg-muted">
+        <Link href="/articles/dashboard" className="hover:text-fg hover:underline">
+          My articles
+        </Link>
+        <Link href="/safety" className="hover:text-fg hover:underline">
+          Writing rules
+        </Link>
+        <Link href="/contact" className="hover:text-fg hover:underline">
+          Contact us
+        </Link>
+      </nav>
+    </div>
   );
 }

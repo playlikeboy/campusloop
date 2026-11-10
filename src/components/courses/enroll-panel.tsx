@@ -1,31 +1,49 @@
 "use client";
 
-import { Award, Bookmark, BookmarkCheck, Clock, Infinity as InfinityIcon, Loader2, Pencil, PlayCircle, Share2, Smartphone } from "lucide-react";
+import { Award, Bookmark, BookmarkCheck, Clock, Pencil, PlayCircle, Share2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { courseAction, useCourse } from "@/hooks/use-courses";
 import { formatDuration } from "@/lib/courses/format";
+import { lectureCount } from "./lecture-kind";
+import { ProgressBar } from "./progress-bar";
 
-/** Sticky purchase-style panel: enrol / continue, wishlist, share, what's included. */
+/** Side panel on the course page: join or continue, save, share, what you get. */
 export function EnrollPanel({ slug }: { slug: string }) {
   const router = useRouter();
-  const { data, mutate } = useCourse(slug);
+  const { data, error, mutate } = useCourse(slug);
   const [busy, setBusy] = useState(false);
-  if (!data) return <div className="h-72 animate-pulse rounded-2xl bg-muted/60" />;
+
+  if (error && !data) {
+    return (
+      <div className="rounded-lg border border-border bg-surface p-5 text-sm">
+        <p className="font-semibold text-fg">Couldn't load this course.</p>
+        <Button variant="secondary" className="mt-3" onClick={() => mutate()}>
+          Try again
+        </Button>
+      </div>
+    );
+  }
+  if (!data) return <Skeleton className="h-72 rounded-lg" />;
+
   const { course, viewer, lectures, canEdit } = data;
-  const progress = lectures.length ? Math.round((viewer.completedIds.length / lectures.length) * 100) : 0;
-  const resume = viewer.lastLectureId ?? lectures.find((l) => !viewer.completedIds.includes(l.id))?.id ?? lectures[0]?.id;
+  const doneCount = viewer.completedIds.length;
+  const progress = lectures.length ? Math.round((doneCount / lectures.length) * 100) : 0;
+  const resume =
+    viewer.lastLectureId ?? lectures.find((l) => !viewer.completedIds.includes(l.id))?.id ?? lectures[0]?.id;
 
   async function enroll() {
     setBusy(true);
     try {
       await courseAction(`/api/courses/${slug}/enroll`);
       await mutate();
-      router.push(`/learn/${slug}/${lectures[0]?.id ?? ""}`);
+      router.push(lectures[0] ? `/learn/${slug}/${lectures[0].id}` : `/courses/${slug}`);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Could not enrol";
+      const msg = e instanceof Error ? e.message : "Couldn't join the course. Try again.";
       if (msg.startsWith("Sign in")) router.push(`/sign-in?returnTo=/courses/${slug}`);
       else toast.error(msg);
       setBusy(false);
@@ -36,7 +54,7 @@ export function EnrollPanel({ slug }: { slug: string }) {
     try {
       const r = await courseAction<{ wishlisted: boolean }>(`/api/courses/${slug}/wishlist`);
       await mutate();
-      toast.success(r.wishlisted ? "Saved to wishlist" : "Removed from wishlist");
+      toast.success(r.wishlisted ? "Saved for later" : "Removed from saved");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Sign in to save courses");
     }
@@ -44,53 +62,65 @@ export function EnrollPanel({ slug }: { slug: string }) {
 
   async function share() {
     const url = `${window.location.origin}/courses/${slug}`;
-    if (navigator.share) await navigator.share({ title: course.title, url }).catch(() => {});
-    else {
-      await navigator.clipboard.writeText(url).catch(() => {});
+    if (navigator.share) {
+      await navigator.share({ title: course.title, url }).catch(() => {});
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(url);
       toast.success("Link copied");
+    } catch {
+      toast.error("Couldn't copy the link. Copy it from the address bar instead.");
     }
   }
 
   return (
-    <div className="rounded-2xl bg-card/80 p-5 shadow-sm">
-      <p className="text-2xl font-black text-foreground">Free</p>
+    <div className="rounded-lg border border-border bg-surface p-5">
+      <p className="font-display text-2xl font-extrabold text-fg">Free</p>
       {viewer.enrolled ? (
         <>
           <div className="mt-3">
-            <div className="h-2 overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
-              <div className="h-full rounded-full bg-primary transition-ui" style={{ width: `${progress}%` }} />
-            </div>
-            <p className="mt-1.5 text-sm text-muted-foreground">{progress}% complete · {viewer.completedIds.length}/{lectures.length} lectures</p>
+            <ProgressBar value={progress} label="Your progress" />
+            <p className="mt-1.5 text-sm tabular-nums text-fg-muted">
+              {doneCount} of {lectureCount(lectures.length)} done
+            </p>
           </div>
-          <Link href={`/learn/${slug}/${resume}`} className="mt-4 flex h-12 items-center justify-center gap-2 rounded-xl bg-primary text-base font-bold text-primary-foreground hover:opacity-90">
-            <PlayCircle className="size-5" aria-hidden /> {progress > 0 ? "Continue learning" : "Start course"}
-          </Link>
+          <Button asChild size="lg" className="mt-4 w-full">
+            <Link href={resume ? `/learn/${slug}/${resume}` : `/learn/${slug}`}>
+              <PlayCircle className="size-5" aria-hidden /> {progress > 0 ? "Continue" : "Start course"}
+            </Link>
+          </Button>
         </>
       ) : (
-        <button type="button" onClick={enroll} disabled={busy} className="mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-base font-bold text-primary-foreground hover:opacity-90 disabled:opacity-60 cursor-pointer">
-          {busy ? <Loader2 className="size-5 animate-spin" aria-hidden /> : <PlayCircle className="size-5" aria-hidden />} Enrol for free
-        </button>
+        <Button size="lg" onClick={enroll} loading={busy} className="mt-3 w-full">
+          {!busy && <PlayCircle className="size-5" aria-hidden />} Join for free
+        </Button>
       )}
       <div className="mt-2 grid grid-cols-2 gap-2">
-        <button type="button" onClick={wishlist} className="flex h-10 items-center justify-center gap-1.5 rounded-xl bg-muted/70 text-sm font-semibold text-foreground hover:bg-muted cursor-pointer">
-          {viewer.wishlisted ? <BookmarkCheck className="size-4 text-primary" aria-hidden /> : <Bookmark className="size-4" aria-hidden />}
-          {viewer.wishlisted ? "Saved" : "Wishlist"}
-        </button>
-        <button type="button" onClick={share} className="flex h-10 items-center justify-center gap-1.5 rounded-xl bg-muted/70 text-sm font-semibold text-foreground hover:bg-muted cursor-pointer">
-          <Share2 className="size-4" aria-hidden /> Share
-        </button>
+        <Button variant="secondary" onClick={wishlist} aria-pressed={viewer.wishlisted}>
+          {viewer.wishlisted ? <BookmarkCheck aria-hidden /> : <Bookmark aria-hidden />}
+          {viewer.wishlisted ? "Saved" : "Save"}
+        </Button>
+        <Button variant="secondary" onClick={share}>
+          <Share2 aria-hidden /> Share
+        </Button>
       </div>
       {canEdit && course.source === "COMMUNITY" && (
-        <Link href={`/courses/${slug}/edit`} className="mt-2 flex h-10 items-center justify-center gap-1.5 rounded-xl text-sm font-semibold text-primary hover:bg-primary/10">
-          <Pencil className="size-4" aria-hidden /> Edit course
-        </Link>
+        <Button asChild variant="ghost" className="mt-2 w-full">
+          <Link href={`/courses/${slug}/edit`}>
+            <Pencil aria-hidden /> Edit course
+          </Link>
+        </Button>
       )}
-      <p className="mt-5 text-sm font-bold text-foreground">This course includes</p>
-      <ul className="mt-2 space-y-2 text-sm text-muted-foreground">
-        <li className="flex items-center gap-2"><Clock className="size-4" aria-hidden />{formatDuration(course.durationSec)} of video in {course.lecturesCount} lectures</li>
-        <li className="flex items-center gap-2"><Smartphone className="size-4" aria-hidden />Watch on phone, tablet or laptop</li>
-        <li className="flex items-center gap-2"><InfinityIcon className="size-4" aria-hidden />Lifetime access, learn at your pace</li>
-        <li className="flex items-center gap-2"><Award className="size-4" aria-hidden />Certificate of completion</li>
+      <ul className="mt-5 space-y-2 border-t border-border pt-4 text-sm text-fg-muted">
+        <li className="flex items-center gap-2">
+          <Clock className="size-4 shrink-0" aria-hidden />
+          {formatDuration(course.durationSec)} of video, {lectureCount(course.lecturesCount)}
+        </li>
+        <li className="flex items-center gap-2">
+          <Award className="size-4 shrink-0" aria-hidden />
+          Certificate when you finish
+        </li>
       </ul>
     </div>
   );

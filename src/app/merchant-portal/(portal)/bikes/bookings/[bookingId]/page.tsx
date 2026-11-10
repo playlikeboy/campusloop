@@ -1,15 +1,11 @@
-import type { Metadata } from "next";
+import { privateMetadata } from "@/lib/seo";
 import { MerchantBikeBookingDetailClient } from "./merchant-bike-booking-detail-client";
 
 interface MerchantBikeBookingDetailPageProps {
   params: Promise<{ bookingId: string }>;
 }
 
-export const metadata: Metadata = {
-  title: "Process Reservation & Inspection | Merchant Portal",
-  description: "Verify customer credentials, perform vehicle handover, and complete returns.",
-  robots: { index: false, follow: false },
-};
+export const metadata = privateMetadata("Booking");
 
 export default async function MerchantBikeBookingDetailPage({ params }: MerchantBikeBookingDetailPageProps) {
   const { bookingId } = await params;

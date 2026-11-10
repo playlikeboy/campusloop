@@ -1,10 +1,10 @@
 "use client";
 
-import { Compass, Globe, MapPin } from "lucide-react";
+import { Globe, MapPin } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { SearchAutocomplete } from "@/components/search/search-autocomplete";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import type { SearchScope } from "@/lib/search/types";
-import { cn } from "@/lib/utils";
 
 interface ExploreHeaderProps {
   searchQuery: string;
@@ -25,53 +25,23 @@ export function ExploreHeader({
 
   return (
     <div className="space-y-4">
-      {/* Title & Scope Pill Switcher */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <Compass className="size-6 text-primary" />
-            <span>Explore</span>
-          </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-            Find people, campuses, communities, events &amp; ideas.
-          </p>
+          <h1 className="text-2xl sm:text-3xl">Explore</h1>
+          <p className="mt-0.5 text-sm text-fg-muted">Find people, colleges, communities and events.</p>
         </div>
-
-        {/* Campus / India Scope Switcher */}
-        <div className="inline-flex items-center p-1 rounded-full bg-muted/60 border border-border/40 shrink-0 self-start sm:self-auto">
-          <button
-            type="button"
-            onClick={() => onScopeChange("CAMPUS")}
-            className={cn(
-              "flex min-h-10 sm:min-h-0 items-center gap-1.5 px-3 py-2 sm:py-1 rounded-full text-xs font-semibold transition-ui cursor-pointer",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
-              scope === "CAMPUS"
-                ? "bg-background text-foreground shadow-xs border border-border/60"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            <MapPin className="size-3 text-primary" />
-            <span>My Campus</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onScopeChange("INDIA")}
-            className={cn(
-              "flex min-h-10 sm:min-h-0 items-center gap-1.5 px-3 py-2 sm:py-1 rounded-full text-xs font-semibold transition-ui cursor-pointer",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
-              scope === "INDIA" || scope === "GLOBAL"
-                ? "bg-background text-foreground shadow-xs border border-border/60"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            <Globe className="size-3 text-primary" />
-            <span>India</span>
-          </button>
-        </div>
+        <SegmentedControl
+          size="sm"
+          className="self-start sm:self-auto"
+          value={scope === "CAMPUS" ? "CAMPUS" : "INDIA"}
+          onChange={(value) => onScopeChange(value as SearchScope)}
+          options={[
+            { value: "CAMPUS", label: "My college", icon: <MapPin className="size-3.5" aria-hidden /> },
+            { value: "INDIA", label: "All of India", icon: <Globe className="size-3.5" aria-hidden /> },
+          ]}
+        />
       </div>
 
-      {/* ─── Search Bar with Integrated Typeahead Autocomplete ─── */}
       <SearchAutocomplete
         value={searchQuery}
         onChange={onSearchChange}
@@ -86,8 +56,8 @@ export function ExploreHeader({
           onSearchSubmit(query);
         }}
         size="lg"
-        placeholder="Search CampusLoop by keyword, @person, or #topic..."
-        inputClassName="rounded-full h-11 text-xs sm:text-sm pl-10 pr-10"
+        placeholder="Search people, posts, colleges or #tags"
+        inputClassName="rounded-full h-12 text-base pl-10 pr-10"
       />
     </div>
   );

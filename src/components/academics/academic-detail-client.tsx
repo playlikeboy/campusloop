@@ -15,7 +15,6 @@ import {
   Layers,
   Share2,
   ShieldCheck,
-  Sparkles,
   ThumbsUp,
 } from "lucide-react";
 import Link from "next/link";
@@ -29,11 +28,11 @@ import { AcademicPdfViewer } from "@/components/academics/academic-pdf-viewer";
 import { AddToPlaylistModal } from "@/components/academics/add-to-playlist-modal";
 import { SimilarResourcesWidget } from "@/components/academics/similar-resources-widget";
 import { AnimatedIcon } from "@/components/ui/animated-icon";
-import { useScrollIsolation } from "@/hooks/use-scroll-isolation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { checkAndRecordDownload } from "@/lib/academic-download-limiter";
+import { Button } from "@/components/ui/button";
+import { useScrollIsolation } from "@/hooks/use-scroll-isolation";
+import { checkAndRecordDownload, GUEST_DOWNLOAD_LIMIT } from "@/lib/academic-download-limiter";
 import {
-  gtagEvent,
   trackAcademicDownload,
   trackAcademicLimitReached,
   trackAcademicShare,
@@ -58,7 +57,8 @@ export function AcademicDetailClient({
   const router = useRouter();
   const [resource] = useState(initialResource);
   const effectivePageUrl =
-    canonicalUrl || `https://campusloop.space/academics/study-material/${initialResource.slug || initialResource.id}`;
+    canonicalUrl ||
+    `https://campusloop.space/academics/study-material/${initialResource.slug || initialResource.id}`;
   const [upvotes, setUpvotes] = useState(initialResource.upvotesCount || 0);
   const [downvotes, setDownvotes] = useState(initialResource.downvotesCount || 0);
   const [downloads, setDownloads] = useState(initialResource.downloadsCount || 0);
@@ -74,10 +74,6 @@ export function AcademicDetailClient({
   const [isHelpful, setIsHelpful] = useState(true);
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
 
-  // Campus AI Cram Helper
-  const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
-  const [isGeneratingAi, setIsGeneratingAi] = useState(false);
-
   // Guest conversion modal
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalReason, setAuthModalReason] = useState<
@@ -85,7 +81,7 @@ export function AcademicDetailClient({
   >("SAVE");
 
   const totalVotes = upvotes + downvotes;
-  const reliability = totalVotes > 0 ? Math.round((upvotes / totalVotes) * 100) : 100;
+  const helpfulPercent = totalVotes > 0 ? Math.round((upvotes / totalVotes) * 100) : null;
   const uploaderAvatar = getAvatarUrl(
     initialResource.uploader?.avatarUrl,
     initialResource.uploader?.username
@@ -122,7 +118,7 @@ export function AcademicDetailClient({
       if (userVote === "DOWN") setDownvotes((v: number) => Math.max(0, v - 1));
       setUserVote("UP");
       trackAcademicVote(resource.id, "UP");
-      toast.success("Helpful vote recorded! +5 Loop Points credited");
+      toast.success("Thanks for voting");
 
       fetch(`/api/academics/${resource.id}/analytics`, {
         method: "POST",
@@ -134,7 +130,7 @@ export function AcademicDetailClient({
       if (userVote === "UP") setUpvotes((v: number) => Math.max(0, v - 1));
       setUserVote("DOWN");
       trackAcademicVote(resource.id, "DOWN");
-      toast.info("Feedback noted. Thank you for keeping the vault accurate!");
+      toast.info("Thanks. We'll take a look.");
 
       fetch(`/api/academics/${resource.id}/analytics`, {
         method: "POST",
@@ -153,7 +149,7 @@ export function AcademicDetailClient({
       trackAcademicLimitReached();
       setAuthModalReason("DOWNLOAD_LIMIT");
       setIsAuthModalOpen(true);
-      toast.error("You've used all 5 free guest downloads! Sign in or register for unlimited downloads");
+      toast.error(`You've used your ${GUEST_DOWNLOAD_LIMIT} free downloads. Sign in to download more.`);
       return;
     }
 
@@ -181,18 +177,18 @@ export function AcademicDetailClient({
     if (targetUrl) {
       window.open(targetUrl, "_blank", "noopener,noreferrer");
       if (isDriveFolder) {
-        toast.success("Opening Google Drive study collection! Zero login required");
+        toast.success("Opening the Google Drive folder");
         return;
       }
       if (!currentUserId) {
         if (downloadCheck.remaining > 0) {
-          toast.success(`Downloaded! (${downloadCheck.remaining} free guest downloads remaining)`);
+          toast.success(`Downloaded. ${downloadCheck.remaining} free downloads left.`);
         } else {
-          toast.info("Downloaded! That was your 5th free download. Sign in anytime for unlimited access!");
+          toast.info("Downloaded. That was your last free download. Sign in to get more.");
         }
       }
     } else {
-      toast.error("File link is currently unavailable");
+      toast.error("This file's link is broken right now. Try again later.");
     }
   }
 
@@ -211,51 +207,8 @@ export function AcademicDetailClient({
       });
     } else {
       navigator.clipboard.writeText(url);
-      toast.success("Study link copied to clipboard!");
+      toast.success("Link copied");
     }
-  }
-
-  // AI Cram Generator
-  function handleGenerateAiCram(promptType: "CONCEPTS" | "EXAM_TIPS" | "CHECKLIST") {
-    if (!currentUserId) {
-      setAuthModalReason("AI");
-      setIsAuthModalOpen(true);
-      return;
-    }
-
-    sounds.tap();
-    haptics.medium();
-    gtagEvent("ai_study_cram_generated", { subject_code: resource.subjectCode, prompt_type: promptType });
-    setIsGeneratingAi(true);
-
-    setTimeout(() => {
-      if (promptType === "CONCEPTS") {
-        setAiAnalysis(
-          `### Core Concepts & Formula Checklist for ${resource.subjectCode}:\n\n` +
-            `1. **Key Definitions & Principles**: Review core theorems and mathematical formulas outlined in this document.\n` +
-            `2. **High-Yield Exam Topics**: Focus on numericals, step-by-step proofs, and recurring semester patterns.\n` +
-            `3. **Common Mistakes to Avoid**: Always verify standard boundary conditions, units, and assumptions.\n\n` +
-            `*Tip: Practice these solutions alongside past year papers for maximum marks.*`
-        );
-      } else if (promptType === "EXAM_TIPS") {
-        setAiAnalysis(
-          `### 15-Minute Exam Cram Strategy for ${resource.subjectName}:\n\n` +
-            `• **First 5 mins**: Scan all block diagrams and formula boxes highlighted in these notes.\n` +
-            `• **Next 5 mins**: Review solved examples and past question paper patterns.\n` +
-            `• **Last 5 mins**: Rehearse key definitions to score full marks in Section A.\n\n` +
-            `*Compiled with syllabus insights for ${resource.branch} Semester ${resource.semester}.*`
-        );
-      } else {
-        setAiAnalysis(
-          `### Syllabus Alignment & Peer Verification:\n\n` +
-            `• **Relevance**: Verified by ${resource.institution?.name?.split(",")[0] || "Campus"} peers with a ${reliability}% accuracy rating.\n` +
-            `• **Coverage**: Covers essential modules for ${resource.subjectCode} (${resource.subjectName}).\n` +
-            `• **Recommended Study Order**: Read lecture notes first, write down cheat sheet formulas, then test yourself against past question papers.`
-        );
-      }
-      setIsGeneratingAi(false);
-      sounds.success();
-    }, 600);
   }
 
   // Submit peer review
@@ -287,10 +240,10 @@ export function AcademicDetailClient({
 
       setComments((prev) => [json.comment, ...prev]);
       setCommentText("");
-      toast.success("Review posted! Thanks for verifying campus notes.");
+      toast.success("Review posted. Thanks.");
       haptics.success();
     } catch {
-      toast.error("Could not post review. Please try again.");
+      toast.error("Couldn't post your review. Try again.");
     } finally {
       setIsSubmittingComment(false);
     }
@@ -309,7 +262,7 @@ export function AcademicDetailClient({
             <div className="size-6 rounded-full bg-muted/60 group-hover:bg-muted flex items-center justify-center transition-colors">
               <ArrowLeft className="size-3" />
             </div>
-            <span>Vault</span>
+            <span>Study material</span>
           </Link>
           <ChevronRight className="size-3 shrink-0 opacity-40" />
           <span className="truncate font-medium">{resource.branch}</span>
@@ -333,15 +286,17 @@ export function AcademicDetailClient({
               sounds.tap();
               haptics.light();
               setIsSaved(!isSaved);
-              toast.success(isSaved ? "Removed from Study Vault" : "Saved to Study Vault");
+              toast.success(isSaved ? "Removed from saved" : "Saved");
             }}
             className={cn(
-              "flex size-9 items-center justify-center rounded-full border transition-ui cursor-pointer shadow-2xs active:scale-95",
+              "flex size-11 items-center justify-center rounded-full border transition-ui cursor-pointer active:scale-95",
               isSaved
                 ? "bg-brand-subtle text-brand-text border-brand-subtle-border"
                 : "border-border/60 hover:bg-muted text-muted-foreground hover:text-foreground"
             )}
-            title="Save to Study Vault"
+            title={isSaved ? "Saved" : "Save"}
+            aria-label={isSaved ? "Remove from saved" : "Save"}
+            aria-pressed={isSaved}
           >
             <AnimatedIcon
               icon={Bookmark}
@@ -354,8 +309,9 @@ export function AcademicDetailClient({
           <button
             type="button"
             onClick={handleShare}
-            className="flex size-9 items-center justify-center rounded-full border border-border/60 hover:bg-muted text-muted-foreground hover:text-foreground transition-ui cursor-pointer shadow-2xs active:scale-95"
-            title="Share note link"
+            className="flex size-11 items-center justify-center rounded-full border border-border hover:bg-muted text-muted-foreground hover:text-foreground transition-ui cursor-pointer active:scale-95"
+            title="Share"
+            aria-label="Share"
           >
             <AnimatedIcon icon={Share2} animation="pop" size={15} />
           </button>
@@ -363,7 +319,7 @@ export function AcademicDetailClient({
           <button
             type="button"
             onClick={handleDownload}
-            className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-black hover:bg-primary/90 transition-ui cursor-pointer shadow-xs active:scale-95"
+            className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-ui cursor-pointer shadow-xs active:scale-95"
           >
             <Download className="size-3.5" />
             <span>Download PDF</span>
@@ -372,31 +328,32 @@ export function AcademicDetailClient({
       </div>
 
       {/* ─── Resource Hero Header Card ─── */}
-      <div className="relative rounded-2xl border border-border/40 bg-card/60 backdrop-blur-md p-5 sm:p-7 overflow-hidden">
+      <div className="relative rounded-2xl border border-border/40 bg-surface p-5 sm:p-7 overflow-hidden">
         {/* Subtle background ambient mesh */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
 
         <div className="relative flex flex-col gap-4">
           {/* Badge Chips Row */}
           <div className="flex flex-wrap items-center gap-2">
-            <span className="px-3 py-1 rounded-full bg-primary/15 text-primary text-xs font-mono font-black border border-primary/30">
+            <span className="px-3 py-1 rounded-full bg-primary/15 text-primary text-xs font-mono font-bold border border-primary/30">
               {resource.subjectCode}
             </span>
             <span className="text-xs font-bold text-foreground/90 bg-muted/60 px-3 py-1 rounded-full border border-border/30">
               {resource.subjectName}
             </span>
-            <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-muted text-muted-foreground border border-border/40">
+            <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-muted text-muted-foreground border border-border/40">
               {resource.resourceType?.replace("_", " ") || "Notes"}
             </span>
-            <span className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 ml-auto">
-              <CheckCircle2 className="size-3" />
-              <span>{reliability}% Verified</span>
-            </span>
+            {helpfulPercent !== null && (
+              <span className="ml-auto text-xs font-semibold text-fg-muted tabular-nums">
+                {helpfulPercent}% of {totalVotes} {totalVotes === 1 ? "vote" : "votes"} helpful
+              </span>
+            )}
           </div>
 
           {/* Title & Description */}
           <div className="space-y-2">
-            <h1 className="text-xl sm:text-3xl font-black text-foreground tracking-tight leading-snug">
+            <h1 className="text-xl sm:text-3xl font-bold text-foreground tracking-tight leading-snug">
               {resource.title}
             </h1>
             {resource.description && (
@@ -410,7 +367,12 @@ export function AcademicDetailClient({
           <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-border/25">
             {/* Uploader info */}
             <div className="flex items-center gap-3 min-w-0">
-              <Link href={`/@${resource.uploader?.username}?tab=academics`} className="shrink-0">
+              <Link
+                href={`/@${resource.uploader?.username}?tab=academics`}
+                className="shrink-0"
+                tabIndex={-1}
+                aria-hidden="true"
+              >
                 <Avatar className="size-10 rounded-full border border-border/50">
                   <AvatarImage src={uploaderAvatar} />
                   <AvatarFallback className="text-xs font-bold bg-muted">
@@ -428,7 +390,7 @@ export function AcademicDetailClient({
                   </Link>
                   {resource.isVerified && <ShieldCheck className="size-3.5 text-primary shrink-0" />}
                 </div>
-                <p className="text-[11px] text-muted-foreground truncate">
+                <p className="text-xs text-muted-foreground truncate">
                   @{resource.uploader?.username} · {resource.institution?.name?.split(",")[0] || "Campus"} ·{" "}
                   {formatTimeAgo(resource.createdAt)}
                 </p>
@@ -439,17 +401,17 @@ export function AcademicDetailClient({
             <div className="flex items-center gap-4 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
                 <ThumbsUp className="size-3.5 text-primary" />
-                <strong className="text-foreground font-black tabular-nums">{upvotes}</strong>
+                <strong className="text-foreground font-bold tabular-nums">{upvotes}</strong>
                 <span className="hidden sm:inline">Helpful</span>
               </span>
               <span className="flex items-center gap-1">
                 <BookOpen className="size-3.5 text-muted-foreground" />
-                <strong className="text-foreground font-black tabular-nums">{views}</strong>
+                <strong className="text-foreground font-bold tabular-nums">{views}</strong>
                 <span className="hidden sm:inline">Views</span>
               </span>
               <span className="flex items-center gap-1">
                 <Download className="size-3.5 text-primary" />
-                <strong className="text-foreground font-black tabular-nums">{downloads}</strong>
+                <strong className="text-foreground font-bold tabular-nums">{downloads}</strong>
                 <span className="hidden sm:inline">Downloads</span>
               </span>
             </div>
@@ -474,7 +436,9 @@ export function AcademicDetailClient({
             onDownload={handleDownload}
             pageUrl={effectivePageUrl}
             onOpenPlayer={(attachment) =>
-              router.push(`/academics/study-material/${resource.id}/watch?a=${encodeURIComponent(attachment.id)}`)
+              router.push(
+                `/academics/study-material/${resource.id}/watch?a=${encodeURIComponent(attachment.id)}`
+              )
             }
           />
 
@@ -482,12 +446,12 @@ export function AcademicDetailClient({
           {resource.attachments && Array.isArray(resource.attachments) && resource.attachments.length > 1 && (
             <div className="rounded-2xl border border-border/40 bg-card/60 p-4 space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-black uppercase tracking-wider text-foreground flex items-center gap-1.5">
+                <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
                   <Layers className="size-3.5 text-primary" />
                   <span>All Included Files &amp; Links ({resource.attachments.length})</span>
                 </span>
-                <span className="text-[10px] text-muted-foreground font-semibold">
-                  Switch in reader above
+                <span className="text-xs text-muted-foreground font-semibold">
+                  Switch in the reader above
                 </span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -497,13 +461,11 @@ export function AcademicDetailClient({
                     className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-background/70 border border-border/30 text-xs"
                   >
                     <div className="flex items-center gap-2 min-w-0">
-                      <span className="text-[10px] font-mono font-bold text-muted-foreground">
-                        #{idx + 1}
-                      </span>
+                      <span className="text-xs font-mono font-bold text-muted-foreground">#{idx + 1}</span>
                       <span className="font-semibold text-foreground truncate">
                         {att.title || `Document ${idx + 1}`}
                       </span>
-                      <span className="text-[9px] px-1.5 py-0.2 rounded bg-muted uppercase font-mono font-bold shrink-0">
+                      <span className="text-xs px-1.5 py-0.2 rounded bg-muted font-mono font-bold shrink-0">
                         {att.type || "PDF"}
                       </span>
                     </div>
@@ -511,7 +473,7 @@ export function AcademicDetailClient({
                       href={att.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1 text-[11px] font-bold text-primary hover:underline shrink-0"
+                      className="flex items-center gap-1 text-xs font-bold text-primary hover:underline shrink-0"
                     >
                       <span>Open</span>
                       <ExternalLink className="size-3" />
@@ -539,16 +501,9 @@ export function AcademicDetailClient({
           <div className="rounded-2xl border border-border/40 bg-card/40 p-5 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-black text-foreground">
-                  Peer Reviews &amp; Syllabus Accuracy ({comments.length})
-                </h3>
-                <p className="text-[11px] text-muted-foreground">
-                  Student-verified corrections, missing solutions &amp; exam tips
-                </p>
+                <h2 className="text-base text-fg">Reviews ({comments.length})</h2>
+                <p className="text-sm text-fg-muted">Corrections, missing answers and exam tips</p>
               </div>
-              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-success-subtle text-success border border-success/25">
-                {reliability}% Verified
-              </span>
             </div>
 
             {/* Inline review form */}
@@ -567,34 +522,34 @@ export function AcademicDetailClient({
                     type="button"
                     onClick={() => setIsHelpful(true)}
                     className={cn(
-                      "px-3 py-0.5 rounded-full text-[11px] font-bold transition-ui cursor-pointer flex items-center gap-1",
+                      "px-3 py-0.5 rounded-full text-xs font-bold transition-ui cursor-pointer flex items-center gap-1",
                       isHelpful
                         ? "bg-primary/10 text-primary border border-primary/25"
                         : "text-muted-foreground hover:text-foreground border border-transparent"
                     )}
                   >
                     <CheckCircle2 className="size-3 text-primary" />
-                    <span>Accurate &amp; Verified</span>
+                    <span>Helpful</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setIsHelpful(false)}
                     className={cn(
-                      "px-3 py-0.5 rounded-full text-[11px] font-bold transition-ui cursor-pointer flex items-center gap-1",
+                      "px-3 py-0.5 rounded-full text-xs font-bold transition-ui cursor-pointer flex items-center gap-1",
                       !isHelpful
                         ? "bg-muted text-foreground border border-border/60"
                         : "text-muted-foreground hover:text-foreground border border-transparent"
                     )}
                   >
                     <AlertTriangle className="size-3 text-muted-foreground" />
-                    <span>Outdated / Errata</span>
+                    <span>Has mistakes</span>
                   </button>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <input
                     type="text"
-                    placeholder="Post your review, formula correction, or exam tip..."
+                    placeholder="Add a correction or exam tip"
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
                     className="flex-1 bg-muted/30 px-4 py-2 rounded-full text-xs text-foreground placeholder:text-muted-foreground border border-border/40 outline-none focus:border-primary transition-colors"
@@ -602,7 +557,7 @@ export function AcademicDetailClient({
                   <button
                     type="submit"
                     disabled={isSubmittingComment || !commentText.trim()}
-                    className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-black disabled:opacity-40 hover:bg-primary/90 transition-ui cursor-pointer shrink-0 shadow-xs"
+                    className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold disabled:opacity-40 hover:bg-primary/90 transition-ui cursor-pointer shrink-0 shadow-xs"
                   >
                     Reply
                   </button>
@@ -613,8 +568,7 @@ export function AcademicDetailClient({
             {/* Comments list */}
             {comments.length === 0 ? (
               <div className="py-8 text-center space-y-1 text-muted-foreground">
-                <p className="text-xs font-semibold">No peer reviews yet</p>
-                <p className="text-[11px]">Be the first to verify syllabus accuracy or post corrections.</p>
+                <p className="text-sm">No reviews yet. Spot a mistake or have a tip? Add it above.</p>
               </div>
             ) : (
               <div className="divide-y divide-border/20">
@@ -624,7 +578,7 @@ export function AcademicDetailClient({
                     <div key={c.id} className="flex items-start gap-3 py-3 group">
                       <Avatar className="size-8 rounded-full border border-border/40 shrink-0">
                         <AvatarImage src={commentAvatar} />
-                        <AvatarFallback className="text-[10px] font-bold">
+                        <AvatarFallback className="text-xs font-bold">
                           {c.author?.displayName?.[0] || "U"}
                         </AvatarFallback>
                       </Avatar>
@@ -635,14 +589,14 @@ export function AcademicDetailClient({
                             <span className="text-xs font-bold text-foreground">
                               {c.author?.displayName || "Student"}
                             </span>
-                            <span className="text-[11px] text-muted-foreground">
+                            <span className="text-xs text-muted-foreground">
                               @{c.author?.username} · {formatTimeAgo(c.createdAt)}
                             </span>
                           </div>
 
                           <span
                             className={cn(
-                              "text-[9px] font-black px-2 py-0.5 rounded-full border",
+                              "text-xs font-bold px-2 py-0.5 rounded-full border",
                               c.isHelpful
                                 ? "bg-primary/10 text-primary border-primary/25"
                                 : "bg-muted text-muted-foreground border-border/40"
@@ -665,83 +619,60 @@ export function AcademicDetailClient({
         {/* ─── Right Stage: Intelligence Sidebar (4 cols - PC Space Utilization) ─── */}
         <aside
           ref={scrollRef}
-          className="lg:col-span-4 space-y-4 sticky top-4 h-[calc(100vh-2rem)] max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain no-scrollbar pr-1 pb-16 select-none"
+          className="space-y-4 lg:col-span-4 lg:sticky lg:top-4 lg:max-h-[calc(100dvh-2rem)] lg:overflow-y-auto lg:overscroll-contain lg:pr-1 lg:pb-16 no-scrollbar"
         >
-          {/* Quick Actions & Voting Card */}
-          <div className="rounded-2xl border border-border/40 bg-card/60 p-4 space-y-3.5 shadow-2xs">
-            <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
-              Actions &amp; Recognition
-            </h3>
-
+          <section className="space-y-3 rounded-lg border border-border bg-surface p-4" aria-label="Actions">
             <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
+              <Button
+                variant={userVote === "UP" ? "primary" : "outline"}
+                aria-pressed={userVote === "UP"}
                 onClick={() => handleVote("UP")}
-                className={cn(
-                  "flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-xs transition-ui cursor-pointer border active:scale-95",
-                  userVote === "UP"
-                    ? "bg-primary text-primary-foreground border-primary font-black shadow-xs"
-                    : "border-border/50 hover:bg-muted text-muted-foreground hover:text-foreground"
-                )}
               >
-                <ArrowUp className="size-4" />
-                <span>Helpful ({upvotes})</span>
-              </button>
-
-              <button
-                type="button"
+                <ArrowUp className="size-4" aria-hidden="true" />
+                Helpful <span className="tabular-nums">({upvotes})</span>
+              </Button>
+              <Button
+                variant={userVote === "DOWN" ? "secondary" : "outline"}
+                aria-pressed={userVote === "DOWN"}
                 onClick={() => handleVote("DOWN")}
-                className={cn(
-                  "flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-bold text-xs transition-ui cursor-pointer border active:scale-95",
-                  userVote === "DOWN"
-                    ? "bg-muted text-foreground border-foreground"
-                    : "border-border/50 hover:bg-muted text-muted-foreground hover:text-foreground"
-                )}
-                title="Flag outdated or inaccurate"
+                title="Mark as outdated or wrong"
               >
-                <ArrowDown className="size-4" />
-                <span>Errata</span>
-              </button>
+                <ArrowDown className="size-4" aria-hidden="true" />
+                Has mistakes
+              </Button>
             </div>
-
-            <button
-              type="button"
-              onClick={handleDownload}
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-black hover:bg-primary/90 transition-ui cursor-pointer shadow-xs active:scale-95"
-            >
-              <Download className="size-4" />
-              <span>Download Full Document</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setIsAddToPlaylistOpen(true)}
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-border/50 hover:bg-muted text-foreground text-xs font-bold transition-ui cursor-pointer active:scale-95"
-            >
-              <FolderPlus className="size-4" />
-              <span>Add to Study Playlist</span>
-            </button>
-          </div>
+            <Button className="w-full" onClick={handleDownload}>
+              <Download className="size-4" aria-hidden="true" />
+              Download
+            </Button>
+            <Button variant="outline" className="w-full" onClick={() => setIsAddToPlaylistOpen(true)}>
+              <FolderPlus className="size-4" aria-hidden="true" />
+              Save to playlist
+            </Button>
+          </section>
 
           {/* Curriculum & Specs Card */}
-          <div className="rounded-2xl border border-border/40 bg-card/60 p-4 space-y-3 shadow-2xs">
-            <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
-              Curriculum Specifications
-            </h3>
+          <section
+            className="space-y-2 rounded-lg border border-border bg-surface p-4"
+            aria-labelledby="material-details-title"
+          >
+            <h2 id="material-details-title" className="font-sans text-sm font-semibold text-fg">
+              Details
+            </h2>
 
             <div className="divide-y divide-border/20 text-xs">
               <div className="py-2 flex items-center justify-between">
-                <span className="text-muted-foreground">Course Code</span>
+                <span className="text-muted-foreground">Course code</span>
                 <span className="font-mono font-bold text-foreground">{resource.subjectCode}</span>
               </div>
               <div className="py-2 flex items-center justify-between">
-                <span className="text-muted-foreground">Subject Name</span>
+                <span className="text-muted-foreground">Subject</span>
                 <span className="font-semibold text-foreground truncate max-w-[180px]">
                   {resource.subjectName}
                 </span>
               </div>
               <div className="py-2 flex items-center justify-between">
-                <span className="text-muted-foreground">Department</span>
+                <span className="text-muted-foreground">Branch</span>
                 <span className="font-semibold text-foreground truncate max-w-[180px]">
                   {resource.branch}
                 </span>
@@ -751,74 +682,27 @@ export function AcademicDetailClient({
                 <span className="font-bold text-foreground">Semester {resource.semester}</span>
               </div>
               <div className="py-2 flex items-center justify-between">
-                <span className="text-muted-foreground">Category</span>
-                <span className="font-semibold text-primary capitalize">
+                <span className="text-muted-foreground">Type</span>
+                <span className="font-semibold text-foreground capitalize">
                   {resource.resourceType?.replace("_", " ")}
                 </span>
               </div>
               <div className="py-2 flex items-center justify-between">
-                <span className="text-muted-foreground">University Hub</span>
+                <span className="text-muted-foreground">College</span>
                 <span className="font-semibold text-foreground truncate max-w-[180px]">
                   {resource.institution?.name?.split(",")[0] || "All India"}
                 </span>
               </div>
             </div>
-          </div>
-
-          {/* AI 1-Click Study Assistant Card */}
-          <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 space-y-3 shadow-2xs">
-            <div className="flex items-center gap-1.5 text-primary">
-              <Sparkles className="size-4" />
-              <h3 className="text-xs font-black uppercase tracking-wider">AI Study Accelerators</h3>
-            </div>
-
-            <div className="space-y-1.5">
-              <button
-                type="button"
-                onClick={() => handleGenerateAiCram("CONCEPTS")}
-                disabled={isGeneratingAi}
-                className="w-full text-left p-2.5 rounded-xl border border-border/30 bg-card/60 hover:bg-card text-xs font-semibold transition-colors cursor-pointer flex items-center justify-between"
-              >
-                <span>Formula &amp; Theorem Sheet</span>
-                <ChevronRight className="size-3.5 text-muted-foreground" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleGenerateAiCram("EXAM_TIPS")}
-                disabled={isGeneratingAi}
-                className="w-full text-left p-2.5 rounded-xl border border-border/30 bg-card/60 hover:bg-card text-xs font-semibold transition-colors cursor-pointer flex items-center justify-between"
-              >
-                <span>15-Min Exam Cram Strategy</span>
-                <ChevronRight className="size-3.5 text-muted-foreground" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleGenerateAiCram("CHECKLIST")}
-                disabled={isGeneratingAi}
-                className="w-full text-left p-2.5 rounded-xl border border-border/30 bg-card/60 hover:bg-card text-xs font-semibold transition-colors cursor-pointer flex items-center justify-between"
-              >
-                <span>Syllabus Verification Checklist</span>
-                <ChevronRight className="size-3.5 text-muted-foreground" />
-              </button>
-            </div>
-
-            {aiAnalysis && (
-              <div className="p-3 rounded-xl bg-card border border-primary/20 text-xs text-foreground/90 space-y-1.5 leading-relaxed">
-                <p className="font-bold text-primary text-[11px] uppercase tracking-wider">
-                  Generated Insights:
-                </p>
-                <div className="whitespace-pre-line text-[11px]">{aiAnalysis}</div>
-              </div>
-            )}
-          </div>
+          </section>
 
           {/* Similar Resources Widget in Sidebar */}
           <SimilarResourcesWidget resourceId={resource.id} subjectCode={resource.subjectCode} />
 
           {/* Guest Student Auth Benefits */}
-          {!currentUserId && <AcademicAuthBenefitsCard returnTo={`/academics/study-material/${resource.id}`} />}
+          {!currentUserId && (
+            <AcademicAuthBenefitsCard returnTo={`/academics/study-material/${resource.id}`} />
+          )}
         </aside>
       </div>
 

@@ -1,13 +1,10 @@
-import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { privateMetadata } from "@/lib/seo";
 import { MyTicketsClient } from "./my-tickets-client";
 
-export const metadata: Metadata = {
-  title: "My Event Tickets & Passes",
-  description: "View and manage your registered passes for college hackathons, fests, and workshops on CampusLoop.",
-};
+export const metadata = privateMetadata("My tickets");
 
 export default async function MyTicketsPage() {
   const user = await hexclaveServerApp.getUser();

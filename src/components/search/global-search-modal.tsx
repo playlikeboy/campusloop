@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  BookOpen,
-  Calendar,
-  Command,
-  Loader2,
-  Search,
-  Users,
-  X,
-} from "lucide-react";
+import { BookOpen, Calendar, Command, Loader2, Search, Users, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -102,25 +94,26 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 p-4 pt-[10vh] backdrop-blur-sm sm:p-6"
+      className="fixed inset-0 z-50 flex items-start justify-center bg-overlay p-3 pt-[8vh] sm:p-6"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-2xl overflow-hidden rounded-2xl border border-border/60 bg-background shadow-2xl transition-colors"
+        className="w-full max-w-2xl overflow-hidden rounded-xl bg-surface-raised shadow-lg sticker-pop"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-label="Search CampusLoop"
       >
         {/* Search Input Bar */}
-        <div className="relative flex items-center border-b border-border/50 px-4 py-3.5">
+        <div className="relative flex items-center border-b border-border px-4 py-3.5">
           <Search className="size-5 shrink-0 text-muted-foreground mr-3" />
           <input
             ref={inputRef}
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search campus students, communities, events, notes, gear..."
+            placeholder="Search people, posts, colleges, notes…"
+            aria-label="Search"
             className="w-full bg-transparent text-sm sm:text-base font-medium text-foreground placeholder:text-muted-foreground focus:outline-none"
           />
           {loading ? (
@@ -134,14 +127,14 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
               <X className="size-4" />
             </button>
           ) : (
-            <kbd className="hidden sm:inline-flex items-center text-[10px] font-mono px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border/60">
+            <kbd className="hidden sm:inline-flex items-center text-xs font-mono px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border">
               ESC
             </kbd>
           )}
         </div>
 
         {/* Category Filter Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-border/30 px-4 py-2 bg-muted/20">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-border px-4 py-2 bg-muted/20">
           {[
             { id: "ALL", label: "All" },
             { id: "PEOPLE", label: "Students" },
@@ -175,9 +168,9 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
           {!query.trim() ? (
             <div className="py-12 px-6 text-center">
               <Command className="mx-auto size-8 text-muted-foreground/60 mb-2" />
-              <p className="text-sm font-semibold text-foreground">Search across your campus</p>
+              <p className="text-sm font-semibold text-fg">Search CampusLoop</p>
               <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
-                Type a name, course code, event, club, hostel gear or keyword to instantly discover campus intelligence.
+                Type a name, subject, club or event.
               </p>
               <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
                 {["#Hackathon", "PYQs", "Cycles", "Coders Club", "Hostel 7"].map((hint) => (
@@ -185,7 +178,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
                     key={hint}
                     type="button"
                     onClick={() => setQuery(hint)}
-                    className="rounded-lg border border-border/50 bg-muted/30 px-2.5 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer transition-colors"
+                    className="inline-flex h-8 items-center rounded-full bg-surface-muted px-3 text-xs font-medium text-fg-muted hover:bg-surface-sunken hover:text-fg cursor-pointer transition-ui"
                   >
                     {hint}
                   </button>
@@ -211,7 +204,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
               {/* Students / People */}
               {users.length > 0 && (
                 <div className="space-y-1">
-                  <p className="px-3 py-1 text-[11px] font-bold text-muted-foreground">
+                  <p className="px-3 py-1 text-xs font-bold text-muted-foreground">
                     Students ({users.length})
                   </p>
                   {users.slice(0, 4).map((u: any) => (
@@ -221,7 +214,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
                       onClick={() => navigateTo(`/@${u.username}`)}
                       className="w-full flex items-center gap-3 rounded-xl p-2.5 hover:bg-muted/60 transition-colors text-left cursor-pointer"
                     >
-                      <Avatar className="size-8 rounded-full border border-border/50 shrink-0">
+                      <Avatar className="size-8 rounded-full border border-border shrink-0">
                         <AvatarImage src={getAvatarUrl(u.avatarUrl, u.username)} />
                         <AvatarFallback className="text-xs font-bold">
                           {u.displayName?.[0] || "U"}
@@ -229,7 +222,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
                       </Avatar>
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-bold text-foreground truncate">{u.displayName}</p>
-                        <p className="text-[11px] text-muted-foreground truncate">@{u.username}</p>
+                        <p className="text-xs text-muted-foreground truncate">@{u.username}</p>
                       </div>
                     </button>
                   ))}
@@ -239,7 +232,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
               {/* Communities / Clubs */}
               {communities.length > 0 && (
                 <div className="space-y-1">
-                  <p className="px-3 py-1 text-[11px] font-bold text-muted-foreground">
+                  <p className="px-3 py-1 text-xs font-bold text-muted-foreground">
                     Clubs &amp; Communities ({communities.length})
                   </p>
                   {communities.slice(0, 4).map((c: any) => (
@@ -254,7 +247,9 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-bold text-foreground truncate">{c.name}</p>
-                        <p className="text-[11px] text-muted-foreground truncate">{c.description || "Campus Community"}</p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {c.description || "Campus Community"}
+                        </p>
                       </div>
                     </button>
                   ))}
@@ -264,7 +259,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
               {/* Events */}
               {events.length > 0 && (
                 <div className="space-y-1">
-                  <p className="px-3 py-1 text-[11px] font-bold text-muted-foreground">
+                  <p className="px-3 py-1 text-xs font-bold text-muted-foreground">
                     Events &amp; Fests ({events.length})
                   </p>
                   {events.slice(0, 3).map((e: any) => (
@@ -279,7 +274,9 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-bold text-foreground truncate">{e.title}</p>
-                        <p className="text-[11px] text-muted-foreground truncate">{e.location || "Campus Venue"}</p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {e.location || "Campus Venue"}
+                        </p>
                       </div>
                     </button>
                   ))}
@@ -289,8 +286,8 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
               {/* Academics Resources */}
               {academics.length > 0 && (
                 <div className="space-y-1">
-                  <p className="px-3 py-1 text-[11px] font-bold text-muted-foreground">
-                    Academic Vault ({academics.length})
+                  <p className="px-3 py-1 text-xs font-bold text-muted-foreground">
+                    Study material ({academics.length})
                   </p>
                   {academics.slice(0, 3).map((a: any) => (
                     <button
@@ -304,7 +301,9 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-bold text-foreground truncate">{a.title}</p>
-                        <p className="text-[11px] text-muted-foreground truncate">{a.subject || a.courseCode || "Study Resource"}</p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {a.subject || a.courseCode || "Study material"}
+                        </p>
                       </div>
                     </button>
                   ))}
@@ -315,14 +314,14 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between border-t border-border/40 bg-muted/20 px-4 py-2.5 text-xs text-muted-foreground">
-          <span>Campus-wide intelligence index</span>
+        <div className="flex items-center justify-between border-t border-border bg-muted/20 px-4 py-2.5 text-xs text-muted-foreground">
+          <span>Press Esc to close</span>
           <button
             type="button"
             onClick={() => navigateTo(`/explore?q=${encodeURIComponent(query)}`)}
-            className="font-bold text-primary hover:underline cursor-pointer"
+            className="min-h-10 px-2 font-semibold text-brand-text hover:underline underline-offset-4 cursor-pointer"
           >
-            Open in Explore &rarr;
+            See all results
           </button>
         </div>
       </div>

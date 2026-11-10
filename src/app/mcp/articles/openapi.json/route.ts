@@ -21,7 +21,7 @@ export async function GET(req: Request) {
       title: "CampusLoop Articles & Student Journalism MCP Engine",
       version: "1.0.0",
       description:
-        "Programmatically search, author, curate, publish, and manage student long-reads, tech deep-dives, placement guides, and campus stories across 1,350+ Indian colleges.",
+        "Programmatically search, author, curate, publish, and manage student long-reads, tech deep-dives, placement guides, and campus stories for Indian colleges.",
       contact: {
         name: "CampusLoop Editorial & Articles Team",
         url: "https://campusloop.space/articles",

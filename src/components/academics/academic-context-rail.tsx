@@ -1,19 +1,15 @@
 "use client";
 
-import {
-  ArrowRight,
-  FolderPlus,
-  Sparkles,
-  Trophy,
-  TrendingUp,
-} from "lucide-react";
+import { Plus } from "lucide-react";
 import Link from "next/link";
 import useSWR from "swr";
+import type { AcademicPlaylistData } from "@/components/academics/academic-playlist-card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useScrollIsolation } from "@/hooks/use-scroll-isolation";
 import { fetcher } from "@/lib/api";
 import { sounds } from "@/lib/sounds";
 import { getAvatarUrl } from "@/lib/utils";
-import type { AcademicPlaylistData } from "@/components/academics/academic-playlist-card";
 
 interface AcademicContextRailProps {
   onSelectTopic?: (topic: string) => void;
@@ -42,30 +38,36 @@ interface TopUploader {
   totalUpvotes: number;
 }
 
+const TYPE_LABELS: Record<string, string> = {
+  PYQ: "PYQ",
+  NOTES: "Notes",
+  CHEAT_SHEET: "Cheat sheet",
+  LAB_MANUAL: "Lab manual",
+};
+
 function formatViews(n: number): string {
   if (n >= 1000) return `${(n / 1000).toFixed(1)}k views`;
   return `${n} ${n === 1 ? "view" : "views"}`;
 }
 
-function formatResourceType(type: string): string {
-  if (type === "PYQ") return "PYQ";
-  if (type === "CHEAT_SHEET") return "Cheat Sheet";
-  return (type || "Notes").replace("_", " ");
+function RailHeading({ children, action }: { children: React.ReactNode; action?: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between gap-2 pb-2">
+      <h2 className="text-base text-fg">{children}</h2>
+      {action}
+    </div>
+  );
 }
 
-const MEDALS = ["🥇", "🥈", "🥉"];
-
+/** Desktop-only side column: popular files, top uploaders, playlists. */
 export function AcademicContextRail({
   onSelectTopic,
-  collegeName = "BIT Mesra",
-  userSemester = 5,
-  userBranch = "Computer Science",
   playlists = [],
   playlistsLoading = false,
   playlistsError,
 }: AcademicContextRailProps) {
   const scrollRef = useScrollIsolation<HTMLElement>();
-  const { data: trendingData } = useSWR<{ items: TrendingItem[] }>(
+  const { data: trendingData, isLoading: trendingLoading } = useSWR<{ items: TrendingItem[] }>(
     "/api/academics/trending?scope=campus&limit=4",
     fetcher
   );
@@ -79,168 +81,129 @@ export function AcademicContextRail({
   return (
     <aside
       ref={scrollRef}
-      className="hidden xl:flex flex-col gap-4.5 w-72 shrink-0 select-none sticky top-4 h-[calc(100vh-2rem)] max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain no-scrollbar pr-1 pb-16"
+      aria-label="More study material"
+      className="no-scrollbar sticky top-4 hidden h-[calc(100dvh-2rem)] w-72 shrink-0 flex-col divide-y divide-border overflow-y-auto overscroll-contain rounded-lg border border-border bg-surface xl:flex"
     >
-      {/* ─── 1. Personalized Context Pill ─── */}
-      <div className="rounded-xl border border-border bg-surface p-4 space-y-2">
-        <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
-          <Sparkles className="size-3.5 text-primary" />
-          <span>Recommended for You</span>
-        </div>
-        <p className="text-[11px] text-muted-foreground leading-relaxed">
-          Curated based on{" "}
-          <strong className="text-foreground">Sem {userSemester} · {userBranch}</strong> at {collegeName.split(",")[0]}.
-        </p>
-      </div>
-
-      {/* ─── 2. Popular This Week ─── */}
-      <div className="rounded-xl border border-border bg-surface p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-fg-muted">
-            <TrendingUp className="size-3.5 text-primary" />
-            <span>Popular this week</span>
+      <section className="p-4">
+        <RailHeading>Popular this week</RailHeading>
+        {trendingLoading ? (
+          <div className="space-y-2">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
           </div>
-        </div>
-
-        <div className="space-y-1 divide-y divide-border/20 -mx-1">
-          {trendingItems.length === 0 ? (
-            <p className="px-1 py-2 text-[11px] text-muted-foreground">
-              Be the first to upload trending notes this week.
-            </p>
-          ) : (
-            trendingItems.map((item) => (
-              <Link
-                key={item.id}
-                href={`/academics/study-material/${item.id}`}
-                onClick={() => {
-                  sounds.tap();
-                  if (onSelectTopic) onSelectTopic(item.subjectCode);
-                }}
-                className="w-full pt-2 first:pt-0 pb-1 px-1 flex items-start justify-between text-left hover:bg-muted/40 rounded-xl transition-colors cursor-pointer group"
-              >
-                <div className="min-w-0 pr-2">
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-mono text-xs font-bold text-primary group-hover:underline">
-                      {item.subjectCode}
-                    </span>
-                    <span className="text-[10px] text-muted-foreground/70">·</span>
-                    <span className="text-[10px] font-semibold text-muted-foreground">
-                      {formatResourceType(item.resourceType)}
-                    </span>
-                  </div>
-                  <p className="text-xs font-medium text-foreground truncate mt-0.5">{item.subjectName}</p>
-                </div>
-                <span className="text-[10px] text-muted-foreground/60 shrink-0 tabular-nums">
-                  {formatViews(item.viewsCount)}
-                </span>
-              </Link>
-            ))
-          )}
-        </div>
-      </div>
-
-      {/* ─── 2b. Top Contributors (leaderboard / gamification) ─── */}
-      <div className="rounded-xl border border-border bg-surface p-4 space-y-3">
-        <div className="flex items-center gap-1.5 text-xs font-semibold text-fg-muted">
-          <Trophy className="size-3.5 text-reward" />
-          <span>Top Contributors</span>
-        </div>
-
-        {topUploaders.length === 0 ? (
-          <p className="text-[11px] text-muted-foreground">
-            Upload your first resource to top the leaderboard.
-          </p>
+        ) : trendingItems.length === 0 ? (
+          <p className="text-sm text-fg-muted">Nothing popular yet this week.</p>
         ) : (
-          <div className="space-y-1.5">
-            {topUploaders.slice(0, 5).map((u, idx) => (
-              <Link
-                key={u.id}
-                href={`/@${u.username}?tab=academics`}
-                onClick={() => sounds.tap()}
-                className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-muted/40 transition-colors group"
-              >
-                <span className="w-5 text-center text-xs shrink-0">{MEDALS[idx] || idx + 1}</span>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={getAvatarUrl(u.avatarUrl, u.username)}
-                  alt=""
-                  className="size-6.5 rounded-full border border-border/40 shrink-0"
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">
-                    {u.displayName}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground truncate">
-                    {u.uploadCount} {u.uploadCount === 1 ? "upload" : "uploads"} · {u.totalUpvotes} helpful
-                  </p>
-                </div>
-              </Link>
+          <ul className="-mx-2">
+            {trendingItems.map((item) => (
+              <li key={item.id}>
+                <Link
+                  href={`/academics/study-material/${item.id}`}
+                  onClick={() => {
+                    sounds.tap();
+                    onSelectTopic?.(item.subjectCode);
+                  }}
+                  className="flex min-h-11 items-start justify-between gap-2 rounded-sm px-2 py-2 transition-ui hover:bg-surface-muted"
+                >
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-medium text-fg">{item.subjectName}</span>
+                    <span className="block text-xs text-fg-muted">
+                      {item.subjectCode} · {TYPE_LABELS[item.resourceType] ?? "Notes"}
+                    </span>
+                  </span>
+                  <span className="shrink-0 text-xs text-fg-subtle tabular-nums">
+                    {formatViews(item.viewsCount)}
+                  </span>
+                </Link>
+              </li>
             ))}
-          </div>
+          </ul>
         )}
-      </div>
+      </section>
 
-      {/* ─── 3. Curated Study Stacks / Playlists ─── */}
-      <div className="rounded-xl border border-border bg-surface p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-fg-muted">
-            <FolderPlus className="size-3.5 text-brand-text" />
-            <span>Study Playlists</span>
+      <section className="p-4">
+        <RailHeading>Top uploaders</RailHeading>
+        {topUploaders.length === 0 ? (
+          <p className="text-sm text-fg-muted">No uploads yet. Yours could be first.</p>
+        ) : (
+          <ol className="-mx-2">
+            {topUploaders.slice(0, 5).map((u, idx) => (
+              <li key={u.id}>
+                <Link
+                  href={`/@${u.username}?tab=academics`}
+                  onClick={() => sounds.tap()}
+                  className="flex min-h-11 items-center gap-2.5 rounded-sm px-2 py-1.5 transition-ui hover:bg-surface-muted"
+                >
+                  <span className="w-4 shrink-0 text-center text-sm font-semibold text-fg-muted tabular-nums">
+                    {idx + 1}
+                  </span>
+                  <Avatar size="sm">
+                    <AvatarImage src={getAvatarUrl(u.avatarUrl, u.username)} alt="" />
+                    <AvatarFallback>{(u.displayName || u.username).charAt(0).toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-medium text-fg">{u.displayName}</span>
+                    <span className="block truncate text-xs text-fg-muted tabular-nums">
+                      {u.uploadCount} {u.uploadCount === 1 ? "upload" : "uploads"} · {u.totalUpvotes} upvotes
+                    </span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
+
+      <section className="p-4">
+        <RailHeading
+          action={
+            <Link
+              href="/academics/study-material/playlists/new"
+              onClick={() => sounds.tap()}
+              className="inline-flex min-h-9 items-center gap-1 rounded-full px-2 text-sm font-semibold text-brand-text transition-ui hover:bg-brand-subtle"
+            >
+              <Plus className="size-4" aria-hidden="true" />
+              New
+            </Link>
+          }
+        >
+          Playlists
+        </RailHeading>
+        {playlistsLoading ? (
+          <div className="space-y-2">
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-full" />
           </div>
-          <Link
-            href="/academics/study-material/playlists/new"
-            onClick={() => sounds.tap()}
-            className="text-[10px] font-bold text-primary hover:underline cursor-pointer"
-          >
-            + Create
-          </Link>
-        </div>
-
-        <div className="space-y-2">
-          {playlistsLoading ? (
-            [0, 1].map((item) => (
-              <div key={item} className="h-14 animate-pulse rounded-xl bg-muted/40" />
-            ))
-          ) : playlistsError ? (
-            <p className="rounded-xl border border-border/30 bg-muted/20 p-3 text-[11px] leading-relaxed text-muted-foreground">
-              Study playlists are temporarily unavailable.
-            </p>
-          ) : playlists.length > 0 ? (
-            playlists.slice(0, 2).map((playlist) => (
-              <Link
-                key={playlist.id}
-                href={`/academics/study-material/playlists/${playlist.slug || playlist.id}`}
-                onClick={() => sounds.tap()}
-                className="group block rounded-xl border border-border/30 bg-muted/20 p-2.5 transition-colors hover:border-primary/25 hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <h4 className="line-clamp-2 min-w-0 text-xs font-bold leading-snug text-foreground transition-colors group-hover:text-primary">
-                    {playlist.title}
-                  </h4>
-                  <ArrowRight className="mt-0.5 size-3 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" aria-hidden="true" />
-                </div>
-                <div className="mt-1.5 flex items-center justify-between gap-2 text-[10px] text-muted-foreground">
-                  <span className="truncate">{playlist.semester ? `Sem ${playlist.semester}` : playlist.branch === "All" ? "All branches" : playlist.branch}</span>
-                  <span className="shrink-0 font-mono tabular-nums">{playlist.itemsCount} {playlist.itemsCount === 1 ? "item" : "items"}</span>
-                </div>
-              </Link>
-            ))
-          ) : (
-            <div className="rounded-xl border border-dashed border-border/40 p-3">
-              <p className="text-[11px] leading-relaxed text-muted-foreground">
-                No public playlists yet. Bundle notes and PYQs into a study stack.
-              </p>
-              <Link
-                href="/academics/study-material/playlists/new"
-                onClick={() => sounds.tap()}
-                className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:underline"
-              >
-                Create a playlist <ArrowRight className="size-3" aria-hidden="true" />
-              </Link>
-            </div>
-          )}
-        </div>
-      </div>
+        ) : playlistsError ? (
+          <p className="text-sm text-fg-muted">Couldn't load playlists.</p>
+        ) : playlists.length > 0 ? (
+          <ul className="-mx-2">
+            {playlists.slice(0, 3).map((playlist) => (
+              <li key={playlist.id}>
+                <Link
+                  href={`/academics/study-material/playlists/${playlist.slug || playlist.id}`}
+                  onClick={() => sounds.tap()}
+                  className="block min-h-11 rounded-sm px-2 py-2 transition-ui hover:bg-surface-muted"
+                >
+                  <span className="line-clamp-2 text-sm font-medium text-fg">{playlist.title}</span>
+                  <span className="block text-xs text-fg-muted tabular-nums">
+                    {playlist.semester
+                      ? `Sem ${playlist.semester}`
+                      : playlist.branch === "All"
+                        ? "All branches"
+                        : playlist.branch}{" "}
+                    · {playlist.itemsCount} {playlist.itemsCount === 1 ? "file" : "files"}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-sm text-fg-muted">
+            No playlists yet. Group notes for one subject into a playlist.
+          </p>
+        )}
+      </section>
     </aside>
   );
 }

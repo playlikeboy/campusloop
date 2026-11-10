@@ -1,6 +1,6 @@
 "use client";
 
-import { BadgeCheck, Users } from "lucide-react";
+import { BadgeCheck, ChevronDown, Users } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -45,21 +45,19 @@ export function DeckUserSuggestionsCard({ users, institutionName }: DeckUserSugg
 
   return (
     <div className="relative w-full h-full max-w-xl mx-auto flex flex-col justify-center px-4 py-4 sm:px-6 select-none overflow-hidden">
-      <div className="rounded-3xl bg-white/[0.04] backdrop-blur-xl p-5 sm:p-6 border border-white/10 shadow-2xl space-y-4">
+      <div className="rounded-xl bg-surface p-5 sm:p-6 border border-border space-y-4">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-border/40 pb-3">
+        <div className="flex items-center justify-between border-b border-border pb-3">
           <div className="flex items-center gap-2">
-            <div className="size-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+            <div className="size-9 rounded-md bg-surface-muted text-fg-muted flex items-center justify-center">
               <Users className="size-4" />
             </div>
             <div>
-              <h3 className="font-black text-sm text-foreground">Who to Follow on Campus</h3>
-              <p className="text-[11px] text-muted-foreground">
-                {institutionName || "Active verified peers"}
-              </p>
+              <h3 className="text-base">People to follow</h3>
+              <p className="text-xs text-muted-foreground">{institutionName || "Students on CampusLoop"}</p>
             </div>
           </div>
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/20">
+          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/20">
             Suggested
           </span>
         </div>
@@ -74,10 +72,10 @@ export function DeckUserSuggestionsCard({ users, institutionName }: DeckUserSugg
             return (
               <div
                 key={user.id}
-                className="flex items-center justify-between gap-3 p-3 rounded-2xl border border-border/40 bg-muted/20 hover:bg-muted/40 transition-colors"
+                className="flex items-center justify-between gap-3 p-3 rounded-2xl border border-border bg-muted/20 hover:bg-muted/40 transition-colors"
               >
                 <Link href={`/@${user.username}`} className="flex items-center gap-3 min-w-0 flex-1 group">
-                  <Avatar className="size-11 border border-border/60 shrink-0">
+                  <Avatar className="size-11 border border-border shrink-0">
                     <AvatarImage src={avatarUrl} alt={user.displayName} />
                     <AvatarFallback className="text-xs font-bold bg-muted text-foreground">
                       {user.displayName[0] || "U"}
@@ -89,11 +87,14 @@ export function DeckUserSuggestionsCard({ users, institutionName }: DeckUserSugg
                       <span className="font-bold text-sm text-foreground group-hover:text-primary transition-colors truncate">
                         {user.displayName}
                       </span>
-                      <BadgeCheck className="size-3.5 text-brand-text shrink-0" />
+                      <BadgeCheck
+                        className="size-3.5 text-verified-text shrink-0"
+                        aria-label="Verified student"
+                      />
                     </div>
                     <p className="text-xs text-muted-foreground truncate">@{user.username}</p>
                     {(user.branch || user.year) && (
-                      <p className="text-[10px] text-muted-foreground/80 mt-0.5 truncate">
+                      <p className="text-xs text-muted-foreground/80 mt-0.5 truncate">
                         {[user.branch, user.year ? `Year ${user.year}` : null].filter(Boolean).join(" · ")}
                       </p>
                     )}
@@ -119,9 +120,9 @@ export function DeckUserSuggestionsCard({ users, institutionName }: DeckUserSugg
       </div>
 
       {/* Footer hint */}
-      <div className="pt-4 border-t border-border/30 text-center text-[11px] text-muted-foreground flex items-center justify-center gap-1">
-        <span>Swipe down to continue your loop</span>
-        <span className="text-primary font-bold">↓</span>
+      <div className="pt-4 text-center text-sm text-fg-muted flex items-center justify-center gap-1">
+        <span>Swipe for more</span>
+        <ChevronDown className="size-4" aria-hidden />
       </div>
     </div>
   );

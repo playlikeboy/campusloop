@@ -245,13 +245,13 @@ export async function POST(req: NextRequest) {
       await db.insert(messages).values({
         conversationId,
         senderId: profile.id,
-        body: "💕 It's a Secret Crush Match! We both secretly liked each other.",
+        body: "It's a Secret Crush Match! We both secretly liked each other.",
       });
 
       // 4. Send match notifications to both users, through the shared pipeline
       //    so both phones are actually woken (a raw insert skipped push).
       if (conversationId) {
-        const crushBlurb = "💕 It's a Secret Crush Match! We both secretly liked each other.";
+        const crushBlurb = "It's a Secret Crush Match! We both secretly liked each other.";
 
         await Promise.all([
           createNotification({
@@ -301,7 +301,7 @@ export async function POST(req: NextRequest) {
       // here would be a reference id that references nothing.
       referenceId: null,
       previewText:
-        "Someone from your campus added you to their Secret Crush vault! 🔒 Add your crushes to see if it's mutual.",
+        "Someone from your college added you as a Secret Crush. Add your own crushes to see if it's mutual.",
     });
 
     return NextResponse.json({

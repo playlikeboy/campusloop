@@ -1,8 +1,9 @@
 "use client";
 
-import { BookOpen, Download, ExternalLink, GraduationCap } from "lucide-react";
+import { BookOpen, ChevronDown, Download, ExternalLink, GraduationCap } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { buttonVariants } from "@/components/ui/button";
 import { checkAndRecordDownload } from "@/lib/academic-download-limiter";
 import type { DeckAcademicResource } from "./deck-types";
 
@@ -16,7 +17,7 @@ export function DeckAcademicDropCard({ resource }: DeckAcademicDropCardProps) {
   function handleDownload() {
     const downloadCheck = checkAndRecordDownload(false);
     if (!downloadCheck.allowed) {
-      toast.info("You've used all 5 free guest downloads! Sign in for unlimited access", {
+      toast.info("Sign in to keep downloading", {
         action: {
           label: "Sign In",
           onClick: () => {
@@ -29,38 +30,38 @@ export function DeckAcademicDropCard({ resource }: DeckAcademicDropCardProps) {
 
     const url = resource.fileUrl || resource.driveUrl;
     if (!url) {
-      toast.error("File preview is loading...");
+      toast.error("The file isn't ready yet. Try again in a moment.");
       return;
     }
     window.open(url, "_blank");
-    toast.success("Opening document...");
+    toast.success("Opening…");
   }
 
   return (
     <div className="relative w-full h-full max-w-xl mx-auto flex flex-col justify-center px-4 py-4 sm:px-6 select-none overflow-hidden">
-      <div className="rounded-3xl bg-white/[0.04] backdrop-blur-xl p-5 sm:p-6 border border-white/10 shadow-2xl space-y-4">
+      <div className="rounded-xl bg-surface p-5 sm:p-6 border border-border space-y-4">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-border/40 pb-3">
+        <div className="flex items-center justify-between border-b border-border pb-3">
           <div className="flex items-center gap-2.5">
-            <div className="size-8 rounded-xl bg-warning/15 text-warning flex items-center justify-center">
+            <div className="size-9 rounded-md bg-surface-muted text-fg-muted flex items-center justify-center">
               <GraduationCap className="size-4" />
             </div>
             <div>
-              <h3 className="font-black text-sm text-foreground">Academic Vault Drop</h3>
-              <p className="text-[11px] text-muted-foreground">
-                {resource.institutionName || "Campus Study Vault"}
+              <h3 className="text-base">Study material</h3>
+              <p className="text-xs text-muted-foreground">
+                {resource.institutionName || "Shared by students"}
               </p>
             </div>
           </div>
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-warning/15 text-warning border border-warning/20 uppercase">
+          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-surface-muted text-fg-muted">
             {resource.resourceType || "Notes"}
           </span>
         </div>
 
         {/* Resource Hero Container */}
-        <div className="p-4 rounded-2xl border border-border bg-surface-muted space-y-3">
+        <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <span className="font-mono text-xs font-black px-2 py-0.5 rounded-md bg-foreground/10 text-foreground">
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-surface-muted text-fg tabular-nums">
               {resource.subjectCode}
             </span>
             <span className="text-xs text-muted-foreground truncate">
@@ -68,49 +69,39 @@ export function DeckAcademicDropCard({ resource }: DeckAcademicDropCardProps) {
             </span>
           </div>
 
-          <h4 className="font-black text-base text-foreground leading-snug">
+          <h4 className="font-bold text-base text-foreground leading-snug">
             {resource.title || resource.subjectName}
           </h4>
 
           <p className="text-xs text-muted-foreground line-clamp-2">
-            Subject: <strong className="text-foreground">{resource.subjectName}</strong>. Complete exam-ready
-            materials, solutions, and lab references verified by campus seniors.
+            Subject: <strong className="text-foreground">{resource.subjectName}</strong>
           </p>
 
-          <div className="flex items-center gap-2 text-[11px] text-muted-foreground pt-1">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground pt-1">
             <span className="flex items-center gap-1 font-semibold text-foreground">
-              <Download className="size-3 text-primary" /> {resource.downloadsCount || 0} downloads
+              <Download className="size-3.5" aria-hidden /> {resource.downloadsCount || 0} downloads
             </span>
-            <span>·</span>
-            <span>Zero login required to view</span>
           </div>
         </div>
 
         {/* Actions */}
         <div className="flex items-center gap-2.5 pt-1">
-          <Link
-            href={previewUrl}
-            className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-primary text-primary-foreground font-bold text-xs hover:opacity-90 transition-colors shadow-xs"
-          >
+          <Link href={previewUrl} className={buttonVariants({ className: "flex-1" })}>
             <BookOpen className="size-3.5" />
-            <span>Open &amp; Read PDF</span>
+            <span>Open</span>
           </Link>
 
-          <button
-            type="button"
-            onClick={handleDownload}
-            className="flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl border border-border hover:bg-muted text-foreground font-bold text-xs transition-colors cursor-pointer"
-          >
+          <button type="button" onClick={handleDownload} className={buttonVariants({ variant: "secondary" })}>
             <ExternalLink className="size-3.5" />
-            <span>Direct Link</span>
+            <span>Download</span>
           </button>
         </div>
       </div>
 
       {/* Footer hint */}
-      <div className="pt-4 border-t border-border/30 text-center text-[11px] text-muted-foreground flex items-center justify-center gap-1">
-        <span>Swipe down to continue your loop</span>
-        <span className="text-primary font-bold">↓</span>
+      <div className="pt-4 text-center text-sm text-fg-muted flex items-center justify-center gap-1">
+        <span>Swipe for more</span>
+        <ChevronDown className="size-4" aria-hidden />
       </div>
     </div>
   );

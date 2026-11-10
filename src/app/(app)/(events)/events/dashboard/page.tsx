@@ -1,13 +1,10 @@
-import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { privateMetadata } from "@/lib/seo";
 import { EventsDashboardClient } from "./events-dashboard-client";
 
-export const metadata: Metadata = {
-  title: "Event Organizer Dashboard",
-  description: "Manage your hosted hackathons, college fests, workshops, and track live student attendance.",
-};
+export const metadata = privateMetadata("Your events");
 
 export default async function EventsDashboardPage() {
   const user = await hexclaveServerApp.getUser();

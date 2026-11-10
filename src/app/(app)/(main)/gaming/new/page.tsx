@@ -1,17 +1,13 @@
-import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { privateMetadata } from "@/lib/seo";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 import { HubCreateClient } from "../../hub/new/hub-create-client";
 
-export const metadata: Metadata = {
-  title: "Host Gaming Lobby",
-  description: "Create a match lobby, recruit teammates, or challenge rivals on campus.",
-  alternates: { canonical: "https://campusloop.space/gaming/new" },
-};
+export const metadata = privateMetadata("Host a lobby");
 
 export default async function NewGamingPage() {
   const user = await getCachedAuthUser();
-  if (!user) redirect("/sign-in");
+  if (!user) redirect("/sign-in?returnTo=/gaming/new");
 
   const profile = await getCachedUserProfile(user.id);
   if (!profile) redirect("/onboarding");

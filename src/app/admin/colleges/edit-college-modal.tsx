@@ -3,8 +3,12 @@
 import { Globe, Image as ImageIcon, Loader2, Save, School, Trophy, Upload, X, Zap } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { fieldClassName } from "@/components/ui/input";
 import { fetchCollegeWikipediaSummary } from "@/lib/college-enricher";
 import { uploadImageToImgBB } from "@/lib/upload";
+import { cn } from "@/lib/utils";
+import { useEscapeKey } from "../_components/use-escape-key";
 import { updateCollegeDetails } from "./actions";
 
 export interface CollegeEditData {
@@ -29,6 +33,7 @@ interface EditCollegeModalProps {
 }
 
 export function EditCollegeModal({ college, onClose, onSaved }: EditCollegeModalProps) {
+  useEscapeKey(true, onClose);
   const [name, setName] = useState(college?.name || "");
   const [logoUrl, setLogoUrl] = useState(college?.logoUrl || "");
   const [bannerUrl, setBannerUrl] = useState(college?.bannerUrl || "");
@@ -71,10 +76,10 @@ export function EditCollegeModal({ college, onClose, onSaved }: EditCollegeModal
 
     setIsUploadingLogo(true);
     try {
-      toast.loading("Uploading college logo...", { id: "upload-logo" });
+      toast.loading("Uploading logo", { id: "upload-logo" });
       const res = await uploadImageToImgBB(file);
       setLogoUrl(res.displayUrl || res.url);
-      toast.success("Logo uploaded successfully!", { id: "upload-logo" });
+      toast.success("Logo uploaded", { id: "upload-logo" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Logo upload failed", {
         id: "upload-logo",
@@ -91,10 +96,10 @@ export function EditCollegeModal({ college, onClose, onSaved }: EditCollegeModal
 
     setIsUploadingBanner(true);
     try {
-      toast.loading("Uploading campus banner...", { id: "upload-banner" });
+      toast.loading("Uploading banner", { id: "upload-banner" });
       const res = await uploadImageToImgBB(file);
       setBannerUrl(res.displayUrl || res.url);
-      toast.success("Banner uploaded successfully!", { id: "upload-banner" });
+      toast.success("Banner uploaded", { id: "upload-banner" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Banner upload failed", {
         id: "upload-banner",
@@ -108,12 +113,12 @@ export function EditCollegeModal({ college, onClose, onSaved }: EditCollegeModal
   async function handleAutoEnrich() {
     setIsEnriching(true);
     try {
-      toast.loading("Searching Wikipedia & educational databases...", {
+      toast.loading("Searching Wikipedia", {
         id: "enrich",
       });
       const data = await fetchCollegeWikipediaSummary(name);
       if (!data) {
-        toast.error("No matching Wikipedia article found for this college.", {
+        toast.error("No Wikipedia page found for this college. Write the summary by hand.", {
           id: "enrich",
         });
         return;
@@ -123,9 +128,9 @@ export function EditCollegeModal({ college, onClose, onSaved }: EditCollegeModal
       if (data.thumbnailUrl && !logoUrl) setLogoUrl(data.thumbnailUrl);
       if (data.originalImageUrl && !bannerUrl) setBannerUrl(data.originalImageUrl);
 
-      toast.success("Auto-fetched data from Wikipedia!", { id: "enrich" });
+      toast.success("Filled in from Wikipedia. Check it before saving.", { id: "enrich" });
     } catch {
-      toast.error("Failed to auto-fetch Wikipedia data", { id: "enrich" });
+      toast.error("Couldn't reach Wikipedia. Try again or write it by hand.", { id: "enrich" });
     } finally {
       setIsEnriching(false);
     }
@@ -149,7 +154,7 @@ export function EditCollegeModal({ college, onClose, onSaved }: EditCollegeModal
         description: description.trim() || null,
       });
 
-      toast.success(`Updated ${name} successfully!`);
+      toast.success(`${name} saved`);
       onSaved();
       onClose();
     } catch (err) {
@@ -160,21 +165,21 @@ export function EditCollegeModal({ college, onClose, onSaved }: EditCollegeModal
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-overlay animate-in fade-in select-none">
-      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-card border border-border rounded-3xl shadow-2xl p-6 space-y-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-overlay">
+      <div
+        role="dialog"
+        aria-modal="true"
+        className="relative max-h-[90dvh] w-full max-w-2xl space-y-6 overflow-y-auto rounded-xl border border-border bg-surface-raised p-6 shadow-lg"
+      >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-border/60 pb-3">
+        <div className="flex items-center justify-between border-b border-border pb-3">
           <div className="flex items-center gap-2">
-            <School className="size-5 text-primary" />
-            <h3 className="text-base font-bold text-foreground">Edit College Hub Media &amp; Info</h3>
+            <School className="size-5 text-brand-text" />
+            <h3 className="text-base font-bold text-fg">Edit college</h3>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="size-8 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-          >
-            <X className="size-4" />
-          </button>
+          <Button variant="ghost" size="icon-sm" aria-label="Close" onClick={onClose}>
+            <X aria-hidden />
+          </Button>
         </div>
 
         {/* Hidden File Inputs */}
@@ -195,27 +200,27 @@ export function EditCollegeModal({ college, onClose, onSaved }: EditCollegeModal
 
         <form onSubmit={handleSave} className="space-y-5 text-xs">
           {/* Live Media Previews & Uploads */}
-          <div className="space-y-3 p-4 rounded-2xl border border-border/80 bg-muted/20">
-            <span className="text-[11px] font-bold text-muted-foreground flex items-center gap-1.5">
-              <ImageIcon className="size-3.5 text-primary" /> Campus Banner &amp; Official Logo
+          <div className="space-y-3 p-4 rounded-lg border border-border bg-surface-muted">
+            <span className="text-xs font-bold text-fg-muted flex items-center gap-1.5">
+              <ImageIcon className="size-3.5 text-brand-text" /> Campus Banner &amp; Official Logo
             </span>
 
             {/* Live Banner Preview Card */}
-            <div className="relative h-32 w-full rounded-2xl overflow-hidden border border-border bg-muted/40 flex items-center justify-center group">
+            <div className="relative h-32 w-full rounded-lg overflow-hidden border border-border bg-surface-muted flex items-center justify-center group">
               {bannerUrl ? (
                 <img src={bannerUrl} alt="Banner preview" className="w-full h-full object-cover" />
               ) : (
-                <span className="text-[11px] text-muted-foreground">
-                  No banner set. Upload or paste URL below.
+                <span className="text-xs text-fg-muted">
+                  No banner yet. Upload one or paste a link below.
                 </span>
               )}
 
               {/* Logo Overlay Preview */}
-              <div className="absolute bottom-2 left-3 size-14 rounded-xl bg-card border-2 border-border shadow-lg p-1 flex items-center justify-center overflow-hidden">
+              <div className="absolute bottom-2 left-3 size-14 rounded-xl bg-surface border-2 border-border shadow-lg p-1 flex items-center justify-center overflow-hidden">
                 {logoUrl ? (
                   <img src={logoUrl} alt="Logo preview" className="w-full h-full object-contain" />
                 ) : (
-                  <School className="size-6 text-primary/60" />
+                  <School className="size-6 text-brand-text" />
                 )}
               </div>
             </div>
@@ -226,56 +231,64 @@ export function EditCollegeModal({ college, onClose, onSaved }: EditCollegeModal
                 type="button"
                 disabled={isUploadingLogo}
                 onClick={() => logoFileRef.current?.click()}
-                className="h-9 px-3 rounded-xl border border-border/80 bg-card hover:bg-muted font-bold text-foreground transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs"
+                className={buttonVariants({ variant: "outline", size: "sm" })}
               >
                 {isUploadingLogo ? (
-                  <Loader2 className="size-3.5 animate-spin text-primary" />
+                  <Loader2 className="size-3.5 animate-spin text-brand-text" />
                 ) : (
-                  <Upload className="size-3.5 text-primary" />
+                  <Upload className="size-3.5 text-brand-text" />
                 )}
-                <span>Upload Logo (PFP)</span>
+                <span>Upload logo</span>
               </button>
 
               <button
                 type="button"
                 disabled={isUploadingBanner}
                 onClick={() => bannerFileRef.current?.click()}
-                className="h-9 px-3 rounded-xl border border-border/80 bg-card hover:bg-muted font-bold text-foreground transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs"
+                className={buttonVariants({ variant: "outline", size: "sm" })}
               >
                 {isUploadingBanner ? (
-                  <Loader2 className="size-3.5 animate-spin text-primary" />
+                  <Loader2 className="size-3.5 animate-spin text-brand-text" />
                 ) : (
                   <Upload className="size-3.5 text-warning" />
                 )}
-                <span>Upload Campus Banner</span>
+                <span>Upload banner</span>
               </button>
             </div>
 
             {/* URL Input Fields */}
             <div className="space-y-2 pt-2">
               <div>
-                <label className="text-[10px] font-bold text-muted-foreground">
-                  Logo URL (Direct Image Link)
+                <label
+                  htmlFor="edit-college-logo-url-direct-image-li"
+                  className="text-xs font-bold text-fg-muted"
+                >
+                  Logo link
                 </label>
                 <input
+                  id="edit-college-logo-url-direct-image-li"
                   type="url"
                   placeholder="https://upload.wikimedia.org/.../logo.png"
                   value={logoUrl}
                   onChange={(e) => setLogoUrl(e.target.value)}
-                  className="w-full h-9 px-3 mt-1 rounded-xl border border-border bg-card text-xs text-foreground outline-none focus:border-primary"
+                  className={cn(fieldClassName, "w-full h-11")}
                 />
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-muted-foreground">
-                  Banner Image URL (Direct Image Link)
+                <label
+                  htmlFor="edit-college-banner-image-url-direct-"
+                  className="text-xs font-bold text-fg-muted"
+                >
+                  Banner link
                 </label>
                 <input
+                  id="edit-college-banner-image-url-direct-"
                   type="url"
                   placeholder="https://bitmesra.ac.in/.../campus_banner.jpg"
                   value={bannerUrl}
                   onChange={(e) => setBannerUrl(e.target.value)}
-                  className="w-full h-9 px-3 mt-1 rounded-xl border border-border bg-card text-xs text-foreground outline-none focus:border-primary"
+                  className={cn(fieldClassName, "w-full h-11")}
                 />
               </div>
             </div>
@@ -284,113 +297,130 @@ export function EditCollegeModal({ college, onClose, onSaved }: EditCollegeModal
           {/* College Information Fields */}
           <div className="space-y-3">
             <div>
-              <label className="text-[10px] font-bold text-muted-foreground">
-                College Official Name *
+              <label htmlFor="edit-college-college-official-name" className="text-xs font-bold text-fg-muted">
+                Official name *
               </label>
               <input
+                id="edit-college-college-official-name"
                 type="text"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full h-9 px-3 mt-1 rounded-xl border border-border bg-card text-xs font-semibold text-foreground outline-none focus:border-primary"
+                className={cn(fieldClassName, "w-full h-11")}
               />
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div>
-                <label className="text-[10px] font-bold text-muted-foreground">State</label>
+                <label htmlFor="edit-college-state" className="text-xs font-bold text-fg-muted">
+                  State
+                </label>
                 <input
+                  id="edit-college-state"
                   type="text"
                   value={state}
                   onChange={(e) => setState(e.target.value)}
-                  className="w-full h-9 px-3 mt-1 rounded-xl border border-border bg-card text-xs text-foreground outline-none focus:border-primary"
+                  className={cn(fieldClassName, "w-full h-11")}
                 />
               </div>
               <div>
-                <label className="text-[10px] font-bold text-muted-foreground">District</label>
+                <label htmlFor="edit-college-district" className="text-xs font-bold text-fg-muted">
+                  District
+                </label>
                 <input
+                  id="edit-college-district"
                   type="text"
                   value={district}
                   onChange={(e) => setDistrict(e.target.value)}
-                  className="w-full h-9 px-3 mt-1 rounded-xl border border-border bg-card text-xs text-foreground outline-none focus:border-primary"
+                  className={cn(fieldClassName, "w-full h-11")}
                 />
               </div>
               <div>
-                <label className="text-[10px] font-bold text-muted-foreground">Est. Year</label>
+                <label htmlFor="edit-college-est-year" className="text-xs font-bold text-fg-muted">
+                  Est. Year
+                </label>
                 <input
+                  id="edit-college-est-year"
                   type="number"
                   placeholder="1955"
                   value={yearOfEstablishment}
                   onChange={(e) => setYearOfEstablishment(e.target.value)}
-                  className="w-full h-9 px-3 mt-1 rounded-xl border border-border bg-card text-xs text-foreground outline-none focus:border-primary"
+                  className={cn(fieldClassName, "w-full h-11")}
                 />
               </div>
               <div>
-                <label className="text-[10px] font-bold text-muted-foreground flex items-center gap-1 text-warning">
+                <label
+                  htmlFor="edit-college-nirf-rank"
+                  className="text-xs font-bold text-fg-muted flex items-center gap-1 text-warning"
+                >
                   <Trophy className="size-3" /> NIRF Rank
                 </label>
                 <input
+                  id="edit-college-nirf-rank"
                   type="number"
                   placeholder="53"
                   value={nirfRank}
                   onChange={(e) => setNirfRank(e.target.value)}
-                  className="w-full h-9 px-3 mt-1 rounded-xl border border-border bg-card text-xs text-foreground outline-none focus:border-primary"
+                  className={cn(fieldClassName, "w-full h-11")}
                 />
               </div>
             </div>
 
             <div>
-              <label className="text-[10px] font-bold text-muted-foreground flex items-center gap-1">
+              <label
+                htmlFor="edit-college-official-website"
+                className="text-xs font-bold text-fg-muted flex items-center gap-1"
+              >
                 <Globe className="size-3" /> Official Website
               </label>
               <input
+                id="edit-college-official-website"
                 type="text"
                 placeholder="https://bitmesra.ac.in"
                 value={website}
                 onChange={(e) => setWebsite(e.target.value)}
-                className="w-full h-9 px-3 mt-1 rounded-xl border border-border bg-card text-xs text-foreground outline-none focus:border-primary"
+                className={cn(fieldClassName, "w-full h-11")}
               />
             </div>
 
             {/* Description & Auto-Enrich */}
             <div>
               <div className="flex items-center justify-between">
-                <label className="text-[10px] font-bold text-muted-foreground">
-                  College Description &amp; History Summary
-                </label>
+                <label className="text-xs font-bold text-fg-muted">About the college</label>
                 <button
                   type="button"
                   disabled={isEnriching}
                   onClick={handleAutoEnrich}
-                  className="text-[11px] font-bold text-primary hover:underline cursor-pointer flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className="text-xs font-bold text-brand-text hover:underline cursor-pointer flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   {isEnriching ? <Loader2 className="size-3 animate-spin" /> : <Zap className="size-3" />}
-                  <span>Auto-Fetch from Wikipedia</span>
+                  <span>Fill from Wikipedia</span>
                 </button>
               </div>
               <textarea
+                aria-label="College description"
                 rows={3}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Brief summary of campus history, accreditations, and achievements..."
-                className="w-full p-3 mt-1 rounded-xl border border-border bg-card text-xs text-foreground outline-none focus:border-primary resize-none leading-relaxed"
+                placeholder="A short summary students will see on the college page"
+                className={cn(fieldClassName, "w-full resize-none py-2.5")}
               />
             </div>
           </div>
 
           {/* Footer Actions */}
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-border/60">
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-border">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="px-4 py-2 rounded-lg text-xs font-bold text-fg-muted hover:text-fg cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSaving}
-              className="px-5 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-colors cursor-pointer shadow-md flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className={buttonVariants({ variant: "primary", size: "sm" })}
             >
               {isSaving ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}
               <span>Save Changes</span>

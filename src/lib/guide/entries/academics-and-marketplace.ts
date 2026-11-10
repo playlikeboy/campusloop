@@ -6,7 +6,8 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
   {
     slug: "academic-vault",
     title: "Academic Vault",
-    summary: "Free notes, solved PYQs, cheat sheets, lab manuals and books, organised by college, branch, semester and subject.",
+    summary:
+      "Free notes, solved PYQs, cheat sheets, lab manuals and books, organised by college, branch, semester and subject.",
     category: "Academics",
     audiences: ["Students", "Investors"],
     routes: [
@@ -15,7 +16,8 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
       { path: "/academics/study-material/saved", label: "Saved notes" },
       { path: "/branch/[slug]", label: "Notes by branch" },
     ],
-    purpose: "Study material is scattered across drives and chats and disappears every year. The Vault keeps it organised, ranked and permanent.",
+    purpose:
+      "Study material is scattered across drives and chats and disappears every year. The Vault keeps it organised, ranked and permanent.",
     whyUse: [
       "Find notes for your exact subject and semester in seconds.",
       "Recommendations match your course, semester and what similar students saved.",
@@ -28,7 +30,10 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
       "See similar resources at the bottom of each page.",
     ],
     useCases: [
-      { who: "Student", scenario: "Finds last five years of solved PYQs for a subject the night before the exam." },
+      {
+        who: "Student",
+        scenario: "Finds last five years of solved PYQs for a subject the night before the exam.",
+      },
       { who: "Student", scenario: "Switches to Global to find better DBMS notes from another university." },
     ],
     tips: ["Upvote good material. It helps it rank for everyone."],
@@ -36,7 +41,10 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
       "Academics is the highest-intent, most-retained use case: students return every semester. It also drives organic search traffic and acquisition.",
     faq: [
       { q: "Is it free?", a: "Yes." },
-      { q: "How are notes ranked?", a: "By relevance to your college, branch and semester, quality (a confidence score on views versus useful actions), what similar students saved, freshness and exam season." },
+      {
+        q: "How are notes ranked?",
+        a: "By relevance to your college, branch and semester, quality (a confidence score on views versus useful actions), what similar students saved, freshness and exam season.",
+      },
     ],
     related: ["upload-notes", "study-playlists", "courses", "personalized-ranking"],
     keywords: ["free college notes", "PYQ", "previous year papers", "engineering notes"],
@@ -60,8 +68,11 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
     ],
     useCases: [{ who: "Topper", scenario: "Uploads handwritten notes for every unit of a core subject." }],
     privacy: ["Uploads show your profile as the uploader."],
-    investorAngle: "User-generated academic content compounds: every upload makes the Vault more valuable for the next batch.",
-    faq: [{ q: "Can I upload a Drive link?", a: "Yes, as long as it is shared publicly or with link access." }],
+    investorAngle:
+      "User-generated academic content compounds: every upload makes the Vault more valuable for the next batch.",
+    faq: [
+      { q: "Can I upload a Drive link?", a: "Yes, as long as it is shared publicly or with link access." },
+    ],
     related: ["academic-vault", "loop-points-and-streaks"],
     keywords: ["upload notes", "share notes"],
     updated: U,
@@ -78,7 +89,11 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
     ],
     purpose: "Turn a pile of resources into a study path someone can follow.",
     whyUse: ["Create a one-week revision plan from the best notes.", "Share it with your study group."],
-    howToUse: ["Open /academics/study-material/playlists/new.", "Name it and add resources in order.", "Share the link."],
+    howToUse: [
+      "Open /academics/study-material/playlists/new.",
+      "Name it and add resources in order.",
+      "Share the link.",
+    ],
     useCases: [{ who: "Study group", scenario: "Builds an 'End-sem OS in 3 days' playlist." }],
     investorAngle: "Playlists add structure and shareability, which spreads the Vault through study groups.",
     faq: [{ q: "Can others copy my playlist?", a: "They can follow and use it." }],
@@ -89,7 +104,8 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
   {
     slug: "courses",
     title: "Courses",
-    summary: "Free video courses with progress tracking, notes, Q&A and certificates: Harvard CS50, MIT, Stanford, NPTEL, Y Combinator, and India's best teachers across CSE, ECE, Mechanical, Maths, Finance, Medicine, and Law. Supports one-click playlist import from YouTube, Dailymotion, Archive.org, and Google Drive.",
+    summary:
+      "Free video courses with progress tracking, notes, Q&A and certificates: Harvard CS50, MIT, Stanford, NPTEL, Y Combinator, and India's best teachers across CSE, ECE, Mechanical, Maths, Finance, Medicine, and Law. Supports one-click playlist import from YouTube, Dailymotion, Archive.org, and Google Drive.",
     category: "Academics",
     audiences: ["Students", "Clubs", "Investors"],
     routes: [
@@ -106,7 +122,7 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
       "Take full university courses from MIT OpenCourseWare, Stanford (including Andrew Ng's CS229), CMU, Caltech, NPTEL, Y Combinator Startup School, Harvard Justice, and DeepLearning.AI.",
       "Explore non-CS disciplines including Engineering Mathematics (Dr. Gajendra Purohit, Prof. Leonard), Electronics & Communication (ALL ABOUT ELECTRONICS, Engineering Funda), Mechanical (The Efficient Engineer), Finance & Accounting (Accounting Stuff), Economics (MRU), Medicine (Ninja Nerd), and Design (DesignCourse, Figma).",
       "Learn DBMS, OS, networks, DSA, OOP, web development and machine learning from popular Indian educators such as CodeWithHarry, CampusX, Gate Smashers, Neso Academy, Apna College, Striver, Jenny's Lectures and Chai aur Code, many in Hindi.",
-      "Quick playlist importer allows you to paste any YouTube playlist, Dailymotion playlist, Archive.org collection, or Google Drive folder and instantly populates the full course curriculum with video titles, descriptions, and durations ready for editing and publishing.",
+      "Quick playlist importer allows you to paste any YouTube playlist, Dailymotion playlist, Archive.org collection, or Google Drive folder and fills in the course with video titles, descriptions, and durations ready for editing and publishing.",
       "Semantic search and academic domain isolation ensure that when you search computing subjects like DBMS or DSA, you get relevant CSE recommendations with zero unrelated business clutter.",
       "The player remembers where you stopped, marks lectures complete when you finish them, and plays the next one.",
       "Take private, timestamped notes and jump back to that moment with one tap.",
@@ -127,9 +143,20 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
       "New community courses are unlisted: they appear in the campus feed under Rising courses by students and work by direct link, but are not in the /courses catalog or search engines yet. The course page shows its creator progress toward listing: at least 3 lectures, 150 views, 10 learners, and a rating of 3.8 or more once it has 3 reviews. When every bar is met the course joins the catalog automatically.",
     ],
     useCases: [
-      { who: "First-year student", scenario: "Works through CS50x over a semester, a lecture every few days, with notes on the tricky parts." },
-      { who: "Placement prep", scenario: "A senior publishes an 8-week DSA course from their favourite videos with problem sheets as attachments." },
-      { who: "Club", scenario: "The robotics club turns its workshop recordings into a course for new members." },
+      {
+        who: "First-year student",
+        scenario:
+          "Works through CS50x over a semester, a lecture every few days, with notes on the tricky parts.",
+      },
+      {
+        who: "Placement prep",
+        scenario:
+          "A senior publishes an 8-week DSA course from their favourite videos with problem sheets as attachments.",
+      },
+      {
+        who: "Club",
+        scenario: "The robotics club turns its workshop recordings into a course for new members.",
+      },
       { who: "Non-CS student", scenario: "Takes CS50 for Business or Law to understand technology at work." },
     ],
     tips: [
@@ -145,20 +172,74 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
     investorAngle:
       "Courses add a high-retention learning habit next to the Academic Vault, with structured progress data and certificates that bring students back for months. The creator tools let campus experts build a catalog that scales without content cost, and open a path to paid courses later.",
     faq: [
-      { q: "What platforms can I import playlists from?", a: "The quick importer directly supports YouTube playlists, Dailymotion playlists, Archive.org collections, and Google Drive folders (shared as public view). You can also paste multiple video links across different platforms." },
-      { q: "What fields and disciplines are covered?", a: "Courses span Computer Science & Programming, Engineering (ECE, EEE, Mechanical, Civil, Chemical), Mathematics, Sciences (Physics, Chemistry, Biology), Health (Medicine, Pharmacy, Nursing), Commerce & Finance, Economics, Management & MBA, Law & Policy, and Design." },
-      { q: "How does semantic search work for courses?", a: "Academic domain clustering isolates search results: searching for computing subjects like DBMS, OS, or DSA returns verified Computer Science and Programming recommendations, strictly preventing cross-discipline clutter from business or other domains." },
+      {
+        q: "What platforms can I import playlists from?",
+        a: "The quick importer directly supports YouTube playlists, Dailymotion playlists, Archive.org collections, and Google Drive folders (shared as public view). You can also paste multiple video links across different platforms.",
+      },
+      {
+        q: "What fields and disciplines are covered?",
+        a: "Courses span Computer Science & Programming, Engineering (ECE, EEE, Mechanical, Civil, Chemical), Mathematics, Sciences (Physics, Chemistry, Biology), Health (Medicine, Pharmacy, Nursing), Commerce & Finance, Economics, Management & MBA, Law & Policy, and Design.",
+      },
+      {
+        q: "How does semantic search work for courses?",
+        a: "Academic domain clustering isolates search results: searching for computing subjects like DBMS, OS, or DSA returns verified Computer Science and Programming recommendations, strictly preventing cross-discipline clutter from business or other domains.",
+      },
       { q: "Are the courses free?", a: "Yes. All courses are free, including every CS50 lecture." },
-      { q: "Is the CS50 content official?", a: "The lectures are CS50's own videos from its official YouTube channel, shared under CC BY-NC-SA 4.0. CampusLoop is not affiliated with Harvard." },
-      { q: "Where do the university and YouTube courses come from?", a: "Each one is a playlist from the creator's official YouTube channel, played with YouTube's own embedded player. The course page links to the original playlist, and CampusLoop is not affiliated with the creator. Videos that are private, deleted, too short or not embeddable are left out." },
-      { q: "How are courses ranked?", a: "Harvard CS50 and university courses get a head start in ranking, YouTube educators a smaller one, and student-made courses none. After that, CampusLoop students decide: enrolments, completions, wishlists and ratings move courses up or down. Star ratings shown are always real student ratings." },
+      {
+        q: "Is the CS50 content official?",
+        a: "The lectures are CS50's own videos from its official YouTube channel, shared under CC BY-NC-SA 4.0. CampusLoop is not affiliated with Harvard.",
+      },
+      {
+        q: "Where do the university and YouTube courses come from?",
+        a: "Each one is a playlist from the creator's official YouTube channel, played with YouTube's own embedded player. The course page links to the original playlist, and CampusLoop is not affiliated with the creator. Videos that are private, deleted, too short or not embeddable are left out.",
+      },
+      {
+        q: "How are courses ranked?",
+        a: "Harvard CS50 and university courses get a head start in ranking, YouTube educators a smaller one, and student-made courses none. After that, CampusLoop students decide: enrolments, completions, wishlists and ratings move courses up or down. Star ratings shown are always real student ratings.",
+      },
       { q: "When do I get a certificate?", a: "When every lecture in the course is marked complete." },
-      { q: "Can I edit my course after publishing?", a: "Yes. Edits keep learners' progress on lectures that still exist." },
-      { q: "Why is my course not in /courses?", a: "Community courses start unlisted and are promoted by engagement. They show in campus feeds first; once a course has 3+ lectures, 150+ views, 10+ learners and a good rating, it is added to the catalog automatically. Views are counted once per viewer per day, and your own views do not count." },
-      { q: "Can a listed course be removed from the catalog?", a: "Only if at least 10 learners rate it poorly (a weighted rating below 3.2). Harvard CS50 and staff-picked courses are always listed." },
+      {
+        q: "Can I edit my course after publishing?",
+        a: "Yes. Edits keep learners' progress on lectures that still exist.",
+      },
+      {
+        q: "Why is my course not in /courses?",
+        a: "Community courses start unlisted and are promoted by engagement. They show in campus feeds first; once a course has 3+ lectures, 150+ views, 10+ learners and a good rating, it is added to the catalog automatically. Views are counted once per viewer per day, and your own views do not count.",
+      },
+      {
+        q: "Can a listed course be removed from the catalog?",
+        a: "Only if at least 10 learners rate it poorly (a weighted rating below 3.2). Harvard CS50 and staff-picked courses are always listed.",
+      },
     ],
     related: ["academic-vault", "study-playlists", "upload-notes"],
-    keywords: ["free online courses", "CS50", "MIT OpenCourseWare", "NPTEL", "DBMS course", "Gate Smashers", "CodeWithHarry", "Dr Gajendra Purohit", "Professor Leonard", "ALL ABOUT ELECTRONICS", "The Efficient Engineer", "Accounting Stuff", "Marginal Revolution University", "Ninja Nerd", "Y Combinator Startup School", "Hindi coding courses", "engineering mathematics", "course certificate", "learn programming free", "create a course", "course catalog", "rising courses", "playlist importer", "youtube playlist import", "dailymotion import", "google drive course"],
+    keywords: [
+      "free online courses",
+      "CS50",
+      "MIT OpenCourseWare",
+      "NPTEL",
+      "DBMS course",
+      "Gate Smashers",
+      "CodeWithHarry",
+      "Dr Gajendra Purohit",
+      "Professor Leonard",
+      "ALL ABOUT ELECTRONICS",
+      "The Efficient Engineer",
+      "Accounting Stuff",
+      "Marginal Revolution University",
+      "Ninja Nerd",
+      "Y Combinator Startup School",
+      "Hindi coding courses",
+      "engineering mathematics",
+      "course certificate",
+      "learn programming free",
+      "create a course",
+      "course catalog",
+      "rising courses",
+      "playlist importer",
+      "youtube playlist import",
+      "dailymotion import",
+      "google drive course",
+    ],
     updated: "2026-10-22",
   },
   {
@@ -176,7 +257,8 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
       { path: "/marketplace/barber", label: "Barber" },
       { path: "/marketplace/orders", label: "My orders" },
     ],
-    purpose: "Campus shops run on phone calls and cash. The marketplace gives students one place to order and track, and gives shops a digital storefront.",
+    purpose:
+      "Campus shops run on phone calls and cash. The marketplace gives students one place to order and track, and gives shops a digital storefront.",
     whyUse: [
       "Order from the canteen or nearby stores to your hostel or for pickup.",
       "Track order status live.",
@@ -193,7 +275,8 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
       { who: "Student", scenario: "Schedules laundry pickup weekly." },
     ],
     privacy: ["Your phone and room are shared only with the store fulfilling the order."],
-    investorAngle: "Commerce is the main revenue line: per-order commission, delivery fees and merchant subscriptions on a captive, verified campus audience.",
+    investorAngle:
+      "Commerce is the main revenue line: per-order commission, delivery fees and merchant subscriptions on a captive, verified campus audience.",
     faq: [{ q: "Can I order from another campus?", a: "No. Stores serve only their own campus." }],
     related: ["online-payments", "merchant-portal", "bike-rentals"],
     keywords: ["campus food delivery", "hostel delivery", "college marketplace"],
@@ -211,17 +294,26 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
       { path: "/marketplace/order/[orderId]", label: "Order (Pay now)" },
     ],
     purpose: "Cashless ordering that is safe for students and certain for stores.",
-    whyUse: ["No change needed at the door.", "Stores only start on paid orders, so nobody cooks for a fake order."],
+    whyUse: [
+      "No change needed at the door.",
+      "Stores only start on paid orders, so nobody cooks for a fake order.",
+    ],
     howToUse: [
       "At checkout choose Pay Online Now and tap Pay.",
       "Complete payment in the Razorpay window (UPI, card or netbanking).",
       "If you close it, open the order and tap Pay now to retry.",
     ],
-    useCases: [{ who: "Student", scenario: "Pays by UPI for a grocery order and gets it confirmed instantly." }],
+    useCases: [
+      { who: "Student", scenario: "Pays by UPI for a grocery order and gets it confirmed right away." },
+    ],
     privacy: ["Card and UPI details are handled by Razorpay. CampusLoop never sees or stores them."],
-    investorAngle: "Owning the payment step enables commission collection, refunds and trust, and creates transaction data for future financial products.",
+    investorAngle:
+      "Owning the payment step enables commission collection, refunds and trust, and creates transaction data for future financial products.",
     faq: [
-      { q: "What if I paid but the page closed?", a: "The payment is still confirmed automatically through Razorpay's webhook." },
+      {
+        q: "What if I paid but the page closed?",
+        a: "The payment is still confirmed automatically through Razorpay's webhook.",
+      },
       { q: "When does the store see my order?", a: "Only after payment succeeds." },
       {
         q: "What if I never finish paying?",
@@ -243,7 +335,10 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
       { path: "/marketplace/rentals/bikes/[bikeId]", label: "Bike details" },
     ],
     purpose: "Getting around campus towns is hard without a vehicle; rentals are usually informal and risky.",
-    whyUse: ["See availability and prices upfront.", "Booking status is tracked with documents and inspections."],
+    whyUse: [
+      "See availability and prices upfront.",
+      "Booking status is tracked with documents and inspections.",
+    ],
     howToUse: [
       "Open /marketplace/rentals and pick a bike.",
       "Choose dates and submit your licence or student ID details.",
@@ -267,9 +362,14 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
       { path: "/buy-and-sell", label: "Listings" },
       { path: "/buy-and-sell/new", label: "New listing" },
     ],
-    purpose: "Graduating students have things to sell and juniors need them. Verification makes the trade safer than OLX.",
+    purpose:
+      "Graduating students have things to sell and juniors need them. Verification makes the trade safer than OLX.",
     whyUse: ["Buy cheap from seniors on your campus.", "Sell before you graduate."],
-    howToUse: ["Open /buy-and-sell/new.", "Add photos, price, condition and description.", "Chat with buyers and meet on campus."],
+    howToUse: [
+      "Open /buy-and-sell/new.",
+      "Add photos, price, condition and description.",
+      "Chat with buyers and meet on campus.",
+    ],
     useCases: [{ who: "Final-year", scenario: "Sells a cooler, cycle and textbooks in one weekend." }],
     privacy: ["Buyers contact you through CampusLoop chat."],
     investorAngle: "Peer commerce deepens daily use and can add featured listings later.",
@@ -289,11 +389,15 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
       { path: "/housing/new", label: "List a place" },
       { path: "/living", label: "Living & utilities" },
     ],
-    purpose: "Off-campus housing search is broker-heavy and unsafe. Listings from verified students are more trustworthy.",
+    purpose:
+      "Off-campus housing search is broker-heavy and unsafe. Listings from verified students are more trustworthy.",
     whyUse: ["Find flatmates from your own college.", "See listings near campus."],
     howToUse: ["Browse /housing.", "List a room or flat at /housing/new.", "Chat with interested students."],
-    useCases: [{ who: "Student", scenario: "Finds two flatmates for a 3BHK before the internship semester." }],
-    investorAngle: "Housing is a large, underserved student spend category with partnership and lead-generation potential.",
+    useCases: [
+      { who: "Student", scenario: "Finds two flatmates for a 3BHK before the internship semester." },
+    ],
+    investorAngle:
+      "Housing is a large, underserved student spend category with partnership and lead-generation potential.",
     faq: [{ q: "Are brokers allowed?", a: "Listings are for students; report broker spam." }],
     related: ["lost-and-found", "rideshare"],
     keywords: ["PG near college", "flatmates"],
@@ -311,7 +415,11 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
     ],
     purpose: "Get lost ID cards, phones and bottles back to their owners fast.",
     whyUse: ["Reach your whole campus in one post.", "Search found items by type."],
-    howToUse: ["Open /lost-and-found/new.", "Choose Lost or Found, describe it, add a photo and location.", "Mark it resolved when returned."],
+    howToUse: [
+      "Open /lost-and-found/new.",
+      "Choose Lost or Found, describe it, add a photo and location.",
+      "Mark it resolved when returned.",
+    ],
     useCases: [{ who: "Student", scenario: "Gets their ID card back the same day after posting." }],
     investorAngle: "Utility features create goodwill and habitual opening of the app.",
     faq: [{ q: "Should I post my phone number?", a: "No. Use chat." }],
@@ -331,7 +439,11 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
     ],
     purpose: "Split travel costs around holidays and exams with verified students going the same way.",
     whyUse: ["Cheaper travel.", "Safer than strangers: everyone is a verified student."],
-    howToUse: ["Open /rideshare/new.", "Enter route, date, time and seats.", "Chat to confirm with co-riders."],
+    howToUse: [
+      "Open /rideshare/new.",
+      "Enter route, date, time and seats.",
+      "Chat to confirm with co-riders.",
+    ],
     useCases: [{ who: "Student", scenario: "Shares a cab to the airport at the start of Diwali break." }],
     investorAngle: "Travel pooling creates peak-season engagement and future mobility partnerships.",
     faq: [{ q: "Does CampusLoop book the cab?", a: "No. It matches riders; you book together." }],
@@ -347,7 +459,11 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
     audiences: ["Merchants", "Investors"],
     routes: [{ path: "/merchant-portal", label: "Merchant portal" }],
     purpose: "Give canteens and local shops a simple digital storefront and order queue.",
-    whyUse: ["Receive orders in one queue instead of phone calls.", "Only see online orders once paid.", "Share a QR code for your store."],
+    whyUse: [
+      "Receive orders in one queue instead of phone calls.",
+      "Only see online orders once paid.",
+      "Share a QR code for your store.",
+    ],
     howToUse: [
       "Sign in to the merchant portal with your store account.",
       "Add products with prices, options and stock.",

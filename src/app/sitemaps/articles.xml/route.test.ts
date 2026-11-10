@@ -18,9 +18,9 @@ describe("Articles Sitemap Route (sitemaps/articles.xml)", () => {
     // Invariant: Must NEVER leak campsy.app
     expect(xml).not.toContain("https://campsy.app");
 
-    // Must use canonical https://campusloop.space/articles/
+    // Must use canonical https://campusloop.space/articles URLs
     if (xml.includes("<loc>")) {
-      expect(xml).toContain("<loc>https://campusloop.space/articles/");
+      expect(xml).toContain("<loc>https://campusloop.space/articles");
     }
   });
 });

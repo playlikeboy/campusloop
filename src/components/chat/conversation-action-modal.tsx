@@ -7,18 +7,25 @@ import {
   BellOff,
   CheckCheck,
   Eraser,
+  Mail,
   Pin,
   PinOff,
-  ShieldCheck,
   Trash2,
   User,
-  X,
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { VerifiedBadge } from "@/components/ui/verified-badge";
 import type { CachedConversation } from "@/lib/chat-cache";
+import { cn } from "@/lib/utils";
+import { ChatAvatar } from "./chat-avatar";
+import { isGroupConversation } from "./chat-format";
+
+const ROW =
+  "flex min-h-12 w-full cursor-pointer items-center gap-3 rounded-md px-3 text-left text-base font-medium text-fg transition-ui outline-none hover:bg-surface-muted focus-visible:bg-surface-muted disabled:cursor-wait disabled:opacity-60";
 
 interface ConversationActionModalProps {
   isOpen: boolean;
@@ -29,249 +36,186 @@ interface ConversationActionModalProps {
   onDeleteConversation?: (convId: string) => void;
 }
 
+/** Chat actions from the inbox (long-press, right-click or the dots): pin, mute, archive, read, clear, delete. */
 export function ConversationActionModal({
   isOpen,
   onClose,
   conversation,
-  currentUserId,
   onActionComplete,
   onDeleteConversation,
 }: ConversationActionModalProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
-  if (!isOpen || !conversation) return null;
+  useEffect(() => {
+    if (!isOpen) setConfirmDelete(false);
+  }, [isOpen]);
+
+  if (!conversation) return null;
 
   const other = conversation.otherParticipant;
+  const isGroup = isGroupConversation(conversation);
   const isPinned = Boolean(conversation.isPinned);
   const isMuted = Boolean(conversation.isMuted);
   const isArchived = Boolean(conversation.isArchived);
   const hasUnread = (conversation.unreadCount || 0) > 0;
 
-  async function handleAction(action: string, successMsg: string) {
+  async function run(action: string, done: string) {
     if (!conversation) return;
-    setIsSubmitting(true);
+    setBusy(true);
     try {
       const res = await fetch(`/api/chat/${conversation.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action }),
       });
-
-      if (res.ok) {
-        toast.success(successMsg);
-        onActionComplete();
-        onClose();
-      } else {
-        toast.error("Failed to update conversation");
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Network error");
+      if (!res.ok) throw new Error("update failed");
+      toast.success(done);
+      onActionComplete();
+      onClose();
+    } catch {
+      toast.error("That didn't work. Check your connection and try again.");
     } finally {
-      setIsSubmitting(false);
+      setBusy(false);
     }
   }
 
-  async function handleDelete() {
+  async function remove() {
     if (!conversation) return;
-    setIsSubmitting(true);
+    setBusy(true);
     try {
-      const res = await fetch(`/api/chat/${conversation.id}`, {
-        method: "DELETE",
-      });
-
-      if (res.ok) {
-        toast.success("Chat deleted");
-        if (onDeleteConversation) {
-          onDeleteConversation(conversation.id);
-        }
-        onActionComplete();
-        onClose();
-      } else {
-        toast.error("Failed to delete chat");
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Network error");
+      const res = await fetch(`/api/chat/${conversation.id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("delete failed");
+      toast.success(isGroup ? "You left the group" : "Chat deleted");
+      onDeleteConversation?.(conversation.id);
+      onActionComplete();
+      onClose();
+    } catch {
+      toast.error("Couldn't delete the chat. Try again.");
     } finally {
-      setIsSubmitting(false);
-      setShowDeleteConfirm(false);
+      setBusy(false);
     }
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 animate-in fade-in duration-150">
-      <div className="fixed inset-0" onClick={onClose} aria-hidden="true" />
-
-      <div className="relative z-10 w-full sm:max-w-sm rounded-t-3xl sm:rounded-3xl border border-border/40 bg-card p-4 sm:p-5 shadow-2xl space-y-4 animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200">
-        {/* Header with user preview */}
-        <div className="flex items-center justify-between pb-3 border-b border-border/30">
-          <div className="flex items-center gap-3 min-w-0">
-            <Avatar className="size-11 border border-border/40 shrink-0">
-              <AvatarImage src={other?.avatarUrl || ""} />
-              <AvatarFallback className="text-xs font-black bg-primary/10 text-primary">
-                {(other?.displayName?.[0] || "S").toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div className="min-w-0">
-              <h3 className="text-sm font-bold text-foreground truncate flex items-center gap-1">
-                <span>{other?.displayName}</span>
-                {other?.points && other.points >= 150 && (
-                  <ShieldCheck className="size-3.5 text-brand shrink-0" />
-                )}
-              </h3>
-              <p className="text-xs text-muted-foreground truncate">@{other?.username}</p>
-            </div>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-sm">
+        <DialogHeader className="flex-row items-center gap-3 space-y-0">
+          <ChatAvatar name={other?.displayName} src={other?.avatarUrl} className="size-11" />
+          <div className="min-w-0">
+            <DialogTitle className="flex items-center gap-1 truncate text-lg">
+              <span className="truncate">{other?.displayName}</span>
+              {!isGroup && other?.isCollegeVerified && <VerifiedBadge size="sm" />}
+            </DialogTitle>
+            {!isGroup && other?.username && (
+              <DialogDescription className="truncate">@{other.username}</DialogDescription>
+            )}
           </div>
+        </DialogHeader>
 
-          <button
-            aria-label="Close"
-            type="button"
-            onClick={onClose}
-            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 size-8 min-h-11 min-w-11 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
-          >
-            <X className="size-4" />
-          </button>
-        </div>
-
-        {/* Delete Confirmation Sub-modal */}
-        {showDeleteConfirm ? (
-          <div className="py-2 space-y-3">
-            <p className="text-sm font-bold text-foreground text-center">
-              Delete chat with {other?.displayName}?
+        {confirmDelete ? (
+          <div className="space-y-4">
+            <p className="text-base text-fg">
+              {isGroup
+                ? `Leave ${other?.displayName}? You'll stop getting its messages.`
+                : `Delete your chat with ${other?.displayName}? It goes from your inbox. They keep their copy.`}
             </p>
-            <p className="text-xs text-muted-foreground text-center leading-relaxed">
-              This will remove the conversation from your inbox and clear message history for you.
-            </p>
-            <div className="flex gap-2 pt-2">
-              <button
-                type="button"
-                onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 py-2 rounded-full border border-border/60 text-xs font-bold text-muted-foreground hover:bg-muted transition-colors cursor-pointer"
-              >
+            <div className="flex flex-col gap-2">
+              <Button variant="danger" loading={busy} onClick={remove}>
+                {isGroup ? "Leave group" : "Delete chat"}
+              </Button>
+              <Button variant="ghost" onClick={() => setConfirmDelete(false)}>
                 Cancel
-              </button>
-              <button
-                type="button"
-                disabled={isSubmitting}
-                onClick={handleDelete}
-                className="flex-1 py-2 rounded-full bg-destructive text-destructive-foreground hover:opacity-90 text-xs font-bold transition-opacity cursor-pointer disabled:opacity-50"
-              >
-                {isSubmitting ? "Deleting..." : "Delete Chat"}
-              </button>
+              </Button>
             </div>
           </div>
         ) : (
-          /* Action Menu Items */
-          <div className="space-y-1">
-            {/* Pin / Unpin */}
+          <div className="space-y-0.5">
             <button
               type="button"
-              disabled={isSubmitting}
-              onClick={() =>
-                handleAction(isPinned ? "unpin" : "pin", isPinned ? "Chat unpinned" : "Chat pinned to top")
-              }
-              className="flex w-full items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted text-xs font-semibold text-foreground transition-colors cursor-pointer"
+              className={ROW}
+              disabled={busy}
+              onClick={() => run(isPinned ? "unpin" : "pin", isPinned ? "Unpinned" : "Pinned to the top")}
             >
               {isPinned ? (
-                <PinOff className="size-4 text-muted-foreground" />
+                <PinOff className="size-5 text-fg-muted" />
               ) : (
-                <Pin className="size-4 text-warning" />
+                <Pin className="size-5 text-fg-muted" />
               )}
-              <span>{isPinned ? "Unpin chat" : "Pin chat to top"}</span>
+              {isPinned ? "Unpin" : "Pin to top"}
             </button>
-
-            {/* Mute / Unmute */}
             <button
               type="button"
-              disabled={isSubmitting}
-              onClick={() =>
-                handleAction(isMuted ? "unmute" : "mute", isMuted ? "Notifications unmuted" : "Chat muted")
-              }
-              className="flex w-full items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted text-xs font-semibold text-foreground transition-colors cursor-pointer"
+              className={ROW}
+              disabled={busy}
+              onClick={() => run(isMuted ? "unmute" : "mute", isMuted ? "Notifications on" : "Muted")}
             >
               {isMuted ? (
-                <Bell className="size-4 text-muted-foreground" />
+                <Bell className="size-5 text-fg-muted" />
               ) : (
-                <BellOff className="size-4 text-danger" />
+                <BellOff className="size-5 text-fg-muted" />
               )}
-              <span>{isMuted ? "Unmute notifications" : "Mute notifications"}</span>
+              {isMuted ? "Unmute" : "Mute notifications"}
             </button>
-
-            {/* Archive / Unarchive */}
             <button
               type="button"
-              disabled={isSubmitting}
+              className={ROW}
+              disabled={busy}
               onClick={() =>
-                handleAction(
-                  isArchived ? "unarchive" : "archive",
-                  isArchived ? "Chat unarchived" : "Chat archived"
-                )
+                run(isArchived ? "unarchive" : "archive", isArchived ? "Moved back to chats" : "Archived")
               }
-              className="flex w-full items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted text-xs font-semibold text-foreground transition-colors cursor-pointer"
             >
               {isArchived ? (
-                <ArchiveRestore className="size-4 text-muted-foreground" />
+                <ArchiveRestore className="size-5 text-fg-muted" />
               ) : (
-                <Archive className="size-4 text-primary" />
+                <Archive className="size-5 text-fg-muted" />
               )}
-              <span>{isArchived ? "Unarchive chat" : "Archive chat"}</span>
+              {isArchived ? "Unarchive" : "Archive"}
             </button>
-
-            {/* Mark as Read / Unread */}
             <button
               type="button"
-              disabled={isSubmitting}
+              className={ROW}
+              disabled={busy}
               onClick={() =>
-                handleAction(
+                run(
                   hasUnread ? "mark_read" : "mark_unread",
                   hasUnread ? "Marked as read" : "Marked as unread"
                 )
               }
-              className="flex w-full items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted text-xs font-semibold text-foreground transition-colors cursor-pointer"
             >
-              <CheckCheck className="size-4 text-brand-text" />
-              <span>{hasUnread ? "Mark as read" : "Mark as unread"}</span>
+              {hasUnread ? (
+                <CheckCheck className="size-5 text-fg-muted" />
+              ) : (
+                <Mail className="size-5 text-fg-muted" />
+              )}
+              {hasUnread ? "Mark as read" : "Mark as unread"}
             </button>
-
-            {/* View Profile */}
-            {other?.username && (
-              <Link
-                href={`/@${other.username}`}
-                onClick={onClose}
-                className="flex w-full items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted text-xs font-semibold text-foreground transition-colors cursor-pointer"
-              >
-                <User className="size-4 text-muted-foreground" />
-                <span>View student profile</span>
+            {!isGroup && other?.username && (
+              <Link href={`/@${other.username}`} onClick={onClose} className={ROW}>
+                <User className="size-5 text-fg-muted" />
+                View profile
               </Link>
             )}
-
-            {/* Clear Chat */}
             <button
               type="button"
-              disabled={isSubmitting}
-              onClick={() => handleAction("clear", "Chat history cleared")}
-              className="flex w-full items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted text-xs font-semibold text-foreground transition-colors cursor-pointer"
+              className={ROW}
+              disabled={busy}
+              onClick={() => run("clear", "Messages cleared")}
             >
-              <Eraser className="size-4 text-muted-foreground" />
-              <span>Clear message history</span>
+              <Eraser className="size-5 text-fg-muted" />
+              Clear messages
             </button>
-
-            <hr className="border-border/30 my-1" />
-
-            {/* Delete Chat */}
             <button
               type="button"
-              onClick={() => setShowDeleteConfirm(true)}
-              className="flex w-full items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-destructive/10 text-xs font-bold text-destructive transition-colors cursor-pointer"
+              className={cn(ROW, "text-danger hover:bg-danger-subtle")}
+              onClick={() => setConfirmDelete(true)}
             >
-              <Trash2 className="size-4" />
-              <span>Delete Chat</span>
+              <Trash2 className="size-5" />
+              {isGroup ? "Leave group" : "Delete chat"}
             </button>
           </div>
         )}
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

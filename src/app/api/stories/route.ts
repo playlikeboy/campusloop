@@ -78,7 +78,10 @@ export async function POST(req: Request) {
     };
 
     if (!text && !mediaUrl) {
-      return NextResponse.json({ error: "Story content cannot be empty" }, { status: 400 });
+      return NextResponse.json({ error: "Add some text or a photo to your story." }, { status: 400 });
+    }
+    if (typeof text === "string" && text.length > 2000) {
+      return NextResponse.json({ error: "Your story text is too long. Keep it under 2,000 characters." }, { status: 400 });
     }
 
     const expiresAt = new Date();
@@ -89,8 +92,7 @@ export async function POST(req: Request) {
       .values({
         userId: profile.id,
         text: text || null,
-        // ds-allow: user-persisted story background class string
-        backgroundColor: backgroundColor || "from-stone-900 to-neutral-900",
+        backgroundColor: (typeof backgroundColor === "string" && backgroundColor.slice(0, 200)) || "bg-story-field",
         mediaUrl: mediaUrl || null,
         expiresAt,
       })

@@ -66,7 +66,7 @@ export function AcademicWatchClient({ resourceId, title, subjectCode, modules }:
   return (
     <div className="min-h-screen bg-background">
       {/* Top bar */}
-      <div className="border-b border-border/40 bg-card/60 backdrop-blur-md sticky top-0 z-20">
+      <div className="border-b border-border bg-surface sticky top-0 z-20">
         <div className="max-w-7xl mx-auto px-3 sm:px-5 py-3 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <Link
@@ -77,11 +77,11 @@ export function AcademicWatchClient({ resourceId, title, subjectCode, modules }:
               <ArrowLeft className="size-4" />
             </Link>
             <div className="min-w-0">
-              <p className="text-[10px] font-mono font-bold text-primary uppercase tracking-wider">{subjectCode}</p>
-              <h1 className="text-sm font-black text-foreground truncate">{title}</h1>
+              <p className="text-xs font-mono font-bold text-primary">{subjectCode}</p>
+              <h1 className="text-sm font-bold text-foreground truncate">{title}</h1>
             </div>
           </div>
-          <span className="text-[11px] font-bold text-muted-foreground shrink-0 tabular-nums">
+          <span className="text-xs font-bold text-muted-foreground shrink-0 tabular-nums">
             {completedCount}/{flat.length} viewed
           </span>
         </div>
@@ -90,7 +90,7 @@ export function AcademicWatchClient({ resourceId, title, subjectCode, modules }:
       <div className="max-w-7xl mx-auto px-3 sm:px-5 py-5 grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
         {/* Main stage: player + notes */}
         <div className="lg:col-span-8 space-y-4">
-          <div className="w-full aspect-video rounded-2xl overflow-hidden bg-black border border-border/40">
+          <div className="w-full aspect-video rounded-lg overflow-hidden bg-surface-sunken border border-border">
             {isActiveVideo && ytInfo.embedUrl ? (
               <iframe
                 key={ytInfo.embedUrl}
@@ -101,15 +101,15 @@ export function AcademicWatchClient({ resourceId, title, subjectCode, modules }:
                 allowFullScreen
               />
             ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center gap-3 text-center p-6 text-white/80">
+              <div className="w-full h-full flex flex-col items-center justify-center gap-3 text-center p-6 text-fg-muted">
                 <FileText className="size-8" />
-                <p className="text-sm font-semibold">This item isn't a video.</p>
+                <p className="text-sm font-semibold">This one is a file, not a video.</p>
                 {active && (
                   <a
                     href={active.attachment.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white text-black text-xs font-bold"
+                    className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-brand px-4 text-sm font-semibold text-brand-fg transition-ui hover:bg-brand-hover"
                   >
                     <span>Open file</span>
                     <ExternalLink className="size-3" />
@@ -120,10 +120,8 @@ export function AcademicWatchClient({ resourceId, title, subjectCode, modules }:
           </div>
 
           <div className="rounded-2xl border border-border/40 bg-card/60 p-4 space-y-2">
-            <h2 className="text-sm font-black text-foreground">{active?.attachment.title || title}</h2>
-            <p className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wider">
-              {active?.moduleTitle}
-            </p>
+            <h2 className="text-sm font-bold text-foreground">{active?.attachment.title || title}</h2>
+            <p className="text-xs text-muted-foreground font-semibold">{active?.moduleTitle}</p>
             {active?.attachment.description ? (
               <p className="text-xs text-foreground/90 leading-relaxed whitespace-pre-line pt-1 border-t border-border/20">
                 {active.attachment.description}
@@ -139,15 +137,15 @@ export function AcademicWatchClient({ resourceId, title, subjectCode, modules }:
         {/* Sidebar: course content / curriculum */}
         <aside className="lg:col-span-4 rounded-2xl border border-border/40 bg-card/60 overflow-hidden">
           <div className="px-4 py-3 border-b border-border/30">
-            <h3 className="text-xs font-black uppercase tracking-wider text-foreground">Course Content</h3>
-            <p className="text-[11px] text-muted-foreground">
+            <h3 className="text-xs font-bold text-foreground">Course Content</h3>
+            <p className="text-xs text-muted-foreground">
               {modules.length} {modules.length === 1 ? "module" : "modules"} · {flat.length} items
             </p>
           </div>
           <div className="max-h-[70vh] overflow-y-auto">
             {modules.map((mod, mIdx) => (
               <div key={mod.id} className="border-b border-border/20 last:border-b-0">
-                <div className="px-4 py-2 bg-muted/20 text-[11px] font-black text-foreground uppercase tracking-wider">
+                <div className="px-4 py-2 bg-muted/20 text-xs font-bold text-foreground">
                   {mod.title?.trim() || `Module ${mIdx + 1}`}
                 </div>
                 {mod.attachments.map((att) => {

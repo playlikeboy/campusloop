@@ -35,7 +35,8 @@ export function RedditVideo({
   const videoUrl = streamInfo?.hdVideoUrl || media.mediaUrl;
 
   const isVertical = Boolean(media.height && media.width && media.height > media.width);
-  const aspectRatio = media.width && media.height ? `${media.width} / ${media.height}` : isVertical ? "9 / 16" : "16 / 9";
+  const aspectRatio =
+    media.width && media.height ? `${media.width} / ${media.height}` : isVertical ? "9 / 16" : "16 / 9";
 
   // Attach HLS stream or native HLS/MP4 fallback
   useEffect(() => {
@@ -146,7 +147,7 @@ export function RedditVideo({
     return (
       <div
         ref={containerRef}
-        className={`relative overflow-hidden rounded-2xl border border-border/70 bg-muted/30 p-4 flex flex-col items-center justify-center text-center gap-3 select-none no-card-nav ${className}`}
+        className={`relative overflow-hidden rounded-2xl border border-border bg-muted/30 p-4 flex flex-col items-center justify-center text-center gap-3 select-none no-card-nav ${className}`}
         style={{ aspectRatio: isVertical ? "9 / 16" : "16 / 9", maxHeight: "520px" }}
         data-no-nav="true"
         onClick={(e) => e.stopPropagation()}
@@ -162,7 +163,7 @@ export function RedditVideo({
           <div className="size-10 rounded-full bg-warning/10 border border-warning/30 flex items-center justify-center text-warning">
             <AlertCircle className="size-5" />
           </div>
-          <p className="text-xs text-muted-foreground font-medium">Video format requires Reddit viewer</p>
+          <p className="text-xs text-muted-foreground font-medium">This video only plays on Reddit</p>
           <a
             href={externalPost.canonicalUrl}
             target="_blank"
@@ -182,7 +183,7 @@ export function RedditVideo({
     <div
       ref={containerRef}
       onClick={togglePlay}
-      className={`relative overflow-hidden rounded-2xl border border-border/70 bg-black shadow-sm max-w-xl no-card-nav group cursor-pointer select-none ${className}`}
+      className={`relative overflow-hidden rounded-2xl border border-border bg-black shadow-sm max-w-xl no-card-nav group cursor-pointer select-none ${className}`}
       style={{
         aspectRatio,
         maxHeight: isVertical ? "520px" : "440px",
@@ -216,8 +217,8 @@ export function RedditVideo({
 
       {/* Centered Play Indicator when paused */}
       {!hasError && !isPlaying && !isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/25 backdrop-blur-[1px] pointer-events-none transition-opacity">
-          <div className="size-13 rounded-full bg-black/60 text-white border border-white/25 flex items-center justify-center shadow-xl backdrop-blur-md transition-transform group-hover:scale-105 active:scale-95">
+        <div className="absolute inset-0 flex items-center justify-center bg-black/25-[1px] pointer-events-none transition-opacity">
+          <div className="size-13 rounded-full bg-black/60 text-white border border-white/25 flex items-center justify-center shadow-lg transition-transform active:scale-95">
             <Play className="size-6 fill-white ml-0.5" />
           </div>
         </div>
@@ -225,7 +226,7 @@ export function RedditVideo({
 
       {/* Loading Spinner */}
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px] z-10 pointer-events-none">
+        <div className="absolute inset-0 flex items-center justify-center bg-black/40-[2px] z-10 pointer-events-none">
           <Loader2 className="size-7 text-white/80 animate-spin" />
         </div>
       )}
@@ -235,7 +236,7 @@ export function RedditVideo({
         <button
           type="button"
           onClick={toggleMute}
-          className="absolute bottom-2.5 right-2.5 z-20 size-8 rounded-full bg-black/60 backdrop-blur-md text-white border border-white/20 flex items-center justify-center hover:bg-black/80 transition-colors cursor-pointer shadow-md"
+          className="absolute bottom-2.5 right-2.5 z-20 size-10 rounded-full bg-black/60 text-white border border-white/20 flex items-center justify-center hover:bg-black/80 transition-colors cursor-pointer shadow-md"
           aria-label={isMuted ? "Unmute video" : "Mute video"}
         >
           {isMuted ? <VolumeX className="size-3.5" /> : <Volume2 className="size-3.5" />}

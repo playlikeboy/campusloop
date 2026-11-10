@@ -1,7 +1,10 @@
 "use client";
 
-import { AnimateRepeat2, AnimateSend, AnimateX } from "@/components/ui/animated-icon";
+import { useId } from "react";
+import { AnimateSend } from "@/components/ui/animated-icon";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 interface RepostModalProps {
   isOpen: boolean;
@@ -22,58 +25,52 @@ export function FeedCardRepostModal({
   onExecuteRepost,
   originalPostAuthorHandle,
 }: RepostModalProps) {
-  if (!isOpen) return null;
+  const fieldId = useId();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
-      <div className="w-full max-w-md rounded-2xl border border-border bg-card p-5 shadow-2xl space-y-4">
-        <div className="flex items-center justify-between pb-2 border-b border-border/40">
-          <div className="flex items-center gap-2">
-            <AnimateRepeat2 size={16} className="text-success" />
-            <h3 className="text-sm font-bold text-foreground">Reshare Post</h3>
-          </div>
-          <button
-            onClick={onClose}
-            className="rounded-full p-1 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
-          >
-            <AnimateX size={16} />
-          </button>
-        </div>
+    // The card underneath opens the post on click; keep dialog clicks from reaching it.
+    <div onClick={(e) => e.stopPropagation()}>
+      <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Repost</DialogTitle>
+            <DialogDescription>Share it as is, or add a line of your own.</DialogDescription>
+          </DialogHeader>
 
-        <div className="space-y-2">
-          <label className="text-xs font-semibold text-muted-foreground">
-            Add your thoughts (Optional quote):
+          <label htmlFor={fieldId} className="sr-only">
+            Your comment
           </label>
-          <textarea
+          <Textarea
+            id={fieldId}
             value={quoteThoughts}
             onChange={(e) => setQuoteThoughts(e.target.value)}
-            placeholder={`What do you think about @${originalPostAuthorHandle}'s post?`}
+            placeholder={`What do you think of @${originalPostAuthorHandle}'s post?`}
             rows={3}
-            className="w-full rounded-xl border border-border/60 bg-muted/20 p-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary resize-none font-medium"
           />
-        </div>
 
-        <div className="flex gap-2 pt-1">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => onExecuteRepost(false)}
-            disabled={isReposting}
-            className="flex-1 text-xs font-semibold h-9 rounded-xl border border-border/60 cursor-pointer"
-          >
-            Instant Repost
-          </Button>
-
-          <Button
-            type="button"
-            onClick={() => onExecuteRepost(true)}
-            disabled={isReposting || !quoteThoughts.trim()}
-            className="flex-1 text-xs font-semibold h-9 rounded-xl bg-primary text-primary-foreground gap-1.5 cursor-pointer shadow-xs"
-          >
-            <AnimateSend size={14} /> Quote Repost
-          </Button>
-        </div>
-      </div>
+          <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => onExecuteRepost(false)}
+              disabled={isReposting}
+              className="flex-1"
+            >
+              Repost
+            </Button>
+            <Button
+              type="button"
+              onClick={() => onExecuteRepost(true)}
+              loading={isReposting}
+              disabled={isReposting || !quoteThoughts.trim()}
+              className="flex-1"
+            >
+              <AnimateSend size={16} />
+              Post with comment
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

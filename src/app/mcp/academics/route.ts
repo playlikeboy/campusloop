@@ -380,7 +380,7 @@ function getOpenApiSpec(serverUrl = "https://campusloop.space") {
       title: "CampusLoop Academic Vault & Notes Engine",
       version: "1.0.0",
       description:
-        "Programmatically search, upload, organize, and curate university study materials, PYQs, and semester packs across 1,350+ Indian engineering & degree colleges.",
+        "Programmatically search, upload, organize, and curate university study materials, PYQs, and semester packs for Indian colleges.",
       contact: {
         name: "CampusLoop Academics Team",
         url: "https://campusloop.space/academics",
@@ -1836,7 +1836,7 @@ function getDocumentationHtml(): string {
     <span class="badge">CampusLoop Developer & AI Agent Protocol</span>
     <h1>Academic Vault & Notes MCP Engine</h1>
     <p style="color: var(--muted); margin-bottom: 2rem;">
-      Programmatically search, curate, and index verified engineering notes, PYQs, and semester packs across 1,350+ Indian colleges.
+      Programmatically search, curate, and index verified engineering notes, PYQs, and semester packs for Indian colleges.
     </p>
 
     <div class="card">

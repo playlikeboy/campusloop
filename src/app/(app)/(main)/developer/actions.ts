@@ -47,7 +47,8 @@ export async function createMcpKey(name?: string) {
   }
 
   const generatedKey = `cl_mcp_${randomUUID().replace(/-/g, "")}`;
-  const keyName = (typeof name === "string" ? name.trim() : "").slice(0, 80) || `IDE Key #${existingCount.length + 1}`;
+  const keyName =
+    (typeof name === "string" ? name.trim() : "").slice(0, 80) || `IDE Key #${existingCount.length + 1}`;
 
   const [newKey] = await db
     .insert(userMcpKeys)
@@ -152,10 +153,7 @@ export async function testExecuteMcpTool(keyString: string, toolName: string, ar
     if (!profile) throw new Error("Student profile not found");
 
     const ownedKey = await db.query.userMcpKeys.findFirst({
-      where: and(
-        eq(userMcpKeys.userId, profile.id),
-        eq(userMcpKeys.key, keyString.trim())
-      ),
+      where: and(eq(userMcpKeys.userId, profile.id), eq(userMcpKeys.key, keyString.trim())),
     });
     if (!ownedKey || !ownedKey.isActive) {
       throw new Error("Choose an active key owned by your account");

@@ -1,14 +1,15 @@
 "use client";
 
-import { Heart, School, X } from "lucide-react";
+import { Heart, HeartCrack, School, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
+import { formatStudyYear } from "@/components/dating/crush-types";
 import { DatingMatchModal } from "@/components/dating/dating-match-modal";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { CuteCatEmpty } from "@/components/ui/cute-illustrations";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
 import { fetcher } from "@/lib/api";
 import { getAvatarUrl } from "@/lib/utils";
 
@@ -29,13 +30,11 @@ type MatchResult = {
 };
 
 export function LikesClient() {
-  const { data, isLoading, mutate } = useSWR<{ likes: Admirer[] }>("/api/dating/likes", fetcher);
+  const { data, error, isLoading, mutate } = useSWR<{ likes: Admirer[] }>("/api/dating/likes", fetcher);
   const [matchResult, setMatchResult] = useState<MatchResult | null>(null);
-
   const likes = data?.likes ?? [];
 
-  async function swipe(admirer: Admirer, direction: "LIKE" | "PASS") {
-    // Optimistically remove the card
+  async function respond(admirer: Admirer, direction: "LIKE" | "PASS") {
     void mutate({ likes: likes.filter((l) => l.id !== admirer.id) }, { revalidate: false });
     try {
       const res = await fetch("/api/dating/swipe", {
@@ -43,101 +42,111 @@ export function LikesClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ targetId: admirer.id, direction }),
       });
-      if (res.ok && direction === "LIKE") {
+      if (!res.ok) throw new Error();
+      if (direction === "LIKE") {
         const result = (await res.json()) as MatchResult;
         if (result.matched) setMatchResult(result);
       }
     } catch {
-      toast.error("Something went wrong");
+      toast.error("That didn't go through. Check your connection and try again.");
     }
     void mutate();
   }
 
-  return (
-    <div className="mx-auto flex w-full max-w-lg flex-1 flex-col px-3 sm:px-4 text-foreground select-none">
-      <div className="flex-1 py-2">
-        {isLoading ? (
-          <div className="grid grid-cols-2 gap-3">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="aspect-3/4 rounded-2xl overflow-hidden relative border border-border/30">
-                <Skeleton className="h-full w-full rounded-2xl" />
-              </div>
-            ))}
-          </div>
-        ) : likes.length === 0 ? (
-          <div className="flex flex-col items-center justify-center gap-3 py-16 text-center rounded-3xl border border-border/80 bg-card p-8 my-4 shadow-2xs">
-            <CuteCatEmpty size={100} className="mb-1" />
-            <div className="space-y-1.5 max-w-xs">
-              <h3 className="font-heading font-bold text-base text-foreground">No pending admirers</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Keep swiping on the campus deck or update your bio and photos to appear on more classmate screens!
-              </p>
-            </div>
-            <div className="flex items-center gap-2.5 pt-2">
-              <Link href="/matching">
-                <Button size="default">
-                  <span>Start Swiping</span>
-                </Button>
-              </Link>
-              <Link href="/profile/edit">
-                <Button variant="outline" size="default">
-                  <span>Edit Profile</span>
-                </Button>
-              </Link>
-            </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 gap-3">
-            {likes.map((admirer) => (
-              <div
-                key={admirer.id}
-                className="relative overflow-hidden rounded-2xl bg-black ring-1 ring-white/10 shadow-md group"
-              >
+  let body: React.ReactNode;
+  if (isLoading) {
+    body = (
+      <div className="grid grid-cols-2 gap-3" aria-busy="true" aria-label="Loading likes">
+        {[0, 1, 2, 3].map((i) => (
+          <Skeleton key={i} className="aspect-3/4 w-full rounded-lg" />
+        ))}
+      </div>
+    );
+  } else if (error && !data) {
+    body = (
+      <EmptyState
+        icon={HeartCrack}
+        title="Couldn't load your likes"
+        description="Check your connection and try again."
+        action={<Button onClick={() => void mutate()}>Try again</Button>}
+      />
+    );
+  } else if (likes.length === 0) {
+    body = (
+      <EmptyState
+        icon={Heart}
+        title="No likes yet"
+        description="When someone likes you, they show up here."
+        action={
+          <Button variant="crush" asChild>
+            <Link href="/matching">Start swiping</Link>
+          </Button>
+        }
+      />
+    );
+  } else {
+    body = (
+      <>
+        <p className="mb-3 text-sm text-fg-muted">Like them back to match and start chatting.</p>
+        <ul className="grid grid-cols-2 gap-3">
+          {likes.map((admirer) => {
+            const year = formatStudyYear(admirer.year);
+            return (
+              <li key={admirer.id} className="relative overflow-hidden rounded-lg bg-black">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={admirer.photo ?? getAvatarUrl(admirer.avatarUrl, admirer.username)}
                   alt={admirer.displayName}
-                  className="aspect-3/4 w-full object-cover group-hover:scale-102 transition-transform duration-300"
+                  className="aspect-3/4 w-full object-cover"
+                  loading="lazy"
                 />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/95 via-black/25 to-transparent" />
-
-                <div className="absolute inset-x-0 bottom-0 space-y-2 p-3">
-                  <div>
-                    <p className="truncate text-sm font-black text-white">
-                      {admirer.displayName}
-                      {admirer.year ? ` · Yr ${admirer.year}` : ""}
+                <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 space-y-2 p-2.5 text-white">
+                  <div className="px-0.5">
+                    <p className="truncate text-sm font-semibold">{admirer.displayName}</p>
+                    <p className="flex items-center gap-1 truncate text-xs text-white/80">
+                      {admirer.institutionName ? (
+                        <>
+                          <School className="size-3 shrink-0" aria-hidden="true" />
+                          {admirer.institutionName.split(",")[0]}
+                        </>
+                      ) : (
+                        year
+                      )}
                     </p>
-                    {admirer.institutionName && (
-                      <p className="flex items-center gap-1 truncate text-[10px] font-semibold text-white/70">
-                        <School className="size-2.5 shrink-0" /> {admirer.institutionName.split(",")[0]}
-                      </p>
-                    )}
                   </div>
                   <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => swipe(admirer, "PASS")}
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      onClick={() => void respond(admirer, "PASS")}
                       aria-label={`Pass on ${admirer.displayName}`}
-                      className="flex h-8.5 flex-1 items-center justify-center rounded-xl bg-white/15 text-white backdrop-blur-sm transition-[opacity,transform] hover:bg-white/25 active:scale-92 cursor-pointer"
+                      className="flex-1"
                     >
-                      <X className="size-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => swipe(admirer, "LIKE")}
-                      aria-label={`Match with ${admirer.displayName}`}
-                      className="flex h-8.5 flex-1 items-center justify-center rounded-xl bg-crush text-white shadow-sm transition-[opacity,transform] hover:bg-crush active:scale-92 cursor-pointer"
+                      <X />
+                    </Button>
+                    <Button
+                      variant="crush"
+                      size="icon"
+                      onClick={() => void respond(admirer, "LIKE")}
+                      aria-label={`Like ${admirer.displayName} back`}
+                      className="flex-1"
                     >
-                      <Heart className="size-4 fill-white" />
-                    </button>
+                      <Heart className="fill-current" />
+                    </Button>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+              </li>
+            );
+          })}
+        </ul>
+      </>
+    );
+  }
 
+  return (
+    <div className="mx-auto w-full max-w-lg flex-1 px-4 py-2">
+      {body}
       <DatingMatchModal matchResult={matchResult} onClose={() => setMatchResult(null)} />
     </div>
   );

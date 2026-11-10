@@ -1,8 +1,11 @@
 "use client";
 
-import { Check, FolderPlus, Loader2, Plus, X } from "lucide-react";
+import { Check, Loader2, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
@@ -105,7 +108,7 @@ export function AddToPlaylistModal({ isOpen, onClose, resourceId, resourceTitle 
         toast.success(`Added to "${playlist.title}"`);
       }
     } catch {
-      toast.error("Could not update playlist");
+      toast.error("Couldn't update the playlist. Check your connection and try again.");
     } finally {
       setIsUpdating(null);
     }
@@ -131,9 +134,9 @@ export function AddToPlaylistModal({ isOpen, onClose, resourceId, resourceTitle 
 
       if (!res.ok) {
         if (res.status === 401) {
-          toast.error("Please sign in to create a study playlist");
+          toast.error("Sign in to make a playlist.");
         } else {
-          toast.error("Failed to create playlist");
+          toast.error("Couldn't create the playlist. Try again.");
         }
         return;
       }
@@ -142,160 +145,118 @@ export function AddToPlaylistModal({ isOpen, onClose, resourceId, resourceTitle 
       if (data.playlist) {
         sounds.pop();
         haptics.success();
-        toast.success(`Created "${data.playlist.title}" with this material!`);
+        toast.success(`Saved to new playlist "${data.playlist.title}"`);
         setPlaylists((prev) => [data.playlist, ...prev]);
         setSelectedPlaylistIds((prev) => new Set([...prev, data.playlist.id]));
         setNewTitle("");
         setIsCreatingNew(false);
       }
     } catch {
-      toast.error("Network error while creating playlist");
+      toast.error("Couldn't reach the server. Check your connection and try again.");
     } finally {
       setIsCreating(false);
     }
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in">
-      <div className="relative w-full max-w-md rounded-3xl border border-border bg-card p-5 sm:p-6 shadow-2xl space-y-4">
-        {/* Header */}
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <div className="flex items-center gap-1.5 text-xs font-bold text-brand-text">
-              <FolderPlus className="size-4" />
-              <span>Save to Study Playlist</span>
-            </div>
-            <h2 className="text-base font-black text-foreground mt-0.5 line-clamp-1">{resourceTitle}</h2>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
-          >
-            <X className="size-4" />
-          </button>
-        </div>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Save to playlist</DialogTitle>
+          <DialogDescription className="line-clamp-1">{resourceTitle}</DialogDescription>
+        </DialogHeader>
 
-        {/* Content */}
         {isLoading ? (
-          <div className="py-8 flex flex-col items-center justify-center space-y-2 text-muted-foreground">
-            <Loader2 className="size-6 animate-spin text-foreground" />
-            <span className="text-xs font-medium">Loading your study stacks...</span>
+          <div className="flex items-center justify-center gap-2 py-8 text-sm text-fg-muted" role="status">
+            <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+            Loading your playlists
           </div>
         ) : (
           <div className="space-y-3">
             {playlists.length > 0 ? (
-              <div className="max-h-56 overflow-y-auto space-y-1.5 pr-1">
+              <ul className="max-h-64 space-y-1.5 overflow-y-auto">
                 {playlists.map((pl) => {
                   const isChecked = selectedPlaylistIds.has(pl.id);
                   const isThisUpdating = isUpdating === pl.id;
-
                   return (
-                    <button
-                      key={pl.id}
-                      type="button"
-                      onClick={() => handleToggle(pl)}
-                      disabled={isThisUpdating}
-                      className={cn(
-                        "w-full flex items-center justify-between p-3 rounded-2xl border text-left transition-ui cursor-pointer",
-                        isChecked
-                          ? "bg-muted border-foreground/30 text-foreground"
-                          : "border-border/60 hover:bg-muted/60 text-muted-foreground hover:text-foreground"
-                      )}
-                    >
-                      <div className="min-w-0 pr-2">
-                        <p className="text-xs font-bold truncate text-foreground">{pl.title}</p>
-                        <p className="text-[10px] text-muted-foreground">
-                          {pl.itemsCount} {pl.itemsCount === 1 ? "item" : "items"}
-                        </p>
-                      </div>
-
-                      <div
+                    <li key={pl.id}>
+                      <button
+                        type="button"
+                        aria-pressed={isChecked}
+                        onClick={() => handleToggle(pl)}
+                        disabled={isThisUpdating}
                         className={cn(
-                          "size-5 rounded-md flex items-center justify-center border transition-ui shrink-0",
-                          isChecked
-                            ? "bg-foreground border-foreground text-background shadow-xs"
-                            : "border-border/80"
+                          "flex min-h-14 w-full cursor-pointer items-center justify-between gap-3 rounded-md border px-3 py-2 text-left transition-ui outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                          isChecked ? "border-brand bg-brand-subtle" : "border-border hover:bg-surface-muted"
                         )}
                       >
-                        {isThisUpdating ? (
-                          <Loader2 className="size-3 animate-spin" />
-                        ) : isChecked ? (
-                          <Check className="size-3 stroke-[3]" />
-                        ) : null}
-                      </div>
-                    </button>
+                        <span className="min-w-0">
+                          <span className="block truncate text-sm font-semibold text-fg">{pl.title}</span>
+                          <span className="block text-xs text-fg-muted">
+                            {pl.itemsCount} {pl.itemsCount === 1 ? "item" : "items"}
+                          </span>
+                        </span>
+                        <span
+                          className={cn(
+                            "flex size-6 shrink-0 items-center justify-center rounded-sm border transition-ui",
+                            isChecked ? "border-brand bg-brand text-brand-fg" : "border-border-strong"
+                          )}
+                          aria-hidden="true"
+                        >
+                          {isThisUpdating ? (
+                            <Loader2 className="size-3.5 animate-spin" />
+                          ) : isChecked ? (
+                            <Check className="size-3.5" />
+                          ) : null}
+                        </span>
+                      </button>
+                    </li>
                   );
                 })}
-              </div>
+              </ul>
             ) : (
               !isCreatingNew && (
-                <div className="py-4 text-center space-y-1">
-                  <p className="text-xs font-bold text-foreground">No study playlists yet</p>
-                  <p className="text-[11px] text-muted-foreground">
-                    Create your first playlist for this semester or subject!
-                  </p>
-                </div>
+                <p className="py-4 text-center text-sm text-fg-muted">No playlists yet. Make one below.</p>
               )
             )}
 
-            {/* Create New Playlist Inline Form */}
             {isCreatingNew ? (
-              <form
-                onSubmit={handleCreateNew}
-                className="p-3 rounded-2xl bg-muted/30 border border-border space-y-2.5"
-              >
-                <p className="text-xs font-bold text-foreground">Create New Study Stack</p>
-                <input
-                  type="text"
-                  placeholder="e.g. Sem 4 CSAI Endsem Survival Stack"
+              <form onSubmit={handleCreateNew} className="space-y-2">
+                <label htmlFor="new-playlist-title" className="text-sm font-semibold text-fg">
+                  Playlist name
+                </label>
+                <Input
+                  id="new-playlist-title"
+                  placeholder="e.g. Sem 4 endsem: OS, DBMS, CN"
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
                   autoFocus
-                  className="w-full px-3 py-2 rounded-xl text-xs bg-background border border-border focus:outline-hidden focus:border-primary font-medium"
+                  maxLength={120}
                 />
-                <div className="flex items-center justify-end gap-2 pt-1">
-                  <button
-                    type="button"
-                    onClick={() => setIsCreatingNew(false)}
-                    className="px-3 py-1.5 rounded-full text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer"
-                  >
+                <div className="flex justify-end gap-2">
+                  <Button type="button" variant="ghost" onClick={() => setIsCreatingNew(false)}>
                     Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={!newTitle.trim() || isCreating}
-                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black bg-foreground text-background hover:opacity-90 disabled:opacity-50 cursor-pointer shadow-xs"
-                  >
-                    {isCreating ? <Loader2 className="size-3 animate-spin" /> : <Plus className="size-3" />}
-                    <span>Create &amp; Add</span>
-                  </button>
+                  </Button>
+                  <Button type="submit" disabled={!newTitle.trim()} loading={isCreating}>
+                    Create and save
+                  </Button>
                 </div>
               </form>
             ) : (
-              <button
-                type="button"
-                onClick={() => setIsCreatingNew(true)}
-                className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-2xl border border-dashed border-border text-foreground hover:bg-muted/40 text-xs font-bold transition-ui cursor-pointer"
-              >
-                <Plus className="size-3.5" />
-                <span>Create New Playlist</span>
-              </button>
+              <Button variant="outline" className="w-full" onClick={() => setIsCreatingNew(true)}>
+                <Plus className="size-4" aria-hidden="true" />
+                New playlist
+              </Button>
             )}
           </div>
         )}
 
-        {/* Footer */}
-        <div className="pt-2 border-t border-border/40 flex justify-end">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-1.5 rounded-full text-xs font-bold bg-muted hover:bg-muted/80 text-foreground transition-colors cursor-pointer"
-          >
+        <div className="mt-4 flex justify-end">
+          <Button variant="secondary" onClick={onClose}>
             Done
-          </button>
+          </Button>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

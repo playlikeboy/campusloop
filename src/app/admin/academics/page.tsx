@@ -1,14 +1,14 @@
 import { desc, eq } from "drizzle-orm";
 import { BookOpen } from "lucide-react";
 import type { Metadata } from "next";
+import { Badge } from "@/components/ui/badge";
 import { academicResources, institutions, userProfiles } from "@/db/schema";
+import { privateMetadata } from "@/lib/seo";
 import { AdminPageHeader } from "../_components/admin-page-header";
 import { resolveAdminSession } from "../_lib/guard";
 import { AcademicsAdminClient } from "./academics-admin-client";
 
-export const metadata: Metadata = {
-  title: "Academics Vault Moderation",
-};
+export const metadata: Metadata = privateMetadata("Study material");
 
 export const dynamic = "force-dynamic";
 
@@ -49,15 +49,10 @@ export default async function AdminAcademicsPage() {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="Academics Vault Moderation"
-        category="Operations & Safety"
+        title="Study material"
         icon={BookOpen}
-        description="Verify syllabus coverage, certify official previous-year question papers (PYQs), and moderate uploaded semester study packages."
-        badge={
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-muted text-muted-foreground border border-border/40">
-            {resources.length} resources
-          </span>
-        }
+        description="Check uploaded notes and question papers, and mark the official ones."
+        badge={<Badge variant="neutral">{resources.length} resources</Badge>}
       />
 
       <AcademicsAdminClient initialResources={resources} />

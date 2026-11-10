@@ -1,9 +1,12 @@
 "use client";
 
-import { MessageCircle, Zap } from "lucide-react";
+import { Heart, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import { Sticker } from "@/components/ui/stickers";
+import { initials } from "./crush-types";
 
 interface MatchResult {
   matched: boolean;
@@ -19,53 +22,53 @@ interface DatingMatchModalProps {
   onClose: () => void;
 }
 
+/** The match moment: the one popping sticker in Campus Match. */
 export function DatingMatchModal({ matchResult, onClose }: DatingMatchModalProps) {
-  if (!matchResult?.matched || !matchResult.matchedUser) return null;
+  const open = !!matchResult?.matched && !!matchResult.matchedUser;
+  const user = matchResult?.matchedUser;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
-      <div className="w-full max-w-sm rounded-3xl border border-primary/30 bg-card p-6 shadow-2xl text-center space-y-5 relative overflow-hidden">
-        <div className="flex justify-center">
-          <div className="size-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/25 transition-transform duration-300 ease-out hover:scale-105">
-            <Zap className="size-8 text-primary-foreground" />
-          </div>
-        </div>
-
-        <div className="space-y-1">
-          <h2 className="text-xl font-extrabold text-foreground">It&apos;s a Vibe Match!</h2>
-          <p className="text-xs text-muted-foreground">
-            You and <strong className="text-foreground">{matchResult.matchedUser.displayName}</strong> liked
-            each other!
-          </p>
-        </div>
-
-        <div className="flex justify-center my-2">
-          <Avatar className="h-20 w-20 border-4 border-primary shadow-xl">
-            <AvatarImage src={matchResult.matchedUser.avatarUrl || ""} />
-            <AvatarFallback className="text-xl font-bold bg-primary text-primary-foreground">
-              {matchResult.matchedUser.displayName[0]}
-            </AvatarFallback>
-          </Avatar>
-        </div>
-
-        <div className="space-y-2 pt-2">
-          {matchResult.conversationId && (
-            <Link href={`/chat/${matchResult.conversationId}`}>
-              <Button className="w-full bg-primary text-primary-foreground font-bold h-10 rounded-xl gap-2 cursor-pointer shadow-md">
-                <MessageCircle className="h-4 w-4" /> Start Direct Chat
-              </Button>
-            </Link>
-          )}
-
-          <Button
-            variant="outline"
-            onClick={onClose}
-            className="w-full text-xs font-semibold h-9 rounded-xl border border-border/60 cursor-pointer"
+    <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
+      {user && (
+        <DialogContent className="max-w-sm text-center">
+          <Sticker
+            tone="crush"
+            pop
+            tilt="left"
+            className="mx-auto mt-2 mb-5 flex w-fit items-center gap-3 py-3 pr-5 pl-3 [--pop-from:-12deg]"
           >
-            Keep Swiping
-          </Button>
-        </div>
-      </div>
-    </div>
+            <Avatar className="size-16 border-2 border-crush-fg">
+              <AvatarImage src={user.avatarUrl || undefined} alt="" />
+              <AvatarFallback className="bg-crush-subtle text-lg font-semibold text-crush-text">
+                {initials(user.displayName)}
+              </AvatarFallback>
+            </Avatar>
+            <span className="sticker-caption flex items-center gap-1.5 text-3xl">
+              <Heart className="size-6 fill-current" aria-hidden="true" />
+              Match
+            </span>
+          </Sticker>
+
+          <DialogTitle className="pr-0">It's a match!</DialogTitle>
+          <DialogDescription className="mt-1">
+            You and {user.displayName} liked each other. Say hi.
+          </DialogDescription>
+
+          <div className="mt-6 flex flex-col gap-2">
+            {matchResult?.conversationId && (
+              <Button variant="crush" asChild>
+                <Link href={`/chat/${matchResult.conversationId}`}>
+                  <MessageCircle />
+                  Send a message
+                </Link>
+              </Button>
+            )}
+            <Button variant="ghost" onClick={onClose}>
+              Keep swiping
+            </Button>
+          </div>
+        </DialogContent>
+      )}
+    </Dialog>
   );
 }

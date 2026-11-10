@@ -214,7 +214,7 @@ export async function POST(req: Request) {
 
       // Post initial welcoming system message
       const initialGreeting =
-        messageContent?.trim() || `🎉 Welcome to "${title}"! Created by @${profile.username || "student"}.`;
+        messageContent?.trim() || `Welcome to "${title}". Created by @${profile.username || "student"}.`;
 
       const [initMsg] = await db
         .insert(messages)

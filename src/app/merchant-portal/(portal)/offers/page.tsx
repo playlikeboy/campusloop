@@ -1,11 +1,7 @@
-import type { Metadata } from "next";
+import { privateMetadata } from "@/lib/seo";
 import { MerchantOffersClient } from "./merchant-offers-client";
 
-export const metadata: Metadata = {
-  title: "Offers & Promotions | Merchant Portal",
-  description: "Create and manage student deals and discounts.",
-  robots: { index: false, follow: false },
-};
+export const metadata = privateMetadata("Offers");
 
 export default function MerchantOffersPage() {
   return <MerchantOffersClient />;

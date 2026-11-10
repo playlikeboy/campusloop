@@ -16,7 +16,7 @@ const POPUP =
   "z-(--z-dropdown) min-w-48 overflow-hidden rounded-md bg-surface-raised p-1 text-fg shadow-lg outline-none origin-(--transform-origin) transition-[opacity,transform] duration-(--dur-fast) data-[ending-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:opacity-0";
 
 const ITEM =
-  "relative flex min-h-10 cursor-pointer select-none items-center gap-2 rounded-sm px-3 py-2 text-sm text-fg outline-none transition-colors data-[highlighted]:bg-brand-subtle data-[highlighted]:text-brand-text data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0";
+  "relative flex min-h-11 cursor-pointer select-none items-center gap-2 rounded-sm px-3 py-2 text-sm text-fg outline-none transition-colors data-[highlighted]:bg-brand-subtle data-[highlighted]:text-brand-text data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0";
 
 function DropdownMenuContent({
   className,

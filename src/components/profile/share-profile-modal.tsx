@@ -1,15 +1,17 @@
 "use client";
 
-import { Check, Copy, Download, Share2, X } from "lucide-react";
+import { Check, Copy, Download, MessageCircle, Share2 } from "lucide-react";
 import QRCode from "qrcode";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { drawQrPoster } from "@/components/common/qr-poster";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import { LinkedinIcon, XIcon } from "@/components/ui/social-icons";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn } from "@/lib/utils";
 
 interface ShareProfileModalProps {
   isOpen: boolean;
@@ -25,379 +27,172 @@ interface ShareProfileModalProps {
   };
 }
 
-// The share card is a fixed dark PNG export, so it cannot follow theme tokens.
-const CARD = {
-  // ds-allow: canvas export, fixed dark card
-  bg: "#09090b",
-  // ds-allow: canvas export, fixed dark card
-  card: "#18181b",
-  // ds-allow: canvas export, fixed dark card
-  white: "#ffffff",
-  // ds-allow: canvas export, fixed dark card
-  muted: "#94a3b8",
-  // ds-allow: canvas export, fixed dark card
-  subtle: "#52525b",
-  // ds-allow: canvas export, fixed dark card
-  accent: "#38bdf8",
-};
+// QR modules are drawn in fixed ink on white so every phone camera can read them.
+const QR_COLORS = { dark: "#15131D", light: "#FFFFFF" }; // ds-allow: QR image, fixed ink on white
 
 export function ShareProfileModal({ isOpen, onClose, profile }: ShareProfileModalProps) {
-  const [copiedLink, setCopiedLink] = useState<string | null>(null);
-  const [qrDataUrl, setQrDataUrl] = useState<string>("");
-  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
-  const [activeUrlType, setActiveUrlType] = useState<"at" | "short">("at");
+  const [copied, setCopied] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
-  const canonicalUrl = `https://campusloop.space/@${profile.username}`;
-  const shortUrl = `https://campusloop.space/u/${profile.username}`;
-  const activeUrl = activeUrlType === "at" ? canonicalUrl : shortUrl;
+  const url = `https://campusloop.space/@${profile.username}`;
+  const displayUrl = url.replace(/^https?:\/\//, "");
+  const shareText = `${profile.displayName} (@${profile.username}) is on CampusLoop`;
+  const college = profile.institutionName?.split(",")[0];
 
-  const shareText = `Check out ${profile.displayName} (@${profile.username}) on CampusLoop — Verified Student Network 🎓`;
-
-  // Generate QR Code data URL
   useEffect(() => {
     if (!isOpen) return;
+    QRCode.toDataURL(url, { width: 720, margin: 2, color: QR_COLORS, errorCorrectionLevel: "H" })
+      .then(setQrDataUrl)
+      .catch(() => setQrDataUrl(""));
+  }, [isOpen, url]);
 
-    QRCode.toDataURL(canonicalUrl, {
-      width: 720,
-      margin: 2,
-      color: {
-        dark: CARD.bg,
-        light: CARD.white,
-      },
-      errorCorrectionLevel: "H",
-    })
-      .then((url) => setQrDataUrl(url))
-      .catch((err) => console.error("QR Code Error:", err));
-  }, [isOpen, canonicalUrl]);
-
-  const handleCopy = async (url: string, label: string) => {
+  async function copyLink() {
     try {
+      await navigator.clipboard.writeText(url);
       sounds.ting();
       haptics.light();
-      await navigator.clipboard.writeText(url);
-      setCopiedLink(url);
-      toast.success(`${label} copied to clipboard`);
-      setTimeout(() => setCopiedLink(null), 2000);
+      setCopied(true);
+      toast.success("Link copied");
+      setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error("Failed to copy link");
+      toast.error("Couldn't copy. Press and hold the link to copy it.");
     }
-  };
+  }
 
-  const handleNativeShare = async () => {
-    if (typeof window !== "undefined" && navigator.share) {
+  async function nativeShare() {
+    if (navigator.share) {
       try {
-        await navigator.share({
-          title: `${profile.displayName} on CampusLoop`,
-          text: shareText,
-          url: activeUrl,
-        });
+        await navigator.share({ title: `${profile.displayName} on CampusLoop`, text: shareText, url });
         return;
       } catch (err) {
         if ((err as Error).name === "AbortError") return;
       }
     }
-    await handleCopy(activeUrl, "Profile link");
-  };
+    await copyLink();
+  }
 
-  const handleDownloadCard = async () => {
+  async function saveImage() {
     if (!qrDataUrl) return;
-    setIsGeneratingImage(true);
-
+    setIsSaving(true);
     try {
-      sounds.tap();
       haptics.medium();
-
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-      if (!ctx) throw new Error("Canvas context not available");
-
-      const width = 800;
-      const height = 1000;
-      canvas.width = width;
-      canvas.height = height;
-
-      // Dark minimalist background
-      ctx.fillStyle = CARD.bg;
-      ctx.fillRect(0, 0, width, height);
-
-      // Subtle gradient header
-      const grad = ctx.createLinearGradient(0, 0, width, 300);
-      grad.addColorStop(0, "rgba(59, 130, 246, 0.2)");
-      grad.addColorStop(1, "rgba(9, 9, 11, 0)");
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, width, 300);
-
-      // Brand Logo Header
-      ctx.fillStyle = CARD.white;
-      ctx.font = "bold 32px system-ui, sans-serif";
-      ctx.fillText("CampusLoop", 60, 80);
-
-      ctx.fillStyle = CARD.muted;
-      ctx.font = "500 16px system-ui, sans-serif";
-      ctx.fillText("Verified Student Network", 60, 110);
-
-      // White card container for QR
-      const cardX = 60;
-      const cardY = 160;
-      const cardW = width - 120;
-      const cardH = 680;
-
-      ctx.fillStyle = CARD.card;
-      ctx.beginPath();
-      ctx.roundRect(cardX, cardY, cardW, cardH, 32);
-      ctx.fill();
-
-      // Border for card
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      // Student info on card
-      ctx.fillStyle = CARD.white;
-      ctx.font = "bold 34px system-ui, sans-serif";
-      ctx.fillText(profile.displayName, cardX + 40, cardY + 70);
-
-      ctx.fillStyle = CARD.accent;
-      ctx.font = "600 20px system-ui, sans-serif";
-      ctx.fillText(`@${profile.username}`, cardX + 40, cardY + 105);
-
-      if (profile.institutionName) {
-        ctx.fillStyle = CARD.muted;
-        ctx.font = "500 18px system-ui, sans-serif";
-        const campus = profile.institutionName.split(",")[0] || profile.institutionName;
-        ctx.fillText(campus, cardX + 40, cardY + 140);
-      }
-
-      // Draw QR Image
-      const qrImg = new Image();
-      qrImg.crossOrigin = "anonymous";
-      qrImg.src = qrDataUrl;
-      await new Promise((resolve) => {
-        qrImg.onload = resolve;
+      const blob = await drawQrPoster({
+        qrDataUrl,
+        title: profile.displayName,
+        subtitle: [`@${profile.username}`, college].filter(Boolean).join(" · "),
+        badgeText: "Scan to see my profile",
+        displayUrl,
       });
-
-      const qrSize = 360;
-      const qrX = (width - qrSize) / 2;
-      const qrY = cardY + 180;
-
-      // QR white backdrop
-      ctx.fillStyle = CARD.white;
-      ctx.beginPath();
-      ctx.roundRect(qrX - 16, qrY - 16, qrSize + 32, qrSize + 32, 24);
-      ctx.fill();
-
-      ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
-
-      // URL under QR
-      ctx.fillStyle = CARD.muted;
-      ctx.font = "bold 18px system-ui, sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText(`campusloop.space/@${profile.username}`, width / 2, cardY + qrSize + 250);
-      ctx.textAlign = "start";
-
-      // Footer
-      ctx.fillStyle = CARD.subtle;
-      ctx.font = "500 16px system-ui, sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText("Scan with your camera to view verified profile", width / 2, height - 60);
-
-      // Trigger download
-      const pngUrl = canvas.toDataURL("image/png");
+      const href = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = pngUrl;
-      a.download = `CampusLoop-${profile.username}.png`;
+      a.href = href;
+      a.download = `campusloop-${profile.username}.png`;
+      document.body.appendChild(a);
       a.click();
-      toast.success("Student card downloaded!");
-    } catch (e) {
-      console.error(e);
-      toast.error("Failed to generate student card image");
+      a.remove();
+      URL.revokeObjectURL(href);
+      toast.success("Image saved");
+    } catch {
+      toast.error("Couldn't make the image. Try again.");
     } finally {
-      setIsGeneratingImage(false);
+      setIsSaving(false);
     }
-  };
+  }
+
+  const channel =
+    "flex flex-col items-center gap-1.5 rounded-md py-2 text-xs font-medium text-fg outline-none transition-ui hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-ring";
+  const channelIcon = "flex size-11 items-center justify-center rounded-full bg-surface-muted";
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md p-0 overflow-hidden border border-border/60 bg-card/95 backdrop-blur-sm shadow-2xl rounded-3xl">
-        <DialogTitle className="sr-only">Share @{profile.username}&apos;s Profile</DialogTitle>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Share profile</DialogTitle>
+        </DialogHeader>
 
-        {/* Header Preview Banner */}
-        <div className="relative p-6 pb-4 bg-linear-to-b from-primary/10 via-background/40 to-background border-b border-border/30">
-          <button
-            type="button"
-            onClick={onClose}
-            className="absolute top-4 right-4 size-8 rounded-full bg-secondary/80 hover:bg-secondary text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
-            aria-label="Close"
-          >
-            <X className="size-4" />
-          </button>
-
-          <div className="flex items-center gap-3.5">
-            <Avatar className="size-14 rounded-full border-2 border-primary/20 shadow-md">
-              <AvatarImage src={profile.avatarUrl || ""} className="object-cover" />
-              <AvatarFallback className="font-black text-lg bg-muted text-foreground">
+        <div className="space-y-5">
+          <div className="flex items-center gap-3">
+            <Avatar className="size-12">
+              <AvatarImage src={profile.avatarUrl || ""} alt="" className="object-cover" />
+              <AvatarFallback className="bg-surface-muted font-semibold">
                 {profile.displayName[0]?.toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5">
-                <h3 className="text-base font-black text-foreground truncate">{profile.displayName}</h3>
-                <span className="size-1.5 rounded-full bg-primary shrink-0" />
-                <span className="text-xs font-semibold text-primary">Student</span>
-              </div>
-              <p className="text-xs text-muted-foreground truncate">@{profile.username}</p>
-              {profile.institutionName && (
-                <p className="text-[11px] text-muted-foreground/80 truncate mt-0.5">
-                  {profile.institutionName.split(",")[0]}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="p-5 space-y-4">
-          {/* URL Switcher Tabs & Copy Bar */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-[11px] font-bold text-muted-foreground">
-              <span>Profile Link</span>
-              <div className="flex items-center gap-1 bg-muted/40 p-0.5 rounded-lg border border-border/40">
-                <button
-                  type="button"
-                  onClick={() => setActiveUrlType("at")}
-                  className={cn(
-                    "px-2 py-0.5 rounded-md transition-colors cursor-pointer text-[10px]",
-                    activeUrlType === "at"
-                      ? "bg-background text-foreground font-bold shadow-2xs"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  /@{profile.username}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveUrlType("short")}
-                  className={cn(
-                    "px-2 py-0.5 rounded-md transition-colors cursor-pointer text-[10px]",
-                    activeUrlType === "short"
-                      ? "bg-background text-foreground font-bold shadow-2xs"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  /u/{profile.username}
-                </button>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 p-1.5 pl-3 rounded-2xl border border-border/70 bg-muted/20 hover:border-border transition-colors">
-              <span className="text-xs font-mono text-foreground/90 truncate flex-1 select-all">
-                {activeUrl.replace(/^https?:\/\//, "")}
-              </span>
-              <button
-                type="button"
-                onClick={() => handleCopy(activeUrl, "Profile link")}
-                className="h-8 px-3 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 text-xs font-bold transition-[opacity,transform] flex items-center gap-1.5 shrink-0 shadow-2xs cursor-pointer active:scale-95"
-              >
-                {copiedLink === activeUrl ? (
-                  <>
-                    <Check className="size-3.5" />
-                    <span>Copied</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="size-3.5" />
-                    <span>Copy</span>
-                  </>
-                )}
-              </button>
+            <div className="min-w-0">
+              <p className="truncate font-semibold text-fg">{profile.displayName}</p>
+              <p className="truncate text-sm text-fg-muted">
+                @{profile.username}
+                {college ? ` · ${college}` : ""}
+              </p>
             </div>
           </div>
 
-          {/* Social Share Quick Channels */}
-          <div className="space-y-1.5">
-            <p className="text-xs font-bold text-muted-foreground">Share Directly</p>
-            <div className="grid grid-cols-4 gap-2">
-              <a
-                href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
-                  `${shareText}\n\n${activeUrl}`
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex flex-col items-center justify-center gap-1.5 py-2.5 px-2 rounded-2xl border border-border/50 bg-secondary/50 hover:bg-secondary text-foreground hover:border-success transition-colors cursor-pointer group shadow-2xs"
-              >
-                <div className="size-8 rounded-full bg-success-subtle text-success flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <svg className="size-4 fill-current" viewBox="0 0 24 24">
-                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.669-.699c.961.547 1.77.84 2.79.84h.001c3.181 0 5.768-2.586 5.768-5.766 0-3.18-2.587-5.766-5.768-5.766zm9.969 5.828c0 5.514-4.486 10-10 10-1.742 0-3.376-.452-4.807-1.241l-5.193 1.359 1.385-5.062c-.889-1.488-1.385-3.228-1.385-5.056 0-5.514 4.486-10 10-10s10 4.486 10 10z" />
-                  </svg>
-                </div>
-                <span className="text-[11px] font-bold text-foreground">WhatsApp</span>
-              </a>
-
-              <a
-                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
-                  shareText
-                )}&url=${encodeURIComponent(activeUrl)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex flex-col items-center justify-center gap-1.5 py-2.5 px-2 rounded-2xl border border-border/50 bg-secondary/50 hover:bg-secondary text-foreground hover:border-brand transition-colors cursor-pointer group shadow-2xs"
-              >
-                <div className="size-8 rounded-full bg-brand-subtle text-brand-text flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <XIcon className="size-3.5" />
-                </div>
-                <span className="text-[11px] font-bold text-foreground">X / Twitter</span>
-              </a>
-
-              <a
-                href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(activeUrl)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex flex-col items-center justify-center gap-1.5 py-2.5 px-2 rounded-2xl border border-border/50 bg-secondary/50 hover:bg-secondary text-foreground hover:border-brand transition-colors cursor-pointer group shadow-2xs"
-              >
-                <div className="size-8 rounded-full bg-brand-subtle text-brand-text flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <LinkedinIcon className="size-4" />
-                </div>
-                <span className="text-[11px] font-bold text-foreground">LinkedIn</span>
-              </a>
-
-              <button
-                type="button"
-                onClick={handleNativeShare}
-                className="flex flex-col items-center justify-center gap-1.5 py-2.5 px-2 rounded-2xl border border-border/50 bg-secondary/50 hover:bg-secondary text-foreground hover:border-primary/40 transition-colors cursor-pointer group shadow-2xs"
-              >
-                <div className="size-8 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Share2 className="size-4" />
-                </div>
-                <span className="text-[11px] font-bold text-foreground">More</span>
-              </button>
-            </div>
+          <div className="flex items-center gap-2 rounded-md border border-border bg-surface-muted p-1.5 pl-3">
+            <span className="min-w-0 flex-1 truncate text-sm text-fg select-all">{displayUrl}</span>
+            <Button size="sm" onClick={copyLink}>
+              {copied ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
+              {copied ? "Copied" : "Copy"}
+            </Button>
           </div>
 
-          {/* QR Code & Student Card Download */}
-          <div className="rounded-2xl border border-border/50 bg-secondary/30 p-3.5 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              {qrDataUrl ? (
-                <div className="size-14 rounded-xl bg-surface p-1 shrink-0 shadow-sm border border-white/10 flex items-center justify-center">
-                  <img src={qrDataUrl} alt="QR Code" className="size-full object-contain" />
-                </div>
-              ) : (
-                <div className="size-14 rounded-xl bg-muted animate-pulse shrink-0" />
-              )}
-              <div className="min-w-0">
-                <p className="text-xs font-bold text-foreground">Student ID QR Card</p>
-                <p className="text-[10px] text-muted-foreground truncate">
-                  High-res image for Instagram story or portfolio
-                </p>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleDownloadCard}
-              disabled={isGeneratingImage || !qrDataUrl}
-              className="h-8 px-3 rounded-xl border border-border bg-card hover:bg-muted text-xs font-bold text-foreground transition-[opacity,transform] flex items-center gap-1.5 shrink-0 shadow-2xs cursor-pointer active:scale-95 disabled:opacity-50"
+          <div className="grid grid-cols-4 gap-1">
+            <a
+              className={channel}
+              href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`${shareText}\n${url}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
             >
-              <Download className="size-3.5 text-primary" />
-              <span>{isGeneratingImage ? "Saving..." : "Save Card"}</span>
+              <span className={channelIcon}>
+                <MessageCircle aria-hidden="true" className="size-5" />
+              </span>
+              WhatsApp
+            </a>
+            <a
+              className={channel}
+              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(url)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span className={channelIcon}>
+                <XIcon className="size-4" />
+              </span>
+              X
+            </a>
+            <a
+              className={channel}
+              href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span className={channelIcon}>
+                <LinkedinIcon className="size-4" />
+              </span>
+              LinkedIn
+            </a>
+            <button type="button" className={`${channel} cursor-pointer`} onClick={nativeShare}>
+              <span className={channelIcon}>
+                <Share2 aria-hidden="true" className="size-5" />
+              </span>
+              More
             </button>
+          </div>
+
+          <div className="flex items-center gap-3 rounded-md border border-border p-3">
+            {qrDataUrl ? (
+              <img
+                src={qrDataUrl}
+                alt={`QR code for ${displayUrl}`}
+                className="size-16 shrink-0 rounded-sm"
+              />
+            ) : (
+              <Skeleton className="size-16 shrink-0 rounded-sm" />
+            )}
+            <p className="min-w-0 flex-1 text-sm text-fg-muted">Save a QR image for your Story or bio.</p>
+            <Button variant="outline" size="sm" onClick={saveImage} loading={isSaving} disabled={!qrDataUrl}>
+              <Download aria-hidden="true" />
+              Save
+            </Button>
           </div>
         </div>
       </DialogContent>

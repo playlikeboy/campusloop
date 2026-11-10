@@ -21,6 +21,15 @@ export function Dialog({
   children: React.ReactNode;
 }) {
   React.useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onOpenChange(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onOpenChange]);
+
+  React.useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
     } else {
@@ -35,7 +44,7 @@ export function Dialog({
 
   return (
     <DialogContext.Provider value={{ open, onOpenChange }}>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="fixed inset-0 z-(--z-modal) flex items-end justify-center bg-overlay p-3 animate-in fade-in duration-200 sm:items-center sm:p-4">
         <div className="fixed inset-0" onClick={() => onOpenChange(false)} aria-hidden="true" />
         {children}
       </div>
@@ -52,15 +61,15 @@ export function DialogContent({ className, children }: { className?: string; chi
       aria-modal="true"
       onClick={(e) => e.stopPropagation()}
       className={cn(
-        "relative z-50 w-full max-w-lg rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-5 sm:p-6 shadow-2xl animate-in zoom-in-95 duration-200",
+        "relative w-full max-w-lg rounded-xl bg-surface-raised p-5 text-fg shadow-lg sticker-pop sm:p-6",
         className
       )}
     >
       <button
         type="button"
         onClick={() => ctx?.onOpenChange(false)}
-        aria-label="Close dialog"
-        className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 size-9 rounded-full bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+        aria-label="Close"
+        className="absolute top-3 right-3 flex size-10 cursor-pointer items-center justify-center rounded-full text-fg-muted transition-ui outline-none hover:bg-surface-muted hover:text-fg focus-visible:ring-2 focus-visible:ring-ring sm:top-4 sm:right-4"
       >
         <X className="size-4" />
       </button>
@@ -75,7 +84,7 @@ export function DialogHeader({ className, children }: { className?: string; chil
 
 export function DialogTitle({ className, children }: { className?: string; children: React.ReactNode }) {
   return (
-    <h2 className={cn("text-lg font-black leading-none tracking-tight text-foreground", className)}>
+    <h2 className={cn("pr-10 font-display text-xl leading-tight font-bold text-fg", className)}>
       {children}
     </h2>
   );
@@ -88,5 +97,5 @@ export function DialogDescription({
   className?: string;
   children: React.ReactNode;
 }) {
-  return <p className={cn("text-xs text-muted-foreground", className)}>{children}</p>;
+  return <p className={cn("text-sm text-fg-muted", className)}>{children}</p>;
 }

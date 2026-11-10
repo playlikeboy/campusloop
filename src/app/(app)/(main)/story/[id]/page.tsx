@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { stories, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { privateMetadata } from "@/lib/seo";
 import { StoryViewerClient } from "./story-viewer-client";
 
 interface PageProps {
@@ -17,24 +18,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     where: eq(stories.id, id),
     with: { user: true },
   });
-
-  if (!story) {
-    return { title: "Campus Story" };
-  }
-
-  const title = `Story by ${story.user?.displayName || "Student"}`;
-  const description = story.text || "View campus vibe story on CampusLoop.";
-
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      siteName: "CampusLoop",
-    },
-    robots: { index: false, follow: true },
-  };
+  // Stories are private and last 24 hours: never indexed.
+  return privateMetadata(story?.user ? `Story by ${story.user.displayName}` : "Story");
 }
 
 export default async function StoryPage({ params }: PageProps) {

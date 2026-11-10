@@ -1,36 +1,16 @@
-import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
 import { eq, or } from "drizzle-orm";
+import { notFound, redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { events, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { privateMetadata } from "@/lib/seo";
 import { CheckInClient } from "./check-in-client";
 
 interface CheckInPageProps {
   params: Promise<{ id: string }>;
 }
 
-export async function generateMetadata({ params }: CheckInPageProps): Promise<Metadata> {
-  const { id } = await params;
-  try {
-    const db = getDb();
-    const event = await db.query.events.findFirst({
-      where: or(eq(events.id, id), eq(events.slug, id)),
-    });
-
-    if (!event) {
-      return { title: "Venue Check-In" };
-    }
-
-    return {
-      title: `Venue Check-In: ${event.title}`,
-      description: `Rapid admission scanner and check-in desk for ${event.title}.`,
-      robots: { index: false, follow: false },
-    };
-  } catch {
-    return { title: "Venue Check-In" };
-  }
-}
+export const metadata = privateMetadata("Check-in");
 
 export default async function CheckInPage({ params }: CheckInPageProps) {
   const { id } = await params;

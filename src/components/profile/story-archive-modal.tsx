@@ -1,9 +1,15 @@
 "use client";
 
-import { Bookmark, Check, Heart, Loader2, Plus, X } from "lucide-react";
+import { Check, Heart, Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import { splitStoryClasses } from "@/components/stories/story-format";
 import { cn } from "@/lib/utils";
 
 interface ArchivedStory {
@@ -20,6 +26,7 @@ interface ArchivedStory {
 
 const fetcher = async (url: string): Promise<ArchivedStory[]> => {
   const res = await fetch(url);
+  if (!res.ok) throw new Error("Failed to load archive");
   return res.json() as Promise<ArchivedStory[]>;
 };
 
@@ -29,230 +36,171 @@ interface StoryArchiveModalProps {
   onHighlightCreated: () => void;
 }
 
+/** Your old stories. Pick some and give them a name to make a highlight. */
 export function StoryArchiveModal({ isOpen, onClose, onHighlightCreated }: StoryArchiveModalProps) {
-  const [selectedStoryIds, setSelectedStoryIds] = useState<string[]>([]);
-  const [highlightTitle, setHighlightTitle] = useState("");
+  const [selected, setSelected] = useState<string[]>([]);
+  const [title, setTitle] = useState("");
   const [isCreating, setIsCreating] = useState(false);
-  const [isHighlightMode, setIsHighlightMode] = useState(false);
+  const [picking, setPicking] = useState(false);
 
-  const { data: archiveStories, isLoading } = useSWR<ArchivedStory[]>(
-    isOpen ? "/api/stories/archive" : null,
-    fetcher
-  );
+  const {
+    data: stories,
+    isLoading,
+    error,
+    mutate,
+  } = useSWR<ArchivedStory[]>(isOpen ? "/api/stories/archive" : null, fetcher);
 
-  if (!isOpen) return null;
-
-  function toggleSelect(id: string) {
-    setSelectedStoryIds((prev) => (prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]));
+  function toggle(id: string) {
+    setSelected((prev) => (prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]));
   }
 
-  async function handleCreateHighlight(e: React.FormEvent) {
+  async function createHighlight(e: React.FormEvent) {
     e.preventDefault();
-    if (!highlightTitle.trim() || selectedStoryIds.length === 0 || isCreating) return;
-
+    if (!title.trim() || selected.length === 0 || isCreating) return;
     setIsCreating(true);
     try {
-      const selectedStories = archiveStories?.filter((s) => selectedStoryIds.includes(s.id));
-      const coverUrl = selectedStories?.find((s) => s.mediaUrl)?.mediaUrl || null;
-
+      const coverUrl = stories?.find((s) => selected.includes(s.id) && s.mediaUrl)?.mediaUrl || null;
       const res = await fetch("/api/highlights", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: highlightTitle.trim().slice(0, 30),
-          coverUrl,
-          storyIds: selectedStoryIds,
-        }),
+        body: JSON.stringify({ title: title.trim().slice(0, 30), coverUrl, storyIds: selected }),
       });
-
       if (!res.ok) throw new Error("Failed to create highlight");
-
-      toast.success(`Highlight "${highlightTitle}" created!`);
+      toast.success(`Added "${title.trim()}" to your profile`);
       onHighlightCreated();
     } catch {
-      toast.error("Failed to create highlight");
+      toast.error("Couldn't make the highlight. Try again.");
     } finally {
       setIsCreating(false);
     }
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 select-none animate-in fade-in duration-150"
-      onClick={onClose}
-    >
-      <div
-        className="bg-card text-card-foreground rounded-3xl border border-border/50 max-w-lg w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-border/40 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="size-8 rounded-xl bg-warning-subtle flex items-center justify-center text-warning">
-              <Bookmark className="size-4.5" />
-            </div>
-            <div>
-              <h2 className="text-sm sm:text-base font-black tracking-tight text-foreground">
-                Story Archive
-              </h2>
-              <p className="text-[11px] text-muted-foreground">
-                {isHighlightMode
-                  ? `Select stories to add to your new highlight (${selectedStoryIds.length} selected)`
-                  : "All your past 24h stories are privately archived here"}
-              </p>
-            </div>
-          </div>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="flex max-h-[85vh] flex-col">
+        <DialogHeader>
+          <DialogTitle>{picking ? "New highlight" : "Story archive"}</DialogTitle>
+          <DialogDescription>
+            {picking
+              ? `Pick stories to add. ${selected.length} picked.`
+              : "Only you can see your old stories."}
+          </DialogDescription>
+        </DialogHeader>
 
-          <button
-            aria-label="Close"
-            type="button"
-            onClick={onClose}
-            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 size-8 min-h-11 min-w-11 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
-          >
-            <X className="size-4" />
-          </button>
-        </div>
-
-        {/* Highlight Creation Bar */}
-        {isHighlightMode ? (
-          <form
-            onSubmit={handleCreateHighlight}
-            className="p-3 bg-muted/30 border-b border-border/40 flex items-center gap-2"
-          >
-            <input
-              type="text"
-              placeholder="Highlight title (e.g. Campus, Vibes)..."
-              value={highlightTitle}
-              onChange={(e) => setHighlightTitle(e.target.value)}
+        {picking ? (
+          <form onSubmit={createHighlight} className="mb-4 flex items-center gap-2">
+            <Input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Name it, e.g. Fest 2025"
               maxLength={30}
+              aria-label="Highlight name"
               autoFocus
-              className="flex-1 h-9 rounded-full bg-background border border-border/60 px-3.5 text-xs font-semibold placeholder:text-muted-foreground/60 outline-none focus:border-primary"
+              className="flex-1"
             />
-            <button
-              type="submit"
-              disabled={!highlightTitle.trim() || selectedStoryIds.length === 0 || isCreating}
-              className="h-9 px-4 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center gap-1 hover:bg-primary/90 disabled:opacity-40 cursor-pointer shrink-0"
-            >
-              {isCreating ? <Loader2 className="size-3.5 animate-spin" /> : <Check className="size-3.5" />}
-              <span>Done</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsHighlightMode(false)}
-              className="h-9 px-3 rounded-full hover:bg-muted text-xs font-bold text-muted-foreground"
-            >
+            <Button type="submit" loading={isCreating} disabled={!title.trim() || selected.length === 0}>
+              Save
+            </Button>
+            <Button type="button" variant="ghost" onClick={() => setPicking(false)}>
               Cancel
-            </button>
+            </Button>
           </form>
         ) : (
-          <div className="p-3 bg-muted/20 border-b border-border/30 flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground">
-              {archiveStories?.length || 0} Stories Archived
-            </span>
-            <button
-              type="button"
-              onClick={() => setIsHighlightMode(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-colors cursor-pointer shadow-2xs"
-            >
-              <Plus className="size-3.5" />
-              <span>Create Highlight</span>
-            </button>
-          </div>
+          stories &&
+          stories.length > 0 && (
+            <Button className="mb-4 self-start" onClick={() => setPicking(true)}>
+              <Plus aria-hidden="true" />
+              New highlight
+            </Button>
+          )
         )}
 
-        {/* Stories Grid */}
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="-mx-1 flex-1 overflow-y-auto px-1">
           {isLoading ? (
-            <div className="py-16 flex flex-col items-center justify-center text-xs text-muted-foreground gap-2">
-              <Loader2 className="size-5 animate-spin text-primary" />
-              <span>Loading your archive...</span>
+            <div className="grid grid-cols-3 gap-2">
+              {[0, 1, 2].map((i) => (
+                <Skeleton key={i} className="aspect-9/16 rounded-md" />
+              ))}
             </div>
-          ) : archiveStories && archiveStories.length > 0 ? (
-            <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
-              {archiveStories.map((story) => {
-                const isSelected = selectedStoryIds.includes(story.id);
-
+          ) : error ? (
+            <EmptyState
+              size="compact"
+              title="Couldn't load your stories"
+              description="Check your connection and try again."
+              action={<Button onClick={() => void mutate()}>Try again</Button>}
+            />
+          ) : stories && stories.length > 0 ? (
+            <ul className="grid grid-cols-3 gap-2">
+              {stories.map((story) => {
+                const isSelected = selected.includes(story.id);
+                const date = new Date(story.createdAt).toLocaleDateString("en-IN", {
+                  day: "numeric",
+                  month: "short",
+                });
                 return (
-                  <div
-                    key={story.id}
-                    onClick={() => {
-                      if (isHighlightMode) {
-                        toggleSelect(story.id);
-                      } else {
-                        // Open in story viewer
-                        window.open(`/story/${story.id}`, "_blank");
+                  <li key={story.id}>
+                    <button
+                      type="button"
+                      aria-pressed={picking ? isSelected : undefined}
+                      aria-label={`Story from ${date}`}
+                      onClick={() =>
+                        picking ? toggle(story.id) : window.open(`/story/${story.id}`, "_blank")
                       }
-                    }}
-                    className={cn(
-                      "relative aspect-9/16 rounded-2xl overflow-hidden border transition-colors cursor-pointer group shadow-2xs",
-                      isSelected
-                        ? "border-primary ring-2 ring-primary ring-offset-1"
-                        : "border-border/40 hover:border-border"
-                    )}
-                  >
-                    {/* Story Media or Background Gradient */}
-                    {story.mediaUrl ? (
-                      <img
-                        src={story.mediaUrl}
-                        alt="Story"
-                        className="size-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div
-                        className={cn(
-                          "size-full p-2 flex items-center justify-center text-center text-[11px] font-bold text-white leading-tight",
-                          story.backgroundColor || "bg-linear-to-tr from-primary to-primary/80"
-                        )}
-                      >
-                        <p className="line-clamp-4">{story.text || "Campus Vibe"}</p>
-                      </div>
-                    )}
-
-                    {/* Dark gradient for date readability */}
-                    <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-black/30 pointer-events-none" />
-
-                    {/* Top Right: Selection Checkbox (Highlight Mode) or Like Count */}
-                    <div className="absolute top-2 right-2 z-10">
-                      {isHighlightMode ? (
-                        <div
+                      className={cn(
+                        "relative block aspect-9/16 w-full cursor-pointer overflow-hidden rounded-md bg-surface-muted outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                        isSelected && "ring-2 ring-brand ring-offset-2 ring-offset-surface-raised"
+                      )}
+                    >
+                      {story.mediaUrl ? (
+                        <img src={story.mediaUrl} alt="" className="size-full object-cover" />
+                      ) : (
+                        <span
                           className={cn(
-                            "size-5 rounded-full border flex items-center justify-center transition-colors",
-                            isSelected
-                              ? "bg-primary border-primary text-primary-foreground"
-                              : "bg-black/40 border-white/60 text-transparent"
+                            "flex size-full items-center justify-center p-2 text-center text-xs font-semibold",
+                            splitStoryClasses(story.backgroundColor).background,
+                            "text-story-field-fg"
                           )}
                         >
-                          <Check className="size-3" />
-                        </div>
-                      ) : (
-                        story.likesCount > 0 && (
-                          <div className="flex items-center gap-1 bg-black/60 backdrop-blur-xs px-1.5 py-0.5 rounded-full text-[10px] text-white font-bold">
-                            <Heart className="size-3 text-danger fill-danger" />
-                            <span>{story.likesCount}</span>
-                          </div>
-                        )
+                          <span className="line-clamp-4">{story.text}</span>
+                        </span>
                       )}
-                    </div>
-
-                    {/* Bottom: Date */}
-                    <div className="absolute bottom-2 left-2 right-2 text-[10px] font-semibold text-white/90 truncate">
-                      {new Date(story.createdAt).toLocaleDateString([], {
-                        month: "short",
-                        day: "numeric",
-                      })}
-                    </div>
-                  </div>
+                      <span className="absolute inset-x-1.5 bottom-1.5 flex items-center justify-between gap-1">
+                        <span className="rounded-full bg-surface px-1.5 text-xs font-medium text-fg">
+                          {date}
+                        </span>
+                        {!picking && story.likesCount > 0 && (
+                          <span className="flex items-center gap-0.5 rounded-full bg-surface px-1.5 text-xs font-medium text-fg">
+                            <Heart aria-hidden="true" className="size-3" />
+                            {story.likesCount}
+                          </span>
+                        )}
+                      </span>
+                      {picking && (
+                        <span
+                          className={cn(
+                            "absolute top-1.5 right-1.5 flex size-6 items-center justify-center rounded-full border-2",
+                            isSelected
+                              ? "border-brand bg-brand text-brand-fg"
+                              : "border-surface bg-overlay text-transparent"
+                          )}
+                        >
+                          <Check aria-hidden="true" className="size-3.5" />
+                        </span>
+                      )}
+                    </button>
+                  </li>
                 );
               })}
-            </div>
+            </ul>
           ) : (
-            <div className="py-16 text-center space-y-2 text-muted-foreground text-xs">
-              <p className="font-bold text-foreground">No archived stories yet.</p>
-              <p>Post a story vibe on CampusLoop and it will be safely archived here for you!</p>
-            </div>
+            <EmptyState
+              size="compact"
+              title="No old stories yet"
+              description="Stories you post land here after 24 hours."
+            />
           )}
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

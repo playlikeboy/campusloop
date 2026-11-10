@@ -30,14 +30,19 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
+import { useEscapeKey } from "@/app/admin/_components/use-escape-key";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
+import { fieldClassName } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
+import { AdminStatStrip } from "../_components/admin-stat-strip";
 
 const CATEGORIES = [
-  { id: "all", label: "All Verticals", icon: Store, color: "text-primary", bg: "bg-primary/10" },
+  { id: "all", label: "All Verticals", icon: Store, color: "text-brand-text", bg: "bg-brand-subtle" },
   {
     id: "food",
     label: "Food & Canteens",
@@ -77,6 +82,7 @@ export function AdminMarketplaceClient() {
 
   // Quick credentials modal state
   const [credentialModalStore, setCredentialModalStore] = useState<any | null>(null);
+  useEscapeKey(Boolean(credentialModalStore), () => setCredentialModalStore(null));
   const [showPassword, setShowPassword] = useState(false);
   // Held in memory only, for the one render after a rotate. Never persisted.
   const [revealedPassword, setRevealedPassword] = useState<string | null>(null);
@@ -84,6 +90,7 @@ export function AdminMarketplaceClient() {
 
   // Quick product modal state
   const [productModalStore, setProductModalStore] = useState<any | null>(null);
+  useEscapeKey(Boolean(productModalStore), () => setProductModalStore(null));
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
   const [prodName, setProdName] = useState("");
   const [prodPrice, setProdPrice] = useState("");
@@ -161,12 +168,12 @@ export function AdminMarketplaceClient() {
 
       sounds.ting();
       haptics.success();
-      toast.success("New password issued — copy it now, it cannot be shown again.");
+      toast.success("New password made. Copy it now, it won't be shown again.");
       mutate();
       setRevealedPassword(data.temporaryPassword);
       setShowPassword(true);
     } catch {
-      toast.error("Failed to rotate password");
+      toast.error("Couldn't change the password. Try again.");
     } finally {
       setIsRotating(false);
     }
@@ -185,7 +192,7 @@ export function AdminMarketplaceClient() {
 
     const text = `*CampusLoop Merchant Portal Credentials*\n\nStore: ${merchant.name}\nCampus: ${merchant.institution?.name || "Campus Hub"}\n\nLogin URL: https://campusloop.space/merchant-portal/login\nUsername: ${merchant.loginUsername || merchant.slug}\nPassword: ${activePass}\n\nPlease login and manage your store menu, pricing, and live customer orders!`;
     navigator.clipboard.writeText(text);
-    toast.success("Copied WhatsApp invitation message!");
+    toast.success("WhatsApp message copied");
   }
 
   // Save product in store modal
@@ -213,7 +220,7 @@ export function AdminMarketplaceClient() {
           }),
         });
         if (!res.ok) throw new Error();
-        toast.success("Product updated!");
+        toast.success("Product saved");
       } else {
         // Add new product
         const res = await fetch("/api/admin/marketplace/products", {
@@ -229,14 +236,14 @@ export function AdminMarketplaceClient() {
           }),
         });
         if (!res.ok) throw new Error();
-        toast.success("Product added to catalog!");
+        toast.success("Product added");
       }
 
       setProductModalStore(null);
       setEditingProduct(null);
       mutate();
     } catch {
-      toast.error("Failed to save product");
+      toast.error("Couldn't save the product. Try again.");
     } finally {
       setIsSavingProduct(false);
     }
@@ -257,7 +264,7 @@ export function AdminMarketplaceClient() {
       toast.success(`${store.name} is now ${nextIsOpen ? "OPEN" : "CLOSED"}`);
       mutate();
     } catch {
-      toast.error("Failed to update store status");
+      toast.error("Couldn't update the store. Try again.");
     }
   }
 
@@ -272,10 +279,10 @@ export function AdminMarketplaceClient() {
         body: JSON.stringify({ id: prodId, isAvailable: !currentAvailable }),
       });
       if (!res.ok) throw new Error();
-      toast.success(`Product marked ${!currentAvailable ? "In Stock" : "Out of Stock"}`);
+      toast.success(`Marked ${!currentAvailable ? "in stock" : "out of stock"}`);
       mutate();
     } catch {
-      toast.error("Failed to update product stock");
+      toast.error("Couldn't update stock. Try again.");
     }
   }
 
@@ -289,24 +296,14 @@ export function AdminMarketplaceClient() {
       toast.success("Product removed");
       mutate();
     } catch {
-      toast.error("Failed to delete product");
+      toast.error("Couldn't delete the product. Try again.");
     }
   }
 
   return (
     <div className="space-y-6 select-none pb-20">
-      {/* ─── Header & Top Actions ─── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <Store className="size-6 text-primary" />
-            <span>Marketplace Executive Console</span>
-          </h1>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Three tiers: categories, stores and products, with plaintext merchant credential management
-          </p>
-        </div>
-
+      {/* Actions */}
+      <div className="flex justify-end">
         <div className="flex items-center gap-2">
           <Link
             href="/admin/marketplace/merchants/new"
@@ -314,55 +311,34 @@ export function AdminMarketplaceClient() {
               sounds.tap();
               haptics.light();
             }}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-foreground text-background font-bold text-xs hover:opacity-90 transition-opacity shadow-xs"
+            className={buttonVariants({ variant: "primary", size: "sm" })}
           >
             <Plus className="size-3.5 stroke-3" />
-            <span>Onboard Merchant</span>
+            <span>Add a merchant</span>
           </Link>
         </div>
       </div>
 
-      {/* ─── Top Metrics Strip ─── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-        <div className="p-4 rounded-2xl bg-card border border-border space-y-1 shadow-xs">
-          <p className="text-[11px] font-bold text-muted-foreground">
-            Registered Stores
-          </p>
-          <p className="text-2xl font-bold text-foreground">
-            {merchants.length}{" "}
-            <span className="text-xs text-muted-foreground font-semibold">({activeStoresCount} Open)</span>
-          </p>
-        </div>
-        <div className="p-4 rounded-2xl bg-card border border-border space-y-1 shadow-xs">
-          <p className="text-[11px] font-bold text-muted-foreground">
-            Catalog Items
-          </p>
-          <p className="text-2xl font-bold text-foreground">{totalProducts}</p>
-        </div>
-        <div className="p-4 rounded-2xl bg-card border border-border space-y-1 shadow-xs">
-          <p className="text-[11px] font-bold text-muted-foreground">
-            Campus Orders
-          </p>
-          <p className="text-2xl font-bold text-foreground">{totalOrders}</p>
-        </div>
-        <div className="p-4 rounded-2xl bg-card border border-border space-y-1 shadow-xs">
-          <p className="text-[11px] font-bold text-muted-foreground">
-            Campus GMV (Gross Value)
-          </p>
-          <p className="text-2xl font-bold text-success">₹{totalGmv.toLocaleString("en-IN")}</p>
-        </div>
-      </div>
+      <AdminStatStrip
+        items={[
+          { label: "Stores", value: merchants.length, note: `${activeStoresCount} open` },
+          { label: "Products", value: totalProducts },
+          { label: "Orders", value: totalOrders },
+          { label: "Order value", value: `₹${totalGmv.toLocaleString("en-IN")}` },
+        ]}
+      />
 
       {/* ─── Search & Category Pill Filters ─── */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-fg-muted" />
           <input
+            aria-label="Search stores"
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search stores, canteens, usernames or campus..."
-            className="w-full h-10 pl-10 pr-4 rounded-xl bg-card border border-border text-xs font-medium text-foreground outline-none focus:border-primary shadow-xs"
+            placeholder="Search stores, owners or colleges"
+            className={cn(fieldClassName, "w-full pl-10 pr-4 h-11")}
           />
         </div>
 
@@ -371,24 +347,19 @@ export function AdminMarketplaceClient() {
             const Icon = c.icon;
             const isActive = selectedCategory === c.id;
             return (
-              <button
+              <Chip
+                size="sm"
+                selected={isActive}
                 key={c.id}
-                type="button"
                 onClick={() => {
                   sounds.tap();
                   haptics.light();
                   setSelectedCategory(c.id);
                 }}
-                className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer border",
-                  isActive
-                    ? "bg-foreground text-background border-foreground shadow-xs"
-                    : "bg-card border-border text-muted-foreground hover:text-foreground"
-                )}
               >
                 <Icon className="size-3.5" />
                 <span>{c.label}</span>
-              </button>
+              </Chip>
             );
           })}
         </div>
@@ -398,7 +369,7 @@ export function AdminMarketplaceClient() {
       {isLoading ? (
         <div className="space-y-4">
           {[1, 2, 3].map((n) => (
-            <Skeleton key={n} className="h-40 w-full rounded-2xl" />
+            <Skeleton key={n} className="h-40 w-full rounded-lg" />
           ))}
         </div>
       ) : Object.keys(categorizedMerchants).length > 0 ? (
@@ -407,22 +378,19 @@ export function AdminMarketplaceClient() {
             const categoryMeta = CATEGORIES.find((c) => c.id === catSlug) || {
               label: catSlug.toUpperCase(),
               icon: Store,
-              color: "text-primary",
-              bg: "bg-primary/10",
+              color: "text-brand-text",
+              bg: "bg-brand-subtle",
             };
             const CatIcon = categoryMeta.icon;
 
             return (
-              <div
-                key={catSlug}
-                className="rounded-3xl border border-border bg-card overflow-hidden shadow-xs"
-              >
+              <div key={catSlug} className="rounded-lg border border-border bg-surface overflow-hidden">
                 {/* ── Tier 1: Category Header ── */}
-                <div className="p-4 border-b border-border bg-muted/30 flex items-center justify-between">
+                <div className="p-4 border-b border-border bg-surface-muted flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <div
                       className={cn(
-                        "size-8 rounded-xl flex items-center justify-center font-bold",
+                        "size-8 rounded-lg flex items-center justify-center font-bold",
                         categoryMeta.bg,
                         categoryMeta.color
                       )}
@@ -430,11 +398,9 @@ export function AdminMarketplaceClient() {
                       <CatIcon className="size-4.5" />
                     </div>
                     <div>
-                      <h2 className="text-sm font-bold text-foreground capitalize flex items-center gap-2">
+                      <h2 className="text-sm font-bold text-fg capitalize flex items-center gap-2">
                         <span>{categoryMeta.label}</span>
-                        <span className="text-[11px] font-bold text-muted-foreground">
-                          ({storeList.length} stores)
-                        </span>
+                        <span className="text-xs font-bold text-fg-muted">({storeList.length} stores)</span>
                       </h2>
                     </div>
                   </div>
@@ -442,9 +408,9 @@ export function AdminMarketplaceClient() {
                   <Link
                     href={`/marketplace/${catSlug === "essentials" ? "supermarket" : catSlug}`}
                     target="_blank"
-                    className="flex items-center gap-1 text-xs font-bold text-primary hover:underline"
+                    className="flex items-center gap-1 text-xs font-bold text-brand-text hover:underline"
                   >
-                    <span>View Student Storefront</span>
+                    <span>View store</span>
                     <ExternalLink className="size-3" />
                   </Link>
                 </div>
@@ -456,11 +422,11 @@ export function AdminMarketplaceClient() {
                     const storeProducts = store.products || [];
 
                     return (
-                      <div key={store.id} className="p-4 space-y-3 hover:bg-muted/10 transition-colors">
+                      <div key={store.id} className="p-4 space-y-3 hover:bg-surface-muted transition-colors">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                           {/* Store Info */}
                           <div className="flex items-center gap-3">
-                            <div className="size-12 rounded-2xl bg-muted border border-border overflow-hidden shrink-0">
+                            <div className="size-12 rounded-lg bg-surface-muted border border-border overflow-hidden shrink-0">
                               <img
                                 src={store.logoUrl || store.coverUrl}
                                 alt={store.name}
@@ -469,12 +435,12 @@ export function AdminMarketplaceClient() {
                             </div>
                             <div>
                               <div className="flex items-center gap-2">
-                                <h3 className="text-sm font-bold text-foreground">{store.name}</h3>
+                                <h3 className="text-sm font-bold text-fg">{store.name}</h3>
                                 <button
                                   type="button"
                                   onClick={() => handleToggleStoreStatus(store)}
                                   className={cn(
-                                    "px-2.5 py-0.5 rounded-full text-[9px] font-bold transition-colors cursor-pointer hover:scale-105 active:scale-95",
+                                    "px-2.5 py-0.5 rounded-full text-xs font-bold transition-colors cursor-pointer",
                                     store.isOpen
                                       ? "bg-success-subtle text-success border border-success/30 hover:bg-success-subtle"
                                       : "bg-danger-subtle text-danger border border-danger/30 hover:bg-danger-subtle"
@@ -483,7 +449,7 @@ export function AdminMarketplaceClient() {
                                 >
                                   {store.isOpen ? (
                                     <span className="inline-flex items-center gap-1.5">
-                                      <span className="size-1.5 rounded-full bg-success animate-pulse" />
+                                      <span className="size-1.5 rounded-full bg-success" />
                                       OPEN
                                     </span>
                                   ) : (
@@ -494,14 +460,14 @@ export function AdminMarketplaceClient() {
                                   )}
                                 </button>
                               </div>
-                              <p className="text-xs text-muted-foreground">
+                              <p className="text-xs text-fg-muted">
                                 {store.institution?.name?.split(",")[0] || "BIT Mesra"} · {store.address}
                               </p>
                               <div className="flex items-center gap-2 mt-1">
-                                <span className="text-[11px] font-mono font-bold text-foreground bg-muted px-2 py-0.5 rounded-md">
+                                <span className="text-xs font-mono font-bold text-fg bg-surface-muted px-2 py-0.5 rounded-md">
                                   User: @{store.loginUsername || store.slug}
                                 </span>
-                                <span className="text-[11px] font-bold text-success inline-flex items-center gap-0.5">
+                                <span className="text-xs font-bold text-success inline-flex items-center gap-0.5">
                                   <Star className="size-3 fill-warning text-warning" />
                                   {store.rating || "4.7"}
                                 </span>
@@ -524,16 +490,16 @@ export function AdminMarketplaceClient() {
                                 setRevealedPassword(activePass);
                                 setShowPassword(true);
                               }}
-                              className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-success/30 bg-success-subtle text-success text-xs font-bold hover:bg-success-subtle transition-colors cursor-pointer"
+                              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-success/30 bg-success-subtle text-success text-xs font-bold hover:bg-success-subtle transition-colors cursor-pointer"
                             >
                               <KeyRound className="size-3.5" />
-                              <span>Login &amp; Password</span>
+                              <span>Login details</span>
                             </button>
 
                             <button
                               type="button"
                               onClick={() => handleCopyWhatsApp(store)}
-                              className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-border bg-card hover:bg-muted text-xs font-bold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                              className={buttonVariants({ variant: "outline", size: "sm" })}
                               title="Copy WhatsApp invite message"
                             >
                               <Share2 className="size-3.5" />
@@ -542,7 +508,7 @@ export function AdminMarketplaceClient() {
 
                             <Link
                               href={`/admin/marketplace/merchants/${store.id}`}
-                              className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-foreground text-background text-xs font-bold hover:opacity-90 transition-opacity"
+                              className={buttonVariants({ variant: "primary", size: "sm" })}
                             >
                               <Edit2 className="size-3" />
                               <span>Manage</span>
@@ -555,7 +521,7 @@ export function AdminMarketplaceClient() {
                                 haptics.light();
                                 setExpandedStoreId(isExpanded ? null : store.id);
                               }}
-                              className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-border bg-card text-xs font-bold text-foreground cursor-pointer hover:bg-muted"
+                              className={buttonVariants({ variant: "outline", size: "sm" })}
                             >
                               <Package className="size-3.5" />
                               <span>Products ({storeProducts.length})</span>
@@ -568,11 +534,9 @@ export function AdminMarketplaceClient() {
 
                         {/* ── Tier 3: Products Under this Store ── */}
                         {isExpanded && (
-                          <div className="pt-3 border-t border-border/60 space-y-3 bg-muted/20 -mx-4 -mb-4 p-4">
+                          <div className="pt-3 border-t border-border space-y-3 bg-surface-muted -mx-4 -mb-4 p-4">
                             <div className="flex items-center justify-between">
-                              <h4 className="text-xs font-bold text-muted-foreground">
-                                Product Catalog &amp; Pricing
-                              </h4>
+                              <h4 className="text-xs font-bold text-fg-muted">Products</h4>
                               <button
                                 type="button"
                                 onClick={() => {
@@ -585,7 +549,7 @@ export function AdminMarketplaceClient() {
                                   setProdCategory("General");
                                   setProdIsVeg(true);
                                 }}
-                                className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-foreground text-background text-xs font-bold hover:opacity-90 transition-opacity cursor-pointer"
+                                className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-brand text-brand-fg text-xs font-bold hover:opacity-90 transition-opacity cursor-pointer"
                               >
                                 <Plus className="size-3" />
                                 <span>Add Product</span>
@@ -597,14 +561,14 @@ export function AdminMarketplaceClient() {
                                 {storeProducts.map((p: any) => (
                                   <div
                                     key={p.id}
-                                    className="p-3 rounded-xl border border-border bg-card flex items-center justify-between gap-2 shadow-2xs"
+                                    className="p-3 rounded-lg border border-border bg-surface flex items-center justify-between gap-2 "
                                   >
                                     <div className="min-w-0">
-                                      <p className="text-xs font-bold text-foreground truncate">{p.name}</p>
-                                      <p className="text-[11px] text-muted-foreground">
-                                        <span className="font-bold text-foreground">₹{p.price}</span>
+                                      <p className="text-xs font-bold text-fg truncate">{p.name}</p>
+                                      <p className="text-xs text-fg-muted">
+                                        <span className="font-bold text-fg">₹{p.price}</span>
                                         {p.originalPrice && (
-                                          <span className="line-through ml-1 text-[10px]">
+                                          <span className="line-through ml-1 text-xs">
                                             ₹{p.originalPrice}
                                           </span>
                                         )}{" "}
@@ -619,7 +583,7 @@ export function AdminMarketplaceClient() {
                                           handleToggleProductAvailability(p.id, p.isAvailable ?? true)
                                         }
                                         className={cn(
-                                          "px-2 py-0.5 rounded-md text-[10px] font-bold transition-colors cursor-pointer",
+                                          "px-2 py-0.5 rounded-md text-xs font-bold transition-colors cursor-pointer",
                                           p.isAvailable !== false
                                             ? "bg-success-subtle text-success hover:bg-success-subtle"
                                             : "bg-danger-subtle text-danger hover:bg-danger-subtle"
@@ -628,8 +592,10 @@ export function AdminMarketplaceClient() {
                                       >
                                         {p.isAvailable !== false ? "In Stock" : "Sold Out"}
                                       </button>
-                                      <button
-                                        type="button"
+                                      <Button
+                                        variant="ghost"
+                                        size="icon-sm"
+                                        aria-label="Edit"
                                         onClick={() => {
                                           sounds.tap();
                                           setProductModalStore(store);
@@ -642,25 +608,24 @@ export function AdminMarketplaceClient() {
                                           setProdCategory(p.categoryName || "General");
                                           setProdIsVeg(p.isVeg ?? true);
                                         }}
-                                        className="size-7 rounded-lg hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
                                       >
-                                        <Edit2 className="size-3" />
-                                      </button>
-                                      <button
-                                        type="button"
+                                        <Edit2 aria-hidden />
+                                      </Button>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon-sm"
+                                        aria-label="Delete"
                                         onClick={() => handleDeleteProduct(p.id)}
-                                        className="size-7 rounded-lg hover:bg-danger-subtle flex items-center justify-center text-danger cursor-pointer"
+                                        className="text-danger hover:bg-danger-subtle"
                                       >
-                                        <Trash2 className="size-3" />
-                                      </button>
+                                        <Trash2 aria-hidden />
+                                      </Button>
                                     </div>
                                   </div>
                                 ))}
                               </div>
                             ) : (
-                              <p className="text-xs text-muted-foreground italic py-2">
-                                No products in catalog yet. Tap &quot;Add Product&quot; to seed items.
-                              </p>
+                              <p className="text-xs text-fg-muted italic py-2">No products yet.</p>
                             )}
                           </div>
                         )}
@@ -673,10 +638,10 @@ export function AdminMarketplaceClient() {
           })}
         </div>
       ) : (
-        <div className="p-12 rounded-3xl border border-dashed border-border bg-card/50 text-center space-y-3">
-          <Store className="size-10 text-muted-foreground mx-auto" />
-          <h3 className="text-sm font-bold text-foreground">No merchants found</h3>
-          <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+        <div className="p-12 rounded-lg border border-dashed border-border bg-surface text-center space-y-3">
+          <Store className="size-10 text-fg-muted mx-auto" />
+          <h3 className="text-sm font-bold text-fg">No merchants match</h3>
+          <p className="text-xs text-fg-muted max-w-sm mx-auto">
             No stores match &quot;{searchQuery}&quot;. Click &quot;Onboard Merchant&quot; above to add a new
             stall or canteens.
           </p>
@@ -686,67 +651,72 @@ export function AdminMarketplaceClient() {
       {/* ─── MODAL 1: Plaintext Credentials & Password Rotation ─── */}
       {credentialModalStore && (
         <div className="fixed inset-0 z-50 bg-overlay flex items-center justify-center p-4">
-          <div className="w-full max-w-md rounded-3xl border border-border bg-card p-6 space-y-5 shadow-2xl">
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="max-h-[90dvh] w-full max-w-md space-y-5 overflow-y-auto rounded-xl border border-border bg-surface-raised p-6 shadow-lg"
+          >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="size-5 text-success" />
-                <h2 className="text-sm font-bold text-foreground">
-                  Merchant Access Credentials
-                </h2>
+                <h2 className="text-sm font-bold text-fg">Merchant login</h2>
               </div>
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label="Close"
                 onClick={() => {
                   setCredentialModalStore(null);
                   setRevealedPassword(null);
                   setShowPassword(false);
                 }}
-                className="size-8 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
               >
-                <X className="size-4" />
-              </button>
+                <X aria-hidden />
+              </Button>
             </div>
 
-            <div className="space-y-3 bg-muted/40 p-4 rounded-2xl border border-border">
+            <div className="space-y-3 bg-surface-muted p-4 rounded-lg border border-border">
               <div>
-                <p className="text-[10px] font-bold text-muted-foreground">Store Name</p>
-                <p className="text-sm font-bold text-foreground">{credentialModalStore.name}</p>
+                <p className="text-xs font-bold text-fg-muted">Store Name</p>
+                <p className="text-sm font-bold text-fg">{credentialModalStore.name}</p>
               </div>
 
               <div>
-                <p className="text-[10px] font-bold text-muted-foreground">Login Username</p>
-                <p className="text-xs font-mono font-bold text-foreground select-all">
+                <p className="text-xs font-bold text-fg-muted">Username</p>
+                <p className="text-xs font-mono font-bold text-fg select-all">
                   {credentialModalStore.loginUsername || credentialModalStore.slug}
                 </p>
               </div>
 
               <div>
-                <p className="text-[10px] font-bold text-muted-foreground">Password</p>
+                <p className="text-xs font-bold text-fg-muted">Password</p>
                 {revealedPassword ? (
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-mono font-bold text-success select-all">
                       {showPassword ? revealedPassword : "••••••••••••"}
                     </p>
-                    <button
-                      type="button"
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
                       onClick={() => setShowPassword((p) => !p)}
-                      className="size-7 rounded-lg hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
+                      aria-pressed={showPassword}
+                      aria-label={showPassword ? "Hide password" : "Show password"}
                     >
-                      {showPassword ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
-                    </button>
+                      {showPassword ? <EyeOff aria-hidden /> : <Eye aria-hidden />}
+                    </Button>
                   </div>
                 ) : (
-                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  <p className="text-xs text-fg-muted leading-relaxed">
                     Stored as a hash and cannot be read back. Use{" "}
-                    <span className="font-bold text-foreground">Rotate password</span> to issue a new one — it
-                    is shown here once, then never again.
+                    <span className="font-bold text-fg">Change password</span> to issue a new one — it is
+                    shown here once, then never again.
                   </p>
                 )}
               </div>
 
               <div>
-                <p className="text-[10px] font-bold text-muted-foreground">Portal URL</p>
-                <p className="text-xs font-mono text-muted-foreground truncate select-all">
+                <p className="text-xs font-bold text-fg-muted">Portal URL</p>
+                <p className="text-xs font-mono text-fg-muted truncate select-all">
                   https://campusloop.space/merchant-portal/login
                 </p>
               </div>
@@ -757,19 +727,19 @@ export function AdminMarketplaceClient() {
                 type="button"
                 disabled={isRotating}
                 onClick={() => handleRotateCredentials(credentialModalStore.id)}
-                className="flex-1 h-10 rounded-xl border border-border bg-card hover:bg-muted text-xs font-bold text-foreground flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                className={cn(buttonVariants({ variant: "outline", size: "md" }), "flex-1")}
               >
                 <RefreshCw className={cn("size-3.5", isRotating && "animate-spin")} />
-                <span>Rotate Password</span>
+                <span>Change password</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleCopyWhatsApp(credentialModalStore)}
-                className="flex-1 h-10 rounded-xl bg-foreground text-background text-xs font-bold flex items-center justify-center gap-1.5 hover:opacity-90 cursor-pointer"
+                className={cn(buttonVariants({ variant: "primary", size: "md" }), "flex-1")}
               >
                 <Share2 className="size-3.5" />
-                <span>WhatsApp Invite</span>
+                <span>Copy WhatsApp message</span>
               </button>
             </div>
           </div>
@@ -779,78 +749,87 @@ export function AdminMarketplaceClient() {
       {/* ─── MODAL 2: Add / Edit Product Under Store ─── */}
       {productModalStore && (
         <div className="fixed inset-0 z-50 bg-overlay flex items-center justify-center p-4">
-          <div className="w-full max-w-md rounded-3xl border border-border bg-card p-6 space-y-4 shadow-2xl">
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="max-h-[90dvh] w-full max-w-md space-y-4 overflow-y-auto rounded-xl border border-border bg-surface-raised p-6 shadow-lg"
+          >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Package className="size-5 text-primary" />
-                <h2 className="text-sm font-bold text-foreground">
+                <Package className="size-5 text-brand-text" />
+                <h2 className="text-sm font-bold text-fg">
                   {editingProduct ? "Edit Product" : "Add New Product"}
                 </h2>
               </div>
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label="Close"
                 onClick={() => setProductModalStore(null)}
-                className="size-8 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
               >
-                <X className="size-4" />
-              </button>
+                <X aria-hidden />
+              </Button>
             </div>
 
-            <p className="text-xs text-muted-foreground">
-              Store: <strong className="text-foreground font-bold">{productModalStore.name}</strong>
+            <p className="text-xs text-fg-muted">
+              Store: <strong className="text-fg font-bold">{productModalStore.name}</strong>
             </p>
 
             <form onSubmit={handleSaveProduct} className="space-y-3">
               <div className="space-y-1">
-                <span className="text-[11px] font-bold text-muted-foreground">Product Name *</span>
+                <span className="text-sm font-medium text-fg">Product name *</span>
                 <input
+                  aria-label="Product name"
                   type="text"
                   required
                   value={prodName}
                   onChange={(e) => setProdName(e.target.value)}
                   placeholder="e.g. Butter Paneer Roll or Classmate Notebook"
-                  className="w-full h-10 rounded-xl bg-muted/40 border border-border px-3 text-xs font-medium text-foreground outline-none"
+                  className={cn(fieldClassName, "w-full h-11")}
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-muted-foreground">Price (₹) *</span>
+                  <span className="text-sm font-medium text-fg">Price (₹) *</span>
                   <input
+                    aria-label="Price (₹)"
                     type="number"
                     required
                     value={prodPrice}
                     onChange={(e) => setProdPrice(e.target.value)}
                     placeholder="90"
-                    className="w-full h-10 rounded-xl bg-muted/40 border border-border px-3 text-xs font-bold text-foreground outline-none"
+                    className={cn(fieldClassName, "w-full h-11")}
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-muted-foreground">Original MRP (₹)</span>
+                  <span className="text-sm font-medium text-fg">MRP (₹)</span>
                   <input
+                    aria-label="MRP (₹)"
                     type="number"
                     value={prodOriginalPrice}
                     onChange={(e) => setProdOriginalPrice(e.target.value)}
                     placeholder="120"
-                    className="w-full h-10 rounded-xl bg-muted/40 border border-border px-3 text-xs font-medium text-foreground outline-none"
+                    className={cn(fieldClassName, "w-full h-11")}
                   />
                 </div>
               </div>
 
               <div className="space-y-1">
-                <span className="text-[11px] font-bold text-muted-foreground">Subcategory / Shelf</span>
+                <span className="text-sm font-medium text-fg">Category</span>
                 <input
+                  aria-label="Category"
                   type="text"
                   value={prodCategory}
                   onChange={(e) => setProdCategory(e.target.value)}
                   placeholder="e.g. Rolls, Snacks, Dairy, Stationery"
-                  className="w-full h-10 rounded-xl bg-muted/40 border border-border px-3 text-xs font-medium text-foreground outline-none"
+                  className={cn(fieldClassName, "w-full h-11")}
                 />
               </div>
 
               <div className="flex items-center justify-between pt-1">
-                <span className="text-xs font-bold text-foreground">Dietary: Vegetarian?</span>
+                <span className="text-xs font-bold text-fg">Vegetarian?</span>
                 <button
                   type="button"
                   onClick={() => setProdIsVeg((v) => !v)}
@@ -875,16 +854,16 @@ export function AdminMarketplaceClient() {
                 <button
                   type="button"
                   onClick={() => setProductModalStore(null)}
-                  className="flex-1 h-10 rounded-xl border border-border hover:bg-muted text-xs font-bold text-muted-foreground"
+                  className={cn(buttonVariants({ variant: "outline", size: "md" }), "flex-1")}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSavingProduct}
-                  className="flex-1 h-10 rounded-xl bg-foreground text-background text-xs font-bold hover:opacity-90 disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className={cn(buttonVariants({ variant: "primary", size: "md" }), "flex-1")}
                 >
-                  {isSavingProduct ? "Saving..." : "Save Product"}
+                  {isSavingProduct ? "Saving" : "Save product"}
                 </button>
               </div>
             </form>

@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
 import { MerchantPWAInstallBanner } from "@/components/merchant/merchant-pwa-banner";
+import { privateMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Merchant Portal",
-  description: "Manage orders, menu items, business hours, and delivery settings for your campus store.",
+  ...privateMetadata("Store dashboard"),
+  description: "Take orders, update your menu and manage your campus store on CampusLoop.",
   manifest: "/manifest-merchant.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
-    title: "Merchant App",
+    statusBarStyle: "default",
+    title: "CampusLoop Store",
   },
-  robots: { index: false, follow: false },
 };
 
 /**

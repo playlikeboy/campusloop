@@ -9,99 +9,81 @@ interface DocumentCardProps {
   name?: string;
   size?: number;
   compact?: boolean;
+  /** Inside the sender's violet chat bubble: draws in the bubble's foreground colour. */
   isMe?: boolean;
   className?: string;
 }
 
+const SHEET = ["xls", "xlsx", "csv"];
+const ZIP = ["zip", "rar", "7z", "tar", "gz"];
+const CODE = ["py", "cpp", "c", "java", "js", "ts", "html", "css", "sql"];
+
+function DocIcon({ extension, className }: { extension: string; className?: string }) {
+  if (SHEET.includes(extension)) return <FileSpreadsheet className={className} />;
+  if (ZIP.includes(extension)) return <FileArchive className={className} />;
+  if (CODE.includes(extension)) return <FileCode className={className} />;
+  return <FileText className={className} />;
+}
+
 export function DocumentCard({
   url,
-  name = "Campus Notes Document",
+  name = "Document",
   size,
   compact = false,
   isMe = false,
   className,
 }: DocumentCardProps) {
   const extension = name.includes(".") ? name.split(".").pop()?.toLowerCase() || "" : "";
-  const isPdf = extension === "pdf" || url.endsWith(".pdf");
-  const isDoc = ["doc", "docx", "txt", "rtf", "odt"].includes(extension);
-  const isSheet = ["xls", "xlsx", "csv"].includes(extension);
-  const isZip = ["zip", "rar", "7z", "tar", "gz"].includes(extension);
-  const isCode = ["py", "cpp", "c", "java", "js", "ts", "html", "css", "sql"].includes(extension);
-
-  const Icon = isPdf
-    ? FileText
-    : isDoc
-      ? FileText
-      : isSheet
-        ? FileSpreadsheet
-        : isZip
-          ? FileArchive
-          : isCode
-            ? FileCode
-            : FileText;
-
-  const badgeColor = isPdf
-    ? "bg-danger/15 text-danger border-danger/30"
-    : isDoc
-      ? "bg-brand/15 text-brand-text border-brand-subtle-border/30"
-      : isSheet
-        ? "bg-success/15 text-success border-success/30"
-        : isZip
-          ? "bg-brand/15 text-brand-text border-brand-subtle-border/30"
-          : "bg-primary/15 text-primary border-primary/30";
+  const type = extension || (url.toLowerCase().endsWith(".pdf") ? "pdf" : "file");
+  const onBubble = compact && isMe;
 
   return (
     <div
       onClick={(e) => e.stopPropagation()}
       className={cn(
-        "rounded-2xl border transition-colors select-none no-card-nav max-w-md",
+        "no-card-nav max-w-md select-none rounded-lg",
         compact
-          ? isMe
-            ? "bg-white/10 border-white/20 p-2.5 text-white"
-            : "bg-muted/60 border-border/50 p-2.5 text-foreground"
-          : "bg-card border-border/60 p-3.5 shadow-xs hover:border-primary/40",
+          ? onBubble
+            ? "bg-brand-fg/10 p-2.5 text-brand-fg"
+            : "bg-surface-muted p-2.5 text-fg"
+          : "border border-border bg-surface p-3 text-fg",
         className
       )}
     >
       <div className="flex items-center gap-3">
-        {/* Document Icon Avatar */}
         <div
           className={cn(
-            "size-11 rounded-xl flex items-center justify-center shrink-0 border shadow-2xs",
-            badgeColor
+            "flex size-11 shrink-0 items-center justify-center rounded-md",
+            onBubble ? "bg-brand-fg/15" : "bg-brand-subtle text-brand-text"
           )}
+          aria-hidden
         >
-          <Icon className="size-5.5" />
+          <DocIcon extension={extension} className="size-5" />
         </div>
 
-        {/* Info Column */}
-        <div className="flex-1 min-w-0 space-y-0.5">
-          <h4 className="text-xs sm:text-sm font-bold text-foreground truncate">{name}</h4>
-          <div className="flex items-center gap-2 text-[11px] text-muted-foreground font-medium">
-            <span className="uppercase font-black tracking-wider text-[9px] px-1.5 py-0.2 rounded bg-muted">
-              {extension || "DOC"}
-            </span>
-            {size ? <span>{formatFileSize(size)}</span> : <span>Document Attachment</span>}
-          </div>
+        <div className="min-w-0 flex-1 space-y-0.5">
+          <p className="truncate text-sm font-semibold">{name}</p>
+          <p className={cn("text-xs", onBubble ? "opacity-80" : "text-fg-muted")}>
+            <span className="font-medium">{type.toUpperCase()}</span>
+            {size ? <span> · {formatFileSize(size)}</span> : null}
+          </p>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex shrink-0 items-center gap-1">
           <a
             href={url}
             target="_blank"
             rel="noopener noreferrer"
             download={name}
             className={cn(
-              "flex size-8 items-center justify-center rounded-full transition-colors cursor-pointer",
-              compact && isMe
-                ? "bg-white/20 text-white hover:bg-white/30"
-                : "bg-primary text-primary-foreground hover:bg-primary/90 shadow-2xs"
+              "cl-interactive flex size-11 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              onBubble
+                ? "bg-brand-fg text-brand hover:opacity-90"
+                : "bg-brand text-brand-fg hover:bg-brand-hover"
             )}
-            title="Download notes"
-            aria-label="Download notes"
+            aria-label={`Download ${name}`}
           >
-            <Download className="size-4" />
+            <Download className="size-4" aria-hidden />
           </a>
 
           {!compact && (
@@ -109,11 +91,10 @@ export function DocumentCard({
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex size-8 items-center justify-center rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-              title="Open in new tab"
-              aria-label="Open in new tab"
+              className="flex size-11 items-center justify-center rounded-full text-fg-muted transition-ui hover:bg-surface-muted hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              aria-label={`Open ${name} in a new tab`}
             >
-              <ExternalLink className="size-4" />
+              <ExternalLink className="size-4" aria-hidden />
             </a>
           )}
         </div>

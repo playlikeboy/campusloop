@@ -2,15 +2,12 @@
 
 import {
   ArrowRight,
-  BriefcaseBusiness,
   CalendarDays,
   Check,
   Dumbbell,
   GraduationCap,
-  MessageSquareText,
   Palette,
   Rocket,
-  Sparkles,
   Trophy,
   Users,
   Wrench,
@@ -19,6 +16,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
+import { Button } from "@/components/ui/button";
 import { fetcher } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -46,57 +44,57 @@ function getCategoryConfig(eventType: string) {
   const type = String(eventType || "").toUpperCase();
   if (type === "HACKATHON") {
     return {
-      tint: "bg-brand-subtle",
-      accent: "text-brand-text",
-      pill: "bg-brand/15 text-brand-text",
+      tint: "bg-surface-muted",
+      accent: "text-fg-muted",
+      pill: "bg-bg text-fg-muted",
       Icon: Rocket,
     };
   }
   if (["CULTURAL", "FEST"].includes(type)) {
     return {
-      tint: "bg-danger-subtle",
-      accent: "text-danger",
-      pill: "bg-danger/15 text-danger",
+      tint: "bg-surface-muted",
+      accent: "text-fg-muted",
+      pill: "bg-bg text-fg-muted",
       Icon: Palette,
     };
   }
   if (["COMPETITION", "CONTEST"].includes(type)) {
     return {
-      tint: "bg-warning-subtle",
-      accent: "text-warning",
-      pill: "bg-warning/15 text-warning",
+      tint: "bg-surface-muted",
+      accent: "text-fg-muted",
+      pill: "bg-bg text-fg-muted",
       Icon: Trophy,
     };
   }
   if (type === "WORKSHOP") {
     return {
-      tint: "bg-brand-subtle",
-      accent: "text-brand-text",
-      pill: "bg-brand/15 text-brand-text",
+      tint: "bg-surface-muted",
+      accent: "text-fg-muted",
+      pill: "bg-bg text-fg-muted",
       Icon: Wrench,
     };
   }
   if (type === "SPORTS") {
     return {
-      tint: "bg-success-subtle",
-      accent: "text-success",
-      pill: "bg-success/15 text-success",
+      tint: "bg-surface-muted",
+      accent: "text-fg-muted",
+      pill: "bg-bg text-fg-muted",
       Icon: Dumbbell,
     };
   }
   if (["SCHOLARSHIP", "FELLOWSHIP"].includes(type)) {
     return {
-      tint: "bg-warning-subtle",
-      accent: "text-warning",
-      pill: "bg-warning/15 text-warning",
+      tint: "bg-surface-muted",
+      accent: "text-fg-muted",
+      pill: "bg-bg text-fg-muted",
       Icon: GraduationCap,
     };
   }
   return {
-    tint: "bg-brand-subtle",
-    accent: "text-primary",
-    pill: "bg-primary/15 text-primary",
-    Icon: Sparkles,
+    tint: "bg-surface-muted",
+    accent: "text-fg-muted",
+    pill: "bg-bg text-fg-muted",
+    Icon: CalendarDays,
   };
 }
 
@@ -133,39 +131,42 @@ function FeedEventCard({ event }: { event: EventItem }) {
         body: JSON.stringify({}),
       });
       const data = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) throw new Error(data.error || "Failed to register");
+      if (!res.ok) throw new Error(data.error || "Couldn't sign you up. Try again.");
 
       setRegistered(true);
       setAttendeeCount((prev) => prev + 1);
-      toast.success(`You’re registered for ${event.title}!`);
+      toast.success(`You're going to ${event.title}`);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not register");
+      toast.error(err instanceof Error ? err.message : "Couldn't sign you up. Try again.");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="group relative flex w-[285px] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-2xl bg-card/80 border border-border/50 shadow-2xs transition-colors duration-200 hover:border-primary/40 hover:shadow-md">
-      {/* Decorative top banner */}
+    <div className="group relative flex w-[285px] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-lg bg-surface border border-border transition-ui hover:border-border-strong">
+      {/* Title block */}
       <div className={cn("relative p-3.5 pb-3", config.tint)}>
         <div className="flex items-center justify-between gap-2">
-          <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold", config.pill)}>
+          <span
+            className={cn(
+              "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium capitalize",
+              config.pill
+            )}
+          >
             <Icon className="size-3" aria-hidden />
             {event.eventType.toLowerCase().replace(/_/g, " ")}
           </span>
-          <span className="rounded-full bg-background/80 px-2 py-0.5 text-[10px] font-semibold text-muted-foreground backdrop-blur-xs">
+          <span className="rounded-full bg-bg px-2 py-0.5 text-xs font-semibold text-muted-foreground">
             {event.mode === "ONLINE" ? "Online" : event.mode === "HYBRID" ? "Hybrid" : "On campus"}
           </span>
         </div>
 
         <Link href={href} className="mt-2.5 block">
-          <p className="line-clamp-2 text-sm font-bold leading-snug text-foreground transition-colors group-hover:text-primary">
+          <p className="line-clamp-2 text-sm font-semibold leading-snug text-fg transition-ui group-hover:text-brand-text">
             {event.title}
           </p>
-          <p className="mt-1 truncate text-[11px] font-medium text-muted-foreground">
-            {event.clubName}
-          </p>
+          <p className="mt-1 truncate text-xs font-medium text-muted-foreground">{event.clubName}</p>
         </Link>
       </div>
 
@@ -178,7 +179,7 @@ function FeedEventCard({ event }: { event: EventItem }) {
               {formatDate(event.startDate)}
             </span>
             {event.prizesDescription ? (
-              <span className="inline-flex max-w-[140px] items-center gap-1 truncate font-semibold text-warning">
+              <span className="inline-flex max-w-[140px] items-center gap-1 truncate font-semibold text-fg">
                 <Trophy className="size-3 shrink-0" aria-hidden />
                 <span className="truncate">{event.prizesDescription}</span>
               </span>
@@ -188,26 +189,25 @@ function FeedEventCard({ event }: { event: EventItem }) {
           </div>
         </div>
 
-        <div className="mt-3 flex items-center justify-between border-t border-border/30 pt-2.5">
-          <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
-            <Users className="size-3 text-muted-foreground/70" aria-hidden />
-            {attendeeCount} joined
+        <div className="mt-3 flex items-center justify-between border-t border-border pt-2.5">
+          <span className="inline-flex items-center gap-1 text-xs text-fg-muted tabular-nums">
+            <Users className="size-3.5" aria-hidden />
+            {attendeeCount} going
           </span>
 
           {registered ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-success/15 px-3 py-1 text-xs font-bold text-success">
-              <Check className="size-3.5" aria-hidden /> Joined
+            <span className="inline-flex items-center gap-1 rounded-full bg-success-subtle px-3 py-1 text-xs font-semibold text-success">
+              <Check className="size-3.5" aria-hidden /> Going
             </span>
           ) : (
-            <button
-              type="button"
+            <Button
+              size="xs"
               onClick={handleJoin}
-              disabled={loading}
-              className="inline-flex items-center gap-1 rounded-full bg-primary px-3.5 py-1 text-xs font-bold text-primary-foreground shadow-2xs transition-transform hover:bg-primary/90 active:scale-95 disabled:opacity-50 cursor-pointer"
+              loading={loading}
+              className="relative after:absolute after:-inset-2 after:content-['']"
             >
-              {loading ? "Joining…" : isTeam ? "Details" : "Join"}
-              <ArrowRight className="size-3" aria-hidden />
-            </button>
+              {isTeam ? "See details" : "I'm going"}
+            </Button>
           )}
         </div>
       </div>
@@ -216,35 +216,30 @@ function FeedEventCard({ event }: { event: EventItem }) {
 }
 
 export function FeedEventSpotlight({ className }: { className?: string }) {
-  const { data } = useSWR<{ events: EventItem[] }>("/api/events?limit=6&sort=trending&status=ACTIVE", fetcher, {
-    revalidateOnFocus: false,
-    dedupingInterval: 60_000,
-  });
+  const { data } = useSWR<{ events: EventItem[] }>(
+    "/api/events?limit=6&sort=trending&status=ACTIVE",
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 60_000,
+    }
+  );
 
   const events = data?.events ?? [];
   if (events.length === 0) return null;
 
   return (
-    <section className={cn("py-4", className)} aria-label="Campus Events & Hackathons">
+    <section className={cn("py-4", className)} aria-labelledby="feed-events-title">
       <div className="mb-3 flex items-center justify-between px-4">
-        <div className="flex min-w-0 items-center gap-2">
-          <div className="flex size-7 items-center justify-center rounded-full bg-danger/10 text-danger">
-            <Sparkles className="size-3.5" aria-hidden />
-          </div>
-          <div className="flex min-w-0 items-center gap-1.5">
-            <h3 className="truncate text-sm font-bold text-foreground">Campus Events &amp; Fests</h3>
-            <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-danger/10 px-2 py-0.5 text-[10px] font-bold text-danger">
-              <span className="size-1.5 rounded-full bg-danger animate-pulse" />
-              Live &amp; Upcoming
-            </span>
-          </div>
-        </div>
+        <h3 id="feed-events-title" className="truncate text-base">
+          Upcoming events
+        </h3>
 
         <Link
           href="/events"
-          className="inline-flex items-center gap-0.5 text-xs font-bold text-primary hover:underline"
+          className="inline-flex min-h-11 items-center gap-1 px-1 text-sm font-semibold text-brand-text hover:underline underline-offset-4"
         >
-          View all <ArrowRight className="size-3.5" aria-hidden />
+          See all <ArrowRight className="size-4" aria-hidden />
         </Link>
       </div>
 

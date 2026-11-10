@@ -1,46 +1,17 @@
 "use client";
 
-import { MessageCircleHeartIcon } from "@animateicons/react/lucide";
-import {
-  ArrowDown,
-  ArrowLeft,
-  CheckCheck,
-  Copy,
-  CornerDownRight,
-  FileText,
-  Heart,
-  ImageIcon,
-  Info,
-  Loader2,
-  Mic,
-  MoreHorizontal,
-  MoreVertical,
-  Paperclip,
-  Search,
-  ShieldCheck,
-  Smile,
-  Trash2,
-  User,
-  Users2,
-  Video,
-  X,
-} from "lucide-react";
-import Link from "next/link";
+import { ArrowDown, MessageCircle, SearchX } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import useSWR from "swr";
 import { ActiveCallOverlay } from "@/components/calls/active-call-overlay";
 import { IncomingCallModal } from "@/components/calls/incoming-call-modal";
-import { AudioPlayer } from "@/components/media/audio-player";
-import { DocumentCard } from "@/components/media/document-card";
-import { VideoPlayer } from "@/components/media/video-player";
 import { VoiceRecorderModal } from "@/components/media/voice-recorder-modal";
-import { AnimatePhone, AnimateSend, AnimateVideo } from "@/components/ui/animated-icon";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { EmptyState } from "@/components/ui/empty-state";
 import { GifPickerModal } from "@/components/ui/gif-picker-modal";
-import { PresenceDot } from "@/components/ui/presence-dot";
+import { Spinner } from "@/components/ui/spinner";
 import { StickerPickerModal } from "@/components/ui/sticker-picker-modal";
-import type { UserProfile } from "@/db/schema";
 import { triggerBrowserNotification } from "@/hooks/use-push-notifications";
 import {
   type CachedMessage,
@@ -49,12 +20,26 @@ import {
   updateCachedConversationLastMessage,
 } from "@/lib/chat-cache";
 import { haptics } from "@/lib/haptics";
-import { isOnline, presenceLabel } from "@/lib/presence";
 import { sounds } from "@/lib/sounds";
-import { uploadImageToImgBB, uploadMediaFile } from "@/lib/upload";
-import { cn } from "@/lib/utils";
-import { ChatMessageContent } from "./chat-message-content";
+import { ChatComposer } from "./chat-composer";
+import {
+  buildReplyBody,
+  type ChatParticipant,
+  DELETED_FOR_EVERYONE_BODY,
+  DELETED_FOR_ME_BODY,
+  previewText,
+  splitQuote,
+} from "./chat-format";
+import { ChatDeleteMessageDialog, ChatMessageOptionsDialog } from "./chat-message-dialogs";
+import { ChatMessageList, ChatThreadEmpty } from "./chat-message-list";
+import { ThreadBubblesSkeleton, ThreadSkeleton } from "./chat-skeletons";
+import { ChatThreadHeader } from "./chat-thread-header";
 import { ChatUserInfoDrawer } from "./chat-user-info-drawer";
+import { useChatCalls } from "./use-chat-calls";
+import { useChatMedia } from "./use-chat-media";
+import { useMentionSuggestions } from "./use-mention-suggestions";
+
+const PAGE = 35;
 
 const fetcher = async <T,>(url: string): Promise<T> => {
   const res = await fetch(url);
@@ -64,2003 +49,503 @@ const fetcher = async <T,>(url: string): Promise<T> => {
 
 interface MessengerPaneProps {
   conversationId: string | null;
-  otherParticipant:
-    | (UserProfile & {
-        isGroup?: boolean;
-        isCommunity?: boolean;
-        membersCount?: number;
-        category?: string;
-        participants?: UserProfile[];
-      })
-    | null;
+  otherParticipant: ChatParticipant | null;
   currentUserId: string;
+  /** Whether this chat is muted, from the inbox row. */
+  isMuted?: boolean;
   onBack?: () => void;
 }
 
-const QUICK_REACTION_EMOJIS = ["👍", "❤️", "😂", "😮", "😢", "🙏", "🔥"];
-
+/** The open conversation: header, messages, composer, plus calls and message dialogs. */
 export function MessengerPane({
   conversationId,
   otherParticipant,
   currentUserId,
+  isMuted = false,
   onBack,
 }: MessengerPaneProps) {
-  const [msgText, setMsgText] = useState("");
+  const [draft, setDraft] = useState("");
   const [isSending, setIsSending] = useState(false);
-  const [showGifPicker, setShowGifPicker] = useState(false);
-  const [showStickerPicker, setShowStickerPicker] = useState(false);
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const [hoveredMsgId, setHoveredMsgId] = useState<string | null>(null);
-  const [activeReactionMsgId, setActiveReactionMsgId] = useState<string | null>(null);
   const [replyingTo, setReplyingTo] = useState<CachedMessage | null>(null);
-  const [searchInChat, setSearchInChat] = useState(false);
-  const [chatSearchQuery, setChatSearchQuery] = useState("");
-  const [playingVoiceId, setPlayingVoiceId] = useState<string | null>(null);
-  const [showInfoDrawer, setShowInfoDrawer] = useState(false);
-  const [deleteModalMsg, setDeleteModalMsg] = useState<CachedMessage | null>(null);
-  const [mentionQuery, setMentionQuery] = useState<string | null>(null);
-  const [mentionSuggestions, setMentionSuggestions] = useState<UserProfile[]>([]);
-  const [isSearchingMentions, setIsSearchingMentions] = useState(false);
-  const [optionsMenuMsg, setOptionsMenuMsg] = useState<CachedMessage | null>(null);
-  const [showChatHeaderMenu, setShowChatHeaderMenu] = useState(false);
-  const [showJumpToBottom, setShowJumpToBottom] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [optionsMsg, setOptionsMsg] = useState<CachedMessage | null>(null);
+  const [deleteMsg, setDeleteMsg] = useState<CachedMessage | null>(null);
+  const [showInfo, setShowInfo] = useState(false);
+  const [showGif, setShowGif] = useState(false);
+  const [showStickers, setShowStickers] = useState(false);
+  const [showVoice, setShowVoice] = useState(false);
+  const [showJump, setShowJump] = useState(false);
+  const [loadingOlder, setLoadingOlder] = useState(false);
+  const [hasOlder, setHasOlder] = useState(true);
 
-  // Calling States
-  const [activeCall, setActiveCall] = useState<{
-    callId: string;
-    isCaller: boolean;
-    type: "audio" | "video";
-    remotePeerId?: string;
-  } | null>(null);
-  const [incomingCall, setIncomingCall] = useState<any | null>(null);
-
-  // Close chat header overflow menu on Escape key
-  useEffect(() => {
-    if (!showChatHeaderMenu) return;
-    function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        setShowChatHeaderMenu(false);
-      }
-    }
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [showChatHeaderMenu]);
-
-  // Auto-fetch conversation metadata if otherParticipant not passed or on fresh load
-  const { data: convData, isLoading: isLoadingConvData } = useSWR<{
-    id: string;
-    otherParticipant: any;
-    title?: string;
-    isGroup?: boolean;
-    isCommunity?: boolean;
-  }>(conversationId && !otherParticipant ? `/api/chat/${conversationId}` : null, fetcher, {
-    dedupingInterval: 8000,
-  });
-
-  const effectiveParticipant = otherParticipant || convData?.otherParticipant || null;
-
-  // Presence is derived from the peer's heartbeat, not assumed
-  const presenceText = presenceLabel(effectiveParticipant?.lastSeenAt);
-  const viewerIsOnline = isOnline(effectiveParticipant?.lastSeenAt);
-
-  // Swipe & Long-press hold gesture tracking
-  const touchStartXRef = useRef<number | null>(null);
-  const touchStartYRef = useRef<number | null>(null);
-  const activeSwipingMsgIdRef = useRef<string | null>(null);
-  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const [swipedOffset, setSwipedOffset] = useState<Record<string, number>>({});
-
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const videoInputRef = useRef<HTMLInputElement | null>(null);
-  const docInputRef = useRef<HTMLInputElement | null>(null);
-  const [showVoiceModal, setShowVoiceModal] = useState(false);
-  const [showAttachmentMenu, setShowAttachmentMenu] = useState(false);
-  const [isUploadingMedia, setIsUploadingMedia] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const endRef = useRef<HTMLDivElement | null>(null);
+  const initialScrollDone = useRef(false);
+  const lastSeenMsgId = useRef<string | null>(null);
 
-  // Detect @mention trigger in textarea
-  useEffect(() => {
-    const cursor = textareaRef.current?.selectionStart || msgText.length;
-    const textBeforeCursor = msgText.slice(0, cursor);
-    const match = textBeforeCursor.match(/@([a-zA-Z0-9_]*)$/);
-    if (match) {
-      const q = match[1];
-      setMentionQuery(q);
-      fetch(`/api/chat/search?q=${encodeURIComponent(q)}`)
-        .then(async (res) => {
-          if (res.ok) {
-            const users = (await res.json()) as UserProfile[];
-            setMentionSuggestions(users.slice(0, 5));
-          } else {
-            setMentionSuggestions([]);
-          }
-        })
-        .catch(() => setMentionSuggestions([]))
-        .finally(() => setIsSearchingMentions(false));
-    } else {
-      setMentionQuery(null);
-      setMentionSuggestions([]);
-    }
-  }, [msgText]);
-
-  function handleSelectMention(username: string) {
-    if (!textareaRef.current) return;
-    const cursor = textareaRef.current.selectionStart || msgText.length;
-    const textBeforeCursor = msgText.slice(0, cursor);
-    const textAfterCursor = msgText.slice(cursor);
-    const replacedBefore = textBeforeCursor.replace(/@([a-zA-Z0-9_]*)$/, `@${username} `);
-    setMsgText(replacedBefore + textAfterCursor);
-    setMentionQuery(null);
-    setMentionSuggestions([]);
-    textareaRef.current.focus();
-  }
-
-  function handleTouchStart(e: React.TouchEvent, msg: CachedMessage) {
-    touchStartXRef.current = e.touches[0].clientX;
-    touchStartYRef.current = e.touches[0].clientY;
-    activeSwipingMsgIdRef.current = msg.id;
-
-    if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
-    longPressTimerRef.current = setTimeout(() => {
-      sounds.pop();
-      haptics.medium();
-      setOptionsMenuMsg(msg);
-    }, 450);
-  }
-
-  function handleTouchMove(e: React.TouchEvent, msg: CachedMessage) {
-    if (touchStartXRef.current === null || touchStartYRef.current === null) return;
-    const diffX = e.touches[0].clientX - touchStartXRef.current;
-    const diffY = e.touches[0].clientY - touchStartYRef.current;
-
-    // If movement > 10px, cancel long-press
-    if (Math.abs(diffX) > 10 || Math.abs(diffY) > 10) {
-      if (longPressTimerRef.current) {
-        clearTimeout(longPressTimerRef.current);
-        longPressTimerRef.current = null;
-      }
-    }
-
-    // Only swipe horizontally if dominant
-    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 10) {
-      const clamped = Math.min(Math.max(diffX, -80), 80);
-      setSwipedOffset({ [msg.id]: clamped });
-    }
-  }
-
-  function handleTouchEnd(msg: CachedMessage) {
-    if (longPressTimerRef.current) {
-      clearTimeout(longPressTimerRef.current);
-      longPressTimerRef.current = null;
-    }
-    const currentOffset = swipedOffset[msg.id] || 0;
-    if (Math.abs(currentOffset) >= 45) {
-      sounds.tap();
-      haptics.light();
-      setReplyingTo(msg);
-      toast.info(
-        `Replying to ${msg.senderId === currentUserId ? "yourself" : effectiveParticipant?.displayName || "message"}`
-      );
-    }
-    setSwipedOffset({});
-    touchStartXRef.current = null;
-    touchStartYRef.current = null;
-    activeSwipingMsgIdRef.current = null;
-  }
-
-  function handleCopyMessageText(msg: CachedMessage) {
-    let text = msg.body;
-    if (text.startsWith("> ")) {
-      const lines = text.split("\n\n");
-      text = lines.slice(1).join("\n\n") || lines[0].replace(/^> /, "");
-    }
-    if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText(text);
-      sounds.tap();
-      haptics.light();
-      toast.success("Message copied to clipboard");
-    }
-    setOptionsMenuMsg(null);
-  }
-
-  async function handleDeleteMessage(msgId: string, deleteFor: "everyone" | "me") {
-    if (!conversationId) return;
-    sounds.pop();
-    haptics.heavy();
-    setDeleteModalMsg(null);
-
-    // Optimistic update
-    mutate((prev) => {
-      if (!prev) return prev;
-      return prev.map((m) => {
-        if (m.id !== msgId) return m;
-        return {
-          ...m,
-          body: deleteFor === "everyone" ? "🚫 This message was deleted" : "🚫 You deleted this message",
-          reactions: [],
-        };
-      });
-    }, false);
-
-    try {
-      const res = await fetch(`/api/chat/${conversationId}/messages/${msgId}?deleteFor=${deleteFor}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) throw new Error("Failed to delete message");
-      toast.success(deleteFor === "everyone" ? "Message deleted for everyone" : "Message deleted for you");
-      mutate();
-    } catch (err: any) {
-      toast.error(err.message || "Failed to delete message");
-      mutate();
-    }
-  }
-
-  // Poll for incoming calls
-  useEffect(() => {
-    if (!currentUserId || activeCall) return;
-
-    const interval = setInterval(async () => {
-      try {
-        const res = await fetch("/api/calls");
-        if (res.ok) {
-          const data = (await res.json()) as any;
-          if (data?.incomingCall && data.incomingCall.status === "CALLING") {
-            setIncomingCall(data.incomingCall);
-          } else {
-            setIncomingCall(null);
-          }
-        }
-      } catch {}
-    }, 2800);
-
-    return () => clearInterval(interval);
-  }, [currentUserId, activeCall]);
-
-  async function handleStartCall(type: "audio" | "video") {
-    if (!conversationId || !effectiveParticipant || effectiveParticipant.isGroup) return;
-
-    sounds.tap();
-    haptics.medium();
-
-    try {
-      const res = await fetch("/api/calls", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          receiverId: effectiveParticipant.id,
-          conversationId,
-          type,
-          context: "chat",
-        }),
-      });
-
-      const data = (await res.json()) as any;
-      if (!res.ok || !data.call) {
-        toast.error(data.error || "Failed to start call");
-        return;
-      }
-
-      setActiveCall({
-        callId: data.call.id,
-        isCaller: true,
-        type,
-      });
-    } catch (err: any) {
-      toast.error(`Call failed: ${err.message}`);
-    }
-  }
-
-  // Auto-resize textarea to fit content (from 1 line up to 5 lines)
-  useEffect(() => {
-    const el = textareaRef.current;
-    if (!el) return;
-    el.style.height = "auto";
-    const newHeight = Math.min(Math.max(el.scrollHeight, 40), 140);
-    el.style.height = `${newHeight}px`;
-  }, []);
-
-  // Fast Hard Cache: Initial fallback from in-memory / local storage cache for 0ms instant display
-  const initialCache = conversationId ? getCachedMessages(conversationId) : null;
-
-  // Pagination state for loading older messages (WhatsApp/Instagram style)
-  const [isLoadingOlder, setIsLoadingOlder] = useState(false);
-  const [hasMoreOlder, setHasMoreOlder] = useState(true);
-  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
-  const isInitialScrollDoneRef = useRef(false);
-
-  useEffect(() => {
-    setHasMoreOlder(true);
-    setIsLoadingOlder(false);
-    setShowJumpToBottom(false);
-    isInitialScrollDoneRef.current = false;
-  }, [conversationId]);
+  // Fetch the conversation header when the inbox didn't pass the participant (deep link).
+  const { data: convData } = useSWR<{ otherParticipant: ChatParticipant }>(
+    conversationId && !otherParticipant ? `/api/chat/${conversationId}` : null,
+    fetcher,
+    { dedupingInterval: 8000 }
+  );
+  const participant = otherParticipant || convData?.otherParticipant || null;
+  const isGroupChat = Boolean(participant?.isGroup || participant?.isCommunity);
 
   const {
     data: messages,
+    error: messagesError,
     isLoading,
     mutate,
   } = useSWR<CachedMessage[]>(
-    conversationId ? `/api/chat/${conversationId}/messages?limit=35` : null,
+    conversationId ? `/api/chat/${conversationId}/messages?limit=${PAGE}` : null,
     fetcher,
     {
-      fallbackData: initialCache || undefined,
+      fallbackData: (conversationId && getCachedMessages(conversationId)) || undefined,
       refreshInterval: 2000,
       revalidateOnFocus: true,
       onSuccess: (data) => {
-        if (conversationId && data) {
-          setCachedMessages(conversationId, data);
-        }
+        if (conversationId && data) setCachedMessages(conversationId, data);
       },
     }
   );
 
-  // Load older messages when user scrolls to top
-  const handleLoadOlder = useCallback(async () => {
-    if (!conversationId || isLoadingOlder || !hasMoreOlder || !messages || messages.length === 0) return;
-    setIsLoadingOlder(true);
+  const calls = useChatCalls({
+    currentUserId,
+    conversationId,
+    receiverId: participant && !isGroupChat ? participant.id : null,
+  });
+  const mentions = useMentionSuggestions(draft, textareaRef);
 
-    const oldestMessage = messages[0];
-    const oldestTimestamp = oldestMessage?.createdAt;
-    const container = scrollContainerRef.current;
-    const prevScrollHeight = container?.scrollHeight || 0;
+  useEffect(() => {
+    setHasOlder(true);
+    setLoadingOlder(false);
+    setShowJump(false);
+    setReplyingTo(null);
+    setSearchOpen(false);
+    setSearchQuery("");
+    initialScrollDone.current = false;
+  }, [conversationId]);
 
-    try {
-      const res = await fetch(
-        `/api/chat/${conversationId}/messages?limit=35&before=${encodeURIComponent(new Date(oldestTimestamp).toISOString())}`
-      );
-      if (res.ok) {
-        const olderSlice = (await res.json()) as CachedMessage[];
-        if (olderSlice.length < 35) {
-          setHasMoreOlder(false);
-        }
-        if (olderSlice.length > 0) {
-          // Prepend older messages while avoiding duplicates
-          const olderIds = new Set(olderSlice.map((m) => m.id));
-          const filteredCurrent = messages.filter((m) => !olderIds.has(m.id));
-          const combined = [...olderSlice, ...filteredCurrent];
+  const sendMessage = useCallback(
+    async (text: string) => {
+      if (!text.trim() || !conversationId) return;
+      setIsSending(true);
+      const body = buildReplyBody(replyingTo, text);
+      const optimistic: CachedMessage = {
+        id: `temp-${Date.now()}`,
+        conversationId,
+        senderId: currentUserId,
+        body,
+        readAt: null,
+        reactions: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        optimistic: true,
+      } as CachedMessage;
 
-          mutate(combined, false);
+      setReplyingTo(null);
+      sounds.send();
+      haptics.success();
+      mutate((prev) => {
+        const next = [...(prev || []), optimistic];
+        setCachedMessages(conversationId, next);
+        return next;
+      }, false);
+      updateCachedConversationLastMessage(conversationId, {
+        id: optimistic.id,
+        body,
+        senderId: currentUserId,
+        createdAt: new Date().toISOString(),
+      });
 
-          // Preserve exact scroll view position after prepend
-          requestAnimationFrame(() => {
-            if (container) {
-              const newScrollHeight = container.scrollHeight;
-              container.scrollTop = newScrollHeight - prevScrollHeight;
-            }
-          });
-        }
+      try {
+        const res = await fetch(`/api/chat/${conversationId}/messages`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ body }),
+        });
+        if (!res.ok) throw new Error("send failed");
+      } catch {
+        toast.error("Message didn't send. Check your connection and try again.");
+      } finally {
+        mutate();
+        setIsSending(false);
       }
+    },
+    [conversationId, currentUserId, replyingTo, mutate]
+  );
+
+  const media = useChatMedia(conversationId, sendMessage);
+
+  const loadOlder = useCallback(async () => {
+    if (!conversationId || loadingOlder || !hasOlder || !messages?.length) return;
+    setLoadingOlder(true);
+    const container = scrollRef.current;
+    const prevHeight = container?.scrollHeight || 0;
+    try {
+      const before = new Date(messages[0].createdAt).toISOString();
+      const res = await fetch(
+        `/api/chat/${conversationId}/messages?limit=${PAGE}&before=${encodeURIComponent(before)}`
+      );
+      if (!res.ok) return;
+      const older = (await res.json()) as CachedMessage[];
+      if (older.length < PAGE) setHasOlder(false);
+      if (older.length === 0) return;
+      const ids = new Set(older.map((m) => m.id));
+      mutate([...older, ...messages.filter((m) => !ids.has(m.id))], false);
+      requestAnimationFrame(() => {
+        if (container) container.scrollTop = container.scrollHeight - prevHeight;
+      });
     } catch {
-      // Fallback
+      // Scrolling up again retries.
     } finally {
-      setIsLoadingOlder(false);
+      setLoadingOlder(false);
     }
-  }, [conversationId, isLoadingOlder, hasMoreOlder, messages, mutate, setIsLoadingOlder, setHasMoreOlder]);
-
-  // Handle scroll to detect when user reaches top of conversation
-  const handleScroll = useCallback(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
-    setShowJumpToBottom(distanceFromBottom > 96);
-
-    if (container.scrollTop < 60 && !isLoadingOlder && hasMoreOlder && messages && messages.length >= 35) {
-      void handleLoadOlder();
-    }
-  }, [handleLoadOlder, isLoadingOlder, hasMoreOlder, messages]);
+  }, [conversationId, loadingOlder, hasOlder, messages, mutate]);
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
-    messagesEndRef.current?.scrollIntoView({ behavior, block: "end" });
-    setShowJumpToBottom(false);
+    endRef.current?.scrollIntoView({ behavior, block: "end" });
+    setShowJump(false);
   }, []);
 
-  // Auto scroll to bottom smoothly on message updates (unless user is searching or viewing older history)
-  useEffect(() => {
-    if (!chatSearchQuery.trim()) {
-      if (!isInitialScrollDoneRef.current) {
-        scrollToBottom("auto");
-        isInitialScrollDoneRef.current = true;
-      } else {
-        const container = scrollContainerRef.current;
-        const isNearBottom = container
-          ? container.scrollHeight - container.scrollTop - container.clientHeight < 180
-          : true;
-        if (isNearBottom) {
-          scrollToBottom("smooth");
-        }
-      }
-    }
-  }, [messages, chatSearchQuery]);
+  const onScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setShowJump(el.scrollHeight - el.scrollTop - el.clientHeight > 96);
+    if (el.scrollTop < 60 && (messages?.length || 0) >= PAGE) void loadOlder();
+  }, [loadOlder, messages]);
 
-  // Alert with native browser notification when new message arrives in background
-  const lastKnownMsgIdRef = useRef<string | null>(null);
+  // Stick to the bottom on new messages unless the reader scrolled up or is searching.
   useEffect(() => {
-    if (!messages || messages.length === 0) return;
+    if (searchQuery.trim() || !messages) return;
+    if (!initialScrollDone.current) {
+      scrollToBottom("auto");
+      initialScrollDone.current = true;
+      return;
+    }
+    const el = scrollRef.current;
+    if (!el || el.scrollHeight - el.scrollTop - el.clientHeight < 180) scrollToBottom("smooth");
+  }, [messages, searchQuery, scrollToBottom]);
+
+  // Sound + browser notification when a new message arrives from the other side.
+  useEffect(() => {
+    if (!messages?.length) return;
     const last = messages[messages.length - 1];
-    if (
-      lastKnownMsgIdRef.current &&
-      lastKnownMsgIdRef.current !== last.id &&
-      last.senderId !== currentUserId
-    ) {
+    if (lastSeenMsgId.current && lastSeenMsgId.current !== last.id && last.senderId !== currentUserId) {
       sounds.pop();
       haptics.light();
-      if (typeof document !== "undefined" && document.visibilityState === "hidden") {
-        triggerBrowserNotification(`CampusLoop: ${effectiveParticipant?.displayName || "New Message"}`, {
-          body: last.body,
+      if (document.visibilityState === "hidden") {
+        triggerBrowserNotification(participant?.displayName || "New message", {
+          body: previewText(last.body),
           url: `/chat/${conversationId}`,
         });
       }
     }
-    lastKnownMsgIdRef.current = last.id;
-  }, [messages, currentUserId, effectiveParticipant, conversationId]);
+    lastSeenMsgId.current = last.id;
+  }, [messages, currentUserId, participant, conversationId]);
 
-  // Click outside to dismiss active locked reaction bar
-  useEffect(() => {
-    function handleClickOutside() {
-      if (activeReactionMsgId) {
-        setActiveReactionMsgId(null);
+  const toggleReaction = useCallback(
+    async (msgId: string, emoji: string) => {
+      if (!conversationId) return;
+      sounds.pop();
+      haptics.medium();
+      mutate(
+        (prev) =>
+          prev?.map((m) => {
+            if (m.id !== msgId) return m;
+            const current = m.reactions || [];
+            const exists = current.some((r) => r.userId === currentUserId && r.emoji === emoji);
+            const reactions = exists
+              ? current.filter((r) => !(r.userId === currentUserId && r.emoji === emoji))
+              : [...current.filter((r) => r.userId !== currentUserId), { emoji, userId: currentUserId }];
+            return { ...m, reactions };
+          }),
+        false
+      );
+      try {
+        const res = await fetch(`/api/chat/${conversationId}/messages/${msgId}/react`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ emoji }),
+        });
+        if (!res.ok) throw new Error("react failed");
+      } catch {
+        toast.error("Reaction didn't save. Try again.");
+      } finally {
+        mutate();
       }
-    }
-    window.addEventListener("click", handleClickOutside);
-    return () => window.removeEventListener("click", handleClickOutside);
-  }, [activeReactionMsgId]);
+    },
+    [conversationId, currentUserId, mutate]
+  );
 
-  function handleMsgMouseEnter(msgId: string) {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-      hoverTimeoutRef.current = null;
-    }
-    setHoveredMsgId(msgId);
-  }
+  const deleteMessage = useCallback(
+    async (msgId: string, scope: "everyone" | "me") => {
+      if (!conversationId) return;
+      sounds.pop();
+      haptics.heavy();
+      setDeleteMsg(null);
+      mutate(
+        (prev) =>
+          prev?.map((m) =>
+            m.id === msgId
+              ? {
+                  ...m,
+                  body: scope === "everyone" ? DELETED_FOR_EVERYONE_BODY : DELETED_FOR_ME_BODY,
+                  reactions: [],
+                }
+              : m
+          ),
+        false
+      );
+      try {
+        const res = await fetch(`/api/chat/${conversationId}/messages/${msgId}?deleteFor=${scope}`, {
+          method: "DELETE",
+        });
+        if (!res.ok) throw new Error("delete failed");
+        toast.success(scope === "everyone" ? "Deleted for everyone" : "Deleted for you");
+      } catch {
+        toast.error("Couldn't delete that message. Try again.");
+      } finally {
+        mutate();
+      }
+    },
+    [conversationId, mutate]
+  );
 
-  function handleMsgMouseLeave() {
-    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
-    hoverTimeoutRef.current = setTimeout(() => {
-      setHoveredMsgId(null);
-    }, 350); // 350ms grace period so moving mouse to reaction pill never dismisses it!
-  }
+  const copyMessage = useCallback((msg: CachedMessage) => {
+    void navigator.clipboard?.writeText(splitQuote(msg.body).text).then(
+      () => toast.success("Copied"),
+      () => toast.error("Couldn't copy. Long-press the text to select it instead.")
+    );
+    setOptionsMsg(null);
+  }, []);
 
-  async function sendMessage(bodyText: string) {
-    if (!bodyText.trim() || !conversationId || isSending) return;
+  const startReply = useCallback((msg: CachedMessage) => {
+    setReplyingTo(msg);
+    textareaRef.current?.focus();
+  }, []);
 
-    setIsSending(true);
-
-    const fullBody = replyingTo
-      ? `> ${replyingTo.body.split("\n")[0].slice(0, 60)}...\n\n${bodyText}`
-      : bodyText;
-
-    const optimisticMessage: CachedMessage = {
-      id: `temp-${Date.now()}`,
-      conversationId,
-      senderId: currentUserId,
-      body: fullBody,
-      readAt: null,
-      reactions: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      optimistic: true,
-    };
-
-    setReplyingTo(null);
-    sounds.send();
-    haptics.success();
-    mutate((prev) => {
-      const updated = [...(prev || []), optimisticMessage];
-      setCachedMessages(conversationId, updated);
-      return updated;
-    }, false);
-
-    updateCachedConversationLastMessage(conversationId, {
-      id: optimisticMessage.id,
-      body: fullBody,
-      senderId: currentUserId,
-      createdAt: new Date().toISOString(),
+  const startCall = (type: "audio" | "video") => {
+    if (!participant) return;
+    void calls.startCall(type, {
+      id: participant.id,
+      displayName: participant.displayName || "Student",
+      avatarUrl: participant.avatarUrl,
+      username: participant.username || undefined,
     });
+  };
 
-    try {
-      const res = await fetch(`/api/chat/${conversationId}/messages`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ body: fullBody }),
-      });
-
-      if (!res.ok) throw new Error("Failed to send message");
-
-      mutate();
-    } catch (err) {
-      console.error(err);
-      toast.error("Message failed to send. Please try again.");
-      mutate();
-    } finally {
-      setIsSending(false);
-    }
-  }
-
-  async function sendImageFile(file: File) {
-    if (!file || !conversationId) return;
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please upload or paste an image file");
-      return;
-    }
-
-    setIsUploadingMedia(true);
-    try {
-      toast.loading("Sending photo...", { id: "chat-img" });
-      const res = await uploadImageToImgBB(file);
-      const url = res.displayUrl || res.url;
-      await sendMessage(url);
-      toast.success("Image sent!", { id: "chat-img" });
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to upload image", {
-        id: "chat-img",
-      });
-    } finally {
-      setIsUploadingMedia(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
-  }
-
-  async function sendVideoFile(file: File) {
-    if (!file || !conversationId) return;
-    setIsUploadingMedia(true);
-    try {
-      toast.loading("Uploading video...", { id: "chat-video" });
-      const res = await uploadMediaFile(file, "video", file.name, (progress) => {
-        if (progress.percent > 0 && progress.percent < 100) {
-          toast.loading(`Uploading video... ${progress.percent}%`, { id: "chat-video" });
-        }
-      });
-      await sendMessage(`![video:${file.name}](${res.url})`);
-      toast.success("Video sent!", { id: "chat-video" });
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to send video", { id: "chat-video" });
-    } finally {
-      setIsUploadingMedia(false);
-      if (videoInputRef.current) videoInputRef.current.value = "";
-    }
-  }
-
-  async function sendDocFile(file: File) {
-    if (!file || !conversationId) return;
-    setIsUploadingMedia(true);
-    try {
-      toast.loading("Uploading document...", { id: "chat-doc" });
-      const res = await uploadMediaFile(file, "document", file.name, (progress) => {
-        if (progress.percent > 0 && progress.percent < 100) {
-          toast.loading(`Uploading document... ${progress.percent}%`, { id: "chat-doc" });
-        }
-      });
-      await sendMessage(`![document:${file.name}:${file.size}](${res.url})`);
-      toast.success("Document sent!", { id: "chat-doc" });
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to send document", { id: "chat-doc" });
-    } finally {
-      setIsUploadingMedia(false);
-      if (docInputRef.current) docInputRef.current.value = "";
-    }
-  }
-
-  async function handleVoiceRecorded(url: string, duration: number) {
-    if (!conversationId) return;
-    try {
-      await sendMessage(`![voice:Voice Note (${duration}s)](${url})`);
-      toast.success("Voice note sent!");
-    } catch {
-      toast.error("Failed to send voice note");
-    }
-  }
-
-  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file) {
-      sendImageFile(file);
-    }
-  }
-
-  async function handlePaste(e: React.ClipboardEvent<HTMLTextAreaElement>) {
-    const clipboardData = e.clipboardData;
-    if (!clipboardData) return;
-
-    // 1. Check direct file attachments
-    const files = Array.from(clipboardData.files || []);
-    const imageFile = files.find((f) => f.type.startsWith("image/"));
-    if (imageFile) {
-      e.preventDefault();
-      toast.info("Sending pasted photo...");
-      sendImageFile(imageFile);
-      return;
-    }
-
-    const videoFile = files.find((f) => f.type.startsWith("video/"));
-    if (videoFile) {
-      e.preventDefault();
-      toast.info("Sending pasted video...");
-      sendVideoFile(videoFile);
-      return;
-    }
-
-    const docFile = files.find(
-      (f) => f.type === "application/pdf" || f.name.endsWith(".pdf") || f.name.endsWith(".docx")
-    );
-    if (docFile) {
-      e.preventDefault();
-      toast.info("Sending pasted document...");
-      sendDocFile(docFile);
-      return;
-    }
-
-    // 2. Check clipboard items
-    const items = Array.from(clipboardData.items || []);
-    for (const item of items) {
-      if (item.type.startsWith("image/")) {
-        e.preventDefault();
-        const file = item.getAsFile();
-        if (file) {
-          toast.info("Sending pasted image...");
-          sendImageFile(file);
-          return;
-        }
-      }
-    }
-
-    // 3. Check HTML content for embedded <img> (e.g. copied web sticker / emoji GIF)
-    const html = clipboardData.getData("text/html");
-    if (html) {
-      const imgRegex = new RegExp("<" + "img[^>]+src=\"([^\">]+)\"", "i");
-      const match = html.match(imgRegex);
-      if (match && match[1] && /^https?:\/\//i.test(match[1])) {
-        const imgSrc = match[1];
-        if (
-          /\.(png|jpe?g|gif|webp)(\?.*)?$/i.test(imgSrc) ||
-          imgSrc.includes("giphy.com") ||
-          imgSrc.includes("tenor.com")
-        ) {
-          e.preventDefault();
-          toast.info("Sending sticker / GIF...");
-          sendMessage(imgSrc);
-          return;
-        }
-      }
-    }
-
-    // 4. Check plain text if it's a standalone image / gif URL
-    const text = clipboardData.getData("text/plain").trim();
-    if (
-      /^https?:\/\/[^\s]+?\.(png|jpe?g|gif|webp)(\?[^\s]*)?$/i.test(text) ||
-      /^https?:\/\/(?:media|i)\.giphy\.com\/[^\s]+/i.test(text) ||
-      /^https?:\/\/media\.tenor\.com\/[^\s]+/i.test(text)
-    ) {
-      e.preventDefault();
-      sendMessage(text);
-      return;
-    }
-  }
-
-  function handleDrop(e: React.DragEvent) {
-    e.preventDefault();
-    const files = e.dataTransfer?.files;
-    if (files && files.length > 0 && files[0].type.startsWith("image/")) {
-      sendImageFile(files[0]);
-    }
-  }
-
-  async function toggleReaction(msgId: string, emoji: string) {
-    if (!conversationId) return;
-
-    // Dismiss reaction menu
-    setActiveReactionMsgId(null);
-    setHoveredMsgId(null);
-    sounds.pop();
-    haptics.medium();
-
-    mutate(
-      (prev) =>
-        prev?.map((m) => {
-          if (m.id !== msgId) return m;
-          const current = m.reactions || [];
-          const exists = current.some((r) => r.userId === currentUserId && r.emoji === emoji);
-          const updated = exists
-            ? current.filter((r) => !(r.userId === currentUserId && r.emoji === emoji))
-            : [...current.filter((r) => r.userId !== currentUserId), { emoji, userId: currentUserId }];
-          return { ...m, reactions: updated };
-        }),
-      false
-    );
-
-    try {
-      await fetch(`/api/chat/${conversationId}/messages/${msgId}/react`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ emoji }),
-      });
-      mutate();
-    } catch (err) {
-      console.error(err);
-      mutate();
-    }
-  }
-
-  function handleSendVoiceMemo() {
-    sounds.tap();
-    haptics.light();
-    setShowVoiceModal(true);
-  }
-
-  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-    if (e.key === "Enter" && !e.shiftKey) {
-      const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
-      if (!isMobile) {
-        e.preventDefault();
-        if (!msgText.trim()) return;
-        const text = msgText;
-        setMsgText("");
-        sendMessage(text);
-        if (textareaRef.current) {
-          textareaRef.current.style.height = "auto";
-        }
-      }
-    }
-  }
-
-  function handleSendSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!msgText.trim()) return;
-    const text = msgText;
-    setMsgText("");
-    sendMessage(text);
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.focus();
-    }
-  }
-
-  function formatTime(dateVal: string | Date) {
-    try {
-      const d = new Date(dateVal);
-      return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true });
-    } catch {
-      return "";
-    }
-  }
-
-  function formatDateSeparator(dateVal: string | Date) {
-    try {
-      const d = new Date(dateVal);
-      const today = new Date();
-      if (d.toDateString() === today.toDateString()) return "Today";
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
-      if (d.toDateString() === yesterday.toDateString()) return "Yesterday";
-      return d.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
-    } catch {
-      return "";
-    }
-  }
-
-  function formatMemberCount(count: number) {
-    return count === 1 ? "1 member" : `${count} members`;
-  }
+  // Calls render in a portal so they still show while this pane is hidden (phone inbox view).
+  const callUi =
+    (calls.incomingCall || calls.activeCall) && typeof document !== "undefined"
+      ? createPortal(
+          <>
+            {calls.incomingCall && !calls.activeCall && (
+              <IncomingCallModal
+                incomingCall={calls.incomingCall}
+                onAccept={calls.acceptIncoming}
+                onDecline={() => void calls.declineIncoming()}
+              />
+            )}
+            {calls.activeCall && (
+              <ActiveCallOverlay
+                callId={calls.activeCall.callId}
+                isCaller={calls.activeCall.isCaller}
+                type={calls.activeCall.type}
+                partner={calls.activeCall.partner}
+                remotePeerId={calls.activeCall.remotePeerId}
+                onCallEnded={calls.endActiveCall}
+              />
+            )}
+          </>,
+          document.body
+        )
+      : null;
 
   if (!conversationId) {
     return (
-      <div className="flex h-full flex-col items-center justify-center text-muted-foreground p-6 text-center select-none bg-background">
-        <div className="size-20 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4 shadow-sm text-primary">
-          <MessageCircleHeartIcon size={64} duration={1} color="currentColor" />
-        </div>
-        <h2 className="text-lg font-black text-foreground">CampusLoop Messenger</h2>
-        <p className="text-xs text-muted-foreground max-w-sm mt-1 leading-relaxed">
-          Select a verified student, study pod, or campus group to start chatting.
-        </p>
-      </div>
+      <>
+        <EmptyState
+          className="h-full"
+          icon={MessageCircle}
+          title="Pick a chat"
+          description="Choose someone on the left, or search to start a new chat."
+        />
+        {callUi}
+      </>
     );
   }
 
-  if (!effectiveParticipant) {
+  if (!participant) {
     return (
-      <div className="flex h-full w-full flex-col bg-background select-none">
-        <div className="flex items-center gap-3 p-3.5 border-b border-border/40 bg-card">
-          <div className="size-10 rounded-full bg-muted animate-pulse shrink-0" />
-          <div className="space-y-1.5 flex-1 min-w-0">
-            <div className="h-4 w-32 bg-muted rounded-md animate-pulse" />
-            <div className="h-3 w-20 bg-muted/60 rounded-md animate-pulse" />
-          </div>
-        </div>
-        <div className="flex-1 p-4 space-y-3">
-          <div className="h-10 w-48 bg-muted/30 rounded-2xl animate-pulse" />
-          <div className="h-12 w-64 bg-primary/10 rounded-2xl ml-auto animate-pulse" />
-        </div>
-      </div>
+      <>
+        <ThreadSkeleton />
+        {callUi}
+      </>
     );
   }
 
-  // Filter messages if search is active
-  const filteredMessages = chatSearchQuery.trim()
-    ? messages?.filter((m) => m.body.toLowerCase().includes(chatSearchQuery.toLowerCase()))
-    : messages;
+  const query = searchQuery.trim().toLowerCase();
+  const shown = query ? messages?.filter((m) => m.body.toLowerCase().includes(query)) : messages;
+  const replyName =
+    replyingTo?.senderId === currentUserId
+      ? "yourself"
+      : replyingTo?.sender?.displayName || participant.displayName;
+
+  let content: React.ReactNode;
+  if (!messages && (isLoading || !messagesError)) {
+    content = <ThreadBubblesSkeleton />;
+  } else if (!messages && messagesError) {
+    content = (
+      <EmptyState
+        icon={MessageCircle}
+        title="Messages didn't load"
+        description="Check your connection. We'll keep trying."
+      />
+    );
+  } else if (query && shown?.length === 0) {
+    content = (
+      <EmptyState
+        size="compact"
+        icon={SearchX}
+        title="No messages match"
+        description="Try a different word."
+      />
+    );
+  } else if (!shown?.length) {
+    content = <ChatThreadEmpty name={participant.displayName} onSend={(t) => void sendMessage(t)} />;
+  } else {
+    content = (
+      <ChatMessageList
+        messages={shown}
+        currentUserId={currentUserId}
+        isGroupChat={isGroupChat}
+        onReact={toggleReaction}
+        onReply={startReply}
+        onOptions={setOptionsMsg}
+      />
+    );
+  }
 
   return (
-    <div className="chat-surface flex h-full w-full flex-col select-none overflow-hidden relative">
-      {/* ─── Clean Modern Chat Header ─── */}
-      <header className="border-b border-border bg-surface/95 backdrop-blur-sm px-2.5 sm:px-4 py-2 pt-[max(0.5rem,env(safe-area-inset-top))] shrink-0 z-30">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-            {/* Back Button (visible on mobile to return to chat inbox) */}
-            <button
-              aria-label="Back to inbox"
-              type="button"
-              onClick={onBack}
-              className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 md:hidden size-8 min-h-11 min-w-11.5 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
-              title="Back to inbox"
-            >
-              <ArrowLeft className="size-4.5" strokeWidth={1.8} />
-            </button>
+    <div className="chat-surface relative flex h-full w-full flex-col overflow-hidden">
+      <ChatThreadHeader
+        participant={participant}
+        onBack={onBack}
+        onOpenInfo={() => setShowInfo(true)}
+        onStartCall={startCall}
+        searchOpen={searchOpen}
+        onToggleSearch={setSearchOpen}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+      />
 
-            {/* Avatar & Online status / Group Info (Clickable to open User/Group Info Drawer) */}
-            <div
-              onClick={() => setShowInfoDrawer(true)}
-              className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1 cursor-pointer group hover:opacity-95 transition-opacity"
-              title="View info and shared media"
-            >
-              <div className="relative shrink-0">
-                <Avatar className="size-10 border border-border/40 shadow-2xs transition-transform group-hover:scale-[1.02]">
-                  <AvatarImage src={effectiveParticipant.avatarUrl || ""} />
-                  <AvatarFallback className="text-xs font-semibold bg-muted text-muted-foreground">
-                    {(effectiveParticipant.displayName?.[0] || "S").toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                {!effectiveParticipant.isGroup && (
-                  <PresenceDot lastSeenAt={effectiveParticipant.lastSeenAt} />
-                )}
-              </div>
-
-              {/* Name & Branch / Presence status / Group Member Count */}
-              <div className="min-w-0 space-y-0.5">
-                <div className="text-[15px] sm:text-[16px] font-semibold text-foreground group-hover:text-brand-text transition-colors truncate flex items-center gap-1.5 leading-tight max-w-[46vw] sm:max-w-[28rem]">
-                  <span>{effectiveParticipant.displayName}</span>
-                  {effectiveParticipant.isGroup || effectiveParticipant.isCommunity ? (
-                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-brand-subtle text-brand-text shrink-0">
-                      {effectiveParticipant.isCommunity ? "Community" : "Group"}
-                    </span>
-                  ) : (
-                    <ShieldCheck className="size-3.5 text-brand-text shrink-0" />
-                  )}
-                </div>
-
-                <div className="text-[12px] sm:text-[12.5px] text-muted-foreground truncate flex items-center gap-1.5 font-normal leading-none mt-0.5">
-                  {effectiveParticipant.isGroup ? (
-                    <>
-                      <span className="font-semibold text-success flex items-center gap-1 shrink-0">
-                        <Users2 className="size-3" />
-                        <span>
-                          {formatMemberCount(
-                            effectiveParticipant.membersCount ||
-                              effectiveParticipant.participants?.length ||
-                              2
-                          )}
-                        </span>
-                      </span>
-                      {effectiveParticipant.category && (
-                        <>
-                          <span className="text-muted-foreground/40">•</span>
-                          <span className="capitalize text-muted-foreground/80">
-                            {effectiveParticipant.category.toLowerCase().replace(/_/g, " ")}
-                          </span>
-                        </>
-                      )}
-                    </>
-                  ) : (
-                    <>
-                      {viewerIsOnline ? (
-                        <span className="font-medium text-success flex items-center gap-1 shrink-0">
-                          <span className="size-1.5 rounded-full bg-success animate-pulse" />
-                          <span>Online</span>
-                        </span>
-                      ) : (
-                        <span className="text-muted-foreground/75">{presenceText || "Offline"}</span>
-                      )}
-                      <span className="text-muted-foreground/40">•</span>
-                      <span className="text-muted-foreground/75 font-normal">
-                        @{effectiveParticipant.username}
-                      </span>
-                      {effectiveParticipant.branch && (
-                        <>
-                          <span className="hidden sm:inline text-muted-foreground/40">•</span>
-                          <span className="hidden sm:inline text-muted-foreground/60">
-                            {effectiveParticipant.branch}
-                          </span>
-                        </>
-                      )}
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Header Action Buttons: Search → Info → Three Dots */}
-          <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
-            <button
-              type="button"
-              onClick={() => setSearchInChat(!searchInChat)}
-              className={cn(
-                "size-9 rounded-full flex items-center justify-center transition-colors cursor-pointer text-muted-foreground hover:text-foreground hover:bg-muted/60 active:scale-95",
-                searchInChat && "bg-muted text-foreground"
-              )}
-              title="Search in conversation"
-              aria-label="Search in conversation"
-            >
-              <Search className="size-4.5" strokeWidth={1.8} />
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setShowInfoDrawer(true)}
-              className={cn(
-                "size-9 rounded-full flex items-center justify-center transition-colors cursor-pointer text-muted-foreground hover:text-foreground hover:bg-muted/60 active:scale-95",
-                showInfoDrawer && "bg-muted text-foreground"
-              )}
-              title={effectiveParticipant.isGroup ? "Group Details & Media" : "Contact Info & Media"}
-              aria-label={effectiveParticipant.isGroup ? "Group Details & Media" : "Contact Info & Media"}
-            >
-              <Info className="size-4.5" strokeWidth={1.8} />
-            </button>
-
-            {/* Header 3-Dots Dropdown Menu */}
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setShowChatHeaderMenu((prev) => !prev)}
-                className={cn(
-                  "size-9 rounded-full flex items-center justify-center transition-colors cursor-pointer text-muted-foreground hover:text-foreground hover:bg-muted/60 active:scale-95",
-                  showChatHeaderMenu && "bg-muted text-foreground"
-                )}
-                title="More options"
-                aria-label="More options"
-              >
-                <MoreVertical className="size-4.5" strokeWidth={1.8} />
-              </button>
-
-              {showChatHeaderMenu && (
-                <>
-                  <div
-                    className="fixed inset-0 z-40"
-                    onClick={() => setShowChatHeaderMenu(false)}
-                    aria-hidden="true"
-                  />
-                  <div
-                    role="menu"
-                    aria-label="Chat options"
-                    className="absolute right-0 top-10.5 z-50 w-52 sm:w-56 rounded-2xl border border-border/60 bg-card/95 backdrop-blur-sm p-1.5 shadow-2xl space-y-0.5 animate-in fade-in zoom-in-95"
-                  >
-                    {!effectiveParticipant.isGroup && (
-                      <>
-                        <div className="px-3 pt-2 pb-1 text-xs font-bold text-muted-foreground/70 select-none">
-                          Communication
-                        </div>
-                        <button
-                          type="button"
-                          role="menuitem"
-                          onClick={() => {
-                            setShowChatHeaderMenu(false);
-                            handleStartCall("audio");
-                          }}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-xl text-foreground hover:bg-muted active:bg-muted/80 transition-colors cursor-pointer group"
-                        >
-                          <AnimatePhone size={15} className="text-primary shrink-0 transition-transform group-hover:scale-110" />
-                          <span>Voice Call</span>
-                        </button>
-                        <button
-                          type="button"
-                          role="menuitem"
-                          onClick={() => {
-                            setShowChatHeaderMenu(false);
-                            handleStartCall("video");
-                          }}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-xl text-foreground hover:bg-muted active:bg-muted/80 transition-colors cursor-pointer group"
-                        >
-                          <AnimateVideo size={15} className="text-primary shrink-0 transition-transform group-hover:scale-110" />
-                          <span>Video Call</span>
-                        </button>
-                        <div className="my-1 border-t border-border/30" />
-                      </>
-                    )}
-
-                    <button
-                      type="button"
-                      role="menuitem"
-                      onClick={() => {
-                        setShowChatHeaderMenu(false);
-                        setSearchInChat(true);
-                      }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-xl text-foreground hover:bg-muted active:bg-muted/80 transition-colors cursor-pointer"
-                    >
-                      <Search className="size-3.5 text-muted-foreground shrink-0" />
-                      <span>Search in Chat</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      role="menuitem"
-                      onClick={() => {
-                        setShowChatHeaderMenu(false);
-                        setShowInfoDrawer(true);
-                      }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-xl text-foreground hover:bg-muted active:bg-muted/80 transition-colors cursor-pointer"
-                    >
-                      <Info className="size-3.5 text-muted-foreground shrink-0" />
-                      <span>
-                        {effectiveParticipant.isGroup ? "Group Details & Media" : "Contact Info & Media"}
-                      </span>
-                    </button>
-
-                    {!effectiveParticipant.isGroup && effectiveParticipant.username && (
-                      <Link
-                        href={`/@${effectiveParticipant.username}`}
-                        role="menuitem"
-                        onClick={() => setShowChatHeaderMenu(false)}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-xl text-foreground hover:bg-muted active:bg-muted/80 transition-colors"
-                      >
-                        <User className="size-3.5 text-muted-foreground shrink-0" />
-                        <span>View Profile</span>
-                      </Link>
-                    )}
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* In-Chat Search Bar Dropdown */}
-      {searchInChat && (
-        <div className="border-b border-border/40 bg-card px-4 py-2 flex items-center gap-2 shrink-0 z-20 animate-in slide-in-from-top-2">
-          <div className="max-w-4xl mx-auto w-full flex items-center gap-2">
-            <Search className="size-3.5 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search messages in this chat..."
-              value={chatSearchQuery}
-              onChange={(e) => setChatSearchQuery(e.target.value)}
-              className="flex-1 bg-transparent text-xs font-semibold outline-none placeholder:text-muted-foreground/60"
-              autoFocus
-            />
-            {chatSearchQuery && (
-              <button
-                type="button"
-                onClick={() => setChatSearchQuery("")}
-                className="text-muted-foreground hover:text-foreground cursor-pointer"
-              >
-                <X className="size-3.5" />
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ─── Messages Feed Viewport ─── */}
       <div
-        ref={scrollContainerRef}
-        onScroll={handleScroll}
+        ref={scrollRef}
+        onScroll={onScroll}
         onDragOver={(e) => e.preventDefault()}
-        onDrop={handleDrop}
-        className="flex-1 min-h-0 overflow-y-auto px-2.5 sm:px-6 py-2.5 sm:py-4 overscroll-contain"
+        onDrop={media.handleDrop}
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3 sm:px-6"
       >
-        <div className="max-w-4xl mx-auto w-full space-y-1">
-          {isLoadingOlder && (
-            <div className="flex justify-center py-2">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/60 px-3 py-1 rounded-full animate-pulse">
-                <Loader2 className="size-3 animate-spin" />
-                <span>Loading earlier messages…</span>
-              </div>
+        <div className="mx-auto flex min-h-full w-full max-w-4xl flex-col justify-end">
+          {loadingOlder && (
+            <div role="status" className="flex items-center justify-center gap-2 py-2 text-xs text-fg-muted">
+              <Spinner size="xs" /> Loading older messages
             </div>
           )}
-
-          {!messages || (messages.length === 0 && isLoading) ? (
-            /* Animated Message Bubbles Skeleton */
-            <div className="space-y-4 py-2">
-              <div className="flex justify-start items-end gap-2">
-                <div className="size-6 rounded-full bg-muted/60 shrink-0 mb-1" />
-                <div className="space-y-1">
-                  <div className="h-12 w-56 sm:w-72 rounded-2xl rounded-tl-xs bg-muted/60 animate-pulse" />
-                  <div className="h-2 w-12 rounded-full bg-muted/40 ml-1" />
-                </div>
-              </div>
-              <div className="flex justify-end items-end gap-2">
-                <div className="space-y-1 flex flex-col items-end">
-                  <div className="h-10 w-44 sm:w-60 rounded-2xl rounded-tr-xs bg-primary/25 animate-pulse" />
-                  <div className="h-2 w-10 rounded-full bg-muted/40 mr-1" />
-                </div>
-              </div>
-              <div className="flex justify-start items-end gap-2">
-                <div className="size-6 rounded-full bg-muted/60 shrink-0 mb-1" />
-                <div className="space-y-1">
-                  <div className="h-28 sm:h-36 w-52 sm:w-64 rounded-2xl rounded-tl-xs bg-muted/60 animate-pulse" />
-                  <div className="h-2 w-14 rounded-full bg-muted/40 ml-1" />
-                </div>
-              </div>
-              <div className="flex justify-end items-end gap-2">
-                <div className="space-y-1 flex flex-col items-end">
-                  <div className="h-14 w-52 sm:w-72 rounded-2xl rounded-tr-xs bg-primary/25 animate-pulse" />
-                  <div className="h-2 w-12 rounded-full bg-muted/40 mr-1" />
-                </div>
-              </div>
-              <div className="flex justify-start items-end gap-2">
-                <div className="size-6 rounded-full bg-muted/60 shrink-0 mb-1" />
-                <div className="space-y-1">
-                  <div className="h-9 w-36 sm:w-48 rounded-2xl rounded-tl-xs bg-muted/60 animate-pulse" />
-                  <div className="h-2 w-10 rounded-full bg-muted/40 ml-1" />
-                </div>
-              </div>
-            </div>
-          ) : filteredMessages && filteredMessages.length === 0 ? (
-            <div className="py-16 text-center text-xs text-muted-foreground space-y-2">
-              <div className="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto shadow-2xs">
-                <Smile className="size-6" />
-              </div>
-              <p className="font-bold text-foreground">Say hello to {effectiveParticipant.displayName}!</p>
-              <p className="text-[11px] text-muted-foreground">
-                Type a message, paste keyboard stickers, or share campus memories.
-              </p>
-            </div>
-          ) : (
-            filteredMessages?.map((msg, idx) => {
-              const isMe = msg.senderId === currentUserId;
-              const rawTrimmed = msg.body.trim();
-
-              const isVideo =
-                rawTrimmed.startsWith("![video") ||
-                /\.(mp4|webm|mov)(\?.*)?$/i.test(rawTrimmed) ||
-                rawTrimmed.includes("/api/files/r2/videos/");
-
-              const isVoiceMemo =
-                rawTrimmed.startsWith("![voice") ||
-                rawTrimmed.startsWith("![audio") ||
-                rawTrimmed.includes("🎙️ [Voice Memo") ||
-                /\.(mp3|wav|m4a|ogg)(\?.*)?$/i.test(rawTrimmed) ||
-                rawTrimmed.includes("/api/files/r2/audio/");
-
-              const isDoc =
-                rawTrimmed.startsWith("![document") ||
-                rawTrimmed.startsWith("![pdf") ||
-                /\.(pdf|docx|doc|zip|rar|xlsx)(\?.*)?$/i.test(rawTrimmed) ||
-                rawTrimmed.includes("/api/files/r2/documents/");
-
-              const isDirectMedia =
-                !isVideo &&
-                !isVoiceMemo &&
-                !isDoc &&
-                (/^https?:\/\/.+\.(gif|jpeg|jpg|png|webp)(\?.*)?$/i.test(rawTrimmed) ||
-                  rawTrimmed.startsWith("https://media.giphy.com/") ||
-                  rawTrimmed.startsWith("https://i.giphy.com/") ||
-                  rawTrimmed.startsWith("![image"));
-
-              const prevMsg = idx > 0 ? filteredMessages[idx - 1] : null;
-              const nextMsg = idx < filteredMessages.length - 1 ? filteredMessages[idx + 1] : null;
-
-              const showDateSeparator =
-                !prevMsg ||
-                new Date(prevMsg.createdAt).toDateString() !== new Date(msg.createdAt).toDateString();
-
-              const isNextDateDifferent =
-                nextMsg &&
-                new Date(nextMsg.createdAt).toDateString() !== new Date(msg.createdAt).toDateString();
-
-              const isFirstInGroup =
-                !prevMsg || prevMsg.senderId !== msg.senderId || showDateSeparator;
-              const isLastInGroup =
-                !nextMsg || nextMsg.senderId !== msg.senderId || isNextDateDifferent;
-              const isMiddleInGroup = !isFirstInGroup && !isLastInGroup;
-              const isSingleInGroup = isFirstInGroup && isLastInGroup;
-
-              let bubbleRadiusClass = "";
-              if (isMe) {
-                if (isSingleInGroup) {
-                  bubbleRadiusClass = "rounded-2xl rounded-br-xs";
-                } else if (isFirstInGroup) {
-                  bubbleRadiusClass = "rounded-2xl rounded-br-sm";
-                } else if (isMiddleInGroup) {
-                  bubbleRadiusClass = "rounded-2xl rounded-r-sm";
-                } else {
-                  bubbleRadiusClass = "rounded-2xl rounded-tr-sm rounded-br-xs";
-                }
-              } else {
-                if (isSingleInGroup) {
-                  bubbleRadiusClass = "rounded-2xl rounded-bl-xs";
-                } else if (isFirstInGroup) {
-                  bubbleRadiusClass = "rounded-2xl rounded-bl-sm";
-                } else if (isMiddleInGroup) {
-                  bubbleRadiusClass = "rounded-2xl rounded-l-sm";
-                } else {
-                  bubbleRadiusClass = "rounded-2xl rounded-tl-sm rounded-bl-xs";
-                }
-              }
-
-              const spacingClass = isFirstInGroup
-                ? (showDateSeparator ? "mt-1.5" : "mt-3 sm:mt-3.5")
-                : "mt-1";
-
-              const isHovered = hoveredMsgId === msg.id;
-              const isReactionMenuOpen = isHovered || activeReactionMsgId === msg.id;
-              const reactions = msg.reactions || [];
-              const isGroupChat = Boolean(effectiveParticipant.isGroup || effectiveParticipant.isCommunity);
-              const showSenderMeta =
-                !isMe && isGroupChat && (!prevMsg || prevMsg.senderId !== msg.senderId || showDateSeparator);
-              const sender = msg.sender;
-
-              // Check if Secret Crush Match greeting
-              const isSecretCrushMatch =
-                msg.body.includes("Secret Crush Match") ||
-                msg.body.includes("We both secretly liked each other");
-
-              // Check if message is a quoted reply
-              const isQuoted = msg.body.startsWith("> ");
-              let quotedText = "";
-              let messageBody = msg.body;
-              if (isQuoted) {
-                const lines = msg.body.split("\n\n");
-                quotedText = lines[0].replace(/^> /, "");
-                messageBody = lines.slice(1).join("\n\n") || lines[0];
-              }
-
-              // If Secret Crush Match System card: render centered in chat
-              if (isSecretCrushMatch) {
-                return (
-                  <div key={msg.id} className="space-y-1 my-4">
-                    {showDateSeparator && (
-                      <div className="flex items-center justify-center my-3 select-none">
-                        <span className="px-3 py-0.5 text-[11px] font-medium text-muted-foreground/80 bg-muted/70 border border-border/40 rounded-full shadow-2xs backdrop-blur-xs">
-                          {formatDateSeparator(msg.createdAt)}
-                        </span>
-                      </div>
-                    )}
-
-                    <div className="w-full max-w-md mx-auto p-4 sm:p-5 rounded-3xl bg-crush-subtle border border-crush text-center space-y-3 animate-in zoom-in-95">
-                      <div className="size-12 rounded-2xl bg-crush text-crush-fg flex items-center justify-center mx-auto animate-pulse">
-                        <Heart className="size-6 fill-current stroke-current" />
-                      </div>
-                      <div className="space-y-1">
-                        <h4 className="text-sm sm:text-base font-black text-crush-text tracking-tight">
-                          It&apos;s a Secret Crush Match!
-                        </h4>
-                        <p className="text-xs font-bold text-foreground">
-                          We both secretly liked each other.
-                        </p>
-                        <p className="text-[11px] text-muted-foreground leading-relaxed">
-                          Your identities have been revealed to each other. Break the ice and say hello!
-                        </p>
-                      </div>
-                      <div className="text-[10px] font-bold text-danger pt-1">
-                        {formatTime(msg.createdAt)}
-                      </div>
-                    </div>
-                  </div>
-                );
-              }
-
-              const currentSwipe = swipedOffset[msg.id] || 0;
-
-              return (
-                <div key={msg.id} className={cn("relative", spacingClass)}>
-                  {/* Compact Date Separator */}
-                  {showDateSeparator && (
-                    <div className="flex items-center justify-center my-3 select-none">
-                      <span className="px-3 py-0.5 text-[11px] font-medium text-muted-foreground/80 bg-muted/70 border border-border/40 rounded-full shadow-2xs backdrop-blur-xs">
-                        {formatDateSeparator(msg.createdAt)}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Message Row Wrapper with Hover, Swipe, & Safe Bridge */}
-                  <div
-                    className={cn(
-                      "flex items-end gap-1.5 relative group/row transition-transform duration-75",
-                      isMe ? "justify-end flex-row" : "justify-start flex-row"
-                    )}
-                    style={{
-                      transform: currentSwipe ? `translateX(${currentSwipe}px)` : undefined,
-                    }}
-                    onTouchStart={(e) => handleTouchStart(e, msg)}
-                    onTouchMove={(e) => handleTouchMove(e, msg)}
-                    onTouchEnd={() => handleTouchEnd(msg)}
-                    onMouseEnter={() => handleMsgMouseEnter(msg.id)}
-                    onMouseLeave={handleMsgMouseLeave}
-                    onDoubleClick={() => toggleReaction(msg.id, "❤️")}
-                  >
-                    {/* Action trigger buttons (visible on hover or tap) */}
-                    <div
-                      className={cn(
-                        "flex items-center gap-0.5 opacity-0 group-hover/row:opacity-100 transition-opacity shrink-0 mb-1 z-10",
-                        isReactionMenuOpen && "opacity-100",
-                        isMe ? "order-first" : "order-last"
-                      )}
-                    >
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setActiveReactionMsgId((prev) => (prev === msg.id ? null : msg.id));
-                        }}
-                        className="size-6 rounded-full bg-card border border-border/50 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer shadow-2xs"
-                        title="React to message"
-                        aria-label="React to message"
-                      >
-                        <Smile className="size-3.5" />
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setReplyingTo(msg)}
-                        className="size-6 rounded-full bg-card border border-border/50 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer shadow-2xs"
-                        title="Reply"
-                        aria-label="Reply"
-                      >
-                        <CornerDownRight className="size-3" />
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setOptionsMenuMsg(msg);
-                        }}
-                        className="size-6 rounded-full bg-card border border-border/50 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer shadow-2xs"
-                        title="Message options"
-                        aria-label="Message options"
-                      >
-                        <MoreHorizontal className="size-3.5" />
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setDeleteModalMsg(msg)}
-                        className="size-6 rounded-full bg-card border border-border/50 hover:bg-danger-subtle hover:text-danger flex items-center justify-center text-muted-foreground transition-colors cursor-pointer shadow-2xs"
-                        title="Delete message"
-                        aria-label="Delete message"
-                      >
-                        <Trash2 className="size-3" />
-                      </button>
-                    </div>
-
-                    {!isMe && isGroupChat && (
-                      <div className="w-7 shrink-0 self-end pb-0.5">
-                        {showSenderMeta ? (
-                          <Avatar className="size-7 border border-border/50 shadow-2xs">
-                            <AvatarImage src={sender?.avatarUrl || ""} alt="" />
-                            <AvatarFallback className="text-[9px] font-bold bg-primary/10 text-primary">
-                              {(sender?.displayName?.[0] || "?").toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                        ) : (
-                          <div className="size-7" />
-                        )}
-                      </div>
-                    )}
-
-                    {/* ─── Floating WhatsApp-Style Reaction Bar (With Safe Hover Bridge) ─── */}
-                    {isReactionMenuOpen && (
-                      <div
-                        onClick={(e) => e.stopPropagation()}
-                        onMouseEnter={() => {
-                          if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
-                        }}
-                        className={cn(
-                          "absolute -top-9 z-30 flex items-center gap-1 bg-surface-raised px-2.5 py-1 rounded-full shadow-lg animate-in fade-in zoom-in-95 duration-150 before:absolute before:-bottom-3 before:inset-x-0 before:h-3 before:content-['']",
-                          isMe ? "right-2" : "left-2"
-                        )}
-                      >
-                        {QUICK_REACTION_EMOJIS.map((emoji) => (
-                          <button
-                            key={emoji}
-                            type="button"
-                            onClick={() => toggleReaction(msg.id, emoji)}
-                            className="text-sm hover:scale-125 transition-transform active:scale-95 p-1 cursor-pointer"
-                            title={emoji}
-                          >
-                            {emoji}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* ─── Message Bubble ─── */}
-                    <div
-                      className={cn(
-                        "max-w-[86%] sm:max-w-[76%] md:max-w-[68%] space-y-1 relative text-left",
-                        isMe ? "items-end" : "items-start"
-                      )}
-                    >
-                      <div
-                        className={cn(
-                          "relative text-[14px] leading-relaxed transition-[transform,opacity,box-shadow] shadow-2xs text-left",
-                          bubbleRadiusClass,
-                          msg.optimistic && "chat-message-send",
-                          isDirectMedia
-                            ? "p-0 bg-transparent border-0"
-                            : isMe
-                              ? "chat-bubble-peach px-3.5 py-2 sm:px-4 sm:py-2.5 shadow-none"
-                              : "chat-bubble-lilac px-3.5 py-2 sm:px-4 sm:py-2.5 shadow-none"
-                        )}
-                      >
-                        {/* Group Sender Name */}
-                        {showSenderMeta && (
-                          <div className="flex items-center gap-1 mb-1.5 leading-none">
-                            <span className="text-[11px] font-black text-primary">
-                              {msg.sender?.displayName || "Member"}
-                            </span>
-                            {msg.sender?.username && (
-                              <span className="text-[10px] text-muted-foreground/70 font-normal">
-                                @{msg.sender.username}
-                              </span>
-                            )}
-                          </div>
-                        )}
-
-                        {/* Quoted Message Preview Bar */}
-                        {isQuoted && (
-                          <div
-                            className={cn(
-                              "mb-2 p-1.5 px-2.5 rounded-lg border text-[11px] font-medium leading-tight truncate text-left",
-                              isMe
-                                ? "bg-black/20 border-white/30 text-white/90"
-                                : "bg-muted/80 border-border/60 text-muted-foreground"
-                            )}
-                          >
-                            <p className="font-bold text-[10px] opacity-80">Quoted</p>
-                            <p className="truncate">{quotedText}</p>
-                          </div>
-                        )}
-
-                        {/* Content: Video, Voice Memo, Document, Direct Image, or Plain Text */}
-                        {isVideo ? (
-                          <div className="my-0.5 w-full max-w-xs sm:max-w-sm overflow-hidden rounded-lg">
-                            <VideoPlayer
-                              src={
-                                msg.body.match(/\((https?:\/\/[^\s)]+)\)/)?.[1] ||
-                                (msg.body.startsWith("http") ? msg.body.trim() : msg.body)
-                              }
-                              compact={true}
-                            />
-                          </div>
-                        ) : isVoiceMemo ? (
-                          <AudioPlayer
-                            src={
-                              msg.body.match(/\((https?:\/\/[^\s)]+)\)/)?.[1] ||
-                              (msg.body.startsWith("http") ? msg.body.trim() : msg.body)
-                            }
-                            compact={true}
-                            isMe={isMe}
-                          />
-                        ) : isDoc ? (
-                          <DocumentCard
-                            url={
-                              msg.body.match(/\((https?:\/\/[^\s)]+)\)/)?.[1] ||
-                              (msg.body.startsWith("http") ? msg.body.trim() : msg.body)
-                            }
-                            name={
-                              msg.body.match(/!\[(?:document|pdf):([^:]+)/)?.[1] || "Campus Notes Document"
-                            }
-                            size={
-                              msg.body.match(/!\[(?:document|pdf):[^:]+:(\d+)\]/)?.[1]
-                                ? Number.parseInt(msg.body.match(/!\[(?:document|pdf):[^:]+:(\d+)\]/)![1], 10)
-                                : undefined
-                            }
-                            compact={true}
-                            isMe={isMe}
-                          />
-                        ) : isDirectMedia ? (
-                          <div className="relative overflow-hidden rounded-2xl border border-border/40 shadow-xs">
-                            <img
-                              src={msg.body.match(/\((https?:\/\/[^\s)]+)\)/)?.[1] || msg.body.trim()}
-                              alt="Shared Media"
-                              className="max-h-72 max-w-full rounded-2xl object-cover cursor-pointer"
-                              loading="lazy"
-                            />
-                            <div className="absolute bottom-1.5 right-2 bg-black/60 backdrop-blur-xs text-[9px] font-bold text-white px-2 py-0.5 rounded-full flex items-center gap-1">
-                              <span>{formatTime(msg.createdAt)}</span>
-                              {isMe && (
-                                <span title={msg.readAt ? "Seen" : "Delivered"}>
-                                  <CheckCheck
-                                    className={cn("size-3", msg.readAt ? "text-brand-text" : "text-white/80")}
-                                  />
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="space-y-1 text-left">
-                            <ChatMessageContent content={messageBody} isMe={isMe} />
-
-                            {/* Clean Bottom Right Metadata */}
-                            <div
-                              className={cn(
-                                "flex items-center justify-end gap-1 text-[10.5px] font-normal select-none mt-1 shrink-0 ml-auto pt-0.5",
-                                isMe
-                                  ? "text-brand-fg/70"
-                                  : "text-muted-foreground/70"
-                              )}
-                            >
-                              <span>{formatTime(msg.createdAt)}</span>
-                              {isMe &&
-                                (msg.optimistic ? (
-                                  <Loader2 className="size-2.5 animate-spin opacity-70" />
-                                ) : msg.readAt ? (
-                                  <span title="Seen">
-                                    <CheckCheck className="size-3.5 text-brand-text font-bold" />
-                                  </span>
-                                ) : (
-                                  <span title="Delivered">
-                                    <CheckCheck className="size-3.5 opacity-60" />
-                                  </span>
-                                ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* ─── Reaction Badges Pill (Bottom Corner of Bubble) ─── */}
-                        {reactions.length > 0 && (
-                          <div
-                            className={cn(
-                              "absolute -bottom-2.5 flex items-center gap-0.5 bg-surface-raised border border-border rounded-full px-2 py-0.5 text-[11px] cursor-pointer hover:scale-105 transition-transform",
-                              isMe ? "right-2" : "left-2"
-                            )}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleReaction(msg.id, reactions[0].emoji);
-                            }}
-                            title="Click to toggle reaction"
-                          >
-                            {Array.from(new Set(reactions.map((r) => r.emoji))).map((e) => (
-                              <span key={e}>{e}</span>
-                            ))}
-                            {reactions.length > 1 && (
-                              <span className="text-[9px] font-black text-muted-foreground ml-0.5">
-                                {reactions.length}
-                              </span>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })
-          )}
-          <div ref={messagesEndRef} />
+          {content}
+          <div ref={endRef} />
         </div>
       </div>
 
-      {showJumpToBottom && (
+      {showJump && (
         <button
           type="button"
           onClick={() => scrollToBottom()}
-          className="absolute right-4 bottom-20 z-10 flex min-h-10 items-center gap-2 rounded-full border border-border/60 bg-card/95 px-3.5 text-xs font-semibold text-foreground shadow-lg backdrop-blur-sm transition-[opacity,transform] hover:-translate-y-0.5 active:scale-95"
           aria-label="Jump to latest messages"
+          className="absolute right-4 bottom-24 z-10 flex size-11 cursor-pointer items-center justify-center rounded-full border border-border bg-surface-raised text-fg shadow-lg transition-ui outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <ArrowDown className="size-4" />
-          <span>Latest</span>
+          <ArrowDown className="size-5" />
         </button>
       )}
 
-      {/* ─── Reply Preview Bar ─── */}
-      {replyingTo && (
-        <div className="bg-card border-t border-border/40 px-4 py-2 flex items-center justify-between gap-2 shrink-0 z-20 animate-in slide-in-from-bottom-2">
-          <div className="max-w-3xl mx-auto w-full flex items-center justify-between gap-2">
-            <div className="border-l-3 border-primary pl-2.5 min-w-0">
-              <p className="text-[10px] font-black text-primary">
-                Replying to{" "}
-                {replyingTo.senderId === currentUserId ? "yourself" : effectiveParticipant.displayName}
-              </p>
-              <p className="text-xs text-muted-foreground truncate">{replyingTo.body}</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setReplyingTo(null)}
-              className="size-6 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground cursor-pointer"
-            >
-              <X className="size-3.5" />
-            </button>
-          </div>
-        </div>
-      )}
+      <ChatComposer
+        textareaRef={textareaRef}
+        value={draft}
+        onChange={setDraft}
+        onSend={(t) => void sendMessage(t)}
+        onPaste={media.handlePaste}
+        sending={isSending}
+        uploading={media.uploading}
+        replyingTo={replyingTo}
+        replyName={replyName}
+        onCancelReply={() => setReplyingTo(null)}
+        mentionSuggestions={mentions.suggestions}
+        onPickMention={(u) => setDraft(mentions.insert(draft, u))}
+        onImage={(f) => void media.sendImage(f)}
+        onVideo={(f) => void media.sendVideo(f)}
+        onDocument={(f) => void media.sendDocument(f)}
+        onGif={() => setShowGif(true)}
+        onSticker={() => setShowStickers(true)}
+        onVoice={() => {
+          sounds.tap();
+          haptics.light();
+          setShowVoice(true);
+        }}
+      />
 
-      {/* Mention Autocomplete Popover */}
-      {mentionSuggestions.length > 0 && (
-        <div className="border-t border-border/40 bg-card/95 backdrop-blur-sm px-3 py-2 shrink-0 z-30 animate-in slide-in-from-bottom-2">
-          <div className="max-w-4xl mx-auto space-y-1">
-            <p className="text-xs font-bold text-muted-foreground">
-              Mention Student
-            </p>
-            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-              {mentionSuggestions.map((u) => (
-                <button
-                  key={u.id}
-                  type="button"
-                  onClick={() => handleSelectMention(u.username)}
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted hover:bg-primary hover:text-primary-foreground text-xs font-bold transition-colors cursor-pointer shrink-0"
-                >
-                  <Avatar className="size-5">
-                    <AvatarImage src={u.avatarUrl || ""} />
-                    <AvatarFallback className="text-[9px]">{u.displayName?.[0] || "U"}</AvatarFallback>
-                  </Avatar>
-                  <span>@{u.username}</span>
-                  <span className="text-[10px] opacity-75 font-normal">({u.displayName})</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+      <ChatMessageOptionsDialog
+        msg={optionsMsg}
+        onClose={() => setOptionsMsg(null)}
+        onReact={toggleReaction}
+        onReply={startReply}
+        onCopy={copyMessage}
+        onDelete={(m) => {
+          setOptionsMsg(null);
+          setDeleteMsg(m);
+        }}
+      />
+      <ChatDeleteMessageDialog
+        msg={deleteMsg}
+        currentUserId={currentUserId}
+        onClose={() => setDeleteMsg(null)}
+        onConfirm={(id, scope) => void deleteMessage(id, scope)}
+      />
 
-      {/* ─── Messenger Bottom Input Bar ─── */}
-      <footer className="border-t border-border bg-surface/95 backdrop-blur-sm px-2 sm:px-3 py-1.5 pb-[max(0.65rem,env(safe-area-inset-bottom))] shrink-0 z-20">
-        {isUploadingMedia && (
-          <div className="max-w-4xl mx-auto mb-2 flex items-center gap-2 px-3 py-1.5 rounded-xl bg-brand-subtle text-brand-text text-xs font-semibold animate-pulse">
-            <Loader2 className="size-3.5 animate-spin" />
-            <span>Sending attachment…</span>
-          </div>
-        )}
-
-        {/* Hidden inputs for video and documents */}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif"
-          className="hidden"
-          onChange={handleImageUpload}
-        />
-        <input
-          ref={videoInputRef}
-          type="file"
-          accept="video/mp4,video/webm,video/quicktime"
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) sendVideoFile(file);
-          }}
-        />
-        <input
-          ref={docInputRef}
-          type="file"
-          accept="application/pdf,.pdf,.docx,.doc,.zip,.txt"
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) sendDocFile(file);
-          }}
-        />
-
-        <form
-          onSubmit={handleSendSubmit}
-          className="max-w-4xl mx-auto w-full flex items-end gap-1.5 bg-surface rounded-xl p-1.5 pl-2 border border-border focus-within:border-brand focus-within:ring-1 focus-within:ring-ring transition-colors relative"
-        >
-          {/* Attachment button & floating options menu */}
-          <div className="relative shrink-0">
-            <button
-              type="button"
-              disabled={isUploadingMedia}
-              onClick={() => setShowAttachmentMenu((prev) => !prev)}
-              className={cn(
-                "flex size-9 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/70 transition-colors cursor-pointer active:scale-95",
-                showAttachmentMenu && "text-brand-text bg-surface-muted"
-              )}
-              title="Attach media or files"
-              aria-label="Attach media or files"
-            >
-              <Paperclip className="size-4.5" strokeWidth={1.8} />
-            </button>
-
-            {showAttachmentMenu && (
-              <>
-                <div
-                  className="fixed inset-0 z-30"
-                  onClick={() => setShowAttachmentMenu(false)}
-                  aria-hidden="true"
-                />
-                <div className="absolute bottom-12 left-0 z-40 flex items-center gap-1 rounded-2xl bg-surface-raised p-1.5 shadow-lg animate-in fade-in zoom-in-95">
-                  <button
-                    type="button"
-                    disabled={isUploadingMedia}
-                    onClick={() => {
-                      setShowAttachmentMenu(false);
-                      fileInputRef.current?.click();
-                    }}
-                    className="flex size-9 items-center justify-center rounded-xl text-brand-text hover:bg-surface-muted cursor-pointer transition-colors active:scale-95"
-                    title="Attach photo"
-                    aria-label="Attach photo"
-                  >
-                    <ImageIcon className="size-4.5" strokeWidth={1.8} />
-                  </button>
-                  <button
-                    type="button"
-                    disabled={isUploadingMedia}
-                    onClick={() => {
-                      setShowAttachmentMenu(false);
-                      videoInputRef.current?.click();
-                    }}
-                    className="flex size-9 items-center justify-center rounded-xl text-brand-text hover:bg-muted cursor-pointer transition-colors active:scale-95"
-                    title="Attach video"
-                    aria-label="Attach video"
-                  >
-                    <Video className="size-4.5" strokeWidth={1.8} />
-                  </button>
-                  <button
-                    type="button"
-                    disabled={isUploadingMedia}
-                    onClick={() => {
-                      setShowAttachmentMenu(false);
-                      docInputRef.current?.click();
-                    }}
-                    className="flex size-9 items-center justify-center rounded-xl text-brand-text hover:bg-muted cursor-pointer transition-colors active:scale-95"
-                    title="Attach study notes or PDF"
-                    aria-label="Attach study notes or PDF"
-                  >
-                    <FileText className="size-4.5" strokeWidth={1.8} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowAttachmentMenu(false);
-                      setShowGifPicker(true);
-                    }}
-                    className="flex h-9 px-2.5 items-center justify-center rounded-xl text-[10.5px] font-black text-foreground/80 hover:bg-muted cursor-pointer border border-border/50 transition-colors active:scale-95"
-                    title="Send GIF"
-                    aria-label="Send GIF"
-                  >
-                    GIF
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowAttachmentMenu(false);
-                      setShowStickerPicker(true);
-                    }}
-                    className="flex size-9 items-center justify-center rounded-xl text-warning hover:bg-muted cursor-pointer transition-colors active:scale-95"
-                    title="Send sticker or emoji"
-                    aria-label="Send sticker or emoji"
-                  >
-                    <Smile className="size-4.5" strokeWidth={1.8} />
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Multi-line Auto-Expanding Textarea with Keyboard Sticker & Image Paste Support */}
-          <textarea
-            ref={textareaRef}
-            rows={1}
-            placeholder="Message"
-            value={msgText}
-            onChange={(e) => setMsgText(e.target.value)}
-            onKeyDown={handleKeyDown}
-            onPaste={handlePaste}
-            className="flex min-h-[36px] max-h-32 flex-1 resize-none bg-transparent px-2.5 py-1.5 text-[14.5px] sm:text-[15px] font-normal text-foreground placeholder:text-muted-foreground/60 outline-none leading-snug scrollbar-none"
-          />
-
-          {/* Dynamic Voice Memo / Send Button */}
-          {msgText.trim() ? (
-            <button
-              type="submit"
-              disabled={isSending}
-              aria-label="Send message"
-              className="flex size-9 shrink-0 items-center justify-center rounded-full bg-brand hover:bg-brand-hover text-brand-fg transition-[opacity,transform] active:scale-90 cursor-pointer mr-0.5"
-            >
-              <AnimateSend size={16} className="text-white" />
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={handleSendVoiceMemo}
-              aria-label="Record voice memo"
-              className="flex size-9 shrink-0 items-center justify-center rounded-full hover:bg-muted/70 text-muted-foreground hover:text-foreground transition-[opacity,transform] cursor-pointer mr-0.5 active:scale-90"
-              title="Record voice note"
-            >
-              <Mic className="size-4.5" strokeWidth={1.8} />
-            </button>
-          )}
-        </form>
-      </footer>
-
-      {/* Delete Message Confirmation Modal */}
-      {deleteModalMsg && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-sm rounded-3xl border border-border bg-card p-5 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-                <Trash2 className="size-4 text-danger" />
-                Delete Message?
-              </h3>
-              <button
-                type="button"
-                onClick={() => setDeleteModalMsg(null)}
-                className="size-7 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground cursor-pointer"
-              >
-                <X className="size-4" />
-              </button>
-            </div>
-            <p className="text-xs text-muted-foreground">Are you sure you want to delete this message?</p>
-            <div className="space-y-2 pt-2">
-              {deleteModalMsg.senderId === currentUserId && (
-                <button
-                  type="button"
-                  onClick={() => handleDeleteMessage(deleteModalMsg.id, "everyone")}
-                  className="w-full py-2.5 rounded-xl bg-danger hover:bg-danger text-white font-bold text-xs transition-colors cursor-pointer"
-                >
-                  Delete for Everyone
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={() => handleDeleteMessage(deleteModalMsg.id, "me")}
-                className="w-full py-2.5 rounded-xl bg-muted hover:bg-muted/80 text-foreground font-bold text-xs transition-colors cursor-pointer"
-              >
-                Delete for Me
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* GIF Picker Modal */}
       <GifPickerModal
-        isOpen={showGifPicker}
-        onClose={() => setShowGifPicker(false)}
-        onSelectGif={(url) => sendMessage(url)}
+        isOpen={showGif}
+        onClose={() => setShowGif(false)}
+        onSelectGif={(url) => void sendMessage(url)}
       />
-
-      {/* Sticker Picker Modal */}
       <StickerPickerModal
-        isOpen={showStickerPicker}
-        onClose={() => setShowStickerPicker(false)}
-        onSelectSticker={(sticker) => sendMessage(sticker.url)}
+        isOpen={showStickers}
+        onClose={() => setShowStickers(false)}
+        onSelectSticker={(sticker) => void sendMessage(sticker.url)}
+      />
+      <VoiceRecorderModal
+        isOpen={showVoice}
+        onClose={() => setShowVoice(false)}
+        onAudioRecorded={(url, duration) => void media.sendVoiceNote(url, duration)}
       />
 
-      {/* Instagram / WhatsApp Style User Info & Shared Content Drawer */}
       <ChatUserInfoDrawer
-        isOpen={showInfoDrawer}
-        onClose={() => setShowInfoDrawer(false)}
-        otherParticipant={effectiveParticipant}
+        isOpen={showInfo}
+        onClose={() => setShowInfo(false)}
+        otherParticipant={participant}
         conversationId={conversationId}
         messages={messages || []}
         currentUserId={currentUserId}
-        onSearchClick={() => setSearchInChat(true)}
+        isMuted={isMuted}
+        onSearchClick={() => setSearchOpen(true)}
         onClearChat={() => mutate(undefined, true)}
         onDeleteChat={onBack}
-        onStartCall={handleStartCall}
+        onStartCall={startCall}
       />
 
-      {/* ─── Message Options Modal (Copy Text / Reply / React / Delete) ─── */}
-      {optionsMenuMsg && (
-        <div
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in"
-          onClick={() => setOptionsMenuMsg(null)}
-        >
-          <div
-            className="w-full max-w-xs rounded-3xl border border-border/60 bg-card/95 backdrop-blur-sm p-4 shadow-2xl space-y-3 animate-in zoom-in-95"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Quick Emoji Bar */}
-            <div className="flex items-center justify-around py-1.5 px-2 rounded-2xl bg-muted/60 border border-border/30">
-              {QUICK_REACTION_EMOJIS.map((emoji) => (
-                <button
-                  key={emoji}
-                  type="button"
-                  onClick={() => {
-                    toggleReaction(optionsMenuMsg.id, emoji);
-                    setOptionsMenuMsg(null);
-                  }}
-                  className="text-lg hover:scale-125 transition-transform active:scale-95 p-1 cursor-pointer"
-                  title={emoji}
-                  aria-label={`React ${emoji}`}
-                >
-                  {emoji}
-                </button>
-              ))}
-            </div>
-
-            <div className="space-y-1">
-              <button
-                type="button"
-                onClick={() => handleCopyMessageText(optionsMenuMsg)}
-                className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-foreground hover:bg-muted transition-colors cursor-pointer"
-              >
-                <Copy className="size-4 text-primary" />
-                <span>Copy Message Text</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setReplyingTo(optionsMenuMsg);
-                  setOptionsMenuMsg(null);
-                }}
-                className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-foreground hover:bg-muted transition-colors cursor-pointer"
-              >
-                <CornerDownRight className="size-4 text-primary" />
-                <span>Reply</span>
-              </button>
-
-              {optionsMenuMsg.senderId === currentUserId && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const target = optionsMenuMsg;
-                    setOptionsMenuMsg(null);
-                    setDeleteModalMsg(target);
-                  }}
-                  className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold text-danger hover:bg-danger-subtle transition-colors cursor-pointer"
-                >
-                  <Trash2 className="size-4 text-danger" />
-                  <span>Delete Message</span>
-                </button>
-              )}
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setOptionsMenuMsg(null)}
-              className="w-full py-2 text-center text-xs font-bold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Incoming Call Prompt Modal */}
-      {incomingCall && (
-        <IncomingCallModal
-          incomingCall={incomingCall}
-          onAccept={() => {
-            setActiveCall({
-              callId: incomingCall.callId,
-              isCaller: false,
-              type: incomingCall.type,
-              remotePeerId: incomingCall.callerPeerId,
-            });
-            setIncomingCall(null);
-          }}
-          onDecline={async () => {
-            try {
-              await fetch(`/api/calls/${incomingCall.callId}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ action: "DECLINE" }),
-              });
-            } catch {}
-            setIncomingCall(null);
-          }}
-        />
-      )}
-
-      {/* Active Audio / Video Call Overlay */}
-      {activeCall && effectiveParticipant && (
-        <ActiveCallOverlay
-          callId={activeCall.callId}
-          isCaller={activeCall.isCaller}
-          type={activeCall.type}
-          partner={{
-            id: effectiveParticipant.id,
-            displayName: effectiveParticipant.displayName || "Student",
-            avatarUrl: effectiveParticipant.avatarUrl,
-            username: effectiveParticipant.username || undefined,
-          }}
-          remotePeerId={activeCall.remotePeerId}
-          onCallEnded={() => setActiveCall(null)}
-        />
-      )}
-
-      {/* Voice Recorder Modal */}
-      <VoiceRecorderModal
-        isOpen={showVoiceModal}
-        onClose={() => setShowVoiceModal(false)}
-        onAudioRecorded={handleVoiceRecorded}
-      />
+      {callUi}
     </div>
   );
 }

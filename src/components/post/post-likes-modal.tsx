@@ -1,6 +1,6 @@
 "use client";
 
-import { Heart, Loader2, Search, ShieldCheck, X } from "lucide-react";
+import { BadgeCheck, Heart, Loader2, Search, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -64,6 +64,16 @@ export function PostLikesModal({ postId, isOpen, onClose, currentUserId }: PostL
       document.body.style.paddingRight = originalPaddingRight;
     };
   }, [isOpen]);
+
+  // Close on Escape
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [isOpen, onClose]);
 
   // Debounce search input
   useEffect(() => {
@@ -148,22 +158,25 @@ export function PostLikesModal({ postId, isOpen, onClose, currentUserId }: PostL
 
   return createPortal(
     <div
-      className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200 select-none"
+      className="fixed inset-0 z-(--z-modal) flex items-end justify-center bg-overlay p-3 animate-in fade-in duration-200 select-none sm:items-center sm:p-4"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md bg-card border border-border/80 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-200"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="post-likes-title"
+        className="w-full max-w-md bg-surface-raised border border-border rounded-xl shadow-lg overflow-hidden flex flex-col max-h-[85vh] sticker-pop"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border/40 bg-card/60 backdrop-blur-md">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border bg-card">
           <div className="flex items-center gap-2">
-            <div className="size-7 rounded-full bg-danger/10 flex items-center justify-center text-danger shadow-2xs">
-              <Heart className="size-4 fill-danger text-danger" />
-            </div>
-            <h3 className="text-base font-black text-foreground">Liked by</h3>
+            <Heart className="size-4 text-fg-muted" aria-hidden="true" />
+            <h2 id="post-likes-title" className="font-display text-base font-bold text-fg">
+              Liked by
+            </h2>
             {totalCount > 0 && (
-              <span className="text-xs font-bold text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-full border border-border/40">
+              <span className="text-xs font-bold text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-full border border-border">
                 {totalCount}
               </span>
             )}
@@ -172,7 +185,7 @@ export function PostLikesModal({ postId, isOpen, onClose, currentUserId }: PostL
           <button
             type="button"
             onClick={onClose}
-            className="size-8 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
+            className="size-10 rounded-full hover:bg-surface-muted text-fg-muted hover:text-fg flex items-center justify-center transition-ui cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label="Close"
           >
             <X className="size-4" />
@@ -180,21 +193,22 @@ export function PostLikesModal({ postId, isOpen, onClose, currentUserId }: PostL
         </div>
 
         {/* Search Bar */}
-        <div className="px-4 py-2.5 border-b border-border/30 bg-muted/20">
+        <div className="px-4 py-2.5 border-b border-border bg-muted/20">
           <div className="relative w-full">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Search who liked this post..."
+              placeholder="Search names"
+              aria-label="Search people who liked this"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-9 pl-9 pr-8 rounded-xl border border-border/50 bg-card text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-colors"
+              className="w-full h-10 pl-9 pr-10 rounded-full border border-border bg-surface text-sm text-fg placeholder:text-fg-subtle outline-none focus-visible:ring-2 focus-visible:ring-ring transition-ui"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                className="absolute right-1 top-1/2 -translate-y-1/2 flex size-8 items-center justify-center rounded-full text-fg-muted hover:text-fg cursor-pointer"
                 aria-label="Clear search"
               >
                 <X className="size-3.5" />
@@ -219,7 +233,9 @@ export function PostLikesModal({ postId, isOpen, onClose, currentUserId }: PostL
               ))}
             </div>
           ) : error ? (
-            <div className="text-center py-16 text-xs text-destructive">Could not load likes list.</div>
+            <div role="alert" className="text-center py-16 text-sm text-danger">
+              Couldn't load likes. Check your connection, then close and reopen this.
+            </div>
           ) : users.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center space-y-2">
               {debouncedQuery ? (
@@ -227,20 +243,14 @@ export function PostLikesModal({ postId, isOpen, onClose, currentUserId }: PostL
                   <div className="size-12 rounded-full bg-muted/40 flex items-center justify-center text-muted-foreground">
                     <Search className="size-6" />
                   </div>
-                  <p className="text-sm font-bold text-foreground">No matches found</p>
-                  <p className="text-xs text-muted-foreground max-w-xs">
-                    No classmates matching &quot;{debouncedQuery}&quot; found in likes.
-                  </p>
+                  <p className="text-sm font-bold text-fg">No one named &quot;{debouncedQuery}&quot;</p>
                 </>
               ) : (
                 <>
                   <div className="size-12 rounded-full bg-muted/40 flex items-center justify-center text-muted-foreground">
                     <Heart className="size-6" />
                   </div>
-                  <p className="text-sm font-bold text-foreground">No likes yet</p>
-                  <p className="text-xs text-muted-foreground max-w-xs">
-                    Be the first classmate to drop a like on this campus post!
-                  </p>
+                  <p className="text-sm font-bold text-fg">No likes yet</p>
                 </>
               )}
             </div>
@@ -259,17 +269,22 @@ export function PostLikesModal({ postId, isOpen, onClose, currentUserId }: PostL
                       onClick={onClose}
                       className="flex items-center gap-3 min-w-0 flex-1 group cursor-pointer"
                     >
-                      <Avatar className="size-10 shrink-0 border border-border/40 group-hover:scale-105 transition-transform shadow-2xs">
+                      <Avatar className="size-10 shrink-0 border border-border transition-transform shadow-2xs">
                         <AvatarImage src={user.avatarUrl || ""} />
-                        <AvatarFallback className="text-xs font-black bg-primary/10 text-primary">
+                        <AvatarFallback className="text-xs font-bold bg-primary/10 text-primary">
                           {(user.displayName?.[0] || "S").toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
 
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-black text-foreground truncate group-hover:text-primary transition-colors flex items-center gap-1">
+                        <p className="text-sm font-bold text-foreground truncate group-hover:text-primary transition-colors flex items-center gap-1">
                           <span>{user.displayName}</span>
-                          {user.isVerified && <ShieldCheck className="size-3.5 text-brand shrink-0" />}
+                          {user.isVerified && (
+                            <BadgeCheck
+                              className="size-3.5 text-verified-text shrink-0"
+                              aria-label="Verified"
+                            />
+                          )}
                         </p>
                         <p className="text-xs text-muted-foreground truncate font-medium">
                           @{user.username}
@@ -287,7 +302,7 @@ export function PostLikesModal({ postId, isOpen, onClose, currentUserId }: PostL
                         size="sm"
                       />
                     ) : (
-                      <span className="text-[11px] font-bold text-muted-foreground bg-muted px-2.5 py-1 rounded-full border border-border/40">
+                      <span className="text-xs font-bold text-muted-foreground bg-muted px-2.5 py-1 rounded-full border border-border">
                         You
                       </span>
                     )}
@@ -302,14 +317,14 @@ export function PostLikesModal({ postId, isOpen, onClose, currentUserId }: PostL
               {isLoadingMore && (
                 <div className="flex items-center justify-center py-4 gap-2 text-muted-foreground">
                   <Loader2 className="size-4 animate-spin text-primary" />
-                  <span className="text-xs font-semibold">Loading more...</span>
+                  <span className="text-xs font-semibold">Loading more…</span>
                 </div>
               )}
 
               {/* End of list indicator */}
               {isReachingEnd && users.length > 5 && (
-                <p className="py-4 text-center text-[11px] font-semibold text-muted-foreground">
-                  All {users.length} {users.length === 1 ? "student" : "students"} loaded
+                <p className="py-4 text-center text-xs font-semibold text-muted-foreground">
+                  That's everyone
                 </p>
               )}
             </>

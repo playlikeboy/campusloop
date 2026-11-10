@@ -14,9 +14,13 @@ export function ConsentButtons({ appName }: { appName: string }) {
         name="decision"
         value="deny"
         disabled={pending}
-        className="h-12 rounded-2xl bg-muted/70 text-sm font-semibold text-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-60 cursor-pointer"
+        className="h-12 cursor-pointer rounded-full bg-surface-muted text-sm font-semibold text-fg transition-ui hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60 cursor-pointer"
       >
-        {pending && choice === "deny" ? <Loader2 className="mx-auto size-4 animate-spin" aria-label="Cancelling" /> : "Cancel"}
+        {pending && choice === "deny" ? (
+          <Loader2 className="mx-auto size-4 animate-spin" aria-label="Cancelling" />
+        ) : (
+          "Cancel"
+        )}
       </button>
       <button
         type="submit"
@@ -24,9 +28,13 @@ export function ConsentButtons({ appName }: { appName: string }) {
         value="allow"
         disabled={pending}
         aria-label={`Allow ${appName}`}
-        className="h-12 rounded-2xl bg-primary text-sm font-bold text-primary-foreground hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:opacity-60 cursor-pointer"
+        className="h-12 cursor-pointer rounded-full bg-brand text-sm font-semibold text-brand-fg transition-ui hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-60 cursor-pointer"
       >
-        {pending && choice === "allow" ? <Loader2 className="mx-auto size-4 animate-spin" aria-label="Continuing" /> : "Allow"}
+        {pending && choice === "allow" ? (
+          <Loader2 className="mx-auto size-4 animate-spin" aria-label="Continuing" />
+        ) : (
+          "Allow"
+        )}
       </button>
     </div>
   );

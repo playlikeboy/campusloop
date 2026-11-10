@@ -2,8 +2,9 @@
 
 import { Check, ChevronDown, Globe, School, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StreakBadge } from "@/components/streaks/streak-badge";
+import { Chip } from "@/components/ui/chip";
 import {
   FEED_CATEGORY_OPTIONS as CATEGORY_OPTIONS,
   FEED_SORT_TABS as SORT_TABS,
@@ -47,6 +48,15 @@ export function FeedHeader({
   const [showFilters, setShowFilters] = useState(false);
   const [showScopeMenu, setShowScopeMenu] = useState(false);
 
+  useEffect(() => {
+    if (!showScopeMenu) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setShowScopeMenu(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [showScopeMenu]);
+
   const campusLabel = institutionSlug
     ? institutionSlug.charAt(0).toUpperCase() + institutionSlug.slice(1)
     : "My campus";
@@ -60,7 +70,7 @@ export function FeedHeader({
   }
 
   return (
-    <div className="sticky top-12 lg:top-0 z-30 border-b border-border/40 bg-background/85 backdrop-blur-xl supports-backdrop-filter:bg-background/70">
+    <div className="sticky top-12 lg:top-0 z-30 border-b border-border bg-bg">
       <div className="flex items-stretch">
         <div className="flex flex-1 min-w-0" role="tablist" aria-label="Feed mode">
           {PRIMARY_TABS.map((tab) => {
@@ -73,14 +83,14 @@ export function FeedHeader({
                 aria-selected={active}
                 onClick={() => onSortChange(tab.id)}
                 className={cn(
-                  "relative flex h-12 flex-1 items-center justify-center px-2 text-[15px] transition-colors cursor-pointer select-none",
-                  "hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/50",
-                  active ? "font-semibold text-foreground" : "font-medium text-muted-foreground"
+                  "relative flex h-12 flex-1 items-center justify-center px-2 text-[15px] transition-ui cursor-pointer select-none",
+                  "hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+                  active ? "font-semibold text-fg" : "font-medium text-fg-muted"
                 )}
               >
                 {tab.label}
                 {active && (
-                  <span className="absolute bottom-0 left-1/2 h-0.75 w-12 -translate-x-1/2 rounded-full bg-primary" />
+                  <span className="absolute bottom-0 left-1/2 h-0.75 w-12 -translate-x-1/2 rounded-full bg-brand" />
                 )}
               </button>
             );
@@ -94,17 +104,20 @@ export function FeedHeader({
               onClick={() => setShowScopeMenu((open) => !open)}
               aria-haspopup="menu"
               aria-expanded={showScopeMenu}
-              className="flex h-9 items-center gap-1 rounded-full px-2.5 text-[13px] font-medium text-foreground hover:bg-muted/60 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+              aria-label={
+                scope === "CAMPUS" ? `Showing ${campusLabel}. Change` : "Showing all colleges. Change"
+              }
+              className="flex h-11 items-center gap-1 rounded-full px-3 text-sm font-medium text-fg hover:bg-surface-muted cursor-pointer transition-ui focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               {scope === "CAMPUS" ? (
-                <School className="size-4 text-primary" />
+                <School className="size-4 text-brand-text" aria-hidden />
               ) : (
-                <Globe className="size-4 text-primary" />
+                <Globe className="size-4 text-brand-text" aria-hidden />
               )}
               <span className="hidden max-w-27.5 truncate sm:inline">
-                {scope === "CAMPUS" ? campusLabel : "All India"}
+                {scope === "CAMPUS" ? campusLabel : "All colleges"}
               </span>
-              <ChevronDown className="size-3.5 text-muted-foreground" />
+              <ChevronDown className="size-3.5 text-fg-subtle" aria-hidden />
             </button>
 
             {showScopeMenu && (
@@ -117,11 +130,21 @@ export function FeedHeader({
                 />
                 <div
                   role="menu"
-                  className="absolute right-0 top-11 z-50 w-60 rounded-2xl border border-border/60 bg-popover p-1.5 shadow-xl"
+                  className="absolute right-0 top-12 z-50 w-64 rounded-lg border border-border bg-surface-raised p-1.5 shadow-lg"
                 >
                   {[
-                    { id: "CAMPUS" as const, icon: School, label: campusLabel, desc: "Only your campus" },
-                    { id: "GLOBAL" as const, icon: Globe, label: "All India", desc: "Every campus on CampusLoop" },
+                    {
+                      id: "CAMPUS" as const,
+                      icon: School,
+                      label: campusLabel,
+                      desc: "Posts from your college",
+                    },
+                    {
+                      id: "GLOBAL" as const,
+                      icon: Globe,
+                      label: "All colleges",
+                      desc: "Posts from every college",
+                    },
                   ].map((option) => (
                     <button
                       key={option.id}
@@ -132,14 +155,16 @@ export function FeedHeader({
                         onScopeChange(option.id);
                         setShowScopeMenu(false);
                       }}
-                      className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left hover:bg-muted cursor-pointer"
+                      className="flex min-h-11 w-full items-center gap-3 rounded-md px-3 py-2.5 text-left hover:bg-surface-muted cursor-pointer transition-ui"
                     >
-                      <option.icon className="size-4 shrink-0 text-muted-foreground" />
+                      <option.icon className="size-4 shrink-0 text-fg-muted" aria-hidden />
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-medium text-foreground">{option.label}</span>
-                        <span className="block truncate text-xs text-muted-foreground">{option.desc}</span>
+                        <span className="block truncate text-sm font-medium text-fg">{option.label}</span>
+                        <span className="block truncate text-xs text-fg-muted">{option.desc}</span>
                       </span>
-                      {scope === option.id && <Check className="size-4 shrink-0 text-primary" />}
+                      {scope === option.id && (
+                        <Check className="size-4 shrink-0 text-brand-text" aria-hidden />
+                      )}
                     </button>
                   ))}
                 </div>
@@ -151,14 +176,16 @@ export function FeedHeader({
             type="button"
             onClick={() => setShowFilters((open) => !open)}
             className={cn(
-              "relative flex size-9 items-center justify-center rounded-full transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
-              showFilters ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+              "relative flex size-11 items-center justify-center rounded-full transition-ui cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              showFilters
+                ? "bg-brand-subtle text-brand-text"
+                : "text-fg-muted hover:bg-surface-muted hover:text-fg"
             )}
-            aria-label="Feed filters"
+            aria-label="Filter posts"
             aria-expanded={showFilters}
           >
-            <SlidersHorizontal className="size-4" />
-            {hasSecondaryFilters && <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-primary" />}
+            <SlidersHorizontal className="size-4" aria-hidden />
+            {hasSecondaryFilters && <span className="absolute top-2 right-2 size-2 rounded-full bg-brand" />}
           </button>
 
           <div className="hidden sm:block">
@@ -168,7 +195,7 @@ export function FeedHeader({
       </div>
 
       {showFilters && (
-        <div className="space-y-4 border-t border-border/40 px-4 py-4">
+        <div className="space-y-4 border-t border-border px-4 py-4">
           <FilterGroup label="Show posts from">
             {VISIBILITY_OPTIONS.map((option) => (
               <FilterChip
@@ -189,13 +216,13 @@ export function FeedHeader({
             ))}
             <Link
               href="/confessions"
-              className="inline-flex h-8 items-center rounded-full px-3 text-[13px] font-medium text-muted-foreground bg-muted/50 hover:bg-muted hover:text-foreground"
+              className="inline-flex h-8 items-center rounded-full px-3 text-xs font-medium text-brand-text underline-offset-4 hover:underline"
             >
-              Confessions page
+              Open confessions
             </Link>
           </FilterGroup>
 
-          <FilterGroup label="More feeds">
+          <FilterGroup label="Sort by">
             {SORT_TABS.filter((item) => !PRIMARY_SORTS.includes(item.id)).map((item) => (
               <FilterChip key={item.id} active={sort === item.id} onClick={() => onSortChange(item.id)}>
                 {item.label}
@@ -207,9 +234,9 @@ export function FeedHeader({
             <button
               type="button"
               onClick={resetFilters}
-              className="text-[13px] font-medium text-primary hover:underline cursor-pointer"
+              className="min-h-11 text-sm font-medium text-brand-text underline-offset-4 hover:underline cursor-pointer"
             >
-              Reset filters
+              Clear filters
             </button>
           )}
         </div>
@@ -221,7 +248,7 @@ export function FeedHeader({
 function FilterGroup({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-2">
-      <p className="text-xs font-medium text-muted-foreground">{label}</p>
+      <p className="text-xs font-medium text-fg-muted">{label}</p>
       <div className="flex flex-wrap gap-1.5">{children}</div>
     </div>
   );
@@ -237,16 +264,8 @@ function FilterChip({
   children: React.ReactNode;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={cn(
-        "inline-flex h-8 items-center rounded-full px-3 text-[13px] font-medium transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
-        active ? "bg-foreground text-background" : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
-      )}
-    >
+    <Chip size="sm" selected={active} onClick={onClick}>
       {children}
-    </button>
+    </Chip>
   );
 }

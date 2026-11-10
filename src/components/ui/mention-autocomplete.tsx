@@ -121,11 +121,11 @@ export function MentionSuggestions({ trigger, onSelect, onClose, className }: Me
   return (
     <div
       className={cn(
-        "absolute z-50 w-72 sm:w-80 rounded-2xl border border-border/50 bg-popover/95 backdrop-blur-xl shadow-2xl p-1.5 overflow-hidden animate-in fade-in-50 zoom-in-95",
+        "absolute z-50 w-72 sm:w-80 rounded-2xl border border-border/50 bg-popover shadow-2xl p-1.5 overflow-hidden animate-in fade-in-50 zoom-in-95",
         className
       )}
     >
-      <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 border-b border-border/30">
+      <div className="px-3 py-1.5 text-xs font-semibold text-muted-foreground flex items-center gap-1.5 border-b border-border/30">
         {trigger.type === "mention" ? (
           <>
             <Users className="size-3" />
@@ -199,8 +199,8 @@ export function MentionSuggestions({ trigger, onSelect, onClose, className }: Me
                   <div className="flex items-center gap-1.5">
                     <p className="text-xs font-bold text-foreground truncate">{h.tag}</p>
                     {h.isHot && (
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-primary/10 text-primary">
-                        HOT
+                      <span className="inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold bg-surface-muted text-fg-muted">
+                        Trending
                       </span>
                     )}
                   </div>

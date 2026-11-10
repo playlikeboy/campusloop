@@ -12,6 +12,14 @@ import { formatApiFeedPosts, resolveFeedPage } from "@/lib/feed";
 import { loadFollowedPostActivity } from "@/lib/feed-social-context";
 import { getRecommendedUsers } from "@/lib/recommendations/recommended-users";
 import { getRelatedPosts } from "@/lib/recommendations/related-posts";
+import {
+  absoluteUrl,
+  breadcrumbJsonLd,
+  buildMetadata,
+  graphJsonLd,
+  SITE_URL,
+  serializeJsonLd,
+} from "@/lib/seo";
 import { getCachedAuthUser, getCachedPostDetail, getCachedUserProfile } from "@/lib/server-cache";
 import { cleanSnippet } from "@/lib/utils";
 
@@ -27,56 +35,25 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
   // so this is the last point a real 404 status can be sent.
   if (!post || post.status === "DELETED") notFound();
 
-  const authorName = post.isAnonymous ? "Anonymous Student" : post.author?.displayName || "Student";
-  const snippet =
-    cleanSnippet(post.body, 150) ||
-    "Explore student yaps, confessions, and campus discussions on CampusLoop.";
-  const title = `${post.type === "CONFESSION" ? "Confession" : "Discussion"} by ${authorName} in ${post.institution?.name?.split(",")[0] || "Campus"}`;
-  const url = `https://campusloop.space/post/${id}`;
+  const isPrivate =
+    post.isSeeded ||
+    post.status !== "PUBLISHED" ||
+    post.isAnonymous ||
+    post.type === "ANONYMOUS" ||
+    post.type === "CONFESSION";
+  const authorName = post.isAnonymous ? "Anonymous" : post.author?.displayName || "A student";
+  const campus = post.institution?.name?.split(",")[0] || "CampusLoop";
+  const kind = post.type === "CONFESSION" ? "Confession" : post.type === "POLL" ? "Poll" : "Post";
 
-  return {
-    title,
-    description: snippet,
-    keywords: [
-      "campus loop",
-      authorName,
-      post.institution?.name || "Indian College",
-      "college confession",
-      "student discussion",
-      "CampusLoop feed",
-    ],
-    alternates: { canonical: url },
-    openGraph: {
-      title,
-      description: snippet,
-      url,
-      siteName: "CampusLoop",
-      type: "article",
-      images: [
-        {
-          url: "https://campusloop.space/og-image.png",
-          width: 1200,
-          height: 630,
-          alt: title,
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description: snippet,
-      images: ["https://campusloop.space/og-image.png"],
-    },
+  return buildMetadata({
+    title: `${kind} by ${authorName} · ${campus}`,
+    description: cleanSnippet(post.body, 155) || `A ${kind.toLowerCase()} from a student at ${campus}.`,
+    path: `/post/${id}`,
+    type: "article",
+    publishedTime: new Date(post.createdAt).toISOString(),
     // Anonymous posts and confessions stay out of search engines regardless of status.
-    robots:
-      post.isSeeded ||
-      post.status !== "PUBLISHED" ||
-      post.isAnonymous ||
-      post.type === "ANONYMOUS" ||
-      post.type === "CONFESSION"
-        ? { index: false, follow: false }
-        : { index: true, follow: true },
-  };
+    noindex: isPrivate,
+  });
 }
 
 export default async function PostDetailPage({ params }: PostPageProps) {
@@ -246,83 +223,55 @@ export default async function PostDetailPage({ params }: PostPageProps) {
   const campusName = rawPost.institution?.name?.split(",")[0] || "Campus";
   const postTitle = `${rawPost.type === "CONFESSION" ? "Confession" : "Discussion"} in ${campusName}`;
 
-  const postUrl = `https://campusloop.space/post/${rawPost.id}`;
+  const postPath = `/post/${rawPost.id}`;
+  const isIndexable =
+    !rawPost.isSeeded &&
+    rawPost.status === "PUBLISHED" &&
+    !rawPost.isAnonymous &&
+    rawPost.type !== "ANONYMOUS" &&
+    rawPost.type !== "CONFESSION";
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "DiscussionForumPosting",
-        headline: postTitle,
-        text: rawPost.body,
-        datePublished: rawPost.createdAt.toISOString(),
-        url: postUrl,
-        image: "https://campusloop.space/og-image.png",
-        author: rawPost.isAnonymous
-          ? {
-              "@type": "Person",
-              name: "Anonymous Student",
-            }
-          : {
-              "@type": "Person",
-              name: rawPost.author?.displayName || "Student",
-              url: rawPost.author?.username
-                ? `https://campusloop.space/@${rawPost.author.username}`
-                : undefined,
+  const jsonLd = isIndexable
+    ? graphJsonLd(
+        {
+          "@type": "DiscussionForumPosting",
+          headline: postTitle,
+          text: rawPost.body,
+          datePublished: rawPost.createdAt.toISOString(),
+          url: absoluteUrl(postPath),
+          author: {
+            "@type": "Person",
+            name: rawPost.author?.displayName || "Student",
+            url: rawPost.author?.username ? absoluteUrl(`/@${rawPost.author.username}`) : undefined,
+          },
+          publisher: { "@id": `${SITE_URL}/#organization` },
+          interactionStatistic: [
+            {
+              "@type": "InteractionCounter",
+              interactionType: "https://schema.org/LikeAction",
+              userInteractionCount: votesCount,
             },
-        publisher: {
-          "@type": "Organization",
-          name: "CampusLoop",
-          url: "https://campusloop.space",
-          logo: {
-            "@type": "ImageObject",
-            url: "https://campusloop.space/logo.png",
-          },
+            {
+              "@type": "InteractionCounter",
+              interactionType: "https://schema.org/CommentAction",
+              userInteractionCount: commentsCount,
+            },
+          ],
         },
-        interactionStatistic: [
-          {
-            "@type": "InteractionCounter",
-            interactionType: "https://schema.org/LikeAction",
-            userInteractionCount: votesCount,
-          },
-          {
-            "@type": "InteractionCounter",
-            interactionType: "https://schema.org/CommentAction",
-            userInteractionCount: commentsCount,
-          },
-        ],
-      },
-      {
-        "@type": "BreadcrumbList",
-        itemListElement: [
-          {
-            "@type": "ListItem",
-            position: 1,
-            name: "Home",
-            item: "https://campusloop.space/feeds",
-          },
-          {
-            "@type": "ListItem",
-            position: 2,
-            name: rawPost.institution?.name ? campusName : "Colleges",
-            item: rawPost.institution
-              ? `https://campusloop.space/college/${rawPost.institution.slug || rawPost.institution.id}`
-              : "https://campusloop.space/colleges",
-          },
-          {
-            "@type": "ListItem",
-            position: 3,
-            name: postTitle,
-            item: postUrl,
-          },
-        ],
-      },
-    ],
-  };
+        breadcrumbJsonLd([
+          rawPost.institution?.slug
+            ? { name: campusName, path: `/colleges/${rawPost.institution.slug}` }
+            : { name: "Colleges", path: "/colleges" },
+          { name: postTitle, path: postPath },
+        ])
+      )
+    : null;
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      {jsonLd ? (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }} />
+      ) : null}
       <PostReelsDeck initialItems={initialItems} currentUserId={profile?.id} campusName={campusName} />
     </>
   );

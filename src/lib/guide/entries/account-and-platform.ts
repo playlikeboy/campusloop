@@ -9,14 +9,12 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
     summary: "Earn Loop Points (LP) for helpful activity and keep a daily campus streak.",
     category: "Account & safety",
     audiences: ["Students", "Investors"],
-    routes: [
-      { path: "/streaks", label: "Daily heatmap" },
-      { path: "/streak", label: "Streak rhythm" },
-    ],
-    purpose: "Reward contributions that make the campus better: helpful posts, uploads, invites, and consistent daily participation with an interactive GitHub-style heatmap.",
+    routes: [{ path: "/streaks", label: "Your streak" }],
+    purpose:
+      "Reward contributions that make the campus better: helpful posts, uploads, invites, and consistent daily participation with an interactive GitHub-style heatmap.",
     whyUse: [
       "Show your reputation on your profile.",
-      "Unlock milestones and verified status.",
+      "Reach milestones that show on your profile.",
       "Track your annual contribution heatmap on /streaks with Day 1 start counting.",
     ],
     howToUse: [
@@ -24,8 +22,11 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
       "Open /streaks to see your 52-week activity heatmap, current streak, and milestones.",
       "Come back daily to keep the flame alive and progress through milestone tiers.",
     ],
-    useCases: [{ who: "Student", scenario: "Uploads notes every week and becomes a top contributor on campus." }],
-    investorAngle: "Gamification aligns individual status with network health and gives retention levers that can be tuned and measured.",
+    useCases: [
+      { who: "Student", scenario: "Uploads notes every week and becomes a top contributor on campus." },
+    ],
+    investorAngle:
+      "Gamification aligns individual status with network health and gives retention levers that can be tuned and measured.",
     faq: [{ q: "Can I lose LP?", a: "LP can be removed for content that moderators take down." }],
     related: ["upload-notes", "invites-and-referrals"],
     keywords: ["Loop Points", "streak", "gamification"],
@@ -41,10 +42,17 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
     routes: [{ path: "/join", label: "Join via invite" }],
     purpose: "Campus networks grow person to person. Referrals reward students who bring their friends.",
     whyUse: ["Your friends make your feed better.", "Earn LP for every verified signup."],
-    howToUse: ["Copy your invite link from the menu or the referral card in the feed.", "Share it in your class group.", "Earn LP when friends verify."],
+    howToUse: [
+      "Copy your invite link from the menu or the referral card in the feed.",
+      "Share it in your class group.",
+      "Earn LP when friends verify.",
+    ],
     useCases: [{ who: "Class rep", scenario: "Invites the whole section in the first week." }],
-    investorAngle: "Referral loops drive low-cost acquisition and campus-by-campus density, the key to network effects.",
-    faq: [{ q: "Do invites work for other colleges?", a: "Yes, friends verify with their own college email." }],
+    investorAngle:
+      "Referral loops drive low-cost acquisition and campus-by-campus density, the key to network effects.",
+    faq: [
+      { q: "Do invites work for other colleges?", a: "Yes, friends verify with their own college email." },
+    ],
     related: ["loop-points-and-streaks", "getting-started"],
     keywords: ["invite friends", "referral"],
     updated: U,
@@ -52,7 +60,8 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
   {
     slug: "notifications",
     title: "Notifications",
-    summary: "In-app and push alerts for replies, matches, messages, orders and more, with per-type controls.",
+    summary:
+      "In-app and push alerts for replies, matches, messages, orders and more, with per-type controls.",
     category: "Account & safety",
     audiences: ["Students"],
     routes: [
@@ -61,10 +70,19 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
     ],
     purpose: "Tell you about things that need you, without spamming you.",
     whyUse: ["Know when someone replies, matches or messages.", "Mute what you do not care about."],
-    howToUse: ["Open /notifications or tap the bell.", "Allow push when prompted (install the app on iOS first).", "Choose which types you get in Settings."],
+    howToUse: [
+      "Open /notifications or tap the bell.",
+      "Allow push when prompted (install the app on iOS first).",
+      "Choose which types you get in Settings.",
+    ],
     useCases: [{ who: "Student", scenario: "Mutes likes but keeps replies and matches." }],
     investorAngle: "Well-targeted notifications are the main re-engagement channel.",
-    faq: [{ q: "Why am I not getting push on iPhone?", a: "Install CampusLoop to your home screen first; iOS only allows push for installed web apps." }],
+    faq: [
+      {
+        q: "Why am I not getting push on iPhone?",
+        a: "Install CampusLoop to your home screen first; iOS only allows push for installed web apps.",
+      },
+    ],
     related: ["install-the-app", "settings"],
     keywords: ["notifications", "push"],
     updated: U,
@@ -72,7 +90,8 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
   {
     slug: "privacy-and-anonymity",
     title: "Privacy and anonymity",
-    summary: "Control what others see: anonymous posting, feed filters, blocks, private birthday, and location.",
+    summary:
+      "Control what others see: anonymous posting, feed filters, blocks, private birthday, and location.",
     category: "Account & safety",
     audiences: ["Students", "Investors"],
     routes: [{ path: "/settings", label: "Settings & privacy" }],
@@ -88,13 +107,19 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
       "Block from any profile or chat. Blocks apply to feed, stories, chat, matching and suggestions.",
       "Manage date-of-birth privacy and other options in Settings.",
     ],
-    useCases: [{ who: "Student", scenario: "Blocks an ex, who then disappears from their feed, stories and match deck." }],
+    useCases: [
+      {
+        who: "Student",
+        scenario: "Blocks an ex, who then disappears from their feed, stories and match deck.",
+      },
+    ],
     privacy: [
       "Anonymous identity is sealed and only revealed to moderators for serious safety cases, with an audit log.",
       "Email, exact location and private date of birth are never shown to other students.",
       "Anonymous post authors are never recorded in behaviour data used for ranking.",
     ],
-    investorAngle: "Privacy controls are what make verified identity and anonymity coexist, a combination competitors do not offer.",
+    investorAngle:
+      "Privacy controls are what make verified identity and anonymity coexist, a combination competitors do not offer.",
     faq: [{ q: "Does blocking notify them?", a: "No." }],
     related: ["verification-and-safety", "confessions", "nearby-location"],
     keywords: ["privacy", "anonymous", "block user"],
@@ -103,7 +128,8 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
   {
     slug: "verification-and-safety",
     title: "Verification, safety and moderation",
-    summary: "College email verification, reporting, keyword filters and a moderation team keep CampusLoop safe.",
+    summary:
+      "College email verification, reporting, keyword filters and a moderation team keep CampusLoop safe.",
     category: "Account & safety",
     audiences: ["Students", "Investors", "Admins"],
     routes: [
@@ -117,10 +143,18 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
       "Choose a reason; moderators review the queue.",
       "Block immediately if you feel unsafe.",
     ],
-    useCases: [{ who: "Student", scenario: "Reports a harassing confession; it is removed and the author actioned." }],
+    useCases: [
+      { who: "Student", scenario: "Reports a harassing confession; it is removed and the author actioned." },
+    ],
     privacy: ["Reports are confidential."],
-    investorAngle: "Safety infrastructure (verification, filters, review queue, audit log) is costly to build and is a durable barrier to entry.",
-    faq: [{ q: "What happens after I report?", a: "Automated filters act first; a moderator reviews and can remove content or restrict accounts." }],
+    investorAngle:
+      "Safety infrastructure (verification, filters, review queue, audit log) is costly to build and is a durable barrier to entry.",
+    faq: [
+      {
+        q: "What happens after I report?",
+        a: "Automated filters act first; a moderator reviews and can remove content or restrict accounts.",
+      },
+    ],
     related: ["privacy-and-anonymity", "admin-console"],
     keywords: ["safety", "report", "moderation"],
     essaySlug: "verification-safety",
@@ -135,7 +169,11 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
     routes: [{ path: "/settings", label: "Settings" }],
     purpose: "One place to control your account.",
     whyUse: ["Change how you appear and what you receive."],
-    howToUse: ["Open the menu and tap Settings & Privacy.", "Edit sections and save.", "Switch light or dark appearance from the menu."],
+    howToUse: [
+      "Open the menu and tap Settings & Privacy.",
+      "Edit sections and save.",
+      "Switch light or dark appearance from the menu.",
+    ],
     useCases: [{ who: "Student", scenario: "Turns off email notifications and switches to dark mode." }],
     investorAngle: "Clear controls reduce churn from users who would otherwise leave rather than adjust.",
     faq: [{ q: "How do I sign out?", a: "Menu, then Sign out." }],
@@ -172,7 +210,7 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
     audiences: ["Students", "Investors", "Developers"],
     routes: [
       { path: "/feeds", label: "Feed" },
-      { path: "/dating", label: "Matches" },
+      { path: "/matching", label: "Matches" },
       { path: "/academics", label: "Notes" },
     ],
     purpose: "Be transparent about the algorithms so students trust what they see.",
@@ -185,7 +223,9 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
       "People to follow: friends of friends, people you already engage with, shared interests, same campus or branch, and nearby students.",
       "Stories: unwatched first, then closeness and freshness.",
     ],
-    useCases: [{ who: "Student", scenario: "Wants fewer memes, so scrolls past them; For You adapts within days." }],
+    useCases: [
+      { who: "Student", scenario: "Wants fewer memes, so scrolls past them; For You adapts within days." },
+    ],
     privacy: [
       "Ranking uses your own activity on CampusLoop. Anonymous authors are never recorded.",
       "Blocks are applied before ranking, so blocked people never appear.",
@@ -200,12 +240,17 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
   {
     slug: "developer-mcp",
     title: "Developer and MCP access",
-    summary: "Connect CampusLoop to AI tools like Claude, Cursor and Windsurf with MCP, including publishing interactive articles with smart blocks.",
+    summary:
+      "Connect CampusLoop to AI tools like Claude, Cursor and Windsurf with MCP, including publishing interactive articles with smart blocks.",
     category: "Platform",
     audiences: ["Developers", "Investors"],
     routes: [{ path: "/developer", label: "Developer portal" }],
-    purpose: "Let students and builders use campus knowledge (notes, events, articles) inside their AI tools.",
-    whyUse: ["Ask your AI assistant about your campus notes or events.", "Build tools on top of CampusLoop data."],
+    purpose:
+      "Let students and builders use campus knowledge (notes, events, articles) inside their AI tools.",
+    whyUse: [
+      "Ask your AI assistant about your campus notes or events.",
+      "Build tools on top of CampusLoop data.",
+    ],
     howToUse: [
       "Open /developer.",
       "Generate a personal MCP API key.",
@@ -214,7 +259,8 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
     ],
     useCases: [{ who: "Developer", scenario: "Lets Claude search the Academic Vault while studying." }],
     privacy: ["Keys are personal and revocable; access follows your account's permissions."],
-    investorAngle: "An open AI and API surface positions CampusLoop as campus infrastructure, not just an app.",
+    investorAngle:
+      "An open AI and API surface positions CampusLoop as campus infrastructure, not just an app.",
     faq: [{ q: "Is it free?", a: "Yes for personal use." }],
     related: ["campus-ai-and-atlas", "academic-vault"],
     keywords: ["MCP", "API", "Claude", "developer"],
@@ -223,7 +269,8 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
   {
     slug: "login-with-campusloop",
     title: "Login with CampusLoop",
-    summary: "A sign-in button other websites and CampusLoop's own apps can add, like Login with Google, that can also confirm you are a verified college student.",
+    summary:
+      "A sign-in button other websites and CampusLoop's own apps can add, like Login with Google, that can also confirm you are a verified college student.",
     category: "Platform",
     audiences: ["Students", "Developers", "Investors"],
     routes: [
@@ -233,10 +280,10 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
       { path: "/developers", label: "Developer documentation" },
     ],
     purpose:
-      "Student discounts, campus tools, hackathons and ecosystem apps all need to know \"is this person a real student?\". Login with CampusLoop answers that in one click, without the student uploading an ID card again, and without the site getting more than it needs.",
+      'Student discounts, campus tools, hackathons and other apps all need to know "is this person a real student?". Login with CampusLoop answers that in one click, without the student uploading an ID card again, and without the site getting more than it needs.',
     whyUse: [
       "Sign in to other apps with your CampusLoop account instead of making a new password.",
-      "Prove you're a verified student to unlock student-only offers, events and tools.",
+      "Prove you're a verified student to get student-only offers, events and tools.",
       "You see exactly what an app asks for before you allow it, and can remove its access anytime.",
     ],
     howToUse: [
@@ -248,36 +295,69 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
       "Developers: open /developer, tap New app, add redirect URIs, and copy the client ID (and secret for server apps). Every scope works immediately. Use Copy prompt to let an AI coding agent set it up, or follow /developers/SKILL.md.",
     ],
     useCases: [
-      { who: "Student", scenario: "Signs in to DSALoop with CampusLoop and keeps one account across the ecosystem." },
-      { who: "Brand", scenario: "Gives a student discount only to people whose CampusLoop account is college-verified." },
-      { who: "Hackathon", scenario: "Restricts registration to verified students from participating colleges." },
+      {
+        who: "Student",
+        scenario: "Signs in to DSALoop with CampusLoop and keeps one account across our apps.",
+      },
+      {
+        who: "Brand",
+        scenario: "Gives a student discount only to people whose CampusLoop account is college-verified.",
+      },
+      {
+        who: "Hackathon",
+        scenario: "Restricts registration to verified students from participating colleges.",
+      },
     ],
     privacy: [
       "Apps see only what you approve on the consent screen: at most your name, username, photo, email, college, branch, degree, year and verified-student status. Your phone number, birthday, gender, location, dating profile and anonymous posts are never shared with any app.",
-      "Each app gets a different anonymous ID for you, so two apps can't match you up. CampusLoop's own ecosystem apps share one ID.",
+      "Each app gets a different anonymous ID for you, so two apps can't match you up. CampusLoop's own apps share one ID.",
       "Apps never see your password. Sign-in uses the OpenID Connect standard with PKCE.",
       "Remove an app's access anytime; it is signed out on its next check.",
     ],
     investorAngle:
       "Identity is a network effect: every site that adds Login with CampusLoop sends new students to sign up and makes CampusLoop the default verified-student identity in India, a position other providers do not hold.",
     faq: [
-      { q: "What does an app learn about me?", a: "Only what the consent screen lists, such as your name, photo, email, college and whether you're a verified student. Never your phone, birthday, gender, location or anonymous activity." },
-      { q: "Can an app post or message as me?", a: "No. Login with CampusLoop only shares profile information; it gives no posting or messaging access." },
-      { q: "Is it a standard I can use as a developer?", a: "Yes. It is a standard OpenID Connect provider with issuer https://campusloop.space, so libraries like Auth.js, Clerk, Supabase, Firebase and openid-client work with it. Docs, quickstarts, the JS SDK (https://campusloop.space/sdk/v1/campusloop.js) and official buttons are at /developers." },
+      {
+        q: "What does an app learn about me?",
+        a: "Only what the consent screen lists, such as your name, photo, email, college and whether you're a verified student. Never your phone, birthday, gender, location or anonymous activity.",
+      },
+      {
+        q: "Can an app post or message as me?",
+        a: "No. Login with CampusLoop only shares profile information; it gives no posting or messaging access.",
+      },
+      {
+        q: "Is it a standard I can use as a developer?",
+        a: "Yes. It is a standard OpenID Connect provider with issuer https://campusloop.space, so libraries like Auth.js, Clerk, Supabase, Firebase and openid-client work with it. Docs, quickstarts, the JS SDK (https://campusloop.space/sdk/v1/campusloop.js) and official buttons are at /developers.",
+      },
     ],
     related: ["developer-mcp", "verification-and-safety", "ecosystem-suite"],
-    keywords: ["login with campusloop", "sign in with campusloop", "SKILL.md", "better auth", "AI agent setup", "student verification api", "verified student login", "OpenID Connect", "OAuth"],
+    keywords: [
+      "login with campusloop",
+      "sign in with campusloop",
+      "SKILL.md",
+      "better auth",
+      "AI agent setup",
+      "student verification api",
+      "verified student login",
+      "OpenID Connect",
+      "OAuth",
+    ],
     updated: U,
   },
   {
     slug: "admin-console",
     title: "Admin console",
-    summary: "Internal tools for the CampusLoop team: moderation, content, marketplace, analytics, experiments and system health.",
+    summary:
+      "Internal tools for the CampusLoop team: moderation, content, marketplace, analytics, experiments and system health.",
     category: "Platform",
     audiences: ["Admins", "Investors"],
     routes: [{ path: "/admin", label: "Admin console (staff only)" }],
     purpose: "Run a safe, healthy platform at scale with a small team.",
-    whyUse: ["Clear every pending request from one inbox.", "Curate the feed and broadcasts.", "Watch analytics, ranking experiments and system health."],
+    whyUse: [
+      "Clear every pending request from one inbox.",
+      "Curate the feed and broadcasts.",
+      "Watch analytics, ranking experiments and system health.",
+    ],
     howToUse: [
       "Requests: the Inbox shows everything waiting for a decision (posts held by the safety filter, student reports, college hub requests, new developer apps), with the review queue, reports, confessions and developer apps one click away.",
       "People & campuses: users, colleges, outreach and campus broadcasts.",
@@ -285,7 +365,12 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
       "Marketplace: overview, merchants, products, bike rentals.",
       "Insights: analytics, ranking experiments, system health and the audit log.",
     ],
-    useCases: [{ who: "Moderator", scenario: "Clears the review queue each morning and checks the experiment dashboard weekly." }],
+    useCases: [
+      {
+        who: "Moderator",
+        scenario: "Clears the review queue each morning and checks the experiment dashboard weekly.",
+      },
+    ],
     privacy: ["Identity reveals for anonymous content are restricted and audit-logged."],
     investorAngle: "Operational tooling keeps cost per user low as campuses are added.",
     faq: [{ q: "Who can access it?", a: "Only CampusLoop staff with admin roles." }],
@@ -295,35 +380,39 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
   },
   {
     slug: "ecosystem-suite",
-    title: "CampusLoop Ecosystem and apps",
-    summary: "Discover purpose-built extensions, flagship apps like DSALoop and baby, AI copilots, and campus utilities.",
+    title: "More apps and tools",
+    summary: "One page that lists every CampusLoop tool, plus our other apps DSALoop and baby.",
     category: "Platform",
     audiences: ["Students", "Developers", "Investors"],
-    routes: [{ path: "/ecosystem", label: "Ecosystem directory" }],
-    purpose: "Give deep, dedicated spaces for technical interview prep, mindful reflection, AI assistance, and campus utilities without cluttering the social feed.",
+    routes: [{ path: "/more", label: "More" }],
+    purpose:
+      "Keep interview prep, journaling and campus tools in their own places so the feed stays about your campus.",
     whyUse: [
-      "Access DSALoop for pattern-first DSA prep and 185+ company tracks.",
-      "Use baby with Kumo for private, streak-free AI journaling.",
-      "Explore developer MCP keys, campus living services, and gaming lobbies in one curated hub.",
+      "Practise DSA problems on DSALoop.",
+      "Keep a private journal on baby.",
+      "Find living services, gaming and developer tools from one page.",
     ],
     howToUse: [
-      "Open /ecosystem from the desktop sidebar or main menu.",
-      "Filter by category: Flagship Products, AI & Dev, Career & Prep, Campus Living, or Social.",
-      "Search any tool by name, topic, or feature.",
-      "Launch external suites like DSALoop and baby, or jump directly into native campus hubs.",
+      "Tap More in the menu, or open /more.",
+      "Scroll the groups: Campus, Connect, Utilities, Learn and You.",
+      "Tap a tool to open it. Other apps open in a new tab.",
     ],
     useCases: [
-      { who: "Computer science student", scenario: "Uses DSALoop daily for Blind 75 prep and Campus AI for semester study roadmaps." },
-      { who: "Student", scenario: "Uses baby to journal feelings during stressful mid-terms with zero social noise." },
+      { who: "Computer science student", scenario: "Practises DSA on DSALoop before placement season." },
+      { who: "Student", scenario: "Writes a private journal on baby during mid-sems." },
     ],
-    privacy: ["Ecosystem directory respects verified identity and privacy settings. External products carry their own privacy architectures."],
-    investorAngle: "A multi-product ecosystem expands CampusLoop from a campus social network into essential student infrastructure across career, mental wellness, and daily campus living.",
+    privacy: ["The More page shows nothing about you. Other apps have their own privacy policies."],
+    investorAngle:
+      "Several products on one verified account let CampusLoop serve students on careers, wellbeing and daily campus life, not only social posts.",
     faq: [
-      { q: "Are all ecosystem apps included?", a: "Yes, all native utilities and flagship apps are accessible for verified students." },
+      {
+        q: "Do I need a separate account for DSALoop or baby?",
+        a: "No. Sign in with your CampusLoop account.",
+      },
       { q: "Can I connect my own AI agents?", a: "Yes, through the Developer & MCP Portal at /developer." },
     ],
     related: ["developer-mcp", "campus-ai-and-atlas", "getting-started"],
-    keywords: ["ecosystem", "DSALoop", "baby", "campus apps", "MCP", "AI copilot"],
+    keywords: ["more apps", "DSALoop", "baby", "campus apps", "campus tools"],
     updated: "2026-10-22",
   },
 ];

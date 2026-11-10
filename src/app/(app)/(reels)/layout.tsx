@@ -1,28 +1,8 @@
-import type { Metadata } from "next";
+import { privateMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Campus Reels · Student Videos & Vibes",
-  description:
-    "Watch verified student campus reels, hackathon moments, hostel chronicles, and university vibes across Indian colleges.",
-  openGraph: {
-    title: "Campus Reels · Student Videos & Vibes",
-    description:
-      "Watch verified student campus reels, hackathon moments, hostel chronicles, and university vibes across Indian colleges.",
-    url: "https://campusloop.space/reels",
-    siteName: "CampusLoop Reels",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Campus Reels · Student Videos & Vibes",
-    description:
-      "Watch verified student campus reels, hackathon moments, hostel chronicles, and university vibes across Indian colleges.",
-  },
-};
+// Reels are retired: both /reels routes redirect to the feed, so keep them out of search.
+export const metadata = privateMetadata("Reels");
 
 export default function ReelsLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="relative min-h-dvh overflow-hidden bg-black text-white">
-      {children}
-    </div>
-  );
+  return children;
 }

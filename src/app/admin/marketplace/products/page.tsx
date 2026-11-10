@@ -1,11 +1,8 @@
 import type { Metadata } from "next";
+import { privateMetadata } from "@/lib/seo";
 import { AdminProductsClient } from "./admin-products-client";
 
-export const metadata: Metadata = {
-  title: "Products Catalog",
-  description: "Browse, audit, and manage product pricing and stock across all campus merchants.",
-  robots: { index: false, follow: false },
-};
+export const metadata: Metadata = privateMetadata("Products");
 
 export default function AdminProductsPage() {
   return <AdminProductsClient />;

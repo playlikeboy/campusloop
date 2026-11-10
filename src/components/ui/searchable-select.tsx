@@ -129,26 +129,26 @@ export function SearchableSelect({
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         className={cn(
-          "flex w-full cursor-pointer items-center justify-between gap-2 rounded-xl border border-border/60 bg-transparent px-3 py-2.5 text-left text-sm font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors",
-          isOpen ? "border-primary" : "hover:border-border",
+          "flex min-h-11 w-full cursor-pointer items-center justify-between gap-2 rounded-md border bg-surface px-3.5 text-left text-base text-fg outline-none transition-ui focus-visible:ring-3 focus-visible:ring-ring/25",
+          isOpen ? "border-brand" : "border-border-strong",
           disabled && "cursor-not-allowed opacity-60"
         )}
       >
         <span className="flex min-w-0 items-center gap-2">
           {selected?.icon && <span aria-hidden>{selected.icon}</span>}
-          <span className={cn("truncate", !selected && "text-muted-foreground/60")}>
+          <span className={cn("truncate", !selected && "text-fg-subtle")}>
             {selected?.label || placeholder}
           </span>
         </span>
         <ChevronDown
-          className={cn("size-4 shrink-0 text-muted-foreground transition-transform", isOpen && "rotate-180")}
+          className={cn("size-4 shrink-0 text-fg-muted transition-ui", isOpen && "rotate-180")}
         />
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 mt-1.5 w-full overflow-hidden rounded-2xl border border-border/60 bg-card shadow-xl">
-          <div className="relative border-b border-border/40">
-            <Search className="absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+        <div className="absolute z-50 mt-1.5 w-full overflow-hidden rounded-lg border border-border bg-surface shadow-lg">
+          <div className="relative border-b border-border">
+            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-fg-muted" />
             <input
               ref={searchRef}
               type="text"
@@ -156,7 +156,7 @@ export function SearchableSelect({
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={searchPlaceholder}
-              className="w-full bg-transparent py-2.5 pl-9 pr-8 text-sm text-foreground rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/30 placeholder:text-fg-subtle"
+              className="min-h-11 w-full bg-transparent py-2.5 pl-9 pr-12 text-base text-fg outline-none placeholder:text-fg-subtle focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring/30"
             />
             {query && (
               <button
@@ -166,9 +166,9 @@ export function SearchableSelect({
                   searchRef.current?.focus();
                 }}
                 aria-label="Clear search"
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground"
+                className="absolute top-1/2 right-0 flex size-11 -translate-y-1/2 cursor-pointer items-center justify-center text-fg-muted hover:text-fg"
               >
-                <X className="size-3.5" />
+                <X className="size-4" aria-hidden />
               </button>
             )}
           </div>
@@ -187,30 +187,30 @@ export function SearchableSelect({
                     onMouseEnter={() => setActiveIndex(i)}
                     onClick={() => commit(option)}
                     className={cn(
-                      "flex w-full cursor-pointer items-center gap-2.5 px-3 py-2 text-left text-[13px] transition-colors",
-                      i === activeIndex ? "bg-muted/60" : "hover:bg-muted/40"
+                      "flex min-h-11 w-full cursor-pointer items-center gap-2.5 px-3 py-2 text-left text-sm transition-ui",
+                      i === activeIndex ? "bg-surface-muted" : "hover:bg-surface-muted"
                     )}
                   >
                     {option.icon && <span aria-hidden>{option.icon}</span>}
                     <span
                       className={cn(
                         "min-w-0 flex-1 truncate",
-                        isSelected ? "font-bold text-foreground" : "font-medium text-foreground/90"
+                        isSelected ? "font-semibold text-fg" : "text-fg"
                       )}
                     >
                       {option.label}
                     </span>
                     {option.hint && (
-                      <span className="shrink-0 text-[10px] font-bold uppercase text-muted-foreground">
+                      <span className="shrink-0 text-xs text-fg-muted">
                         {option.hint}
                       </span>
                     )}
-                    {isSelected && <Check className="size-3.5 shrink-0 text-primary" />}
+                    {isSelected && <Check className="size-4 shrink-0 text-brand-text" aria-hidden />}
                   </button>
                 );
               })
             ) : (
-              <p className="px-3 py-4 text-[13px] text-muted-foreground">{emptyText}</p>
+              <p className="px-3 py-4 text-sm text-fg-muted">{emptyText}</p>
             )}
           </div>
         </div>

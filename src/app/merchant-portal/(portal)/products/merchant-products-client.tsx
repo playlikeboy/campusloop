@@ -1,192 +1,171 @@
 "use client";
 
-import { Edit2, Plus, Search, Trash2, UtensilsCrossed } from "lucide-react";
+import { Pencil, Plus, Trash2, UtensilsCrossed } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
-import { Skeleton } from "@/components/ui/skeleton";
+import { LoadError } from "@/components/merchant/load-error";
+import { SearchField } from "@/components/merchant/merchant-filters";
+import { MerchantListSkeleton, MerchantPage } from "@/components/merchant/merchant-page";
+import { readError, rupees } from "@/components/merchant/merchant-utils";
+import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Switch } from "@/components/ui/switch";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn } from "@/lib/utils";
 
 export function MerchantProductsClient() {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [query, setQuery] = useState("");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<{ id: string; name: string } | null>(null);
+  const [deleteBusy, setDeleteBusy] = useState(false);
 
-  const { data, isLoading, mutate } = useSWR<{ products: any[]; merchant: any }>(
-    "/api/merchant/products",
-    fetcher,
-    { dedupingInterval: 10000 }
-  );
-
-  const products = data?.products || [];
-
-  const filteredProducts = products.filter((p) => {
-    if (!searchQuery.trim()) return true;
-    const q = searchQuery.toLowerCase();
-    return p.name?.toLowerCase().includes(q) || p.categoryName?.toLowerCase().includes(q);
+  const { data, error, isLoading, mutate } = useSWR<{ products: any[] }>("/api/merchant/products", fetcher, {
+    dedupingInterval: 10000,
   });
+  const products = data?.products || [];
+  const q = query.toLowerCase().trim();
+  const filtered = q
+    ? products.filter((p) => p.name?.toLowerCase().includes(q) || p.categoryName?.toLowerCase().includes(q))
+    : products;
 
-  async function handleToggleAvailable(id: string, currentAvailable: boolean) {
+  async function toggleStock(id: string, available: boolean) {
     sounds.tap();
     haptics.light();
     setUpdatingId(id);
-
     try {
       const res = await fetch("/api/merchant/products", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, isAvailable: !currentAvailable }),
+        body: JSON.stringify({ id, isAvailable: !available }),
       });
-
       if (!res.ok) throw new Error();
-      mutate();
-      toast.success(!currentAvailable ? "Item marked as Available" : "Item marked as Out of Stock");
+      await mutate();
+      toast.success(!available ? "Back in stock" : "Marked out of stock");
     } catch {
-      toast.error("Failed to update availability");
+      toast.error("Couldn't change stock. Try again.");
     } finally {
       setUpdatingId(null);
     }
   }
 
-  async function handleDeleteProduct(id: string) {
-    if (!confirm("Are you sure you want to delete this product?")) return;
-    sounds.tap();
-    haptics.light();
-
+  async function confirmDelete() {
+    if (!deleting) return;
+    setDeleteBusy(true);
     try {
-      const res = await fetch(`/api/merchant/products?id=${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error();
-      mutate();
-      toast.success("Product deleted");
-    } catch {
-      toast.error("Failed to delete product");
+      const res = await fetch(`/api/merchant/products?id=${deleting.id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error(await readError(res, "Couldn't delete the item. Try again."));
+      await mutate();
+      toast.success("Item deleted");
+      setDeleting(null);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't delete the item. Try again.");
+    } finally {
+      setDeleteBusy(false);
     }
   }
 
+  const addButton = (
+    <Button asChild>
+      <Link href="/merchant-portal/products/new">
+        <Plus />
+        Add item
+      </Link>
+    </Button>
+  );
+
   return (
-    <main className="max-w-4xl mx-auto p-4 space-y-5">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-bold text-foreground tracking-tight">Products &amp; Menu</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Manage your store items, pricing, and stock availability
-          </p>
-        </div>
-
-        <Link
-          href="/merchant-portal/products/new"
-          onClick={() => {
-            sounds.tap();
-            haptics.light();
-          }}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-foreground text-background text-xs font-bold hover:opacity-90 transition-opacity shadow-xs cursor-pointer w-fit"
-        >
-          <Plus className="size-3.5 stroke-3" />
-          <span>Add New Product</span>
-        </Link>
-      </div>
-
-      {/* ─── Search Bar ─── */}
-      <div className="relative">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search products by name or category..."
-          className="w-full h-10 rounded-2xl bg-card border border-border/40 pl-10 pr-4 text-xs font-medium placeholder:text-muted-foreground/60 outline-none focus:border-border"
-        />
-      </div>
-
-      {/* ─── Products Table / Cards ─── */}
+    <MerchantPage
+      title="Menu"
+      description="Everything students can order from you."
+      primaryAction={addButton}
+      toolbar={
+        products.length > 0 ? (
+          <SearchField
+            label="Search menu"
+            value={query}
+            onChange={setQuery}
+            placeholder="Search by name or section"
+          />
+        ) : undefined
+      }
+    >
       {isLoading ? (
-        <div className="space-y-3">
-          <Skeleton className="h-20 rounded-2xl" />
-          <Skeleton className="h-20 rounded-2xl" />
-          <Skeleton className="h-20 rounded-2xl" />
-        </div>
-      ) : filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-1 gap-2.5">
-          {filteredProducts.map((p) => (
-            <div
-              key={p.id}
-              className="flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-card border border-border/40 text-xs shadow-2xs"
-            >
-              <div className="flex items-center gap-3 min-w-0 flex-1">
+        <MerchantListSkeleton rows={4} rowClassName="h-20" />
+      ) : error ? (
+        <LoadError what="your menu" onRetry={mutate} />
+      ) : filtered.length > 0 ? (
+        <ul className="divide-y divide-border rounded-lg border border-border bg-surface">
+          {filtered.map((p) => (
+            <li key={p.id} className="flex items-center gap-3 p-3">
+              <div className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-md bg-surface-muted text-fg-subtle">
                 {p.imageUrl ? (
-                  <div className="size-14 rounded-xl bg-muted overflow-hidden shrink-0 border border-border/30">
-                    <img src={p.imageUrl} alt={p.name} className="size-full object-cover" />
-                  </div>
+                  <img src={p.imageUrl} alt="" className="size-full object-cover" loading="lazy" />
                 ) : (
-                  <div className="size-14 rounded-xl bg-muted flex items-center justify-center text-muted-foreground shrink-0">
-                    <UtensilsCrossed className="size-5" />
-                  </div>
+                  <UtensilsCrossed className="size-5" />
                 )}
-
-                <div className="min-w-0 flex-1 space-y-0.5">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-foreground truncate">{p.name}</h3>
-                    <span className="text-[10px] font-bold text-muted-foreground bg-muted px-2 py-0.5 rounded-md">
-                      {p.categoryName}
-                    </span>
-                  </div>
-                  <p className="text-muted-foreground line-clamp-1 text-[11px]">
-                    {p.description || "No description provided"}
-                  </p>
-                  <p className="text-xs font-bold text-foreground">₹{p.price.toLocaleString("en-IN")}</p>
-                </div>
               </div>
-
-              {/* Actions & Stock Toggle */}
-              <div className="flex items-center gap-2 shrink-0">
-                <button
-                  type="button"
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold text-fg">{p.name}</p>
+                <p className="truncate text-sm text-fg-muted">
+                  <span className="tabular-nums">{rupees(p.price)}</span>
+                  {p.categoryName ? ` · ${p.categoryName}` : ""}
+                </p>
+              </div>
+              <label className="flex shrink-0 cursor-pointer items-center gap-2 text-sm text-fg-muted">
+                <span className="hidden sm:inline">{p.isAvailable ? "In stock" : "Sold out"}</span>
+                <Switch
+                  aria-label={`${p.name} in stock`}
+                  checked={Boolean(p.isAvailable)}
                   disabled={updatingId === p.id}
-                  onClick={() => handleToggleAvailable(p.id, p.isAvailable)}
-                  className={cn(
-                    "px-3 py-1.5 rounded-full text-[11px] font-bold border transition-colors cursor-pointer active:scale-95",
-                    p.isAvailable
-                      ? "bg-success-subtle text-success border-success/30 hover:bg-success-subtle"
-                      : "bg-danger-subtle text-danger border-danger/30 hover:bg-danger-subtle"
-                  )}
-                >
-                  {p.isAvailable ? "In Stock" : "Out of Stock"}
-                </button>
-
-                <Link
-                  href={`/merchant-portal/products/${p.id}/edit`}
-                  onClick={() => {
-                    sounds.tap();
-                    haptics.light();
-                  }}
-                  className="size-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
-                  title="Edit product"
-                >
-                  <Edit2 className="size-3.5" />
+                  onCheckedChange={() => void toggleStock(p.id, Boolean(p.isAvailable))}
+                />
+              </label>
+              <Button asChild variant="ghost" size="icon" aria-label={`Edit ${p.name}`}>
+                <Link href={`/merchant-portal/products/${p.id}/edit`}>
+                  <Pencil />
                 </Link>
-
-                <button
-                  type="button"
-                  onClick={() => handleDeleteProduct(p.id)}
-                  className="size-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
-                  title="Delete product"
-                >
-                  <Trash2 className="size-3.5" />
-                </button>
-              </div>
-            </div>
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label={`Delete ${p.name}`}
+                className="hidden text-fg-muted hover:text-danger sm:inline-flex"
+                onClick={() => setDeleting({ id: p.id, name: p.name })}
+              >
+                <Trash2 />
+              </Button>
+            </li>
           ))}
-        </div>
+        </ul>
+      ) : q ? (
+        <EmptyState
+          bordered
+          icon={UtensilsCrossed}
+          title="Nothing matches that"
+          description="Try another word."
+        />
       ) : (
-        <div className="py-24 text-center space-y-2">
-          <UtensilsCrossed className="size-10 text-muted-foreground/40 mx-auto" />
-          <p className="text-sm font-bold text-foreground">No products found</p>
-          <p className="text-xs text-muted-foreground">Add your first menu item to start selling.</p>
-        </div>
+        <EmptyState
+          bordered
+          icon={UtensilsCrossed}
+          title="Your menu is empty"
+          description="Add your first item so students can order."
+          action={addButton}
+        />
       )}
-    </main>
+      <ConfirmDialog
+        isOpen={Boolean(deleting)}
+        title={`Delete ${deleting?.name ?? "this item"}?`}
+        description="Students won't see it anymore. You can't undo this."
+        confirmText="Delete"
+        isLoading={deleteBusy}
+        onConfirm={confirmDelete}
+        onClose={() => setDeleting(null)}
+      />
+    </MerchantPage>
   );
 }

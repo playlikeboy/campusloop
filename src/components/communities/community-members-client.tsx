@@ -1,11 +1,13 @@
 "use client";
 
-import { CheckCircle2, Clock, Crown, Loader2, Search, Users, XCircle } from "lucide-react";
+import { CheckCircle2, Clock, Crown, Search, Users } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import { approveJoinRequest, rejectJoinRequest } from "@/app/(app)/(main)/communities/actions";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { CommunityRoleBadge } from "./community-role-badge";
 
 interface MemberItem {
@@ -62,9 +64,9 @@ export function CommunityMembersClient({
     try {
       await approveJoinRequest(communityId, targetUserId);
       setMembers((prev) => prev.map((m) => (m.userId === targetUserId ? { ...m, status: "ACTIVE" } : m)));
-      toast.success("Member approved!");
+      toast.success("Member approved");
     } catch (err: unknown) {
-      toast.error((err as Error)?.message || "Failed to approve member");
+      toast.error((err as Error)?.message || "Couldn't approve. Try again.");
     } finally {
       setProcessingId(null);
     }
@@ -75,31 +77,35 @@ export function CommunityMembersClient({
     try {
       await rejectJoinRequest(communityId, targetUserId);
       setMembers((prev) => prev.filter((m) => m.userId !== targetUserId));
-      toast.success("Join request declined.");
+      toast.success("Request declined");
     } catch (err: unknown) {
-      toast.error((err as Error)?.message || "Failed to decline request");
+      toast.error((err as Error)?.message || "Couldn't decline. Try again.");
     } finally {
       setProcessingId(null);
     }
   }
 
   return (
-    <div className="space-y-5 select-none animate-in fade-in">
+    <div className="space-y-5">
       {/* Search Box */}
       <div className="relative w-full">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
-        <input
-          type="text"
-          placeholder={`Search ${activeMembers.length} members in c/${communityName}...`}
+        <Search
+          className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-fg-subtle"
+          aria-hidden="true"
+        />
+        <Input
+          type="search"
+          aria-label={`Search members of c/${communityName}`}
+          placeholder="Search members"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full h-10 pl-9 pr-8 rounded-full border border-border/50 bg-card text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-colors shadow-2xs"
+          className="pr-16 pl-10"
         />
         {search && (
           <button
             type="button"
             onClick={() => setSearch("")}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer"
+            className="absolute top-1/2 right-0.5 inline-flex min-h-10 -translate-y-1/2 cursor-pointer items-center rounded-full px-3 text-sm font-semibold text-fg-muted hover:text-fg"
           >
             Clear
           </button>
@@ -108,14 +114,12 @@ export function CommunityMembersClient({
 
       {/* Pending Join Requests (For Admins of Private Groups) */}
       {isAdmin && pendingMembers.length > 0 && (
-        <div className="rounded-3xl bg-card p-5 space-y-3 shadow-2xs">
+        <div className="space-y-3 rounded-lg border border-border bg-surface p-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-xs font-bold text-warning flex items-center gap-1.5">
-              <Clock className="size-4" /> Pending Join Requests ({pendingMembers.length})
+            <h3 className="flex items-center gap-1.5 text-sm font-semibold text-fg">
+              <Clock className="size-4 text-fg-muted" aria-hidden="true" /> Waiting to join (
+              {pendingMembers.length})
             </h3>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-warning-subtle text-warning">
-              Admin Action Required
-            </span>
           </div>
 
           <div className="divide-y divide-border/40">
@@ -124,42 +128,37 @@ export function CommunityMembersClient({
                 <Link href={`/@${m.user.username}`} className="flex items-center gap-3 min-w-0">
                   <Avatar className="size-10 shrink-0">
                     <AvatarImage src={m.user.avatarUrl || ""} />
-                    <AvatarFallback className="text-xs font-bold bg-primary/10 text-primary">
-                      {m.user.displayName[0]}
-                    </AvatarFallback>
+                    <AvatarFallback className="text-xs font-semibold">{m.user.displayName[0]}</AvatarFallback>
                   </Avatar>
                   <div className="min-w-0">
-                    <p className="text-xs font-extrabold text-foreground truncate">{m.user.displayName}</p>
-                    <p className="text-[10px] text-muted-foreground truncate">
+                    <p className="text-xs font-bold text-foreground truncate">{m.user.displayName}</p>
+                    <p className="text-xs text-muted-foreground truncate">
                       @{m.user.username} {m.user.branch ? `• ${m.user.branch}` : ""}
                     </p>
                   </div>
                 </Link>
 
                 <div className="flex items-center gap-2 shrink-0">
-                  <button
+                  <Button
                     type="button"
-                    disabled={processingId === m.userId}
+                    size="sm"
+                    loading={processingId === m.userId}
                     onClick={() => handleApprove(m.userId)}
-                    className="px-3 py-1.5 rounded-full bg-success text-white text-xs font-bold hover:bg-success transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
+                    aria-label={`Approve ${m.user.displayName}`}
                   >
-                    {processingId === m.userId ? (
-                      <Loader2 className="size-3.5 animate-spin" />
-                    ) : (
-                      <CheckCircle2 className="size-3.5" />
-                    )}
-                    <span>Approve</span>
-                  </button>
-
-                  <button
+                    {processingId !== m.userId && <CheckCircle2 />}
+                    Approve
+                  </Button>
+                  <Button
                     type="button"
+                    size="sm"
+                    variant="secondary"
                     disabled={processingId === m.userId}
                     onClick={() => handleReject(m.userId)}
-                    className="px-3 py-1.5 rounded-full bg-muted hover:bg-muted/80 text-foreground text-xs font-bold transition-colors cursor-pointer flex items-center gap-1"
+                    aria-label={`Decline ${m.user.displayName}`}
                   >
-                    <XCircle className="size-3.5 text-muted-foreground" />
-                    <span>Decline</span>
-                  </button>
+                    Decline
+                  </Button>
                 </div>
               </div>
             ))}
@@ -169,8 +168,8 @@ export function CommunityMembersClient({
 
       {/* Leadership & Admins */}
       <div className="space-y-2">
-        <h3 className="text-xs font-bold text-muted-foreground flex items-center gap-1.5 px-1">
-          <Crown className="size-3.5 text-warning" /> Community Leadership
+        <h3 className="flex items-center gap-1.5 px-1 text-sm font-semibold text-fg">
+          <Crown className="size-3.5" aria-hidden="true" /> Admins and mods
         </h3>
 
         <div className="grid gap-2.5 sm:grid-cols-2">
@@ -180,16 +179,14 @@ export function CommunityMembersClient({
                 <div className="flex items-center gap-3 min-w-0">
                   <Avatar className="size-10 shrink-0">
                     <AvatarImage src={m.user.avatarUrl || ""} />
-                    <AvatarFallback className="text-xs font-bold bg-warning-subtle text-warning">
-                      {m.user.displayName[0]}
-                    </AvatarFallback>
+                    <AvatarFallback className="text-xs font-semibold">{m.user.displayName[0]}</AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 space-y-0.5">
-                    <p className="text-xs font-extrabold text-foreground truncate flex items-center gap-1">
+                    <p className="text-xs font-bold text-foreground truncate flex items-center gap-1">
                       <span>{m.user.displayName}</span>
                       <Crown className="size-3 text-warning shrink-0" />
                     </p>
-                    <p className="text-[10px] text-muted-foreground truncate">
+                    <p className="text-xs text-muted-foreground truncate">
                       @{m.user.username} {m.user.branch ? `• ${m.user.branch}` : ""}
                     </p>
                   </div>
@@ -204,7 +201,7 @@ export function CommunityMembersClient({
 
       {/* Members Directory */}
       <div className="space-y-2">
-        <h3 className="text-xs font-bold text-muted-foreground flex items-center gap-1.5 px-1">
+        <h3 className="flex items-center gap-1.5 px-1 text-sm font-semibold text-fg">
           <Users className="size-3.5 text-primary" /> Members ({regularMembers.length})
         </h3>
 
@@ -215,13 +212,11 @@ export function CommunityMembersClient({
                 <div className="flex items-center gap-3 min-w-0">
                   <Avatar className="size-10 shrink-0">
                     <AvatarImage src={m.user.avatarUrl || ""} />
-                    <AvatarFallback className="text-xs font-bold bg-primary/10 text-primary">
-                      {m.user.displayName[0]}
-                    </AvatarFallback>
+                    <AvatarFallback className="text-xs font-semibold">{m.user.displayName[0]}</AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 space-y-0.5">
-                    <p className="text-xs font-extrabold text-foreground truncate">{m.user.displayName}</p>
-                    <p className="text-[10px] text-muted-foreground truncate">
+                    <p className="text-xs font-bold text-foreground truncate">{m.user.displayName}</p>
+                    <p className="text-xs text-muted-foreground truncate">
                       @{m.user.username} {m.user.branch ? `• ${m.user.branch}` : ""}
                     </p>
                   </div>

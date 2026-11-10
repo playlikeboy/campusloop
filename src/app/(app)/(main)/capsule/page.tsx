@@ -1,18 +1,14 @@
 import { desc, eq } from "drizzle-orm";
-import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { timeCapsules, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { privateMetadata } from "@/lib/seo";
 import { CapsuleClient } from "./capsule-client";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Campus Time Capsule | Batch Memories & Predictions",
-  description:
-    "Cryptographically sealed college time capsules. Bury predictions, convocation letters, and memories that unlock on landmark dates.",
-};
+export const metadata = privateMetadata("Time capsule");
 
 export default async function CapsulePage() {
   const user = await hexclaveServerApp.getUser();
@@ -55,6 +51,8 @@ export default async function CapsulePage() {
       const visibleEntries = isActuallyUnlocked
         ? c.entries.map((e) => ({
             ...e,
+            // Anonymous entries must not reveal who wrote them
+            authorId: e.isAnonymous ? null : e.authorId,
             author: e.isAnonymous ? null : e.author,
           }))
         : c.entries
@@ -78,6 +76,7 @@ export default async function CapsulePage() {
       initialCapsules={initialCapsules}
       profileId={profile.id}
       collegeName={profile.institution?.name}
+      hasCollege={Boolean(institutionId)}
     />
   );
 }

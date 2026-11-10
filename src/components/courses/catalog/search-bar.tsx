@@ -4,9 +4,11 @@ import { Search, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
+import { fieldClassName } from "@/components/ui/input";
 import type { Course } from "@/db/schema";
+import { cn } from "@/lib/utils";
 
-/** Catalog search. Submits to /courses?q= so results are linkable; suggests titles while typing. */
+/** Catalog search. Submits to /courses?q= so results can be shared; suggests titles while typing. */
 export function CatalogSearchBar({ initial = "", autoFocus }: { initial?: string; autoFocus?: boolean }) {
   const router = useRouter();
   const [q, setQ] = useState(initial);
@@ -40,6 +42,7 @@ export function CatalogSearchBar({ initial = "", autoFocus }: { initial?: string
   }, []);
 
   return (
+    // biome-ignore lint/a11y/useSemanticElements: <search> is not in the JSX types yet; role="search" is equivalent
     <form
       ref={box}
       action="/courses"
@@ -54,7 +57,10 @@ export function CatalogSearchBar({ initial = "", autoFocus }: { initial?: string
     >
       <label className="relative block">
         <span className="sr-only">Search courses</span>
-        <Search className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" aria-hidden />
+        <Search
+          className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-fg-subtle"
+          aria-hidden
+        />
         <input
           type="search"
           name="q"
@@ -68,33 +74,46 @@ export function CatalogSearchBar({ initial = "", autoFocus }: { initial?: string
           }}
           onFocus={() => setOpen(true)}
           onKeyDown={(e) => e.key === "Escape" && setOpen(false)}
-          aria-controls={listId}
-          aria-expanded={open && hits.length > 0}
-          role="combobox"
-          placeholder="Search Python, web development, SQL, AI..."
-          className="h-12 w-full rounded-2xl bg-card/80 pl-12 pr-11 text-[15px] text-foreground shadow-2xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          placeholder="Search courses, like Python or DSA"
+          className={cn(fieldClassName, "h-12 pl-12 pr-12")}
         />
         {q && (
-          <button type="button" onClick={() => setQ("")} aria-label="Clear search" className="absolute right-2 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:bg-muted cursor-pointer">
-            <X className="size-4" />
+          <button
+            type="button"
+            onClick={() => setQ("")}
+            aria-label="Clear search"
+            className="absolute right-0.5 top-1/2 flex size-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-fg-muted transition-ui hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <X className="size-4" aria-hidden />
           </button>
         )}
       </label>
       {open && hits.length > 0 && (
-        <ul id={listId} role="listbox" className="absolute inset-x-0 top-full z-30 mt-2 overflow-hidden rounded-2xl bg-popover py-1 shadow-lg ring-1 ring-border/50">
+        <ul
+          id={listId}
+          aria-label="Suggestions"
+          className="absolute inset-x-0 top-full z-30 mt-2 overflow-hidden rounded-lg border border-border bg-surface-raised py-1 shadow-lg"
+        >
           {hits.map((h) => (
-            <li key={h.id} role="option" aria-selected={false}>
-              <Link href={`/courses/${h.slug}`} onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted/60 focus-visible:bg-muted/60 focus-visible:outline-none">
-                <Search className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+            <li key={h.id}>
+              <Link
+                href={`/courses/${h.slug}`}
+                onClick={() => setOpen(false)}
+                className="flex min-h-12 items-center gap-3 px-4 py-2 hover:bg-surface-muted focus-visible:bg-surface-muted focus-visible:outline-none"
+              >
+                <Search className="size-4 shrink-0 text-fg-subtle" aria-hidden />
                 <span className="min-w-0">
-                  <span className="block truncate text-sm font-semibold text-foreground">{h.title}</span>
-                  <span className="block truncate text-xs text-muted-foreground">{h.instructorName}</span>
+                  <span className="block truncate text-sm font-semibold text-fg">{h.title}</span>
+                  <span className="block truncate text-xs text-fg-muted">{h.instructorName}</span>
                 </span>
               </Link>
             </li>
           ))}
           <li>
-            <button type="submit" className="w-full px-4 py-2.5 text-left text-sm font-semibold text-primary hover:bg-muted/60 cursor-pointer">
+            <button
+              type="submit"
+              className="min-h-12 w-full cursor-pointer px-4 py-2 text-left text-sm font-semibold text-brand-text hover:bg-surface-muted focus-visible:bg-surface-muted focus-visible:outline-none"
+            >
               See all results for "{q.trim()}"
             </button>
           </li>

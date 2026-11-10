@@ -4,10 +4,10 @@ import { AppShell } from "@/components/shells/app-shell";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 import { isViewerProfile } from "@/lib/viewer";
 
+// Each post page sets its own title, canonical and robots with buildMetadata().
 export const metadata: Metadata = {
-  title: "Posts",
-  description: "Explore student campus loops, confessions, polls, and discussions.",
-  robots: { index: true, follow: true },
+  title: "Post",
+  description: "A post from a student on CampusLoop.",
 };
 
 export default async function PostLayout({ children }: { children: React.ReactNode }) {

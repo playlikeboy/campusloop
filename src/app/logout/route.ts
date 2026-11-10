@@ -37,8 +37,7 @@ const KNOWN_COOKIE_NAMES = [
 function isAuthCookie(name: string): boolean {
   const lower = name.toLowerCase();
   return (
-    KNOWN_COOKIE_NAMES.includes(lower) ||
-    AUTH_COOKIE_PATTERNS.some((pattern) => lower.includes(pattern))
+    KNOWN_COOKIE_NAMES.includes(lower) || AUTH_COOKIE_PATTERNS.some((pattern) => lower.includes(pattern))
   );
 }
 

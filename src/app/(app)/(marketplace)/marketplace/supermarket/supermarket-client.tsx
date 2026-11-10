@@ -1,368 +1,194 @@
 "use client";
 
-import {
-  ChevronRight,
-  Cookie,
-  History,
-  Milk,
-  Minus,
-  PenTool,
-  Plug,
-  Plus,
-  Search,
-  ShoppingBag,
-  ShoppingCart,
-  Sparkles,
-  Zap,
-} from "lucide-react";
+import { Cookie, Milk, PenTool, Plug, Receipt, ShoppingBag, ShoppingCart, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
-import { toast } from "sonner";
+import { useMemo, useState } from "react";
 import useSWR from "swr";
+import { MarketplaceCartBar } from "@/components/marketplace/cart-bar";
+import { MarketplaceLaunchNotice } from "@/components/marketplace/launch-notice";
+import { type MarketplaceProduct, ProductRow } from "@/components/marketplace/product-row";
+import { SearchInput } from "@/components/marketplace/search-input";
+import { StoreRow, type StoreRowData } from "@/components/marketplace/store-row";
+import { buttonVariants } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PageHeader } from "@/components/ui/page-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMarketplaceCart } from "@/hooks/use-marketplace-cart";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn } from "@/lib/utils";
 
 interface SupermarketMarketplaceClientProps {
   profileId: string;
   collegeName?: string;
 }
 
-const MART_AISLES = [
-  { id: "all", label: "All Items", icon: ShoppingCart },
-  { id: "snacks", label: "Midnight Snacks", icon: Cookie },
-  { id: "beverages", label: "Cold Drinks & Dairy", icon: Milk },
-  { id: "stationery", label: "Stationery & Exam", icon: PenTool },
-  { id: "toiletries", label: "Grooming & Soap", icon: Sparkles },
-  { id: "dorm", label: "Hostel Essentials", icon: Plug },
+const AISLES = [
+  { id: "all", label: "All", icon: ShoppingCart, words: [] },
+  {
+    id: "snacks",
+    label: "Snacks",
+    icon: Cookie,
+    words: ["snack", "chips", "biscuit", "namkeen", "chocolate"],
+  },
+  {
+    id: "beverages",
+    label: "Drinks",
+    icon: Milk,
+    words: ["beverage", "drink", "juice", "milk", "soda", "cola"],
+  },
+  {
+    id: "stationery",
+    label: "Stationery",
+    icon: PenTool,
+    words: ["stationery", "pen", "notebook", "register"],
+  },
+  {
+    id: "toiletries",
+    label: "Toiletries",
+    icon: Sparkles,
+    words: ["toiletr", "soap", "shampoo", "toothpaste"],
+  },
+  { id: "dorm", label: "Room stuff", icon: Plug, words: ["dorm", "bucket", "extension", "bulb", "hanger"] },
 ] as const;
 
-export function SupermarketMarketplaceClient({
-  profileId,
-  collegeName = "Campus Hub",
-}: SupermarketMarketplaceClientProps) {
-  const [selectedAisle, setSelectedAisle] = useState<string>("all");
-  const [searchQuery, setSearchQuery] = useState("");
+type MartStore = StoreRowData & { deliveryFee?: number | null; products?: MarketplaceProduct[] };
 
-  const { items, addItem, updateQuantity, totalItemsCount, overallSubtotal } = useMarketplaceCart();
+export function SupermarketMarketplaceClient({ collegeName }: SupermarketMarketplaceClientProps) {
+  const [aisle, setAisle] = useState<string>("all");
+  const [query, setQuery] = useState("");
+  const { totalItemsCount, overallSubtotal } = useMarketplaceCart();
 
-  // Fetch stores in the essentials / mart category
-  const { data, isLoading } = useSWR<{ stores: any[] }>(
-    `/api/marketplace/stores?category=essentials&q=${encodeURIComponent(searchQuery)}`,
+  const { data, isLoading, error } = useSWR<{ stores: MartStore[] }>(
+    `/api/marketplace/stores?category=essentials&q=${encodeURIComponent(query)}`,
     fetcher,
     { dedupingInterval: 10000 }
   );
+  const stores = useMemo(() => data?.stores || [], [data]);
 
-  const stores = data?.stores || [];
-
-  // Extract all catalog products across mart merchants
-  const allProducts = stores.flatMap((s) =>
-    (s.products || []).map((p: any) => ({
-      ...p,
-      merchantId: s.id,
-      merchantName: s.name,
-      deliveryFee: s.deliveryFee,
-      estimatedPrepTime: s.estimatedPrepTime,
-    }))
-  );
-
-  const filteredProducts = allProducts.filter((p) => {
-    if (selectedAisle === "all") return true;
-    const q = selectedAisle.toLowerCase();
-    return (
-      p.name?.toLowerCase().includes(q) ||
-      p.categoryName?.toLowerCase().includes(q) ||
-      p.description?.toLowerCase().includes(q)
+  const products = useMemo(() => {
+    const all = stores.flatMap((s) =>
+      (s.products || []).map((p) => ({
+        ...p,
+        merchantId: s.id,
+        merchantName: s.name,
+        deliveryFee: s.deliveryFee,
+      }))
     );
-  });
+    const words: readonly string[] = AISLES.find((a) => a.id === aisle)?.words ?? [];
+    if (words.length === 0) return all;
+    return all.filter((p) => {
+      const text =
+        `${p.name} ${(p as { categoryName?: string }).categoryName ?? ""} ${p.description ?? ""}`.toLowerCase();
+      return words.some((w) => text.includes(w));
+    });
+  }, [stores, aisle]);
 
   return (
-    <div className="w-full max-w-5xl mx-auto space-y-6 pb-28">
-      {/* ─── Flipkart/Blinkit Style Banner ─── */}
-      <div className="relative rounded-3xl overflow-hidden bg-brand p-4 sm:p-6 text-brand-fg shadow-md">
-        <div className="relative z-10 max-w-lg space-y-1.5">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-sm text-xs font-bold">
-            <Zap className="size-3.5 fill-warning text-warning" />
-            <span>15-Min Hostel Flash Delivery</span>
-          </div>
-          <h1 className="text-xl sm:text-2xl font-black tracking-tight leading-tight">
-            Campus Supermarket &amp; Daily Mart
-          </h1>
-        </div>
+    <div className="mx-auto max-w-2xl space-y-5 pb-24">
+      <PageHeader
+        title="Mart"
+        description="Snacks, stationery and daily stuff, delivered to your hostel."
+        size="md"
+        secondaryActions={
+          <Link
+            href="/marketplace/supermarket/orders"
+            className={buttonVariants({ variant: "outline", size: "sm" })}
+          >
+            <Receipt className="size-4" />
+            Mart orders
+          </Link>
+        }
+      />
 
-        <div className="absolute right-4 -bottom-4 opacity-20 pointer-events-none">
-          <ShoppingBag className="size-32 sm:size-40" />
-        </div>
-      </div>
-
-      {/* ─── Search & Order History Links ─── */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search notebooks, snacks, detergents, shampoo..."
-            className="w-full h-11 pl-10 pr-4 rounded-2xl bg-card border border-border text-xs font-medium text-foreground outline-none focus:border-warning shadow-xs"
-          />
-        </div>
-
-        <Link
-          href="/marketplace/supermarket/orders"
-          onClick={() => {
-            sounds.tap();
-            haptics.light();
-          }}
-          className="flex items-center justify-center gap-1.5 h-11 px-4 rounded-2xl border border-border bg-card hover:bg-muted text-xs font-bold text-muted-foreground hover:text-foreground transition-colors shrink-0 shadow-xs"
-        >
-          <History className="size-3.5" />
-          <span>Mart Orders</span>
-        </Link>
-      </div>
-
-      {/* ─── Department Aisles Pills ─── */}
-      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-        {MART_AISLES.map((aisle) => {
-          const isActive = selectedAisle === aisle.id;
-          const AisleIcon = aisle.icon;
-          return (
-            <button
-              key={aisle.id}
-              type="button"
-              onClick={() => {
-                sounds.tap();
-                haptics.light();
-                setSelectedAisle(aisle.id);
-              }}
-              className={cn(
-                "inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-colors cursor-pointer shrink-0 border",
-                isActive
-                  ? "bg-foreground text-background border-foreground shadow-sm"
-                  : "bg-card border-border text-muted-foreground hover:text-foreground hover:border-foreground/20"
-              )}
-            >
-              <AisleIcon className="size-3.5" />
-              <span>{aisle.label}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* ─── Supermarket Mart Stores Shelf ─── */}
-      {stores.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between px-1">
-            <h2 className="text-sm font-bold text-foreground">
-              Hostel Partner Marts ({stores.length})
-            </h2>
-            <span className="text-xs text-muted-foreground font-medium">Inside Campus Perimeter</span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-            {stores.map((s) => (
-              <Link
-                key={s.id}
-                href={`/marketplace/store/${s.id}`}
+      <div className="space-y-3">
+        <SearchInput
+          value={query}
+          onChange={setQuery}
+          label="Search the mart"
+          placeholder="Search notebooks, chips, soap"
+        />
+        <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4">
+          {AISLES.map((a) => {
+            const Icon = a.icon;
+            return (
+              <Chip
+                key={a.id}
+                selected={aisle === a.id}
+                icon={<Icon />}
                 onClick={() => {
                   sounds.tap();
                   haptics.light();
+                  setAisle(a.id);
                 }}
-                className="flex items-center gap-3 p-3 rounded-2xl border border-border bg-card hover:border-warning transition-colors shadow-xs group"
               >
-                <div className="size-12 rounded-xl bg-muted overflow-hidden shrink-0 border border-border">
-                  <img src={s.logoUrl || s.coverUrl} alt={s.name} className="size-full object-cover" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h3 className="text-xs font-black text-foreground truncate group-hover:text-warning transition-colors">
-                    {s.name}
-                  </h3>
-                  <p className="text-[11px] text-muted-foreground truncate">{s.address}</p>
-                  <p className="inline-flex items-center gap-1 text-[10px] font-bold text-success mt-0.5">
-                    <Zap className="size-3 fill-success text-success" />
-                    <span>{s.estimatedPrepTime || "15 mins"} delivery</span>
-                  </p>
-                </div>
-                <ChevronRight className="size-4 text-muted-foreground shrink-0" />
-              </Link>
-            ))}
-          </div>
+                {a.label}
+              </Chip>
+            );
+          })}
         </div>
-      )}
-
-      {/* ─── Flipkart-Style Product Grid ─── */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between px-1">
-          <h2 className="text-sm font-bold text-foreground">
-            Daily Products &amp; Groceries ({filteredProducts.length})
-          </h2>
-          <span className="text-xs text-muted-foreground font-medium">Instant Cart Add</span>
-        </div>
-
-        {isLoading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            {[1, 2, 3, 4, 5, 6].map((n) => (
-              <div key={n} className="rounded-2xl border border-border bg-card p-3 space-y-2">
-                <Skeleton className="h-28 w-full rounded-xl" />
-                <Skeleton className="h-3 w-3/4 rounded-md" />
-                <Skeleton className="h-4 w-1/2 rounded-md" />
-              </div>
-            ))}
-          </div>
-        ) : filteredProducts.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            {filteredProducts.map((p) => {
-              const inCartItem = items.find((ci) => ci.productId === p.id);
-              const currentQty = inCartItem?.quantity || 0;
-
-              const hasDiscount = p.originalPrice && p.originalPrice > p.price;
-              const discountPercent = hasDiscount
-                ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100)
-                : 0;
-
-              return (
-                <div
-                  key={p.id}
-                  className="rounded-2xl border border-border bg-card p-3 flex flex-col justify-between hover:border-warning hover:shadow-md transition-colors group"
-                >
-                  {/* Product Image & Discount Tag */}
-                  <div className="relative h-28 sm:h-32 w-full rounded-xl bg-muted/40 overflow-hidden flex items-center justify-center p-2 mb-2">
-                    <img
-                      src={
-                        p.imageUrl ||
-                        "https://images.unsplash.com/photo-1542838132-92c53300491e?w=300&h=300&fit=crop"
-                      }
-                      alt={p.name}
-                      className="size-full object-contain group-hover:scale-105 transition-transform"
-                    />
-                    {hasDiscount && (
-                      <span className="absolute left-1.5 top-1.5 px-1.5 py-0.5 rounded-md bg-success text-white text-[9px] font-black uppercase">
-                        {discountPercent}% OFF
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Product Meta */}
-                  <div className="space-y-1">
-                    <p className="text-xs font-bold text-muted-foreground">
-                      {p.categoryName || "Essentials"}
-                    </p>
-                    <h3 className="text-xs font-bold text-foreground line-clamp-2 leading-snug">{p.name}</h3>
-                    <p className="text-[10px] text-muted-foreground line-clamp-1">{p.merchantName}</p>
-                  </div>
-
-                  {/* Pricing and Add to Cart Stepper */}
-                  <div className="flex items-center justify-between gap-1 pt-3 mt-auto">
-                    <div>
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-sm font-black text-foreground">₹{p.price}</span>
-                        {hasDiscount && (
-                          <span className="text-[11px] text-muted-foreground line-through">
-                            ₹{p.originalPrice}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Quantity Stepper */}
-                    {currentQty > 0 ? (
-                      <div className="flex items-center rounded-xl border border-primary bg-primary/10 text-primary h-7 px-1">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            sounds.tap();
-                            haptics.light();
-                            updateQuantity(p.id, currentQty - 1);
-                          }}
-                          className="size-5 flex items-center justify-center hover:bg-primary/20 rounded-md transition-colors"
-                        >
-                          <Minus className="size-3" />
-                        </button>
-                        <span className="w-5 text-center text-xs font-black">{currentQty}</span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            sounds.tap();
-                            haptics.light();
-                            updateQuantity(p.id, currentQty + 1);
-                          }}
-                          className="size-5 flex items-center justify-center hover:bg-primary/20 rounded-md transition-colors"
-                        >
-                          <Plus className="size-3" />
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          sounds.ting();
-                          haptics.medium();
-                          addItem({
-                            productId: p.id,
-                            merchantId: p.merchantId,
-                            merchantName: p.merchantName,
-                            merchantSlug: p.merchantSlug || p.merchantId,
-                            productName: p.name,
-                            price: p.price,
-                            imageUrl: p.imageUrl,
-                            deliveryFee: p.deliveryFee || 15,
-                            quantity: 1,
-                          });
-                          toast.success(`Added ${p.name} to cart`);
-                        }}
-                        className="h-7 px-3 rounded-xl bg-foreground text-background hover:opacity-90 active:scale-95 text-xs font-black transition-[opacity,transform] flex items-center gap-1 shadow-xs cursor-pointer"
-                      >
-                        <Plus className="size-3 stroke-3" />
-                        <span>ADD</span>
-                      </button>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="p-12 rounded-3xl border border-dashed border-border bg-card/50 text-center space-y-3">
-            <ShoppingBag className="size-10 text-muted-foreground mx-auto" />
-            <h3 className="text-sm font-bold text-foreground">No supermarket products found</h3>
-            <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-              No mart items matching &quot;{searchQuery}&quot;. Check back as campus stores restock.
-            </p>
-          </div>
-        )}
       </div>
 
-      {/* ─── Sticky Cart Bottom Bar if Items in Cart ─── */}
-      {totalItemsCount > 0 && (
-        <div className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] md:bottom-6 left-4 right-4 max-w-lg mx-auto z-50">
-          <Link
-            href="/marketplace/checkout"
-            onClick={() => {
-              sounds.ting();
-              haptics.medium();
-            }}
-            className="flex items-center justify-between p-3.5 px-5 rounded-2xl bg-foreground text-background shadow-xl hover:opacity-95 active:scale-98 transition-[opacity,transform]"
-          >
-            <div className="flex items-center gap-3">
-              <div className="size-8 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-black text-xs">
-                {totalItemsCount}
-              </div>
-              <div>
-                <p className="text-xs font-black">₹{overallSubtotal}</p>
-                <p className="text-[10px] opacity-80">Tap to place instant order</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-1.5 text-xs font-black">
-              <span>View Cart &amp; Pay</span>
-              <ChevronRight className="size-4" />
-            </div>
-          </Link>
+      {isLoading ? (
+        <div className="space-y-3" aria-busy="true" aria-label="Loading the mart">
+          {[0, 1, 2, 3].map((n) => (
+            <Skeleton key={n} className="h-16 w-full rounded-md" />
+          ))}
         </div>
+      ) : error ? (
+        <EmptyState
+          icon={ShoppingBag}
+          title="Couldn't load the mart"
+          description="Check your internet and pull down to refresh."
+        />
+      ) : stores.length === 0 && !query ? (
+        <div className="space-y-4">
+          <EmptyState icon={ShoppingBag} title="No mart shops here yet" size="compact" />
+          <MarketplaceLaunchNotice collegeName={collegeName} />
+        </div>
+      ) : (
+        <>
+          {stores.length > 0 && (
+            <section aria-labelledby="mart-shops" className="space-y-1">
+              <h2 id="mart-shops" className="font-sans text-base font-semibold text-fg">
+                Shops
+              </h2>
+              <ul className="-mx-3">
+                {stores.map((s) => (
+                  <StoreRow key={s.id} store={s} />
+                ))}
+              </ul>
+            </section>
+          )}
+          <section aria-labelledby="mart-items">
+            <h2 id="mart-items" className="font-sans text-base font-semibold text-fg">
+              Items
+            </h2>
+            {products.length > 0 ? (
+              <ul className="divide-y divide-border">
+                {products.map((p) => (
+                  <ProductRow
+                    key={`${p.merchantId}-${p.id}`}
+                    product={p}
+                    showStore={stores.length > 1}
+                    deliveryFee={p.deliveryFee ?? undefined}
+                  />
+                ))}
+              </ul>
+            ) : (
+              <EmptyState
+                size="compact"
+                icon={ShoppingBag}
+                title={query ? `Nothing matches "${query}"` : "Nothing in this aisle yet"}
+                description="Try another aisle or a shorter word."
+              />
+            )}
+          </section>
+        </>
       )}
+
+      <MarketplaceCartBar count={totalItemsCount} total={overallSubtotal} />
     </div>
   );
 }

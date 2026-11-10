@@ -3,6 +3,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { articles, articleVotes, savedArticles, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { LP_ACTION_REWARDS } from "@/constants/gamification";
 import { awardPoints } from "@/lib/gamification-server";
 import { smartifyMarkdown } from "@/lib/articles/smart-blocks";
 import { calculateReadingTime, createExcerpt } from "@/lib/articles/text";
@@ -152,7 +153,7 @@ async function handleUpdate(req: NextRequest, paramsPromise: Promise<{ slug: str
     // Award +15 LP idempotently if transitioning from DRAFT to PUBLISHED
     if (wasDraft && isNowPublishing) {
       try {
-        await awardPoints(currentProfile.id, 15, "ARTICLE_PUBLISHED", {
+        await awardPoints(currentProfile.id, LP_ACTION_REWARDS.PUBLISH_ARTICLE, "ARTICLE_PUBLISHED", {
           referenceId: article.id,
           actorId: currentProfile.id,
         });

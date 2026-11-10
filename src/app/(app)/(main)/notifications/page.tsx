@@ -1,17 +1,14 @@
 import { and, desc, eq, sql } from "drizzle-orm";
-import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { notifications, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { privateMetadata } from "@/lib/seo";
 import { NotificationsClient } from "./notifications-client";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Notifications",
-  description: "Stay updated with campus replies, upvotes, mentions, and secret crushes.",
-};
+export const metadata = privateMetadata("Notifications");
 
 export default async function NotificationsPage() {
   const user = await hexclaveServerApp.getUser();
@@ -65,7 +62,7 @@ export default async function NotificationsPage() {
           actor: {
             id: "hidden",
             username: "secret_crush",
-            displayName: "Anonymous Student",
+            displayName: "Someone",
             avatarUrl: null,
             points: 0,
             institutionId: null,

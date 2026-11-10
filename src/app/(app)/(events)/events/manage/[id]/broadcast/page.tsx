@@ -1,36 +1,16 @@
-import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
 import { eq, or } from "drizzle-orm";
+import { notFound, redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { events, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { privateMetadata } from "@/lib/seo";
 import { BroadcastClient } from "./broadcast-client";
 
 interface BroadcastPageProps {
   params: Promise<{ id: string }>;
 }
 
-export async function generateMetadata({ params }: BroadcastPageProps): Promise<Metadata> {
-  const { id } = await params;
-  try {
-    const db = getDb();
-    const event = await db.query.events.findFirst({
-      where: or(eq(events.id, id), eq(events.slug, id)),
-    });
-
-    if (!event) {
-      return { title: "Broadcast Announcement" };
-    }
-
-    return {
-      title: `Broadcast: ${event.title}`,
-      description: `Send in-app notifications and announcements to all registered attendees of ${event.title}.`,
-      robots: { index: false, follow: false },
-    };
-  } catch {
-    return { title: "Broadcast Announcement" };
-  }
-}
+export const metadata = privateMetadata("Message attendees");
 
 export default async function BroadcastPage({ params }: BroadcastPageProps) {
   const { id } = await params;

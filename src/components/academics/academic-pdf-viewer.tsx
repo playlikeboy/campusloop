@@ -258,13 +258,13 @@ export function AcademicPdfViewer({
     }
 
     if (!rawUrl) {
-      toast.info("Preparing direct download link...");
+      toast.info("Getting your download ready…");
       return;
     }
 
     if (isDriveFolder) {
       window.open(cleanDriveFolderUrl, "_blank", "noopener,noreferrer");
-      toast.success("Opening Google Drive study collection! Zero login required");
+      toast.success("Opening the Google Drive folder");
       return;
     }
 
@@ -284,7 +284,7 @@ export function AcademicPdfViewer({
     link.click();
     document.body.removeChild(link);
 
-    toast.success("Download started! Zero login required");
+    toast.success("Download started");
   }
 
   // Handle zoom controls
@@ -351,7 +351,7 @@ export function AcademicPdfViewer({
           <div className="flex size-16 sm:size-20 items-center justify-center rounded-xl bg-brand-subtle border border-brand-subtle-border text-brand-text">
             <Cpu className="size-8 sm:size-10 animate-pulse" />
           </div>
-          <span className="absolute -bottom-1.5 -right-1.5 px-2 py-0.5 rounded-md bg-brand text-brand-fg font-mono font-bold text-[10px] shadow-xs">
+          <span className="absolute -bottom-1.5 -right-1.5 px-2 py-0.5 rounded-md bg-brand text-brand-fg font-mono font-bold text-xs shadow-xs">
             .MS14
           </span>
         </div>
@@ -360,7 +360,7 @@ export function AcademicPdfViewer({
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-subtle text-brand-text border border-brand-subtle-border">
             National Instruments Multisim Circuit Simulation
           </span>
-          <h3 className="text-base sm:lg font-black text-foreground">{title}</h3>
+          <h3 className="text-base sm:lg font-bold text-foreground">{title}</h3>
           <p className="text-xs text-muted-foreground leading-relaxed">
             Interactive circuit schematic &amp; simulation file for {subjectCode}. Compatible with NI Multisim
             v14.0+. Directly download and simulate BJT, Op-Amp, and amplifier stages.
@@ -371,10 +371,10 @@ export function AcademicPdfViewer({
           <button
             type="button"
             onClick={handleDownloadClick}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black bg-brand hover:bg-brand-hover text-brand-fg shadow-xs cursor-pointer transition-colors active:scale-95"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold bg-brand hover:bg-brand-hover text-brand-fg shadow-xs cursor-pointer transition-colors active:scale-95"
           >
             <Download className="size-4" />
-            <span>Download .ms14 File</span>
+            <span>Download .ms14 file</span>
           </button>
 
           {rawUrl && (
@@ -382,7 +382,7 @@ export function AcademicPdfViewer({
               href={rawUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold bg-muted hover:bg-muted/80 text-foreground border border-border/60 transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold bg-muted hover:bg-surface-muted text-foreground border border-border/60 transition-colors cursor-pointer"
             >
               <ExternalLink className="size-3.5" />
               <span>Direct Link</span>
@@ -427,17 +427,15 @@ export function AcademicPdfViewer({
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold transition-colors shrink-0 cursor-pointer border",
                   isSelected
-                    ? "bg-foreground text-background border-foreground shadow-xs font-black"
-                    : "bg-background/80 hover:bg-background text-muted-foreground hover:text-foreground border-border/40"
+                    ? "bg-foreground text-background border-foreground shadow-xs font-bold"
+                    : "bg-surface hover:bg-background text-muted-foreground hover:text-foreground border-border/40"
                 )}
               >
-                <span className="text-[10px] opacity-70">#{idx + 1}</span>
+                <span className="text-xs opacity-70">#{idx + 1}</span>
                 <span className="truncate max-w-[130px] sm:max-w-[220px]">
                   {att.title || `Document ${idx + 1}`}
                 </span>
-                <span className="text-[9px] px-1 py-0.2 rounded bg-muted/30 uppercase font-mono">
-                  {att.type || "PDF"}
-                </span>
+                <span className="text-xs px-1 py-0.2 rounded bg-muted/30 font-mono">{att.type || "PDF"}</span>
               </button>
             );
           })}
@@ -493,7 +491,7 @@ export function AcademicPdfViewer({
               haptics.medium();
               window.open(chatGptUrl, "_blank", "noopener,noreferrer");
             }}
-            className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-muted/60 hover:bg-muted text-foreground border border-border/40 transition-colors cursor-pointer"
+            className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-muted/60 hover:bg-muted text-foreground border border-border/40 transition-colors cursor-pointer"
             title="Study this syllabus on ChatGPT"
           >
             <Bot className="size-3" />
@@ -507,7 +505,7 @@ export function AcademicPdfViewer({
               haptics.medium();
               window.open(claudeUrl, "_blank", "noopener,noreferrer");
             }}
-            className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-muted/60 hover:bg-muted text-foreground border border-border/40 transition-colors cursor-pointer"
+            className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-muted/60 hover:bg-muted text-foreground border border-border/40 transition-colors cursor-pointer"
             title="Study this syllabus on Claude"
           >
             <Sparkles className="size-3" />
@@ -523,8 +521,8 @@ export function AcademicPdfViewer({
                 haptics.medium();
                 onOpenPlayer(currentAttachment, safeIdx);
               }}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-brand-subtle hover:bg-brand-subtle/80 text-brand-text border border-brand-subtle-border transition-colors cursor-pointer"
-              title="Open distraction-free course player with notes"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-brand-subtle hover:bg-brand-subtle/80 text-brand-text border border-brand-subtle-border transition-colors cursor-pointer"
+              title="Open player with notes"
             >
               <ListVideo className="size-3" />
               <span>Course Player</span>
@@ -539,7 +537,7 @@ export function AcademicPdfViewer({
                 onClick={() => {
                   sounds.tap();
                   setFolderViewMode("grid");
-                  toast.info("Switched to Drive Grid view");
+                  toast.info("Grid view");
                 }}
                 className={cn(
                   "p-1 rounded-full transition-colors cursor-pointer",
@@ -557,7 +555,7 @@ export function AcademicPdfViewer({
                 onClick={() => {
                   sounds.tap();
                   setFolderViewMode("list");
-                  toast.info("Switched to Drive List view");
+                  toast.info("List view");
                 }}
                 className={cn(
                   "p-1 rounded-full transition-colors cursor-pointer",
@@ -583,16 +581,14 @@ export function AcademicPdfViewer({
                 setIsLoading(true);
                 setViewerEngine((e) => (e === "google" ? "native" : "google"));
                 toast.info(
-                  viewerEngine === "google"
-                    ? "Switched to Native Browser PDF View"
-                    : "Switched to Google Docs Viewer API"
+                  viewerEngine === "google" ? "Using your browser's PDF viewer" : "Using Google Docs viewer"
                 );
               }}
-              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border border-border/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border border-border/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
               title={
                 viewerEngine === "google"
-                  ? "Currently using Google Docs Viewer API. Click to switch to Native View"
-                  : "Currently using Native View. Click to switch to Google Docs Viewer API"
+                  ? "Using Google Docs viewer. Switch to browser viewer"
+                  : "Using browser viewer. Switch to Google Docs viewer"
               }
             >
               <span>{viewerEngine === "google" ? "Cloud View" : "Native View"}</span>
@@ -612,7 +608,7 @@ export function AcademicPdfViewer({
               >
                 <ZoomOut className="size-3.5" />
               </button>
-              <span className="text-[10px] font-mono font-bold px-1.5 text-muted-foreground tabular-nums">
+              <span className="text-xs font-mono font-bold px-1.5 text-muted-foreground tabular-nums">
                 {zoomLevel}%
               </span>
               <button
@@ -635,7 +631,7 @@ export function AcademicPdfViewer({
               sounds.tap();
               haptics.light();
               setIsNightMode(!isNightMode);
-              toast.info(isNightMode ? "Reader night mode off" : "Reader night mode enabled (inverted)");
+              toast.info(isNightMode ? "Reader night mode off" : "Night reading on");
             }}
             className={cn(
               "p-1.5 rounded-full border transition-colors cursor-pointer",
@@ -643,7 +639,7 @@ export function AcademicPdfViewer({
                 ? "bg-brand-subtle text-brand-text border-brand-subtle-border"
                 : "border-border/50 hover:bg-muted text-muted-foreground hover:text-foreground"
             )}
-            title={isNightMode ? "Disable dark reader" : "Enable dark reader for night study"}
+            title={isNightMode ? "Disable dark reader" : "Night reading"}
             aria-label={isNightMode ? "Disable dark reader" : "Enable dark reader"}
           >
             {isNightMode ? <Sun className="size-3.5" /> : <Moon className="size-3.5" />}
@@ -670,7 +666,7 @@ export function AcademicPdfViewer({
           <button
             type="button"
             onClick={toggleFullscreen}
-            className="p-1.5 rounded-full border border-border/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            className="flex size-10 items-center justify-center rounded-full border border-border/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             title={isFullscreen ? "Exit Fullscreen" : "Fullscreen Reader"}
             aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
           >
@@ -687,8 +683,8 @@ export function AcademicPdfViewer({
                   isYoutube
                     ? "Opening YouTube video!"
                     : isHtmlAttachment
-                      ? "Opening raw HTML file in a new tab!"
-                      : "Opening course portal in new tab!"
+                      ? "Opening the file in a new tab"
+                      : "Opening the course site in a new tab"
                 );
               } else {
                 handleDownloadClick();
@@ -697,14 +693,14 @@ export function AcademicPdfViewer({
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-brand hover:bg-brand-hover text-brand-fg shadow-xs cursor-pointer transition-colors active:scale-95"
             title={
               isYoutube
-                ? "Watch on YouTube (No login required)"
+                ? "Watch on YouTube"
                 : isHtmlAttachment
-                  ? "Open raw HTML file in a new tab"
+                  ? "Open file in a new tab"
                   : isGoogleSites || isGenericWebSite
-                    ? "Open website in new tab (No login required)"
+                    ? "Open website in a new tab"
                     : isDriveFolder
-                      ? "Open folder in Google Drive (No login required)"
-                      : "Download PDF (No login required)"
+                      ? "Open folder in Google Drive"
+                      : "Download PDF"
             }
           >
             {isYoutube ? (
@@ -737,7 +733,7 @@ export function AcademicPdfViewer({
               type="button"
               onClick={() => {
                 navigator.clipboard.writeText(isDriveFolder ? cleanDriveFolderUrl : rawUrl);
-                toast.success("Study link copied to clipboard!");
+                toast.success("Link copied");
               }}
               className="p-1.5 rounded-full border border-border/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
               title="Copy direct URL"
@@ -758,11 +754,9 @@ export function AcademicPdfViewer({
             </span>
             <div className="min-w-0 leading-tight">
               <p className="font-bold text-xs truncate">
-                {isYoutubePlaylist ? "Curated YouTube Lecture Playlist" : "Verified YouTube Video Lecture"}
+                {isYoutubePlaylist ? "YouTube playlist" : "YouTube lecture"}
               </p>
-              <p className="text-[10px] text-muted-foreground truncate">
-                Distraction-free campus cinema learning mode. Watch and take notes seamlessly.
-              </p>
+              <p className="text-xs text-muted-foreground truncate">Watch full screen and take notes.</p>
             </div>
           </div>
 
@@ -771,7 +765,7 @@ export function AcademicPdfViewer({
               href={rawUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-brand hover:bg-brand-hover text-brand-fg font-bold text-[11px] transition-colors shadow-xs"
+              className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-brand hover:bg-brand-hover text-brand-fg font-bold text-xs transition-colors shadow-xs"
             >
               <span>Watch on YouTube</span>
               <ExternalLink className="size-2.5" />
@@ -788,8 +782,8 @@ export function AcademicPdfViewer({
               <Lock className="size-3.5" />
             </span>
             <div className="min-w-0 leading-tight">
-              <p className="font-bold text-xs truncate">Static HTML Preview</p>
-              <p className="text-[10px] text-muted-foreground truncate">
+              <p className="font-bold text-xs truncate">Page preview</p>
+              <p className="text-xs text-muted-foreground truncate">
                 Rendered in a sandboxed frame for safety — scripts are disabled.
               </p>
             </div>
@@ -799,7 +793,7 @@ export function AcademicPdfViewer({
               href={rawUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-brand hover:bg-brand-hover text-brand-fg font-bold text-[11px] transition-colors shadow-xs"
+              className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-brand hover:bg-brand-hover text-brand-fg font-bold text-xs transition-colors shadow-xs"
             >
               <span>Open Raw File</span>
               <ExternalLink className="size-2.5" />
@@ -817,11 +811,9 @@ export function AcademicPdfViewer({
             </span>
             <div className="min-w-0 leading-tight">
               <p className="font-bold text-xs truncate">
-                {isGoogleSites
-                  ? "Official Campus Course Website / Professor Portal"
-                  : "External Web Resource"}
+                {isGoogleSites ? "Course website" : "External Web Resource"}
               </p>
-              <p className="text-[10px] text-muted-foreground truncate">
+              <p className="text-xs text-muted-foreground truncate">
                 Live course website embed. If your college network blocks in-frame viewing, tap Open Portal.
               </p>
             </div>
@@ -832,9 +824,9 @@ export function AcademicPdfViewer({
               href={rawUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-brand hover:bg-brand-hover text-brand-fg font-bold text-[11px] transition-colors shadow-xs"
+              className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-brand hover:bg-brand-hover text-brand-fg font-bold text-xs transition-colors shadow-xs"
             >
-              <span>Open Course Portal</span>
+              <span>Open course site</span>
               <ExternalLink className="size-2.5" />
             </a>
           </div>
@@ -849,8 +841,8 @@ export function AcademicPdfViewer({
               <FolderOpen className="size-3.5" />
             </span>
             <div className="min-w-0 leading-tight">
-              <p className="font-bold text-xs truncate">Google Drive Multi-File Course Collection</p>
-              <p className="text-[10px] text-muted-foreground truncate">
+              <p className="font-bold text-xs truncate">Google Drive folder</p>
+              <p className="text-xs text-muted-foreground truncate">
                 Contains verified lecture slides, modules, problem sets &amp; notes
               </p>
             </div>
@@ -861,9 +853,9 @@ export function AcademicPdfViewer({
               href={cleanDriveFolderUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-brand hover:bg-brand-hover text-brand-fg font-bold text-[11px] transition-colors shadow-xs"
+              className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-brand hover:bg-brand-hover text-brand-fg font-bold text-xs transition-colors shadow-xs"
             >
-              <span>Open Full Folder</span>
+              <span>Open folder</span>
               <ExternalLink className="size-2.5" />
             </a>
           </div>
@@ -881,19 +873,19 @@ export function AcademicPdfViewer({
             }}
           >
             {isLoading && (
-              <div className="absolute inset-0 bg-surface/90 flex flex-col items-center justify-center p-6 text-center space-y-3 z-10 transition-opacity duration-300 pointer-events-none">
+              <div className="absolute inset-0 bg-surface flex flex-col items-center justify-center p-6 text-center space-y-3 z-10 transition-opacity duration-300 pointer-events-none">
                 <div className="flex size-12 items-center justify-center rounded-lg bg-brand-subtle border border-brand-subtle-border text-brand-text">
                   <Loader2 className="size-6 animate-spin" />
                 </div>
                 <div className="space-y-1">
                   <p className="text-xs font-bold text-foreground">
-                    {isDriveFolder ? "Loading Google Drive Collection..." : "Streaming Document Preview..."}
+                    {isDriveFolder ? "Loading folder…" : "Loading preview…"}
                   </p>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     {isDriveFolder
-                      ? "Interactive Folder Explorer • Zero login required"
+                      ? "Google Drive folder"
                       : viewerEngine === "google" || isGoogleDrive
-                        ? "Fast Cloud Preview • Zero login required"
+                        ? "Preview"
                         : "Native PDF Viewer"}
                   </p>
                 </div>
@@ -904,7 +896,7 @@ export function AcademicPdfViewer({
               key={embedUrl}
               src={embedUrl}
               title={title}
-              className={cn("w-full h-full border-0", isYoutube ? "bg-black" : "bg-surface")}
+              className={cn("w-full h-full border-0", isYoutube ? "bg-surface-sunken" : "bg-surface")}
               allow={
                 isHtmlAttachment
                   ? undefined
@@ -933,7 +925,7 @@ export function AcademicPdfViewer({
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-subtle text-brand-text border border-brand-subtle-border">
                 Google Drive Course Collection
               </span>
-              <h3 className="text-base sm:text-lg font-black text-foreground">{title}</h3>
+              <h3 className="text-base sm:text-lg font-bold text-foreground">{title}</h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
                 This study collection is hosted on Google Drive. Access all lecture modules, past year
                 questions, and notes directly.
@@ -944,7 +936,7 @@ export function AcademicPdfViewer({
                 href={cleanDriveFolderUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black bg-brand hover:bg-brand-hover text-brand-fg shadow-xs transition-colors active:scale-95"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold bg-brand hover:bg-brand-hover text-brand-fg shadow-xs transition-colors active:scale-95"
               >
                 <FolderOpen className="size-4" />
                 <span>Open in Google Drive</span>
@@ -954,9 +946,9 @@ export function AcademicPdfViewer({
                 type="button"
                 onClick={() => {
                   navigator.clipboard.writeText(cleanDriveFolderUrl);
-                  toast.success("Drive link copied to clipboard!");
+                  toast.success("Drive link copied");
                 }}
-                className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold bg-muted hover:bg-muted/80 text-foreground border border-border/60 transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold bg-muted hover:bg-surface-muted text-foreground border border-border/60 transition-colors cursor-pointer"
               >
                 <Copy className="size-3.5" />
                 <span>Copy Link</span>
@@ -970,14 +962,12 @@ export function AcademicPdfViewer({
             </div>
             <div>
               <p className="text-sm font-bold text-foreground">Direct Cloud Document</p>
-              <p className="text-xs text-muted-foreground mt-1 max-w-sm">
-                This document is available for direct zero-login download.
-              </p>
+              <p className="text-xs text-muted-foreground mt-1 max-w-sm">You can download this file.</p>
             </div>
             <button
               type="button"
               onClick={handleDownloadClick}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black bg-brand text-brand-fg hover:bg-brand-hover shadow-xs cursor-pointer transition-colors"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold bg-brand text-brand-fg hover:bg-brand-hover shadow-xs cursor-pointer transition-colors"
             >
               <Download className="size-4" />
               <span>Download &amp; Open Document</span>
@@ -1001,7 +991,7 @@ export function AcademicPdfViewer({
                 href={cleanDriveFolderUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black bg-brand hover:bg-brand-hover text-brand-fg cursor-pointer shadow-xs"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold bg-brand hover:bg-brand-hover text-brand-fg cursor-pointer shadow-xs"
               >
                 <FolderOpen className="size-4" />
                 <span>Open Full Folder in Google Drive</span>
@@ -1010,7 +1000,7 @@ export function AcademicPdfViewer({
               <button
                 type="button"
                 onClick={handleDownloadClick}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black bg-brand text-brand-fg hover:bg-brand-hover cursor-pointer shadow-xs"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold bg-brand text-brand-fg hover:bg-brand-hover cursor-pointer shadow-xs"
               >
                 <Download className="size-4" />
                 <span>Download PDF</span>
@@ -1021,7 +1011,7 @@ export function AcademicPdfViewer({
       </div>
 
       {/* ─── Footer Notice ─── */}
-      <div className="px-4 py-1.5 bg-muted/20 border-t border-border/30 flex items-center justify-between text-[10px] text-muted-foreground">
+      <div className="px-4 py-1.5 bg-muted/20 border-t border-border/30 flex items-center justify-between text-xs text-muted-foreground">
         <span className="flex items-center gap-1 font-semibold text-brand-text">
           <span>Public Access: Free reading &amp; download (No sign-in required)</span>
         </span>

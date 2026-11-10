@@ -177,6 +177,22 @@ const nextConfig: NextConfig = {
         destination: "/academics",
         permanent: false,
       },
+      // Old and duplicate app routes. Keep in sync with LEGACY_ROUTE_REDIRECTS
+      // in src/constants/navigation.ts. Query strings are passed through.
+      ...[
+        ["/ride-share", "/rideshare"],
+        ["/housing-and-flats", "/housing"],
+        ["/gaming-arena", "/gaming"],
+        ["/streak", "/streaks"],
+        ["/utilities", "/living"],
+        ["/campus", "/living"],
+        ["/hub", "/living"],
+        ["/ecosystem", "/more"],
+        ["/overview", "/pitch"],
+        ["/dating", "/matching"],
+        ["/dating/discover", "/matching"],
+        ["/dating/:path(filters|likes|matches|requests|settings)", "/matching/:path"],
+      ].map(([source, destination]) => ({ source, destination, permanent: true })),
     ];
   },
 };

@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
     const coverImage = typeof body?.coverImage === "string" ? body.coverImage.trim() : "";
 
     if (!title || !rawUnlockDate) {
-      return NextResponse.json({ error: "Title and target unlock date are required" }, { status: 400 });
+      return NextResponse.json({ error: "Add a title and an opening date." }, { status: 400 });
     }
     if (title.length > 120) {
       return NextResponse.json({ error: "Capsule titles must be 120 characters or fewer" }, { status: 400 });
@@ -118,10 +118,10 @@ export async function POST(req: NextRequest) {
 
     const unlockDate = new Date(rawUnlockDate);
     if (!Number.isFinite(unlockDate.getTime())) {
-      return NextResponse.json({ error: "Invalid target unlock date" }, { status: 400 });
+      return NextResponse.json({ error: "That opening date is not valid. Pick a date from the calendar." }, { status: 400 });
     }
     if (unlockDate.getTime() <= Date.now()) {
-      return NextResponse.json({ error: "Choose an unlock date in the future" }, { status: 400 });
+      return NextResponse.json({ error: "Pick an opening date in the future." }, { status: 400 });
     }
 
     if (coverImage) {

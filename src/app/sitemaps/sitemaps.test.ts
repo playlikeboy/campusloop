@@ -37,7 +37,15 @@ describe("sitemap URL hygiene", () => {
       expect(xml).not.toContain(".space/app");
       expect(xml).not.toMatch(/<loc>[^<]*\/app\//);
       // Private / noindex surfaces must never be submitted for indexing.
-      for (const blocked of ["/feeds", "/confessions", "/saved", "/notifications", "/settings", "/chat", "/@"]) {
+      for (const blocked of [
+        "/feeds",
+        "/confessions",
+        "/saved",
+        "/notifications",
+        "/settings",
+        "/chat",
+        "/@",
+      ]) {
         expect(xml).not.toContain(`<loc>https://campusloop.space${blocked}`);
       }
       const urlCount = (xml.match(/<url>/g) ?? []).length;
@@ -51,7 +59,18 @@ describe("robots.txt", () => {
     const result = robots();
     const rules = Array.isArray(result.rules) ? result.rules[0] : result.rules;
     const disallow = Array.isArray(rules.disallow) ? rules.disallow : [rules.disallow];
-    for (const path of ["/feeds", "/chat", "/notifications", "/settings", "/saved", "/admin", "/api/", "/app/", "/@", "/confessions"]) {
+    for (const path of [
+      "/feeds",
+      "/chat",
+      "/notifications",
+      "/settings",
+      "/saved",
+      "/admin",
+      "/api/",
+      "/app/",
+      "/@",
+      "/confessions",
+    ]) {
       expect(disallow).toContain(path);
     }
     expect(rules.allow).toBeUndefined();

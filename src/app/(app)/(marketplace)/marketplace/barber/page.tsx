@@ -1,14 +1,10 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { privateMetadata } from "@/lib/seo";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 import { BarberMarketplaceClient } from "./barber-client";
 
-export const metadata: Metadata = {
-  title: "Campus Barber & Salon Grooming",
-  description:
-    "Book live token slots for haircuts, beard styling, head massage, and facial de-tan at campus salons near your hostel.",
-  alternates: { canonical: "https://campusloop.space/marketplace/barber" },
-};
+export const metadata: Metadata = privateMetadata("Barber");
 
 export default async function BarberMarketplacePage() {
   const user = await getCachedAuthUser();

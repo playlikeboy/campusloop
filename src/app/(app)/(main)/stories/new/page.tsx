@@ -1,15 +1,13 @@
 import { eq } from "drizzle-orm";
-import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { privateMetadata } from "@/lib/seo";
 import { isViewerProfile } from "@/lib/viewer";
 import { StoryCreator } from "./story-creator";
 
-export const metadata: Metadata = {
-  title: "Create Story",
-};
+export const metadata = privateMetadata("New story");
 
 interface CreateStoryPageProps {
   searchParams: Promise<{ text?: string; media?: string }>;

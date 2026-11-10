@@ -15,6 +15,9 @@ import {
 import { useState } from "react";
 import { toast } from "sonner";
 import { CollegeCombobox } from "@/components/common/college-combobox";
+import { buttonVariants } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
+import { fieldClassName } from "@/components/ui/input";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
@@ -81,7 +84,7 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
       if (!res.ok) throw new Error(data.error || "Failed to fetch Reddit posts");
 
       setRedditPosts(data.posts || []);
-      toast.success(`Discovered ${data.count} posts from r/${data.subreddit}`);
+      toast.success(`Found ${data.count} posts in r/${data.subreddit}`);
     } catch (err: any) {
       toast.error(err.message || "Failed to fetch from Reddit");
     } finally {
@@ -106,7 +109,7 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
       const data = (await res.json()) as any;
       if (!res.ok) throw new Error(data.error || "Failed to import post");
 
-      toast.success("Post imported to campus hub successfully!");
+      toast.success("Post imported");
     } catch (err: any) {
       toast.error(err.message || "Import failed");
     } finally {
@@ -132,7 +135,7 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
       if (!res.ok) throw new Error(data.error || "Purge failed");
 
       setLastPurgeTime(new Date().toLocaleTimeString());
-      toast.success(data.message || "Cloudflare CDN cache purged globally!");
+      toast.success(data.message || "Cloudflare cache cleared");
     } catch (err: any) {
       toast.error(err.message || "Purge request failed");
     } finally {
@@ -155,11 +158,11 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
         }),
       });
       const data = (await res.json()) as any;
-      if (!res.ok) throw new Error(data.error || "Failed to dispatch alert");
+      if (!res.ok) throw new Error(data.error || "Couldn't send the alert");
 
-      toast.success(`Alert delivered to ${alertChannel.toUpperCase()} channel!`);
+      toast.success(`Alert sent to ${alertChannel === "discord" ? "Discord" : "Telegram"}`);
     } catch (err: any) {
-      toast.error(err.message || "Alert dispatch failed");
+      toast.error(err.message || "Couldn't send the alert. Check the webhook settings and try again.");
     } finally {
       setIsDispatchingAlert(false);
     }
@@ -192,7 +195,7 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
       a.click();
       URL.revokeObjectURL(url);
 
-      toast.success(`Exported ${data.count} records!`);
+      toast.success(`Exported ${data.count} records`);
     } catch (err: any) {
       toast.error(err.message || "Export failed");
     } finally {
@@ -202,83 +205,31 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
 
   return (
     <div className="space-y-6">
-      {/* ─── Connected Services Strip (High Density) ─── */}
-      <section className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="p-3 rounded-xl bg-card/70 border border-border/60 shadow-2xs space-y-1">
-          <div className="flex items-center justify-between text-[10px]">
-            <span className="font-bold text-warning">Reddit API</span>
-            <span className="px-1.5 py-0.2 rounded font-bold text-success bg-success-subtle border border-success/20">
-              ACTIVE
-            </span>
-          </div>
-          <p className="text-xs font-bold text-foreground truncate">@u_Dull_Boysenberry_442</p>
-          <p className="text-[10px] text-muted-foreground truncate">Indian Campus Communities</p>
-        </div>
-
-        <div className="p-3 rounded-xl bg-card/70 border border-border/60 shadow-2xs space-y-1">
-          <div className="flex items-center justify-between text-[10px]">
-            <span className="font-bold text-warning">Cloudflare CDN</span>
-            <span className="px-1.5 py-0.2 rounded font-bold text-success bg-success-subtle border border-success/20">
-              ACTIVE
-            </span>
-          </div>
-          <p className="text-xs font-bold text-foreground truncate">campusloop.space</p>
-          <p className="text-[10px] text-muted-foreground truncate">Edge Cache &amp; Bot Fight Mode</p>
-        </div>
-
-        <div className="p-3 rounded-xl bg-card/70 border border-border/60 shadow-2xs space-y-1">
-          <div className="flex items-center justify-between text-[10px]">
-            <span className="font-bold text-brand-text">Discord / TG</span>
-            <span className="px-1.5 py-0.2 rounded font-bold text-brand-text bg-brand-subtle border border-brand/20">
-              CONNECTED
-            </span>
-          </div>
-          <p className="text-xs font-bold text-foreground truncate">Safety Webhook Channel</p>
-          <p className="text-[10px] text-muted-foreground truncate">Urgent Toxicity &amp; Escalations</p>
-        </div>
-
-        <div className="p-3 rounded-xl bg-card/70 border border-border/60 shadow-2xs space-y-1">
-          <div className="flex items-center justify-between text-[10px]">
-            <span className="font-bold text-success">Data Hub</span>
-            <span className="px-1.5 py-0.2 rounded font-bold text-primary bg-primary/10 border border-primary/20">
-              READY
-            </span>
-          </div>
-          <p className="text-xs font-bold text-foreground truncate">Telemetry &amp; Audit Logs</p>
-          <p className="text-[10px] text-muted-foreground truncate">JSON / CSV Synchronized</p>
-        </div>
-      </section>
-
-      {/* ─── Reddit Ingestion Studio (Source → Target → Pipeline) ─── */}
-      <section className="rounded-xl border border-border/60 bg-card/70 p-4 sm:p-5 shadow-2xs space-y-4">
+      {/* Reddit import */}
+      <section className="rounded-lg border border-border bg-surface p-4 sm:p-5  space-y-4">
         {/* Header & Preset Pills */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
+            <h2 className="text-sm font-bold text-fg flex items-center gap-2">
               <MessageSquare className="size-4 text-warning" />
-              Subreddit Ingestion Pipeline
+              Import from Reddit
             </h2>
-            <p className="text-xs text-muted-foreground">
-              Fetch discussions from university communities and curate directly into campus hubs.
+            <p className="text-xs text-fg-muted">
+              Load posts from a college subreddit, then import the good ones into a college feed.
             </p>
           </div>
 
           {/* Quick presets */}
           <div className="flex items-center gap-1.5 flex-wrap">
             {["Btechtards", "Indian_Academia", "delhiuniversity", "iitb", "BITSFilani"].map((sub) => (
-              <button
+              <Chip
+                size="sm"
+                selected={subreddit.toLowerCase() === sub.toLowerCase()}
                 key={sub}
-                type="button"
                 onClick={() => setSubreddit(sub)}
-                className={cn(
-                  "px-2.5 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer",
-                  subreddit.toLowerCase() === sub.toLowerCase()
-                    ? "bg-primary text-primary-foreground shadow-2xs"
-                    : "bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground"
-                )}
               >
                 r/{sub}
-              </button>
+              </Chip>
             ))}
           </div>
         </div>
@@ -286,31 +237,31 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
         {/* Source Inputs Bar (Clean, Compact, Responsive) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
           <div>
-            <label className="text-[11px] font-bold text-muted-foreground block mb-1">
-              Subreddit
-            </label>
-            <div className="flex items-center rounded-lg bg-muted/40 border border-border/50 px-2.5 py-1.5 focus-within:border-primary transition-colors">
-              <span className="text-xs font-bold text-muted-foreground mr-1">r/</span>
+            <label className="text-xs font-bold text-fg-muted block mb-1">Subreddit</label>
+            <div className="flex items-center rounded-lg bg-surface-muted border border-border px-2.5 py-1.5 focus-within:border-brand transition-colors">
+              <span className="text-sm font-medium text-fg">r/</span>
               <input
+                aria-label="r/"
                 type="text"
                 value={subreddit}
                 onChange={(e) => setSubreddit(e.target.value)}
-                className="w-full bg-transparent text-xs font-semibold text-foreground outline-none"
+                className="w-full bg-transparent text-xs font-semibold text-fg outline-none"
                 placeholder="Btechtards"
               />
             </div>
           </div>
 
           <div>
-            <label className="text-[11px] font-bold text-muted-foreground block mb-1">
+            <label htmlFor="composio-hub-sort-order" className="text-xs font-bold text-fg-muted block mb-1">
               Sort Order
             </label>
             <select
+              id="composio-hub-sort-order"
               value={redditSort}
               onChange={(e) => setRedditSort(e.target.value)}
-              className="w-full h-8.5 rounded-lg bg-muted/40 border border-border/50 px-2.5 text-xs font-semibold text-foreground outline-none focus:border-primary transition-colors cursor-pointer"
+              className={cn(fieldClassName, "w-full h-11")}
             >
-              <option value="hot">Hot Discussions</option>
+              <option value="hot">Hot posts</option>
               <option value="new">Newest Posts</option>
               <option value="top">Top Upvoted</option>
               <option value="controversial">Controversial</option>
@@ -318,13 +269,14 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
           </div>
 
           <div>
-            <label className="text-[11px] font-bold text-muted-foreground block mb-1">
+            <label htmlFor="composio-hub-post-limit" className="text-xs font-bold text-fg-muted block mb-1">
               Post Limit
             </label>
             <select
+              id="composio-hub-post-limit"
               value={redditLimit}
               onChange={(e) => setRedditLimit(Number(e.target.value))}
-              className="w-full h-8.5 rounded-lg bg-muted/40 border border-border/50 px-2.5 text-xs font-semibold text-foreground outline-none focus:border-primary transition-colors cursor-pointer"
+              className={cn(fieldClassName, "w-full h-11")}
             >
               <option value={5}>5 Posts</option>
               <option value={10}>10 Posts</option>
@@ -338,33 +290,31 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
               type="button"
               disabled={isFetchingReddit}
               onClick={handleFetchReddit}
-              className="w-full h-8.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-2xs disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className={cn(buttonVariants({ variant: "primary", size: "md" }), "w-full")}
             >
               <RefreshCw className={cn("size-3.5", isFetchingReddit && "animate-spin")} />
-              <span>{isFetchingReddit ? "Fetching..." : "Fetch & Analyze"}</span>
+              <span>{isFetchingReddit ? "Loading posts" : "Load posts"}</span>
             </button>
           </div>
         </div>
 
         {/* Target Campus Hub Picker */}
         <div className="space-y-1 pt-1">
-          <label className="text-[11px] font-bold text-muted-foreground block">
-            Target Campus Hub for Curated Ingestion
-          </label>
+          <label className="text-xs font-bold text-fg-muted block">Import into this college</label>
           <div className="max-w-md">
             <CollegeCombobox
               value={targetCollegeId}
               initialInstitutions={institutions}
               onChange={(id) => setTargetCollegeId(id)}
-              placeholder="Search target college hub..."
+              placeholder="Search colleges"
             />
           </div>
         </div>
 
         {/* Ingested Results Stream */}
         {redditPosts.length > 0 && (
-          <div className="space-y-3 pt-3 border-t border-border/40">
-            <div className="flex items-center justify-between text-xs font-bold text-muted-foreground">
+          <div className="space-y-3 pt-3 border-t border-border">
+            <div className="flex items-center justify-between text-xs font-bold text-fg-muted">
               <span>
                 Discovered Posts ({redditPosts.length} from r/{subreddit})
               </span>
@@ -375,32 +325,34 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
               {redditPosts.map((post) => (
                 <div
                   key={post.id}
-                  className="p-3.5 rounded-xl bg-card border border-border/60 hover:border-border transition-colors flex flex-col justify-between gap-3 shadow-2xs"
+                  className="p-3.5 rounded-lg bg-surface border border-border hover:border-border transition-colors flex flex-col justify-between gap-3 "
                 >
                   <div className="space-y-1.5">
-                    <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-                      <span className="font-semibold text-foreground">u/{post.author}</span>
-                      <div className="flex items-center gap-2 font-mono text-[10px]">
-                        <span className="inline-flex items-center gap-1"><ArrowUpRight className="size-3" aria-hidden="true" />{post.score}</span>
-                        <span className="inline-flex items-center gap-1"><MessageSquare className="size-3" aria-hidden="true" />{post.numComments}</span>
+                    <div className="flex items-center justify-between text-xs text-fg-muted">
+                      <span className="font-semibold text-fg">u/{post.author}</span>
+                      <div className="flex items-center gap-2 font-mono text-xs">
+                        <span className="inline-flex items-center gap-1">
+                          <ArrowUpRight className="size-3" aria-hidden="true" />
+                          {post.score}
+                        </span>
+                        <span className="inline-flex items-center gap-1">
+                          <MessageSquare className="size-3" aria-hidden="true" />
+                          {post.numComments}
+                        </span>
                       </div>
                     </div>
-                    <h3 className="text-xs font-bold text-foreground leading-snug line-clamp-2">
-                      {post.title}
-                    </h3>
+                    <h3 className="text-xs font-bold text-fg leading-snug line-clamp-2">{post.title}</h3>
                     {post.selftext && (
-                      <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
-                        {post.selftext}
-                      </p>
+                      <p className="text-xs text-fg-muted line-clamp-2 leading-relaxed">{post.selftext}</p>
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/30">
+                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-border">
                     <a
                       href={post.permalink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[11px] font-semibold text-primary hover:underline flex items-center gap-1"
+                      className="text-xs font-semibold text-brand-text hover:underline flex items-center gap-1"
                     >
                       <span>Reddit</span>
                       <ExternalLink className="size-3" />
@@ -410,10 +362,10 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
                       type="button"
                       disabled={importingId === post.id}
                       onClick={() => handleImportPost(post)}
-                      className="px-3 py-1.5 rounded-lg bg-foreground text-background text-xs font-bold hover:opacity-90 transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50 shadow-2xs"
+                      className={buttonVariants({ variant: "primary", size: "sm" })}
                     >
                       <ArrowUpRight className="size-3.5" />
-                      <span>{importingId === post.id ? "Importing..." : "Import to Hub"}</span>
+                      <span>{importingId === post.id ? "Importing" : "Import"}</span>
                     </button>
                   </div>
                 </div>
@@ -423,36 +375,24 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
         )}
       </section>
 
-      {/* ─── Cloudflare & Alert Dispatcher (2 Cols) ─── */}
+      {/* Cloudflare cache and safety alerts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Cloudflare Controller */}
-        <section className="rounded-xl border border-border/60 bg-card/70 p-4 sm:p-5 shadow-2xs space-y-3">
+        <section className="rounded-lg border border-border bg-surface p-4 sm:p-5  space-y-3">
           <div>
-            <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
+            <h2 className="text-sm font-bold text-fg flex items-center gap-2">
               <Cloud className="size-4 text-warning" />
-              Cloudflare Edge CDN Controller
+              Cloudflare cache
             </h2>
-            <p className="text-xs text-muted-foreground">
-              Purge stale edge caches and verify Cloudflare WAF protections.
-            </p>
-          </div>
-
-          <div className="p-3 rounded-lg bg-muted/20 border border-border/40 space-y-1">
-            <div className="flex items-center justify-between text-xs font-bold">
-              <span>campusloop.space</span>
-              <span className="text-success flex items-center gap-1 text-[11px]">
-                <CheckCircle2 className="size-3" /> Proxied
-              </span>
-            </div>
-            <p className="text-[11px] text-muted-foreground">
-              SSL/TLS: Full (Strict) · Super Bot Fight Mode: Active
+            <p className="text-xs text-fg-muted">
+              Clear the cached pages so everyone sees the latest version.
             </p>
           </div>
 
           {lastPurgeTime && (
-            <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+            <p className="text-xs text-fg-muted flex items-center gap-1.5">
               <CheckCircle2 className="size-3.5 text-success" />
-              <span>Last cache purge completed at {lastPurgeTime}</span>
+              <span>Cache cleared at {lastPurgeTime}</span>
             </p>
           )}
 
@@ -460,111 +400,100 @@ export function ComposioHubClient({ institutions }: ComposioHubClientProps) {
             type="button"
             disabled={isPurgingCf}
             onClick={handlePurgeCloudflare}
-            className="w-full h-9 rounded-lg bg-warning hover:opacity-90 text-warning-fg text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-2xs disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className={cn(buttonVariants({ variant: "primary", size: "md" }), "w-full")}
           >
             <RefreshCw className={cn("size-3.5", isPurgingCf && "animate-spin")} />
-            <span>{isPurgingCf ? "Purging Edge CDN..." : "Purge CDN Cache (Global)"}</span>
+            <span>{isPurgingCf ? "Clearing cache" : "Clear the whole cache"}</span>
           </button>
         </section>
 
         {/* Discord & Telegram Alert Dispatcher */}
-        <section className="rounded-xl border border-border/60 bg-card/70 p-4 sm:p-5 shadow-2xs space-y-3">
+        <section className="rounded-lg border border-border bg-surface p-4 sm:p-5  space-y-3">
           <div>
-            <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
-              <ShieldAlert className="size-4 text-destructive" />
-              Safety Webhook Alert Dispatcher
+            <h2 className="text-sm font-bold text-fg flex items-center gap-2">
+              <ShieldAlert className="size-4 text-danger" />
+              Send a safety alert
             </h2>
-            <p className="text-xs text-muted-foreground">
-              Broadcast high-priority moderation and safety events to admin channels.
+            <p className="text-xs text-fg-muted">
+              Post an urgent moderation alert to the staff Discord or Telegram.
             </p>
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              type="button"
+            <Chip
+              size="sm"
+              selected={alertChannel === "discord"}
               onClick={() => setAlertChannel("discord")}
-              className={cn(
-                "flex-1 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer",
-                alertChannel === "discord"
-                  ? "bg-brand text-brand-fg shadow-2xs"
-                  : "bg-muted/50 text-muted-foreground hover:text-foreground"
-              )}
+              className="flex-1"
             >
-              Discord Webhook
-            </button>
-            <button
-              type="button"
+              Discord
+            </Chip>
+            <Chip
+              size="sm"
+              selected={alertChannel === "telegram"}
               onClick={() => setAlertChannel("telegram")}
-              className={cn(
-                "flex-1 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer",
-                alertChannel === "telegram"
-                  ? "bg-brand text-brand-fg shadow-2xs"
-                  : "bg-muted/50 text-muted-foreground hover:text-foreground"
-              )}
+              className="flex-1"
             >
-              Telegram Bot
-            </button>
+              Telegram
+            </Chip>
           </div>
 
           <textarea
+            aria-label="Alert message"
             value={alertMessage}
             onChange={(e) => setAlertMessage(e.target.value)}
             rows={2}
-            className="w-full rounded-lg bg-muted/40 border border-border/50 p-2.5 text-xs font-medium text-foreground outline-none focus:border-primary transition-colors resize-none"
-            placeholder="Enter alert payload..."
+            className={cn(fieldClassName, "w-full resize-none py-2.5")}
+            placeholder="What happened and what needs doing"
           />
 
           <button
             type="button"
             disabled={isDispatchingAlert}
             onClick={handleDispatchAlert}
-            className="w-full h-9 rounded-lg bg-foreground text-background text-xs font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-colors cursor-pointer shadow-2xs disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className={cn(buttonVariants({ variant: "primary", size: "md" }), "w-full")}
           >
             <Send className={cn("size-3.5", isDispatchingAlert && "animate-pulse")} />
             <span>
-              {isDispatchingAlert ? "Dispatching..." : `Dispatch Alert (${alertChannel.toUpperCase()})`}
+              {isDispatchingAlert
+                ? "Sending"
+                : `Send to ${alertChannel === "discord" ? "Discord" : "Telegram"}`}
             </span>
           </button>
         </section>
       </div>
 
-      {/* ─── Telemetry & Data Export Hub ─── */}
-      <section className="rounded-xl border border-border/60 bg-card/70 p-4 sm:p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      {/* Data export */}
+      <section className="rounded-lg border border-border bg-surface p-4 sm:p-5  flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
+          <h2 className="text-sm font-bold text-fg flex items-center gap-2">
             <FileSpreadsheet className="size-4 text-success" />
-            Platform Data Export &amp; Telemetry
+            Export data
           </h2>
-          <p className="text-xs text-muted-foreground">
-            Export structured records for external verification, sheets sync, and institutional compliance.
-          </p>
+          <p className="text-xs text-fg-muted">Download records as JSON or CSV.</p>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
           {(["posts", "users", "colleges"] as const).map((type) => (
-            <button
+            <Chip
+              size="sm"
+              selected={exportType === type}
               key={type}
-              type="button"
               onClick={() => setExportType(type)}
-              className={cn(
-                "px-2.5 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer capitalize",
-                exportType === type
-                  ? "bg-foreground text-background"
-                  : "bg-muted/50 text-muted-foreground hover:text-foreground"
-              )}
+              className="capitalize"
             >
               {type}
-            </button>
+            </Chip>
           ))}
 
           <button
             type="button"
             disabled={isExporting}
             onClick={handleExportData}
-            className="px-3.5 py-1 rounded-lg bg-success hover:opacity-90 text-success-fg text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className={buttonVariants({ variant: "primary", size: "sm" })}
           >
             <Download className={cn("size-3.5", isExporting && "animate-pulse")} />
-            <span>{isExporting ? "Exporting..." : "Download JSON"}</span>
+            <span>{isExporting ? "Exporting" : "Download JSON"}</span>
           </button>
         </div>
       </section>

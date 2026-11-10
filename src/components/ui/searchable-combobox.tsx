@@ -203,7 +203,7 @@ export function SearchableCombobox({
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 right-0 z-50 mt-1.5 overflow-hidden rounded-2xl border border-border/60 bg-popover/95 backdrop-blur-xl shadow-xl animate-in fade-in-0 zoom-in-95 duration-100">
+        <div className="absolute left-0 right-0 z-50 mt-1.5 overflow-hidden rounded-2xl border border-border/60 bg-popover shadow-xl animate-in fade-in-0 zoom-in-95 duration-100">
           <div className="relative border-b border-border/40 p-2">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
             <input

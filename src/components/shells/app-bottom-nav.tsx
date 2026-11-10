@@ -2,83 +2,71 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useMemo } from "react";
-import { MOBILE_BOTTOM_ITEMS } from "@/constants/navigation";
-import { haptics } from "@/lib/haptics";
-import { sounds } from "@/lib/sounds";
+import { MOBILE_BOTTOM_ITEMS, ROUTES } from "@/constants/navigation";
 import { cn } from "@/lib/utils";
-import { isPathActive, shouldHideBottomNav } from "./nav-utils";
+import { isPathActive, navPress, profileHref, shouldHideBottomNav } from "./nav-utils";
 
 interface AppBottomNavProps {
   /** Hide Post and Chat for preview accounts and signed-out visitors. */
   restricted?: boolean;
+  /** Signed-in username; Profile links to /@username. */
+  username?: string | null;
 }
 
-export function AppBottomNav({ restricted }: AppBottomNavProps) {
-  const pathname = usePathname() || "/feeds";
-
-  const items = useMemo(
-    () =>
-      MOBILE_BOTTOM_ITEMS.filter((item) => {
-        if (restricted && (item.href === "/chat" || item.href === "/post/new")) return false;
-        return true;
-      }),
-    [restricted]
-  );
-
+/** Mobile tab bar: Home, Explore, Post (violet sticker), Chat, Profile. Solid surface, thumb height. */
+export function AppBottomNav({ restricted, username }: AppBottomNavProps) {
+  const pathname = usePathname() || ROUTES.home;
   if (shouldHideBottomNav(pathname)) return null;
 
-  const press = () => {
-    sounds.tap();
-    haptics.light();
-  };
+  const items = MOBILE_BOTTOM_ITEMS.filter(
+    (item) => !(restricted && (item.href === ROUTES.chat || item.href === ROUTES.newPost))
+  ).map((item) => (item.href === ROUTES.profile ? { ...item, href: profileHref(username) } : item));
 
   return (
     <nav
       aria-label="Primary"
-      className={cn(
-        "fixed inset-x-0 bottom-0 z-[var(--z-sticky-nav)] border-t border-border bg-surface/95 backdrop-blur lg:hidden",
-        "pb-[env(safe-area-inset-bottom)]"
-      )}
+      className="fixed inset-x-0 bottom-0 z-[var(--z-sticky-nav)] border-t border-border bg-surface pb-[env(safe-area-inset-bottom)] lg:hidden"
     >
       <ul
-        className={cn(
-          "grid h-[var(--nav-mobile-h)] items-stretch",
-          items.length === 5 ? "grid-cols-5" : items.length === 4 ? "grid-cols-4" : "grid-cols-3"
-        )}
+        className="grid h-[var(--nav-mobile-h)] items-stretch"
+        style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}
       >
         {items.map((item) => {
           const Icon = item.icon;
           const active = isPathActive(pathname, item.href);
-          const isPost = item.href === "/post/new";
+          const isPost = item.href === ROUTES.newPost;
+
+          if (isPost) {
+            return (
+              <li key={item.href} className="flex items-center justify-center">
+                <Link
+                  href={item.href}
+                  prefetch
+                  onClick={navPress}
+                  aria-label="Create a post"
+                  className="flex size-12 items-center justify-center rounded-sticker bg-brand text-brand-fg shadow-sticker transition-ui hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-95"
+                >
+                  <Icon className="size-6" strokeWidth={2.5} aria-hidden="true" />
+                </Link>
+              </li>
+            );
+          }
 
           return (
             <li key={item.href} className="min-w-0">
               <Link
                 href={item.href}
                 prefetch
-                onClick={press}
-                aria-label={isPost ? "Create a post" : item.label}
+                onClick={navPress}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "relative flex h-full min-h-11 w-full flex-col items-center justify-center gap-1 text-xs font-medium",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring active:scale-[0.98]",
-                  active ? "text-brand-text" : "text-fg-muted hover:text-fg"
+                  "flex h-full min-h-11 w-full flex-col items-center justify-center gap-1 text-xs font-medium transition-ui",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring active:scale-95",
+                  active ? "font-semibold text-brand-text" : "text-fg-muted hover:text-fg"
                 )}
               >
-                {active && !isPost && (
-                  <span className="absolute inset-x-3 top-0 h-0.5 rounded-full bg-brand" aria-hidden="true" />
-                )}
-                {isPost ? (
-                  <span className="flex size-10 items-center justify-center rounded-md bg-brand text-brand-fg shadow-sm">
-                    <Icon className="size-5" strokeWidth={2.25} aria-hidden="true" />
-                  </span>
-                ) : (
-                  <>
-                    <Icon className="size-5" strokeWidth={active ? 2.25 : 1.75} aria-hidden="true" />
-                    <span className="max-w-full truncate leading-none">{item.label}</span>
-                  </>
-                )}
+                <Icon className="size-6" strokeWidth={active ? 2.25 : 1.75} aria-hidden="true" />
+                <span className="max-w-full truncate leading-none">{item.label}</span>
               </Link>
             </li>
           );

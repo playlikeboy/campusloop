@@ -1,49 +1,29 @@
 "use client";
 
-import { Flame } from "lucide-react";
-import { useState } from "react";
-import useSWR from "swr";
-import { fetcher } from "@/lib/api";
+import { Tag } from "lucide-react";
+import { MerchantPage } from "@/components/merchant/merchant-page";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 
+const TEAM_CONTACT = "https://www.instagram.com/campusloop.space/";
+
+/** Offers can't be created from the dashboard yet, so this screen says so plainly. */
 export function MerchantOffersClient() {
-  const [title, setTitle] = useState("");
-  const [discountValue, setDiscountValue] = useState("20");
-  const [code, setCode] = useState("STUDENT20");
-  const [minOrder, setMinOrder] = useState("150");
-  const [isCreating, setIsCreating] = useState(false);
-
-  const { data, isLoading } = useSWR<{ merchant: any }>("/api/merchant/store", fetcher);
-  const merchant = data?.merchant;
-
   return (
-    <main className="max-w-3xl mx-auto p-4 space-y-6 select-none pb-24">
-      <div>
-        <h1 className="text-xl font-bold text-foreground tracking-tight">Offers &amp; Student Deals</h1>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          Attract campus students with limited-time discounts and promo codes
-        </p>
-      </div>
-
-      {/* ─── Active Deals ─── */}
-      <div className="space-y-3">
-        <h2 className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
-          <Flame className="size-4 text-warning" />
-          <span>Active Student Promotions</span>
-        </h2>
-
-        <div className="p-4 rounded-3xl bg-success-subtle border border-success/25 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold text-success bg-success-subtle px-2 py-0.5 rounded-md">
-              CODE: MOMO20
-            </span>
-            <span className="text-xs font-bold text-success">20% Flat Discount</span>
-          </div>
-          <h3 className="text-sm font-bold text-foreground">Evening Student Craving Deal</h3>
-          <p className="text-xs text-muted-foreground">
-            Applicable on orders above ₹150 for all verified students on campus.
-          </p>
-        </div>
-      </div>
-    </main>
+    <MerchantPage width="narrow" title="Offers" description="Discounts and promo codes for students.">
+      <EmptyState
+        bordered
+        icon={Tag}
+        title="You can't add offers here yet"
+        description="Message the CampusLoop team and we'll set one up for you."
+        action={
+          <Button asChild variant="outline">
+            <a href={TEAM_CONTACT} target="_blank" rel="noopener noreferrer">
+              Message the team
+            </a>
+          </Button>
+        }
+      />
+    </MerchantPage>
   );
 }

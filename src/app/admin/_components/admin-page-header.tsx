@@ -3,8 +3,8 @@ import { cn } from "@/lib/utils";
 
 interface AdminPageHeaderProps {
   title: string;
+  /** One plain sentence: what this page is for. */
   description?: string;
-  category?: string;
   icon?: LucideIcon;
   badge?: React.ReactNode;
   actions?: React.ReactNode;
@@ -14,48 +14,28 @@ interface AdminPageHeaderProps {
 export function AdminPageHeader({
   title,
   description,
-  category,
   icon: Icon,
   badge,
   actions,
   className,
 }: AdminPageHeaderProps) {
   return (
-    <div
+    <header
       className={cn(
-        "flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-5 border-b border-border/50",
+        "flex flex-col gap-3 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between",
         className
       )}
     >
-      <div className="space-y-1 min-w-0">
-        {category && (
-          <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/70">
-            {category}
-          </p>
-        )}
-        <div className="flex items-center gap-2.5 flex-wrap">
-          {Icon && (
-            <div className="size-7 rounded-lg bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
-              <Icon className="size-4" />
-            </div>
-          )}
-          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-foreground truncate">
-            {title}
-          </h1>
+      <div className="min-w-0 space-y-1">
+        <div className="flex flex-wrap items-center gap-2.5">
+          {Icon && <Icon className="size-5 shrink-0 text-fg-muted" aria-hidden />}
+          <h1 className="text-balance text-2xl text-fg">{title}</h1>
           {badge}
         </div>
-        {description && (
-          <p className="text-xs sm:text-sm text-muted-foreground max-w-3xl leading-relaxed">
-            {description}
-          </p>
-        )}
+        {description && <p className="max-w-2xl text-pretty text-sm text-fg-muted">{description}</p>}
       </div>
 
-      {actions && (
-        <div className="flex items-center gap-2 flex-wrap shrink-0 pt-1 sm:pt-0">
-          {actions}
-        </div>
-      )}
-    </div>
+      {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
+    </header>
   );
 }

@@ -8,9 +8,17 @@ export function CopyField({ label, value, secret }: { label: string; value: stri
   const [done, setDone] = useState(false);
   return (
     <div>
-      <p className="text-xs font-semibold text-muted-foreground">{label}</p>
-      <div className="mt-1 flex items-center gap-2 rounded-xl bg-muted/50 py-1 pl-3 pr-1">
-        <code className={secret ? "min-w-0 flex-1 break-all font-mono text-[13px] text-foreground" : "min-w-0 flex-1 truncate font-mono text-[13px] text-foreground"}>{value}</code>
+      <p className="text-xs font-semibold text-fg-muted">{label}</p>
+      <div className="mt-1 flex items-center gap-2 rounded-md bg-surface-muted py-1 pl-3 pr-1">
+        <code
+          className={
+            secret
+              ? "min-w-0 flex-1 break-all font-mono text-sm text-fg"
+              : "min-w-0 flex-1 truncate font-mono text-sm text-fg"
+          }
+        >
+          {value}
+        </code>
         <button
           type="button"
           onClick={() => {
@@ -20,9 +28,9 @@ export function CopyField({ label, value, secret }: { label: string; value: stri
             });
           }}
           aria-label={`Copy ${label}`}
-          className="flex size-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-background hover:text-foreground cursor-pointer"
+          className="flex size-10 shrink-0 items-center justify-center cursor-pointer rounded-full text-fg-muted transition-ui hover:bg-surface hover:text-fg"
         >
-          {done ? <Check className="size-4 text-primary" /> : <Copy className="size-4" />}
+          {done ? <Check className="size-4 text-verified-text" /> : <Copy className="size-4" />}
         </button>
       </div>
     </div>

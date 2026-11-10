@@ -50,7 +50,7 @@ export function StickerPickerModal({ isOpen, onClose, onSelectSticker }: Sticker
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 select-none animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-overlay p-3 select-none animate-in fade-in duration-150"
       onClick={onClose}
     >
       <div
@@ -66,7 +66,7 @@ export function StickerPickerModal({ isOpen, onClose, onSelectSticker }: Sticker
             <div>
               <h3 className="text-sm font-bold text-foreground">Campus Stickers</h3>
               <p className="text-[10px] text-muted-foreground font-semibold">
-                React with hostel tea, exam panic &amp; college vibes
+                Pick a sticker to send
               </p>
             </div>
           </div>

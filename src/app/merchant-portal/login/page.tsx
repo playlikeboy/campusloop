@@ -1,12 +1,7 @@
-import type { Metadata } from "next";
+import { privateMetadata } from "@/lib/seo";
 import { MerchantLoginClient } from "./merchant-login-client";
 
-export const metadata: Metadata = {
-  title: "Merchant Portal Login",
-  description:
-    "Sign in to your CampusLoop merchant console to manage food orders, store menu, and bike rentals.",
-  robots: { index: false, follow: false },
-};
+export const metadata = privateMetadata("Store login");
 
 export default function MerchantLoginPage() {
   return <MerchantLoginClient />;

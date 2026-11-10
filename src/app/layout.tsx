@@ -1,6 +1,6 @@
 import { HexclaveProvider } from "@hexclave/next";
 import type { Metadata, Viewport } from "next";
-import { JetBrains_Mono, Noto_Sans_Devanagari, Plus_Jakarta_Sans } from "next/font/google";
+import { Bricolage_Grotesque, Figtree, JetBrains_Mono, Noto_Sans_Devanagari } from "next/font/google";
 import { Suspense } from "react";
 import { Toaster } from "sonner";
 import { GoogleAnalyticsScripts, GoogleAnalyticsTracker } from "@/components/analytics/google-analytics";
@@ -9,15 +9,22 @@ import { SWRProvider } from "@/components/providers/swr-provider";
 import { PWAInstallBanner } from "@/components/pwa/pwa-install-banner";
 import { OfflineIndicator } from "@/components/ui/offline-indicator";
 import { RouteProgress } from "@/components/ui/route-progress";
-import { SOCIAL_SAME_AS } from "@/constants/social";
+import { organizationJsonLd, SITE_URL, websiteJsonLd } from "@/lib/seo";
+import { JsonLd } from "@/lib/seo/json-ld-script";
 import { hexclaveServerApp } from "@/hexclave/server";
 import "./globals.css";
 
-const jakarta = Plus_Jakarta_Sans({
+// Display: heavy, slightly condensed captions (sticker headlines). Body/UI: Figtree.
+const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
-  variable: "--font-jakarta",
+  variable: "--font-bricolage",
   display: "swap",
-  weight: ["400", "500", "600", "700"],
+  axes: ["wdth", "opsz"],
+});
+const figtree = Figtree({
+  subsets: ["latin"],
+  variable: "--font-figtree",
+  display: "swap",
 });
 const devanagari = Noto_Sans_Devanagari({
   subsets: ["devanagari"],
@@ -34,10 +41,10 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const viewport: Viewport = {
   themeColor: [
-    // ds-allow: theme-color meta needs literal hex (mirrors --n-25)
-    { media: "(prefers-color-scheme: light)", color: "#FCFBF8" },
-    // ds-allow: theme-color meta needs literal hex (mirrors --n-950)
-    { media: "(prefers-color-scheme: dark)", color: "#12110F" },
+    // ds-allow: theme-color meta needs literal hex (mirrors --bg light)
+    { media: "(prefers-color-scheme: light)", color: "#FFFFFF" },
+    // ds-allow: theme-color meta needs literal hex (mirrors --bg dark)
+    { media: "(prefers-color-scheme: dark)", color: "#0D0A17" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -165,18 +172,16 @@ export default function RootLayout({
     <html
       lang="en"
       data-scroll-behavior="smooth"
-      className={`font-sans antialiased ${jakarta.variable} ${devanagari.variable} ${jetbrainsMono.variable}`}
+      className={`font-sans antialiased ${bricolage.variable} ${figtree.variable} ${devanagari.variable} ${jetbrainsMono.variable}`}
       style={{
-        ["--font-body" as string]: "var(--font-jakarta), var(--font-devanagari), ui-sans-serif, system-ui, sans-serif",
-        ["--font-display" as string]: "var(--font-jakarta), var(--font-devanagari), ui-sans-serif, system-ui, sans-serif",
+        ["--font-body" as string]:
+          "var(--font-figtree), var(--font-devanagari), ui-sans-serif, system-ui, sans-serif",
+        ["--font-display" as string]:
+          "var(--font-bricolage), var(--font-devanagari), ui-sans-serif, system-ui, sans-serif",
       }}
       suppressHydrationWarning
     >
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
         <link rel="dns-prefetch" href="https://skill.hexclave.com" />
         <link rel="dns-prefetch" href="https://api.dicebear.com" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -188,149 +193,26 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="CampusLoop" />
         <meta name="mobile-web-app-capable" content="yes" />
         {/* ds-allow: theme-color meta needs literal hex */}
-        <meta name="theme-color" content="#12110F" media="(prefers-color-scheme: dark)" />
+        <meta name="theme-color" content="#0D0A17" media="(prefers-color-scheme: dark)" />
         {/* ds-allow: theme-color meta needs literal hex */}
-        <meta name="theme-color" content="#FCFBF8" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)" />
         <meta name="geo.region" content="IN" />
         <meta name="geo.placename" content="India" />
         <meta name="geo.position" content="20.5937;78.9629" />
         <meta name="ICBM" content="20.5937, 78.9629" />
-        {/* Sitelinks Searchbox Schema for Google SERP */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebSite",
-              name: "CampusLoop",
-              alternateName: ["Campus Loop", "CampusLoop App", "CampusLoop Space"],
-              url: "https://campusloop.space",
-              description: "A campus community platform for verified college students in India.",
-              inLanguage: "en-IN",
-              potentialAction: {
-                "@type": "SearchAction",
-                target: {
-                  "@type": "EntryPoint",
-                  urlTemplate: "https://campusloop.space/explore?q={search_term_string}",
-                },
-                "query-input": "required name=search_term_string",
-              },
-            }),
-          }}
-        />
-
-        {/* Navigation schema */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "ItemList",
-              name: "CampusLoop Navigation Sitelinks",
-              itemListElement: [
-                {
-                  "@type": "SiteNavigationElement",
-                  position: 1,
-                  name: "Campus Feed",
-                  description: "Live campus threads, confessions, polls, and discussions",
-                  url: "https://campusloop.space/feeds",
-                },
-                {
-                  "@type": "SiteNavigationElement",
-                  position: 2,
-                  name: "Campus Marketplace",
-                  description: "Order night canteen snacks, food delivery, and campus essentials",
-                  url: "https://campusloop.space/marketplace",
-                },
-                {
-                  "@type": "SiteNavigationElement",
-                  position: 3,
-                  name: "Academic Study Vault & PYQs",
-                  description:
-                    "Free engineering notes, previous year question papers, formula cheat sheets, and lab manuals",
-                  url: "https://campusloop.space/academics",
-                },
-                {
-                  "@type": "SiteNavigationElement",
-                  position: 4,
-                  name: "College Directory",
-                  description: "Directory of verified Indian college hubs and campus networks",
-                  url: "https://campusloop.space/colleges",
-                },
-                {
-                  "@type": "SiteNavigationElement",
-                  position: 5,
-                  name: "Student Communities",
-                  description: "Student-created clubs, technical societies, and hobby spaces",
-                  url: "https://campusloop.space/communities",
-                },
-                {
-                  "@type": "SiteNavigationElement",
-                  position: 6,
-                  name: "Safety Rules",
-                  description: "Student privacy, data protection, and content moderation rules",
-                  url: "https://campusloop.space/safety",
-                },
-                {
-                  "@type": "SiteNavigationElement",
-                  position: 7,
-                  name: "Feature Docs",
-                  description: "Plain-English explainers for every CampusLoop feature",
-                  url: "https://campusloop.space/docs",
-                },
-                {
-                  "@type": "SiteNavigationElement",
-                  position: 8,
-                  name: "About CampusLoop",
-                  description: "Learn more about the verified student ecosystem",
-                  url: "https://campusloop.space/about",
-                },
-              ],
-            }),
-          }}
-        />
-
-        {/* WebApplication PWA Schema */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
+        <JsonLd
+          data={[
+            { ...organizationJsonLd(), founder: { "@type": "Person", name: "Shaswat Raj" } },
+            websiteJsonLd(),
+            {
               "@type": "WebApplication",
               name: "CampusLoop",
-              url: "https://campusloop.space",
+              url: SITE_URL,
               applicationCategory: "SocialNetworkingApplication",
-              operatingSystem: "All (Web, Android, iOS)",
-              browserRequirements: "Requires JavaScript. Requires HTML5.",
-              offers: {
-                "@type": "Offer",
-                price: "0",
-                priceCurrency: "INR",
-              },
-            }),
-          }}
-        />
-
-        {/* Organization Schema */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              name: "CampusLoop",
-              url: "https://campusloop.space",
-              logo: "https://campusloop.space/logo.png",
-              founder: { "@type": "Person", name: "Shaswat Raj" },
-              areaServed: {
-                "@type": "Country",
-                name: "India",
-              },
-              sameAs: SOCIAL_SAME_AS,
-              description:
-                "CampusLoop connects college students across India with verified campus conversations, communities, events, and academic resources.",
-            }),
-          }}
+              operatingSystem: "Web, Android, iOS",
+              offers: { "@type": "Offer", price: "0", priceCurrency: "INR" },
+            },
+          ]}
         />
         <link rel="preconnect" href="https://api.dicebear.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />

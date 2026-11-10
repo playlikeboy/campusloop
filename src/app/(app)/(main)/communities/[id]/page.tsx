@@ -6,6 +6,8 @@ import { getDb } from "@/db";
 import { communities, communityMembers, posts } from "@/db/schema";
 import type { FeedPost } from "@/hooks/use-feed";
 import { sanitizeAnonRow } from "@/lib/anonymity";
+import { absoluteUrl, breadcrumbJsonLd, buildMetadata } from "@/lib/seo";
+import { JsonLd } from "@/lib/seo/json-ld-script";
 import { getCachedAuthUser, getCachedCommunity, getCachedUserProfile } from "@/lib/server-cache";
 
 interface PageProps {
@@ -19,49 +21,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // 404 here so the status is set before streaming starts.
   if (!comm) notFound();
 
-  const title = `c/${comm.name} Sub-Hub`;
-  const description =
-    comm.description ||
-    `Join c/${comm.name} student sub-community on CampusLoop for hot posts, confessions, and campus discussions.`;
-  const url = `https://campusloop.space/communities/${comm.slug || comm.id}`;
-
-  return {
-    title,
-    description,
-    keywords: [
-      `c/${comm.name}`,
-      comm.name,
-      `${comm.name} college club`,
-      "campus sub-hub",
-      "student community",
-    ],
-    alternates: {
-      canonical: url,
-    },
-    openGraph: {
-      title,
-      description,
-      url,
-      siteName: "CampusLoop",
-      locale: "en_IN",
-      type: "website",
-      images: [
-        {
-          url: comm.bannerUrl || "https://campusloop.space/og-image.png",
-          width: 1200,
-          height: 630,
-          alt: title,
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: [comm.bannerUrl || "https://campusloop.space/og-image.png"],
-    },
-    robots: { index: comm.privacy === "PUBLIC", follow: comm.privacy === "PUBLIC" },
-  };
+  const path = `/communities/${comm.slug || comm.id}`;
+  return buildMetadata({
+    title: `c/${comm.name}`,
+    description:
+      comm.description?.slice(0, 160) ||
+      `Posts, questions and events from the c/${comm.name} community on CampusLoop.`,
+    path,
+    image: comm.bannerUrl || undefined,
+    noindex: comm.privacy !== "PUBLIC",
+  });
 }
 
 export default async function CommunityDetailPage({ params }: PageProps) {
@@ -172,56 +141,27 @@ export default async function CommunityDetailPage({ params }: PageProps) {
     isMember: profile ? c.members.some((m) => m.userId === profile.id) : false,
   }));
 
+  const communityPath = `/communities/${comm.slug || comm.id}`;
+
   return (
     <>
-      {/* Educational Organization / DiscussionForum & Breadcrumbs JSON-LD Schema */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@graph": [
-              {
-                "@type": "DiscussionForum",
-                name: `c/${comm.name}`,
-                headline: `c/${comm.name} — Student Community & Campus Sub-Hub`,
-                description: comm.description || `Sub-hub community for ${comm.name} on CampusLoop.`,
-                url: `https://campusloop.space/communities/${comm.slug || comm.id}`,
-                memberCount: activeMembersCount,
-                image: comm.bannerUrl || comm.avatarUrl || undefined,
-                publisher: {
-                  "@type": "Organization",
-                  name: "CampusLoop",
-                  url: "https://campusloop.space",
-                },
-              },
-              {
-                "@type": "BreadcrumbList",
-                itemListElement: [
-                  {
-                    "@type": "ListItem",
-                    position: 1,
-                    name: "Home",
-                    item: "https://campusloop.space",
-                  },
-                  {
-                    "@type": "ListItem",
-                    position: 2,
-                    name: "Communities",
-                    item: "https://campusloop.space/communities",
-                  },
-                  {
-                    "@type": "ListItem",
-                    position: 3,
-                    name: comm.name,
-                    item: `https://campusloop.space/communities/${comm.slug || comm.id}`,
-                  },
-                ],
-              },
-            ],
-          }),
-        }}
-      />
+      {comm.privacy === "PUBLIC" && (
+        <JsonLd
+          data={[
+            {
+              "@type": "DiscussionForum",
+              name: `c/${comm.name}`,
+              description: comm.description || undefined,
+              url: absoluteUrl(communityPath),
+              image: comm.bannerUrl || comm.avatarUrl || undefined,
+            },
+            breadcrumbJsonLd([
+              { name: "Communities", path: "/communities" },
+              { name: comm.name, path: communityPath },
+            ]),
+          ]}
+        />
+      )}
 
       <CommunityDetailClient
         community={{

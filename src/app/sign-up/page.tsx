@@ -5,11 +5,14 @@ import { AuthStateCleaner } from "@/components/auth/auth-state-cleaner";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { sanitizeReturnTo } from "@/lib/auth-redirect";
 import { getInstitutionAllowedDomains } from "@/lib/institutions";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Join CampusLoop | Verified Student Network",
-  description: "Join your verified college campus community on CampusLoop using your official college email.",
-};
+export const metadata: Metadata = buildMetadata({
+  title: "Join CampusLoop",
+  description:
+    "Create your free CampusLoop account with your college email and see what students at your college are posting.",
+  path: "/sign-up",
+});
 
 export default async function SignUpPage({
   searchParams,
@@ -33,7 +36,7 @@ export default async function SignUpPage({
   }
 
   const collegeParam = params?.college;
-  let collegeHint: string | undefined = undefined;
+  let collegeHint: string | undefined;
 
   if (collegeParam) {
     const { institution } = await getInstitutionAllowedDomains(collegeParam);
@@ -43,11 +46,7 @@ export default async function SignUpPage({
   return (
     <>
       <AuthStateCleaner />
-      <AuthSplitLayout
-        mode="sign-up"
-        returnTo={cleanReturnTo || undefined}
-        collegeHint={collegeHint}
-      />
+      <AuthSplitLayout mode="sign-up" returnTo={cleanReturnTo || undefined} collegeHint={collegeHint} />
     </>
   );
 }

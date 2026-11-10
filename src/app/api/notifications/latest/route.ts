@@ -72,21 +72,21 @@ export async function GET() {
 function buildTitle(type: string, actorName: string): string {
   switch (type) {
     case "MATCH":
-      return "It's a match! 💫";
+      return "It's a match";
     case "CRUSH_ALERT":
-      return "Someone has a campus crush 🔒";
+      return "Someone has a crush on you";
     case "FRIEND":
       return `${actorName} followed you back`;
     case "FOLLOW":
       return `${actorName} started following you`;
     case "MILESTONE":
-      return "New clout milestone 🏆";
+      return "New Loop Points milestone";
     case "MESSAGE":
       return actorName;
     case "NEW_POST":
       return `${actorName} posted`;
     case "EVENT_REGISTRATION":
-      return "You're registered 🎟️";
+      return "You're registered";
     default:
       return `${actorName} on CampusLoop`;
   }

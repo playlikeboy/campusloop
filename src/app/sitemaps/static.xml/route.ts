@@ -1,61 +1,36 @@
-import { NextResponse } from "next/server";
 import { getDocsSlugs } from "@/lib/docs-features";
 import { GUIDES } from "@/lib/guide";
+import { buildUrlset, type SitemapEntry, xmlResponse } from "@/lib/seo/sitemap";
 
-export async function GET() {
-  const pages = [
-    { url: "https://campusloop.space/", priority: "1.0", changefreq: "daily" },
-    { url: "https://campusloop.space/guide", priority: "0.9", changefreq: "weekly" },
-    ...GUIDES.map((g) => ({
-      url: `https://campusloop.space/guide/${g.slug}`,
-      priority: "0.8",
-      changefreq: "monthly",
-    })),
-    { url: "https://campusloop.space/investors", priority: "0.8", changefreq: "monthly" },
-    { url: "https://campusloop.space/developers", priority: "0.9", changefreq: "weekly" },
-    { url: "https://campusloop.space/developers/SKILL.md", priority: "0.6", changefreq: "monthly" },
-    { url: "https://campusloop.space/docs", priority: "0.9", changefreq: "weekly" },
-    ...getDocsSlugs().map((slug) => ({
-      url: `https://campusloop.space/docs/${slug}`,
-      priority: "0.8",
-      changefreq: "monthly",
-    })),
-    { url: "https://campusloop.space/academics", priority: "1.0", changefreq: "daily" },
-    { url: "https://campusloop.space/academics/study-material/sources", priority: "0.9", changefreq: "daily" },
-    { url: "https://campusloop.space/colleges", priority: "0.9", changefreq: "daily" },
-    { url: "https://campusloop.space/articles", priority: "0.8", changefreq: "daily" },
-    { url: "https://campusloop.space/events", priority: "0.8", changefreq: "daily" },
-    { url: "https://campusloop.space/communities", priority: "0.8", changefreq: "daily" },
-    { url: "https://campusloop.space/pitch", priority: "0.8", changefreq: "weekly" },
-    { url: "https://campusloop.space/about", priority: "0.9", changefreq: "monthly" },
-    { url: "https://campusloop.space/safety", priority: "0.8", changefreq: "monthly" },
-    { url: "https://campusloop.space/help", priority: "0.8", changefreq: "weekly" },
-    { url: "https://campusloop.space/sitemap", priority: "0.8", changefreq: "weekly" },
-    { url: "https://campusloop.space/privacy", priority: "0.7", changefreq: "monthly" },
-    { url: "https://campusloop.space/terms", priority: "0.7", changefreq: "monthly" },
-    { url: "https://campusloop.space/contact", priority: "0.7", changefreq: "monthly" },
-  ];
+/** Hand-maintained public pages. Needs no database, so it never fails. */
+const PAGES: SitemapEntry[] = [
+  { path: "/", priority: 1.0, changefreq: "daily" },
+  { path: "/colleges", priority: 0.9, changefreq: "daily" },
+  { path: "/academics", priority: 0.9, changefreq: "daily" },
+  { path: "/academics/study-material/sources", priority: 0.8, changefreq: "daily" },
+  { path: "/courses", priority: 0.9, changefreq: "daily" },
+  { path: "/articles", priority: 0.8, changefreq: "daily" },
+  { path: "/events", priority: 0.8, changefreq: "daily" },
+  { path: "/communities", priority: 0.8, changefreq: "daily" },
+  { path: "/guide", priority: 0.8, changefreq: "weekly" },
+  ...GUIDES.map((g): SitemapEntry => ({ path: `/guide/${g.slug}`, priority: 0.7, changefreq: "monthly" })),
+  { path: "/docs", priority: 0.7, changefreq: "weekly" },
+  ...getDocsSlugs().map(
+    (slug): SitemapEntry => ({ path: `/docs/${slug}`, priority: 0.6, changefreq: "monthly" })
+  ),
+  { path: "/developers", priority: 0.6, changefreq: "weekly" },
+  { path: "/developers/SKILL.md", priority: 0.4, changefreq: "monthly" },
+  { path: "/about", priority: 0.7, changefreq: "monthly" },
+  { path: "/safety", priority: 0.7, changefreq: "monthly" },
+  { path: "/help", priority: 0.7, changefreq: "weekly" },
+  { path: "/contact", priority: 0.5, changefreq: "monthly" },
+  { path: "/investors", priority: 0.5, changefreq: "monthly" },
+  { path: "/pitch", priority: 0.5, changefreq: "monthly" },
+  { path: "/sitemap", priority: 0.4, changefreq: "weekly" },
+  { path: "/privacy", priority: 0.3, changefreq: "yearly" },
+  { path: "/terms", priority: 0.3, changefreq: "yearly" },
+];
 
-  const urls = pages
-    .map(
-      (p) => `  <url>
-    <loc>${p.url}</loc>
-    <changefreq>${p.changefreq}</changefreq>
-    <priority>${p.priority}</priority>
-  </url>`
-    )
-    .join("\n");
-
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls}
-</urlset>`;
-
-  return new NextResponse(xml, {
-    headers: {
-      "Content-Type": "application/xml",
-      "Cache-Control": "public, max-age=86400, s-maxage=604800",
-    },
-  });
+export function GET() {
+  return xmlResponse(buildUrlset(PAGES), 86400, 604800);
 }

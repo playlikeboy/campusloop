@@ -55,7 +55,7 @@ export function OfflineIndicator() {
           exit={{ opacity: 0, y: -20, scale: 0.95 }}
           className="fixed top-3 inset-x-0 z-50 flex justify-center px-4 pointer-events-none"
         >
-          <div className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-surface-raised/95 text-fg shadow-lg backdrop-blur-md pointer-events-auto text-xs font-bold">
+          <div className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-surface-raised text-fg shadow-lg pointer-events-auto text-xs font-bold">
             <span className="flex size-2 rounded-full bg-warning animate-pulse" />
             <WifiOff className="size-3.5 text-warning" />
             <span>Offline Mode · Viewing cached campus data</span>
@@ -78,7 +78,7 @@ export function OfflineIndicator() {
           exit={{ opacity: 0, y: -20, scale: 0.95 }}
           className="fixed top-3 inset-x-0 z-50 flex justify-center px-4 pointer-events-none"
         >
-          <div className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-success-subtle text-success shadow-lg backdrop-blur-md pointer-events-auto text-xs font-bold">
+          <div className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-success-subtle text-success shadow-lg pointer-events-auto text-xs font-bold">
             <Wifi className="size-3.5 text-success" />
             <span>Back online · Campus feed synced</span>
           </div>

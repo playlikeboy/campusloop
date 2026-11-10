@@ -1,20 +1,12 @@
 "use client";
 
-import {
-  Calendar,
-  CheckCircle2,
-  Gift,
-  MapPin,
-  MessageCircle,
-  Share2,
-  ShieldCheck,
-  X,
-} from "lucide-react";
+import { Calendar, CheckCircle2, Gift, MapPin, MessageCircle, Share2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { LostAndFoundItem } from "@/db/schema";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -65,7 +57,7 @@ export function LostFoundCard({ item, currentUserId, variant = "card" }: LostFou
     haptics.success();
     const next = !resolved;
     setResolved(next);
-    toast.success(next ? "Marked as resolved & returned!" : "Marked as active recovery");
+    toast.success(next ? "Marked as returned" : "Marked as still missing");
   }
 
   function handleShare(e?: React.MouseEvent) {
@@ -86,7 +78,7 @@ export function LostFoundCard({ item, currentUserId, variant = "card" }: LostFou
         .catch(() => {});
     } else {
       navigator.clipboard.writeText(shareUrl);
-      toast.success("Lost & Found link copied!");
+      toast.success("Link copied");
     }
   }
 
@@ -96,7 +88,7 @@ export function LostFoundCard({ item, currentUserId, variant = "card" }: LostFou
     <>
       <article
         className={cn(
-          "group flex flex-col justify-between rounded-2xl border border-border/40 bg-card overflow-hidden transition-colors duration-200 hover:shadow-md hover:border-border/80",
+          "group flex flex-col justify-between rounded-2xl border border-border/40 bg-card overflow-hidden transition-colors duration-200 hover:shadow-sm hover:border-border/80",
           resolved && "opacity-75"
         )}
       >
@@ -107,34 +99,35 @@ export function LostFoundCard({ item, currentUserId, variant = "card" }: LostFou
               <img
                 src={item.imageUrl}
                 alt={item.title}
-                className="size-full object-cover transition-transform duration-300 group-hover:scale-105 cursor-pointer"
+                className="size-full object-cover transition-transform duration-300 cursor-pointer"
                 loading="lazy"
               />
             </Link>
             <div className="absolute top-2.5 left-2.5">
               <span
                 className={cn(
-                  "rounded-lg px-2 py-0.5 text-xs font-bold backdrop-blur-sm shadow-xs",
+                  "rounded-lg px-2 py-0.5 text-xs font-bold shadow-xs",
                   resolved
                     ? "bg-surface-muted text-fg-muted"
                     : isLost
-                    ? "bg-danger text-white"
-                    : "bg-success text-white"
+                      ? "bg-danger text-danger-fg"
+                      : "bg-success text-success-fg"
                 )}
               >
-                {resolved ? "Resolved" : isLost ? "Lost Item" : "Found Item"}
+                {resolved ? "Resolved" : isLost ? "Lost" : "Found"}
               </span>
             </div>
             <div className="absolute top-2.5 right-2.5">
-              <button
+              <Button
                 type="button"
+                variant="secondary"
+                size="icon"
                 onClick={handleShare}
-                className="flex size-8 items-center justify-center rounded-lg bg-background/80 text-muted-foreground backdrop-blur-xs transition hover:bg-background hover:text-foreground shadow-2xs"
-                title="Share"
                 aria-label="Share"
+                className="bg-surface shadow-xs"
               >
-                <Share2 className="size-3.5" />
-              </button>
+                <Share2 />
+              </Button>
             </div>
           </div>
         ) : (
@@ -145,22 +138,16 @@ export function LostFoundCard({ item, currentUserId, variant = "card" }: LostFou
                 resolved
                   ? "bg-muted text-muted-foreground border-border/50"
                   : isLost
-                  ? "bg-danger-subtle text-danger border-danger"
-                  : "bg-success-subtle text-success border-success"
+                    ? "bg-danger-subtle text-danger border-danger"
+                    : "bg-success-subtle text-success border-success"
               )}
             >
-              {resolved ? "Resolved" : isLost ? "Lost Item" : "Found Item"}
+              {resolved ? "Resolved" : isLost ? "Lost" : "Found"}
             </span>
 
-            <button
-              type="button"
-              onClick={handleShare}
-              className="flex size-8 items-center justify-center rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-              title="Share"
-              aria-label="Share"
-            >
-              <Share2 className="size-3.5" />
-            </button>
+            <Button type="button" variant="ghost" size="icon" onClick={handleShare} aria-label="Share">
+              <Share2 />
+            </Button>
           </div>
         )}
 
@@ -168,27 +155,23 @@ export function LostFoundCard({ item, currentUserId, variant = "card" }: LostFou
         <div className="flex flex-1 flex-col justify-between p-4 space-y-3">
           <div className="space-y-1.5">
             <Link href={detailHref} className="block group-hover:text-primary transition-colors">
-              <h3 className="text-sm font-black text-foreground leading-snug line-clamp-2">
-                {item.title}
-              </h3>
+              <h3 className="text-sm font-bold text-foreground leading-snug line-clamp-2">{item.title}</h3>
             </Link>
 
             {item.description ? (
-              <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                {item.description}
-              </p>
+              <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">{item.description}</p>
             ) : null}
 
             {/* Location & Time specs */}
             <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-muted-foreground">
               <span className="inline-flex items-center gap-1 font-medium bg-muted/40 px-2 py-0.5 rounded-lg border border-border/30">
-                <MapPin className="size-3 text-danger shrink-0" />
+                <MapPin className="size-3 shrink-0" aria-hidden="true" />
                 <span className="truncate max-w-[150px]">{item.location}</span>
               </span>
 
               {item.itemDate ? (
                 <span className="inline-flex items-center gap-1 font-medium bg-muted/40 px-2 py-0.5 rounded-lg border border-border/30">
-                  <Calendar className="size-3 text-primary shrink-0" />
+                  <Calendar className="size-3 shrink-0" aria-hidden="true" />
                   <span>{item.itemDate}</span>
                 </span>
               ) : null}
@@ -211,57 +194,34 @@ export function LostFoundCard({ item, currentUserId, variant = "card" }: LostFou
               >
                 <Avatar className="size-5 rounded-full border border-border/50 shrink-0">
                   <AvatarImage src={avatar} />
-                  <AvatarFallback className="text-[9px] font-bold">
+                  <AvatarFallback className="text-xs font-bold">
                     {item.author.displayName[0] || "U"}
                   </AvatarFallback>
                 </Avatar>
                 <span className="text-xs font-semibold text-foreground truncate">
                   {item.author.displayName}
                 </span>
-                {(item.author.points || 0) >= 150 ? (
-                  <span title="Verified student">
-                    <ShieldCheck className="size-3.5 text-primary shrink-0" />
-                  </span>
-                ) : null}
               </Link>
 
-              <span className="text-[11px] text-muted-foreground shrink-0">
-                {formatTimeAgo(item.createdAt)}
-              </span>
+              <span className="text-xs text-muted-foreground shrink-0">{formatTimeAgo(item.createdAt)}</span>
             </div>
 
             <div className="flex items-center gap-2">
               {!resolved ? (
-                <Button
-                  type="button"
-                  size="sm"
-                  onClick={handleClaimAction}
-                  className={cn(
-                    "flex-1 font-bold h-9 text-xs gap-1.5",
-                    isLost
-                      ? "bg-danger hover:bg-danger text-white"
-                      : "bg-success hover:bg-success text-white"
-                  )}
-                >
-                  <MessageCircle className="size-3.5" />
-                  <span>{isLost ? "I Found This!" : "Claim Item"}</span>
+                <Button type="button" onClick={handleClaimAction} className="flex-1">
+                  <MessageCircle />
+                  <span>{isLost ? "I found this" : "This is mine"}</span>
                 </Button>
               ) : (
-                <div className="flex-1 text-center py-1.5 text-xs font-bold text-muted-foreground bg-muted/40 rounded-xl">
-                  Resolved &amp; Returned
-                </div>
+                <p className="flex-1 rounded-full bg-surface-muted py-2.5 text-center text-sm font-semibold text-fg-muted">
+                  Returned
+                </p>
               )}
 
               {isOwner ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleToggleResolve}
-                  className="font-semibold text-xs h-9 px-3"
-                >
-                  <CheckCircle2 className="size-3.5 mr-1" />
-                  {resolved ? "Reopen" : "Mark Resolved"}
+                <Button type="button" variant="outline" onClick={handleToggleResolve}>
+                  <CheckCircle2 />
+                  {resolved ? "Reopen" : "Mark returned"}
                 </Button>
               ) : null}
             </div>
@@ -269,75 +229,41 @@ export function LostFoundCard({ item, currentUserId, variant = "card" }: LostFou
         </div>
       </article>
 
-      {/* Safe Recovery Claim Modal */}
-      {claimModalOpen ? (
-        <div
-          onClick={() => setClaimModalOpen(false)}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 animate-in fade-in"
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="relative max-w-md w-full rounded-3xl bg-background p-6 shadow-2xl border border-border/40 space-y-5"
-          >
-            <div className="flex items-center justify-between border-b border-border/40 pb-3">
-              <div>
-                <span className="text-xs font-bold text-primary">
-                  Campus Safe Recovery
-                </span>
-                <h2 className="text-base font-black text-foreground">
-                  {isLost ? "Report Finding Item" : "Claim This Item"}
-                </h2>
-              </div>
-              <button
-                type="button"
-                onClick={() => setClaimModalOpen(false)}
-                className="size-8 flex items-center justify-center rounded-full hover:bg-muted text-muted-foreground"
-              >
-                <X className="size-4" />
-              </button>
-            </div>
+      <Dialog open={claimModalOpen} onOpenChange={setClaimModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{isLost ? "You found this?" : "Is this yours?"}</DialogTitle>
+            <DialogDescription>
+              {item.title} · {item.location}
+            </DialogDescription>
+          </DialogHeader>
 
-            <div className="rounded-xl border border-border/40 bg-muted/20 p-3.5 space-y-1">
-              <p className="text-xs font-bold text-foreground">{item.title}</p>
-              <p className="text-[11px] text-muted-foreground flex items-center gap-1">
-                <MapPin className="size-3 text-danger" />
-                {item.location}
-              </p>
-            </div>
-
-            <div className="space-y-2 text-xs text-muted-foreground leading-relaxed">
-              <p className="font-semibold text-foreground">Safe Handoff Protocol:</p>
-              <ul className="list-disc pl-4 space-y-1">
-                <li>Meet in a public campus space (Library, Student Center, or Dean's Office).</li>
-                <li>Verify ownership details (stickers, scratches, or college ID match).</li>
-                <li>Never share private financial info or OTPs.</li>
-              </ul>
-            </div>
-
-            <div className="space-y-2 pt-2">
-              <Button
-                type="button"
-                onClick={() => {
-                  handleDirectContact();
-                  setClaimModalOpen(false);
-                }}
-                className="w-full font-bold h-10 gap-2"
-              >
-                <MessageCircle className="size-4" />
-                Contact Owner Securely
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => setClaimModalOpen(false)}
-                className="w-full text-xs text-muted-foreground"
-              >
-                Cancel
-              </Button>
-            </div>
+          <div className="space-y-2 text-sm text-fg-muted">
+            <p className="font-semibold text-fg">Before you meet</p>
+            <ul className="list-disc space-y-1 pl-4">
+              <li>Meet in a public place on campus, like the library.</li>
+              <li>Check it's theirs: ask about stickers, scratches or their college ID.</li>
+              <li>Never share bank details or OTPs.</li>
+            </ul>
           </div>
-        </div>
-      ) : null}
+
+          <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <Button type="button" variant="ghost" onClick={() => setClaimModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={() => {
+                handleDirectContact();
+                setClaimModalOpen(false);
+              }}
+            >
+              <MessageCircle />
+              {isLost ? "Contact owner" : "Contact finder"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

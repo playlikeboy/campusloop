@@ -1,223 +1,119 @@
 "use client";
 
-import {
-  ArrowLeft,
-  BookOpen,
-  Camera,
-  Car,
-  Crosshair,
-  FileText,
-  FlaskConical,
-  Gamepad2,
-  Home,
-  Loader2,
-  PackageSearch,
-  Send,
-  ShoppingBag,
-  Swords,
-  Trophy,
-  X,
-  Zap,
-} from "lucide-react";
+import { ArrowLeft, Send } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
-import type { DedicatedHubType } from "@/components/communities/dedicated-hub-client";
-import { SearchableCombobox, type ComboboxOption } from "@/components/ui/searchable-combobox";
+import type { DedicatedHubType } from "@/components/communities/hub-types";
+import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
+import { FormField } from "@/components/ui/form-field";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { uploadImageToImgBB } from "@/lib/upload";
-import { cn } from "@/lib/utils";
+import {
+  HUB_CATEGORIES,
+  type HubFormValues,
+  INITIAL_HUB_VALUES,
+  PHOTO_TYPES,
+  type SetHubValue,
+  TITLE_PLACEHOLDERS,
+} from "./hub-create-options";
+import { HubPhotoField } from "./hub-photo-field";
+import { HubTypeFields } from "./hub-type-fields";
 
 interface HubCreateClientProps {
   initialType?: DedicatedHubType;
   profileId: string;
 }
 
-const HUB_CATEGORIES: Array<{
-  id: DedicatedHubType;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  color: string;
-  badge: string;
-  href: string;
-}> = [
-  {
-    id: "lost_found",
-    label: "Lost & Found",
-    icon: PackageSearch,
-    color: "text-warning bg-warning-subtle border-warning",
-    badge: "Report Item",
-    href: "/lost-and-found",
-  },
-  {
-    id: "marketplace",
-    label: "Buy & Sell",
-    icon: ShoppingBag,
-    color: "text-success bg-success-subtle border-success",
-    badge: "Sell Gear",
-    href: "/buy-and-sell",
-  },
-  {
-    id: "gaming",
-    label: "Gaming Arena",
-    icon: Gamepad2,
-    color: "text-brand-text bg-brand-subtle border-brand",
-    badge: "Host Lobby",
-    href: "/gaming",
-  },
-  {
-    id: "rideshare",
-    label: "Ride Share",
-    icon: Car,
-    color: "text-brand-text bg-brand-subtle border-brand",
-    badge: "Offer Ride",
-    href: "/rideshare",
-  },
-  {
-    id: "housing",
-    label: "Housing & Flats",
-    icon: Home,
-    color: "text-danger bg-danger-subtle border-danger",
-    badge: "List Room",
-    href: "/housing",
-  },
-  {
-    id: "academics",
-    label: "Academic Notes",
-    icon: BookOpen,
-    color: "text-brand-text bg-brand-subtle border-brand",
-    badge: "Share Material",
-    href: "/academics",
-  },
-];
+const FORM_ID = "hub-create-form";
 
-const CONDITION_OPTIONS: ComboboxOption[] = [
-  { value: "NEW", label: "Like New / Brand New" },
-  { value: "GOOD", label: "Good / Gently Used" },
-  { value: "FAIR", label: "Fair / Working" },
-];
+function buildPayload(
+  hubType: DedicatedHubType,
+  title: string,
+  description: string,
+  v: HubFormValues,
+  imageUrl: string | null
+) {
+  const payload: Record<string, unknown> = { hubType, title, description };
+  if (hubType === "lost_found") {
+    Object.assign(payload, {
+      type: v.lfType,
+      location: v.location || "Campus",
+      reward: v.reward || null,
+      imageUrl: imageUrl || null,
+    });
+  } else if (hubType === "marketplace") {
+    Object.assign(payload, {
+      price: parseInt(v.price, 10) || 0,
+      condition: v.condition,
+      category: v.category,
+      hostelLocation: v.hostelLocation || "Campus",
+      images: imageUrl ? [imageUrl] : [],
+    });
+  } else if (hubType === "gaming") {
+    Object.assign(payload, {
+      gameName: v.gameName,
+      mode: v.mode,
+      rankTier: v.rankTier || null,
+      gamerTag: v.gamerTag || null,
+      slotsTotal: parseInt(v.slotsTotal, 10) || 5,
+      scheduledAt: v.scheduledAt,
+    });
+  } else if (hubType === "rideshare") {
+    const seats = parseInt(v.totalSeats, 10) || 4;
+    Object.assign(payload, {
+      origin: v.origin,
+      destination: v.destination,
+      departureTime: v.departureTime,
+      totalSeats: seats,
+      availableSeats: seats - 1,
+      pricePerSeat: parseInt(v.pricePerSeat, 10) || 0,
+    });
+  } else if (hubType === "housing") {
+    Object.assign(payload, {
+      rentPerMonth: parseInt(v.rentPerMonth, 10) || 0,
+      distanceFromCampus: v.distanceFromCampus,
+      occupancyType: v.occupancyType,
+      genderPreference: v.genderPreference,
+      location: v.location || "Near campus",
+      imageUrl: imageUrl || null,
+    });
+  } else if (hubType === "academics") {
+    Object.assign(payload, {
+      resourceType: v.resourceType,
+      subjectCode: v.subjectCode,
+      subjectName: v.subjectName,
+      branch: v.branch,
+      semester: parseInt(v.semester, 10) || 1,
+      driveUrl: v.driveUrl || null,
+    });
+  }
+  return payload;
+}
 
-const GAME_OPTIONS: ComboboxOption[] = [
-  { value: "Valorant", label: "Valorant" },
-  { value: "BGMI", label: "BGMI / PUBG Mobile" },
-  { value: "CS2", label: "Counter-Strike 2" },
-  { value: "Dota 2", label: "Dota 2" },
-  { value: "FIFA", label: "EA Sports FC / FIFA" },
-  { value: "Chess", label: "Chess.com" },
-];
-
-const GAMING_MODE_OPTIONS = [
-  { value: "5v5 Competitive", label: "Competitive", description: "Ranked team play", icon: Crosshair },
-  { value: "Casual", label: "Casual", description: "Play for fun", icon: Gamepad2 },
-  { value: "Scrim", label: "Scrims", description: "Practice with squads", icon: Swords },
-  { value: "Tournament", label: "Tournament lobby", description: "Coordinate an organized match", icon: Trophy },
-];
-
-const HUB_BRANCH_OPTIONS: ComboboxOption[] = [
-  { value: "All", label: "All Branches" },
-  { value: "Computer Science", label: "Computer Science (CSE)" },
-  { value: "ECE", label: "Electronics & Comm (ECE)" },
-  { value: "Information Technology", label: "Information Tech (IT)" },
-  { value: "Mechanical", label: "Mechanical (MECH)" },
-  { value: "Civil", label: "Civil Engineering" },
-  { value: "Electrical", label: "Electrical (EEE/EE)" },
-  { value: "Chemical", label: "Chemical" },
-  { value: "BioTech", label: "Biotechnology" },
-];
-
-const HUB_SEMESTER_OPTIONS: ComboboxOption[] = [1, 2, 3, 4, 5, 6, 7, 8].map((s) => ({
-  value: String(s),
-  label: `Semester ${s}`,
-}));
-
-export function HubCreateClient({ initialType = "lost_found", profileId }: HubCreateClientProps) {
+export function HubCreateClient({ initialType = "lost_found" }: HubCreateClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryType = searchParams.get("type") as DedicatedHubType | null;
-  const [hubType, setHubType] = useState<DedicatedHubType>(queryType || initialType);
+  const [hubType, setHubType] = useState<DedicatedHubType>(
+    queryType && HUB_CATEGORIES.some((c) => c.id === queryType) ? queryType : initialType
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Common Form State
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-
-  // Specific Form States
-  // Lost & Found
-  const [lfType, setLfType] = useState<"LOST" | "FOUND">("LOST");
-  const [location, setLocation] = useState("");
-  const [reward, setReward] = useState("");
-
-  // Marketplace
-  const [price, setPrice] = useState("");
-  const [condition, setCondition] = useState("GOOD");
-  const [category, setCategory] = useState("Cycles");
-  const [hostelLocation, setHostelLocation] = useState("");
-
-  // Gaming
-  const [gameName, setGameName] = useState("Valorant");
-  const [mode, setMode] = useState("5v5 Competitive");
-  const [rankTier, setRankTier] = useState("");
-  const [gamerTag, setGamerTag] = useState("");
-  const [slotsTotal, setSlotsTotal] = useState("5");
-  const [scheduledAt, setScheduledAt] = useState("");
-
-  // Ride Share
-  const [origin, setOrigin] = useState("Campus Main Gate");
-  const [destination, setDestination] = useState("Railway Station / Airport");
-  const [departureTime, setDepartureTime] = useState("Tomorrow 6:00 AM");
-  const [totalSeats, setTotalSeats] = useState("4");
-  const [pricePerSeat, setPricePerSeat] = useState("75");
-
-  // Housing
-  const [rentPerMonth, setRentPerMonth] = useState("4500");
-  const [distanceFromCampus, setDistanceFromCampus] = useState("5 min walk");
-  const [occupancyType, setOccupancyType] = useState("SINGLE_ROOM");
-  const [genderPreference, setGenderPreference] = useState("ANY");
-
-  // Academics
-  const [resourceType, setResourceType] = useState<"NOTES" | "PYQ" | "CHEAT_SHEET" | "LAB_MANUAL">("NOTES");
-  const [subjectCode, setSubjectCode] = useState("CS201");
-  const [subjectName, setSubjectName] = useState("Data Structures & Algorithms");
-  const [branch, setBranch] = useState("Computer Science");
-  const [semester, setSemester] = useState("3");
-  const [driveUrl, setDriveUrl] = useState("");
-
-  // Media / Photo Upload
+  const [values, setValues] = useState<HubFormValues>(INITIAL_HUB_VALUES);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  async function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setIsUploadingImage(true);
-    sounds.tap();
-    haptics.light();
-    try {
-      toast.info("Uploading photo...");
-      const result = await uploadImageToImgBB(file);
-      if (result?.url) {
-        setImageUrl(result.url);
-        sounds.pop();
-        haptics.medium();
-        toast.success("Photo uploaded!");
-      }
-    } catch (err: any) {
-      toast.error(err?.message || "Failed to upload photo");
-    } finally {
-      setIsUploadingImage(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
-  }
-
+  const set: SetHubValue = (key, value) => setValues((prev) => ({ ...prev, [key]: value }));
   const activeCategory = HUB_CATEGORIES.find((c) => c.id === hubType) || HUB_CATEGORIES[0];
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim()) {
-      toast.error("Please enter a headline title");
+      toast.error("Add a title first.");
       return;
     }
 
@@ -226,593 +122,90 @@ export function HubCreateClient({ initialType = "lost_found", profileId }: HubCr
     haptics.light();
 
     try {
-      const payload: any = {
-        hubType,
-        title: title.trim(),
-        description: description.trim(),
-      };
-
-      if (hubType === "lost_found") {
-        payload.type = lfType;
-        payload.location = location || "Campus";
-        payload.reward = reward || null;
-        payload.imageUrl = imageUrl || null;
-      } else if (hubType === "marketplace") {
-        payload.price = parseInt(price, 10) || 100;
-        payload.condition = condition;
-        payload.category = category;
-        payload.hostelLocation = hostelLocation || "Campus Hostel";
-        payload.images = imageUrl ? [imageUrl] : [];
-      } else if (hubType === "gaming") {
-        payload.gameName = gameName;
-        payload.mode = mode;
-        payload.rankTier = rankTier || null;
-        payload.gamerTag = gamerTag || null;
-        payload.slotsTotal = parseInt(slotsTotal, 10) || 5;
-        payload.scheduledAt = scheduledAt;
-      } else if (hubType === "rideshare") {
-        payload.origin = origin;
-        payload.destination = destination;
-        payload.departureTime = departureTime;
-        payload.totalSeats = parseInt(totalSeats, 10) || 4;
-        payload.availableSeats = parseInt(totalSeats, 10) - 1;
-        payload.pricePerSeat = parseInt(pricePerSeat, 10) || 50;
-      } else if (hubType === "housing") {
-        payload.rentPerMonth = parseInt(rentPerMonth, 10) || 3000;
-        payload.distanceFromCampus = distanceFromCampus;
-        payload.occupancyType = occupancyType;
-        payload.genderPreference = genderPreference;
-        payload.location = location || "Near Campus Gate";
-        payload.imageUrl = imageUrl || null;
-      } else if (hubType === "academics") {
-        payload.resourceType = resourceType;
-        payload.subjectCode = subjectCode;
-        payload.subjectName = subjectName;
-        payload.branch = branch;
-        payload.semester = parseInt(semester, 10) || 1;
-        payload.driveUrl = driveUrl || null;
-      }
-
       const res = await fetch("/api/communities/hub/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(buildPayload(hubType, title.trim(), description.trim(), values, imageUrl)),
       });
 
       if (!res.ok) {
         const err = (await res.json().catch(() => ({}))) as { error?: string };
-        throw new Error(err.error || "Failed to publish listing");
+        throw new Error(err.error || "Couldn't post your listing. Try again.");
       }
 
       sounds.ting();
       haptics.repost();
-      toast.success("Published to Campus Hub");
+      toast.success("Posted");
       router.push(activeCategory.href);
       router.refresh();
     } catch (err: unknown) {
-      toast.error((err as Error).message || "Failed to publish");
+      toast.error((err as Error).message || "Couldn't post your listing. Try again.");
     } finally {
       setIsSubmitting(false);
     }
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col min-h-screen pb-24 border-x border-border/20 bg-background text-foreground select-none">
-      {/* ─── Sticky Header ─── */}
-      <header className="sticky top-12 lg:top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border/30 px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="flex size-9 shrink-0 items-center justify-center rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-            aria-label="Back"
-          >
-            <ArrowLeft className="size-4.5" />
-          </button>
-          <h1 className="text-base font-black tracking-tight text-foreground">
-            New {activeCategory.label} Listing
-          </h1>
+    <div className="mx-auto flex min-h-screen w-full max-w-2xl flex-col bg-bg pb-24 text-fg">
+      <header className="sticky top-12 z-30 flex items-center justify-between gap-3 border-b border-border bg-bg px-4 py-2 lg:top-0">
+        <div className="flex min-w-0 items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={() => router.back()} aria-label="Back">
+            <ArrowLeft />
+          </Button>
+          <h1 className="truncate text-lg font-semibold text-fg">New post</h1>
         </div>
-
-        <button
-          type="button"
-          disabled={isSubmitting || !title.trim()}
-          onClick={handleSubmit}
-          className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-[opacity,transform] shadow-xs cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="size-3.5 animate-spin" />
-              <span>Publishing...</span>
-            </>
-          ) : (
-            <>
-              <Send className="size-3.5" />
-              <span>Publish Listing</span>
-            </>
-          )}
-        </button>
+        <Button type="submit" form={FORM_ID} loading={isSubmitting} disabled={!title.trim()}>
+          {!isSubmitting && <Send />}
+          Post
+        </Button>
       </header>
 
-      {/* ─── Category Selection Strip (Twitter/X Style Pills) ─── */}
-      <div className="px-4 py-3 border-b border-border/20 overflow-x-auto scrollbar-none bg-muted/10">
-        <div className="flex items-center gap-2 min-w-max">
-          {HUB_CATEGORIES.map((cat) => {
-            const Icon = cat.icon;
-            const isSelected = hubType === cat.id;
-            return (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => {
-                  setHubType(cat.id);
-                  sounds.tap();
-                  haptics.light();
-                }}
-                className={cn(
-                  "flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer border",
-                  isSelected
-                    ? "bg-primary text-primary-foreground border-primary shadow-xs"
-                    : "bg-card border-border/40 text-muted-foreground hover:text-foreground hover:bg-muted/60"
-                )}
-              >
-                <Icon className="size-3.5" />
-                <span>{cat.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      <form id={FORM_ID} onSubmit={handleSubmit} className="space-y-5 p-4 sm:p-6">
+        <fieldset>
+          <legend className="mb-2 text-sm font-semibold text-fg">What are you posting?</legend>
+          <div className="flex flex-wrap gap-2">
+            {HUB_CATEGORIES.map((cat) => {
+              const Icon = cat.icon;
+              return (
+                <Chip
+                  key={cat.id}
+                  selected={hubType === cat.id}
+                  icon={<Icon />}
+                  onSelectedChange={() => {
+                    setHubType(cat.id);
+                    sounds.tap();
+                    haptics.light();
+                  }}
+                >
+                  {cat.label}
+                </Chip>
+              );
+            })}
+          </div>
+        </fieldset>
 
-      {/* ─── Form Container ─── */}
-      <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-5">
-        {/* Title Input */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-bold text-muted-foreground">
-            Headline Title *
-          </label>
-          <input
-            type="text"
+        <FormField label="Title" required>
+          <Input
             required
+            maxLength={120}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder={
-              hubType === "lost_found"
-                ? "e.g. Titan Watch with black leather strap found in Library"
-                : hubType === "marketplace"
-                  ? "e.g. Hero Sprint Cycle in great condition with lock"
-                  : hubType === "gaming"
-                    ? "e.g. Valorant 5v5 Custom Room - Need 2 Players"
-                    : hubType === "rideshare"
-                      ? "e.g. Cab share from Campus to Airport"
-                      : hubType === "housing"
-                        ? "e.g. 1 BHK Flat Available near Gate 2"
-                        : "e.g. Endsem Notes & Previous Year Questions for CS201"
-            }
-            className="w-full h-11 px-4 rounded-2xl border border-border/60 bg-muted/20 text-sm font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-colors"
+            placeholder={TITLE_PLACEHOLDERS[hubType]}
           />
-        </div>
+        </FormField>
 
-        {/* Photo Upload Area */}
-        {["lost_found", "marketplace", "housing", "academics"].includes(hubType) && (
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-muted-foreground">
-                Item / Listing Photo (Recommended)
-              </label>
-              <span className="text-[10px] text-muted-foreground">Photos boost engagement by 80%</span>
-            </div>
+        {PHOTO_TYPES.includes(hubType) && <HubPhotoField imageUrl={imageUrl} onChange={setImageUrl} />}
 
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleImageSelect}
-              className="hidden"
-            />
+        <HubTypeFields hubType={hubType} values={values} set={set} />
 
-            {imageUrl ? (
-              <div className="relative aspect-16/9 w-full rounded-2xl overflow-hidden border border-border bg-card group">
-                <img src={imageUrl} alt="Listing preview" className="size-full object-cover" />
-                <button
-                  type="button"
-                  onClick={() => setImageUrl(null)}
-                  className="absolute top-3 right-3 size-8 rounded-full bg-black/70 hover:bg-black text-white flex items-center justify-center transition-colors shadow-lg cursor-pointer"
-                  title="Remove photo"
-                >
-                  <X className="size-4" />
-                </button>
-              </div>
-            ) : (
-              <div
-                onClick={() => !isUploadingImage && fileInputRef.current?.click()}
-                className={cn(
-                  "flex items-center justify-center gap-3 p-4 border-2 border-dashed border-border/70 rounded-2xl bg-muted/10 hover:bg-muted/30 transition-colors cursor-pointer group text-center",
-                  isUploadingImage && "opacity-60 cursor-not-allowed"
-                )}
-              >
-                {isUploadingImage ? (
-                  <>
-                    <Loader2 className="size-5 text-primary animate-spin" />
-                    <span className="text-xs font-bold text-foreground">Uploading image...</span>
-                  </>
-                ) : (
-                  <>
-                    <div className="size-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:scale-105 transition-transform">
-                      <Camera className="size-4" />
-                    </div>
-                    <div className="text-left">
-                      <p className="text-xs font-bold text-foreground">Attach photo or gear preview</p>
-                      <p className="text-[10px] text-muted-foreground">JPG, PNG, WebP (auto-compressed)</p>
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Dynamic Category-Specific Fields */}
-        {hubType === "lost_found" && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-muted-foreground">Report Type</label>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setLfType("LOST")}
-                  className={cn(
-                    "flex-1 py-2 rounded-xl text-xs font-bold border transition-colors cursor-pointer",
-                    lfType === "LOST"
-                      ? "bg-danger-subtle border-danger text-danger"
-                      : "bg-muted/20 border-border/50 text-muted-foreground"
-                  )}
-                >
-                  Lost Item (I lost this)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setLfType("FOUND")}
-                  className={cn(
-                    "flex-1 py-2 rounded-xl text-xs font-bold border transition-colors cursor-pointer",
-                    lfType === "FOUND"
-                      ? "bg-success-subtle border-success text-success"
-                      : "bg-muted/20 border-border/50 text-muted-foreground"
-                  )}
-                >
-                  Found Item (I found this)
-                </button>
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-muted-foreground">Campus Location</label>
-              <input
-                type="text"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                placeholder="e.g. Library 2nd Floor, Room 304"
-                className="w-full h-10 px-3.5 rounded-xl border border-border/60 bg-muted/20 text-xs font-semibold text-foreground outline-none focus:border-primary"
-              />
-            </div>
-          </div>
-        )}
-
-        {hubType === "marketplace" && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-muted-foreground">Price (₹)</label>
-              <input
-                type="number"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                placeholder="e.g. 1500"
-                className="w-full h-10 px-3.5 rounded-xl border border-border/60 bg-muted/20 text-xs font-semibold text-foreground outline-none focus:border-primary"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-muted-foreground">Condition</label>
-              <SearchableCombobox
-                options={CONDITION_OPTIONS}
-                value={condition}
-                onChange={(val) => setCondition(val)}
-                placeholder="Select condition..."
-                clearable={false}
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-muted-foreground">Pickup Location</label>
-              <input
-                type="text"
-                value={hostelLocation}
-                onChange={(e) => setHostelLocation(e.target.value)}
-                placeholder="e.g. Hostel 5 Common Room"
-                className="w-full h-10 px-3.5 rounded-xl border border-border/60 bg-muted/20 text-xs font-semibold text-foreground outline-none focus:border-primary"
-              />
-            </div>
-          </div>
-        )}
-
-        {hubType === "gaming" && (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <label className="text-xs font-bold text-muted-foreground">Play format</label>
-                <span className="text-[11px] text-muted-foreground">Pick what you’re organizing</span>
-              </div>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                {GAMING_MODE_OPTIONS.map(({ value, label, description, icon: Icon }) => (
-                  <button
-                    key={value}
-                    type="button"
-                    aria-pressed={mode === value}
-                    onClick={() => {
-                      setMode(value);
-                      sounds.tap();
-                      haptics.light();
-                    }}
-                    className={cn(
-                      "flex min-h-[86px] flex-col items-start gap-1.5 rounded-2xl border p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
-                      mode === value
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-border/60 bg-muted/15 text-foreground hover:bg-muted/40"
-                    )}
-                  >
-                    <Icon className="size-4" aria-hidden="true" />
-                    <span className="text-xs font-extrabold">{label}</span>
-                    <span className="text-[10px] leading-snug text-muted-foreground">{description}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-muted-foreground">Game</label>
-                <SearchableCombobox
-                  options={GAME_OPTIONS}
-                  value={gameName}
-                  onChange={(val) => setGameName(val)}
-                  placeholder="Select a game..."
-                  searchPlaceholder="Search Valorant, CS2, BGMI..."
-                  clearable={false}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-muted-foreground">Squad size</label>
-                <input
-                  type="number"
-                  required
-                  min={2}
-                  max={20}
-                  value={slotsTotal}
-                  onChange={(event) => setSlotsTotal(event.target.value)}
-                  className="h-10 w-full rounded-xl border border-border/60 bg-muted/20 px-3.5 text-xs font-semibold text-foreground outline-none focus:border-primary"
-                  aria-describedby="gaming-squad-size-help"
-                />
-                <p id="gaming-squad-size-help" className="text-[10px] leading-snug text-muted-foreground">Includes you as the host.</p>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-muted-foreground">Gamer tag / ID</label>
-                <input
-                  type="text"
-                  value={gamerTag}
-                  onChange={(event) => setGamerTag(event.target.value)}
-                  // ds-allow: gamer-tag placeholder text, not a colour
-                placeholder="e.g. Player#123"
-                  autoComplete="off"
-                  className="h-10 w-full rounded-xl border border-border/60 bg-muted/20 px-3.5 text-xs font-semibold text-foreground outline-none focus:border-primary"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-muted-foreground">Scheduled time</label>
-                <input
-                  type="text"
-                  value={scheduledAt}
-                  onChange={(event) => setScheduledAt(event.target.value)}
-                  placeholder="e.g. Tonight 10:30 PM"
-                  className="h-10 w-full rounded-xl border border-border/60 bg-muted/20 px-3.5 text-xs font-semibold text-foreground outline-none focus:border-primary"
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {hubType === "rideshare" && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-muted-foreground">Pickup Origin</label>
-              <input
-                type="text"
-                value={origin}
-                onChange={(e) => setOrigin(e.target.value)}
-                placeholder="e.g. Campus Main Gate"
-                className="w-full h-10 px-3.5 rounded-xl border border-border/60 bg-muted/20 text-xs font-semibold text-foreground outline-none focus:border-primary"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-muted-foreground">Destination</label>
-              <input
-                type="text"
-                value={destination}
-                onChange={(e) => setDestination(e.target.value)}
-                placeholder="e.g. Railway Station"
-                className="w-full h-10 px-3.5 rounded-xl border border-border/60 bg-muted/20 text-xs font-semibold text-foreground outline-none focus:border-primary"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-muted-foreground">Departure Time</label>
-              <input
-                type="text"
-                value={departureTime}
-                onChange={(e) => setDepartureTime(e.target.value)}
-                placeholder="e.g. Tomorrow 6:30 AM"
-                className="w-full h-10 px-3.5 rounded-xl border border-border/60 bg-muted/20 text-xs font-semibold text-foreground outline-none focus:border-primary"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-muted-foreground">Cost per Person (₹)</label>
-              <input
-                type="number"
-                value={pricePerSeat}
-                onChange={(e) => setPricePerSeat(e.target.value)}
-                placeholder="e.g. 75"
-                className="w-full h-10 px-3.5 rounded-xl border border-border/60 bg-muted/20 text-xs font-semibold text-foreground outline-none focus:border-primary"
-              />
-            </div>
-          </div>
-        )}
-
-        {hubType === "housing" && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-muted-foreground">Monthly Rent (₹)</label>
-              <input
-                type="number"
-                value={rentPerMonth}
-                onChange={(e) => setRentPerMonth(e.target.value)}
-                placeholder="e.g. 4500"
-                className="w-full h-10 px-3.5 rounded-xl border border-border/60 bg-muted/20 text-xs font-semibold text-foreground outline-none focus:border-primary"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-muted-foreground">Distance to Campus</label>
-              <input
-                type="text"
-                value={distanceFromCampus}
-                onChange={(e) => setDistanceFromCampus(e.target.value)}
-                placeholder="e.g. 5 min walk from Gate 2"
-                className="w-full h-10 px-3.5 rounded-xl border border-border/60 bg-muted/20 text-xs font-semibold text-foreground outline-none focus:border-primary"
-              />
-            </div>
-          </div>
-        )}
-
-        {hubType === "academics" && (
-          <div className="space-y-3.5">
-            {/* Resource Type Pills */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-muted-foreground">
-                Resource Type *
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {[
-                  { id: "NOTES", label: "Lecture Notes", icon: FileText },
-                  { id: "PYQ", label: "PYQ Papers", icon: BookOpen },
-                  { id: "CHEAT_SHEET", label: "Cheat Sheet", icon: Zap },
-                  { id: "LAB_MANUAL", label: "Lab Manual", icon: FlaskConical },
-                ].map((type) => (
-                  <button
-                    key={type.id}
-                    type="button"
-                    onClick={() => {
-                      sounds.tap();
-                      haptics.light();
-                      setResourceType(type.id as any);
-                    }}
-                    className={cn(
-                      "p-2.5 rounded-xl border text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5",
-                      resourceType === type.id
-                        ? "bg-brand text-white border-brand font-black shadow-xs"
-                        : "bg-muted/40 text-muted-foreground border-border/40 hover:text-foreground"
-                    )}
-                  >
-                    <type.icon className="size-3.5 shrink-0" />
-                    <span>{type.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Subject Code & Name */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-muted-foreground">Subject Code *</label>
-                <input
-                  type="text"
-                  required
-                  value={subjectCode}
-                  onChange={(e) => setSubjectCode(e.target.value)}
-                  placeholder="e.g. CS201 / EC301"
-                  className="w-full h-10 px-3.5 rounded-xl border border-border/60 bg-muted/20 text-xs font-bold text-foreground outline-none focus:border-primary uppercase"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-muted-foreground">Subject Name *</label>
-                <input
-                  type="text"
-                  required
-                  value={subjectName}
-                  onChange={(e) => setSubjectName(e.target.value)}
-                  placeholder="e.g. Data Structures & Algorithms"
-                  className="w-full h-10 px-3.5 rounded-xl border border-border/60 bg-muted/20 text-xs font-semibold text-foreground outline-none focus:border-primary"
-                />
-              </div>
-            </div>
-
-            {/* Branch & Semester */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-muted-foreground">Branch</label>
-                <SearchableCombobox
-                  options={HUB_BRANCH_OPTIONS}
-                  value={branch}
-                  onChange={(val) => setBranch(val)}
-                  placeholder="Select branch..."
-                  searchPlaceholder="Search branch..."
-                  clearable={false}
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-muted-foreground">Semester</label>
-                <SearchableCombobox
-                  options={HUB_SEMESTER_OPTIONS}
-                  value={semester}
-                  onChange={(val) => setSemester(val)}
-                  placeholder="Select semester..."
-                  searchPlaceholder="Search semester (1–8)..."
-                  clearable={false}
-                />
-              </div>
-            </div>
-
-            {/* Drive / Download URL */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-muted-foreground">
-                Google Drive / PDF Public Link
-              </label>
-              <input
-                type="url"
-                value={driveUrl}
-                onChange={(e) => setDriveUrl(e.target.value)}
-                placeholder="https://drive.google.com/file/d/..."
-                className="w-full h-10 px-3.5 rounded-xl border border-border/60 bg-muted/20 text-xs font-semibold text-foreground outline-none focus:border-primary"
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Description Textarea */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-bold text-muted-foreground">
-            Details & Description
-          </label>
-          <textarea
+        <FormField label="Details">
+          <Textarea
             rows={5}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Add helpful details, contact preferences, timings, or specs for your batchmates..."
-            className="w-full p-4 rounded-2xl border border-border/60 bg-muted/20 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-colors resize-none"
+            placeholder="Anything else people should know, and how to reach you"
           />
-        </div>
+        </FormField>
       </form>
     </div>
   );

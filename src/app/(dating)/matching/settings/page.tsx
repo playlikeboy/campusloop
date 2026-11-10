@@ -1,10 +1,7 @@
-import type { Metadata } from "next";
+import { privateMetadata } from "@/lib/seo";
 import { SettingsClient } from "../../dating/settings/settings-client";
 
-export const metadata: Metadata = {
-  title: "Matching Preferences · CampusLoop",
-  description: "Update your Matching profile, visibility, and preferences.",
-};
+export const metadata = privateMetadata("Campus Match settings");
 
 export default function MatchingSettingsPage() {
   return <SettingsClient />;

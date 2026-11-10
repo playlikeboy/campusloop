@@ -1,34 +1,11 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { HousingClient } from "./housing-client";
+import { privateMetadata } from "@/lib/seo";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
+import { HousingClient } from "./housing-client";
 
-export const metadata: Metadata = {
-  robots: { index: true, follow: true },
-  title: "Housing & Flats | Student PGs & Roommates",
-  description: "Find verified student PGs, apartments, shared flats, and roommates near college campus.",
-  alternates: { canonical: "https://campusloop.space/housing" },
-  openGraph: {
-    title: "Housing & Flats | Student PGs & Roommates",
-    description: "Find verified student PGs, apartments, shared flats, and roommates near college campus.",
-    url: "https://campusloop.space/housing",
-    siteName: "CampusLoop Housing",
-    images: [
-      {
-        url: "https://campusloop.space/og-housing.png",
-        width: 1536,
-        height: 1024,
-        alt: "CampusLoop Housing",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Housing & Flats | Student PGs & Roommates",
-    description: "Find verified student PGs, apartments, shared flats, and roommates near college campus.",
-    images: ["https://campusloop.space/og-housing.png"],
-  },
-};
+// Signed-in only: visitors are sent to sign-in, so search engines can't read it.
+export const metadata: Metadata = privateMetadata("Housing");
 
 export default async function HousingPage() {
   const user = await getCachedAuthUser();

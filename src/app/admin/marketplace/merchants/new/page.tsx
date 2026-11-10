@@ -1,11 +1,8 @@
 import type { Metadata } from "next";
+import { privateMetadata } from "@/lib/seo";
 import { AdminNewMerchantClient } from "./admin-new-merchant-client";
 
-export const metadata: Metadata = {
-  title: "Onboard Merchant",
-  description: "Register a local business to start selling on the campus marketplace.",
-  robots: { index: false, follow: false },
-};
+export const metadata: Metadata = privateMetadata("Add a merchant");
 
 export default function AdminNewMerchantPage() {
   return <AdminNewMerchantClient />;

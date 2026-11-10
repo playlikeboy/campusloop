@@ -1,15 +1,14 @@
 import { desc, sql } from "drizzle-orm";
 import { Mail } from "lucide-react";
 import type { Metadata } from "next";
-import { institutions, outreachContacts } from "@/db/schema";
+import { Badge } from "@/components/ui/badge";
+import { outreachContacts } from "@/db/schema";
+import { privateMetadata } from "@/lib/seo";
 import { AdminPageHeader } from "../_components/admin-page-header";
 import { resolveAdminSession } from "../_lib/guard";
 import { OutreachClient } from "./outreach-client";
 
-export const metadata: Metadata = {
-  title: "Campus Outreach & Representative Network | Admin",
-  description: "Manage outreach invitations and student ambassador recruitment across Indian universities.",
-};
+export const metadata: Metadata = privateMetadata("Outreach");
 
 export const dynamic = "force-dynamic";
 
@@ -27,11 +26,7 @@ export default async function AdminOutreachPage() {
       })
       .from(outreachContacts)
       .then((rows) => rows[0] || { total: 0, pending: 0, sent: 0, delivered: 0, replied: 0 }),
-    db
-      .select()
-      .from(outreachContacts)
-      .orderBy(desc(outreachContacts.createdAt))
-      .limit(50),
+    db.select().from(outreachContacts).orderBy(desc(outreachContacts.createdAt)).limit(50),
     db.query.institutions.findMany({
       columns: { id: true, name: true, slug: true, state: true, district: true },
       limit: 150,
@@ -62,15 +57,10 @@ export default async function AdminOutreachPage() {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="Campus Outreach & Ambassador Network"
-        category="Content & Campus"
+        title="Outreach"
         icon={Mail}
-        description="Dispatch polite invitations to verified college leads and student representatives across top Indian universities. Track delivery, reply rates, and campaign engagement."
-        badge={
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
-            {metrics.total} Contacts Indexed
-          </span>
-        }
+        description="Send invites to college contacts and track who replied."
+        badge={<Badge variant="neutral">{metrics.total} contacts</Badge>}
       />
 
       <OutreachClient

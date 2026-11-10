@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { CollegesSkeleton } from "@/components/ui/skeleton-card";
 import {
   COLLEGE_DIRECTORY_STATES,
   type CollegeDirectoryPage,
   collegesHref,
   getCollegeDirectoryPage,
 } from "@/lib/colleges/directory";
+import { absoluteUrl, breadcrumbJsonLd, buildMetadata } from "@/lib/seo";
+import { JsonLd } from "@/lib/seo/json-ld-script";
 import CollegesClient from "./colleges-client";
 
 export const dynamic = "force-dynamic";
@@ -27,50 +30,26 @@ function parseDirectoryParams(sp: Record<string, string | string[] | undefined>)
 }
 
 const DESCRIPTION =
-  "Browse 1,350+ colleges in our directory. Each college has a campus hub with a student feed, communities, events, and study material.";
+  "Find your college on CampusLoop. Each college page has student posts, communities, events and study material.";
+
+function directoryTitle(page: number, state: string) {
+  if (state !== "ALL") return page > 1 ? `Colleges in ${state} · Page ${page}` : `Colleges in ${state}`;
+  return page > 1 ? `Colleges · Page ${page}` : "Colleges";
+}
 
 export async function generateMetadata({ searchParams }: { searchParams: SearchParams }): Promise<Metadata> {
-  const { page, state } = parseDirectoryParams(await searchParams);
-  // Paginated and state-filtered listings are distinct documents, so each one is its own canonical.
-  const canonical = `https://campusloop.space${collegesHref({ page, state })}`;
-  const title = state !== "ALL" ? `Colleges in ${state}` : page > 1 ? `Colleges · Page ${page}` : "Colleges";
-
-  return {
-    title,
-    description: DESCRIPTION,
-    keywords: [
-      "Indian College Directory",
-      "College Hubs India",
-      "Engineering Colleges",
-      "Medical Colleges",
-      "Campus Directory",
-      "Verified Student Communities",
-    ],
-    alternates: { canonical },
-    openGraph: {
-      title,
-      description: DESCRIPTION,
-      url: canonical,
-      siteName: "CampusLoop",
-      locale: "en_IN",
-      type: "website",
-      images: [
-        {
-          url: "https://campusloop.space/og-colleges.png",
-          width: 1536,
-          height: 1024,
-          alt: "CampusLoop College Directory",
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description: DESCRIPTION,
-      images: ["https://campusloop.space/og-colleges.png"],
-    },
-    robots: { index: true, follow: true },
-  };
+  const { page, state, q } = parseDirectoryParams(await searchParams);
+  // Paginated and state-filtered listings are their own canonical; search results are not indexed.
+  return buildMetadata({
+    title: directoryTitle(page, state),
+    description:
+      state !== "ALL"
+        ? `Find colleges in ${state} on CampusLoop. Open a college to see student posts, communities and study material.`
+        : DESCRIPTION,
+    path: collegesHref({ page, state }),
+    image: { url: "/og-colleges.png", width: 1536, height: 1024, alt: "Colleges on CampusLoop" },
+    noindex: Boolean(q),
+  });
 }
 
 export default async function CollegesPage({ searchParams }: { searchParams: SearchParams }) {
@@ -87,19 +66,13 @@ export default async function CollegesPage({ searchParams }: { searchParams: Sea
     });
   }
 
-  const canonical = `https://campusloop.space${collegesHref({ page, state })}`;
-  const jsonLd = {
-    "@context": "https://schema.org",
+  const listPath = collegesHref({ page, state });
+  const collection = {
     "@type": "CollectionPage",
-    name: state !== "ALL" ? `Colleges in ${state}` : "Indian College Directory",
-    url: canonical,
+    "@id": `${absoluteUrl(listPath)}#page`,
+    name: directoryTitle(page, state),
+    url: absoluteUrl(listPath),
     description: DESCRIPTION,
-    publisher: {
-      "@type": "Organization",
-      name: "CampusLoop",
-      url: "https://campusloop.space",
-      logo: "https://campusloop.space/logo.png",
-    },
     ...(initial
       ? {
           mainEntity: {
@@ -109,7 +82,7 @@ export default async function CollegesPage({ searchParams }: { searchParams: Sea
               "@type": "ListItem",
               position: (initial.page - 1) * 50 + index + 1,
               name: college.name,
-              url: `https://campusloop.space/college/${college.slug || college.id}`,
+              url: absoluteUrl(`/college/${college.slug || college.id}`),
             })),
           },
         }
@@ -118,8 +91,8 @@ export default async function CollegesPage({ searchParams }: { searchParams: Sea
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <Suspense fallback={<div className="min-h-screen bg-background" />}>
+      <JsonLd data={[collection, breadcrumbJsonLd([{ name: "Colleges", path: "/colleges" }])]} />
+      <Suspense fallback={<CollegesSkeleton />}>
         <CollegesClient
           initialColleges={initial?.colleges}
           initialTotal={initial?.total}
@@ -129,18 +102,21 @@ export default async function CollegesPage({ searchParams }: { searchParams: Sea
       {/* Crawlable state filters: the dropdown above is a <select>, which search engines cannot follow. */}
       <nav
         aria-label="Browse colleges by state"
-        className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 pb-28 -mt-20 text-xs text-muted-foreground"
+        className="mx-auto w-full max-w-3xl px-4 pb-28 text-sm text-fg-muted sm:px-6"
       >
-        <h2 className="font-bold text-foreground mb-2">Browse colleges by state</h2>
-        <ul className="flex flex-wrap gap-x-3 gap-y-1">
+        <h2 className="mb-2 text-base font-bold text-fg">Colleges by state</h2>
+        <ul className="flex flex-wrap gap-x-4 gap-y-2">
           <li>
-            <Link href="/colleges" className="hover:text-foreground hover:underline">
+            <Link href="/colleges" className="underline-offset-4 transition-ui hover:text-fg hover:underline">
               All states
             </Link>
           </li>
           {COLLEGE_DIRECTORY_STATES.map((s) => (
             <li key={s}>
-              <Link href={collegesHref({ state: s })} className="hover:text-foreground hover:underline">
+              <Link
+                href={collegesHref({ state: s })}
+                className="underline-offset-4 transition-ui hover:text-fg hover:underline"
+              >
                 {s}
               </Link>
             </li>

@@ -5,11 +5,14 @@ import { AuthStateCleaner } from "@/components/auth/auth-state-cleaner";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { sanitizeReturnTo } from "@/lib/auth-redirect";
 import { getInstitutionAllowedDomains } from "@/lib/institutions";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Sign In | CampusLoop — Verified Student Network",
-  description: "Sign in to your verified campus community using your official college email.",
-};
+export const metadata: Metadata = buildMetadata({
+  title: "Sign in",
+  description: "Sign in to CampusLoop with the college email you joined with.",
+  path: "/sign-in",
+  noindex: true,
+});
 
 export default async function SignInPage({
   searchParams,
@@ -33,7 +36,7 @@ export default async function SignInPage({
   }
 
   const collegeParam = params?.college;
-  let collegeHint: string | undefined = undefined;
+  let collegeHint: string | undefined;
 
   if (collegeParam) {
     const { institution } = await getInstitutionAllowedDomains(collegeParam);
@@ -43,11 +46,7 @@ export default async function SignInPage({
   return (
     <>
       <AuthStateCleaner />
-      <AuthSplitLayout
-        mode="sign-in"
-        returnTo={cleanReturnTo || undefined}
-        collegeHint={collegeHint}
-      />
+      <AuthSplitLayout mode="sign-in" returnTo={cleanReturnTo || undefined} collegeHint={collegeHint} />
     </>
   );
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  AlertCircle,
   ArrowLeft,
   Bold,
   Code,
@@ -10,6 +9,7 @@ import {
   Globe,
   HelpCircle,
   Italic,
+  Laugh,
   Link2,
   List,
   Lock,
@@ -17,16 +17,14 @@ import {
   Quote,
   RotateCcw,
   School,
-  Sparkles,
   VenetianMask,
 } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { AnimatedIcon } from "@/components/ui/animated-icon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { RichText } from "@/components/ui/rich-text";
 import { MAX_POST_CHARS } from "@/constants/feed";
 import type { Institution, Post, UserProfile } from "@/db/schema";
@@ -110,11 +108,11 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
   async function handleSave() {
     if (isSaving) return;
     if (!body.trim()) {
-      toast.error("Post content cannot be empty");
+      toast.error("Write something before saving.");
       return;
     }
     if (isOverLimit) {
-      toast.error(`Post exceeds maximum length of ${MAX_POST_CHARS} characters`);
+      toast.error(`Keep it under ${MAX_POST_CHARS} characters.`);
       return;
     }
 
@@ -122,7 +120,7 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
     sounds.tap();
     haptics.medium();
 
-    const saveToastId = toast.loading("Saving changes...");
+    const saveToastId = toast.loading("Saving…");
 
     try {
       await updatePost(post.id, {
@@ -133,14 +131,14 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
 
       sounds.pop();
       haptics.success();
-      toast.success("Post updated successfully!", { id: saveToastId });
+      toast.success("Saved", { id: saveToastId });
 
       // Navigate back to post details with refresh
       router.push(`/post/${post.id}`);
       router.refresh();
     } catch (err) {
       console.error("Failed to update post:", err);
-      toast.error(err instanceof Error ? err.message : "Failed to update post", { id: saveToastId });
+      toast.error(err instanceof Error ? err.message : "Couldn't save. Try again.", { id: saveToastId });
     } finally {
       setIsSaving(false);
     }
@@ -165,7 +163,7 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
   return (
     <div className="flex flex-col min-h-screen">
       {/* ─── Sticky Editor Header ─── */}
-      <header className="sticky top-12 lg:top-0 z-30 flex items-center justify-between border-b border-border/40 bg-background/80 px-4 py-3 backdrop-blur-md">
+      <header className="sticky top-12 lg:top-0 z-30 flex items-center justify-between border-b border-border bg-bg px-4 py-3">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -184,14 +182,14 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
 
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-base text-foreground tracking-tight">Edit Post</span>
+              <h1 className="font-sans text-base font-semibold text-fg">Edit post</h1>
               {post.isEdited && (
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border/40">
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border">
                   Previously Edited
                 </span>
               )}
             </div>
-            <p className="text-[11px] text-muted-foreground hidden sm:block">
+            <p className="text-xs text-muted-foreground hidden sm:block">
               Update your content, title, or visibility scope
             </p>
           </div>
@@ -208,7 +206,7 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
                 setBody(post.body || "");
                 setScope(post.scope as "CAMPUS" | "GLOBAL");
                 sounds.tap();
-                toast.info("Changes reset to original version");
+                toast.info("Changes undone");
               }}
               disabled={isSaving}
               className="text-xs text-muted-foreground hover:text-foreground hidden sm:flex items-center gap-1.5"
@@ -223,19 +221,9 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
             onClick={handleSave}
             disabled={isSaving || !isDirty || !body.trim() || isOverLimit}
             size="sm"
-            className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-4 py-2 text-xs rounded-full shadow-md active:scale-95 transition-transform cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+            loading={isSaving}
           >
-            {isSaving ? (
-              <span className="flex items-center gap-1.5">
-                <span className="size-3 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                <span>Saving...</span>
-              </span>
-            ) : (
-              <span className="flex items-center gap-1.5">
-                <AnimatedIcon icon={Sparkles} animation="pop" size={14} />
-                <span>Save Changes</span>
-              </span>
-            )}
+            {isSaving ? "Saving…" : "Save"}
           </Button>
         </div>
       </header>
@@ -243,14 +231,14 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
       {/* ─── Main Editor Container ─── */}
       <div className="flex-1 p-4 sm:p-6 space-y-5">
         {/* Post Metadata Card */}
-        <div className="p-3.5 rounded-2xl border border-border/50 bg-muted/20 flex items-center justify-between gap-3">
+        <div className="p-3.5 rounded-lg border border-border bg-surface flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 min-w-0">
             {post.isAnonymous ? (
-              <div className="flex size-9 items-center justify-center rounded-full bg-brand/10 text-brand-text border border-brand-subtle-border/25 shrink-0">
+              <div className="flex size-9 items-center justify-center rounded-full bg-surface-muted text-fg-muted shrink-0">
                 <VenetianMask className="size-4" />
               </div>
             ) : (
-              <Avatar className="size-9 border border-border/40 shrink-0">
+              <Avatar className="size-9 border border-border shrink-0">
                 <AvatarImage src={getAvatarUrl(post.author?.avatarUrl, authorHandle)} />
                 <AvatarFallback className="text-xs font-bold bg-muted">
                   {authorName.slice(0, 2).toUpperCase()}
@@ -262,40 +250,38 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
               <div className="flex items-center gap-1.5 flex-wrap">
                 <span className="font-bold text-xs sm:text-sm text-foreground truncate">{authorName}</span>
                 {collegeName && (
-                  <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border/40">
+                  <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-surface-muted text-fg-muted">
                     {collegeName}
                   </span>
                 )}
               </div>
-              <span className="text-[11px] text-muted-foreground">
-                Originally published {formatTimeAgo(post.createdAt)}
-              </span>
+              <span className="text-xs text-muted-foreground">Posted {formatTimeAgo(post.createdAt)}</span>
             </div>
           </div>
 
           <div className="flex items-center gap-1.5 shrink-0">
             {post.type === "CONFESSION" && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand/10 text-brand-text border border-brand-subtle-border/20 flex items-center gap-1">
+              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-surface-muted text-fg-muted flex items-center gap-1">
                 <Lock className="size-3" />
                 <span>Confession</span>
               </span>
             )}
             {post.type === "QUESTION" && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-warning/10 text-warning border border-warning/20 flex items-center gap-1">
+              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-surface-muted text-fg-muted flex items-center gap-1">
                 <HelpCircle className="size-3" />
                 <span>Question</span>
               </span>
             )}
             {post.type === "MEME" && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-warning/10 text-warning border border-warning/20 flex items-center gap-1">
-                <Sparkles className="size-3" />
+              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-surface-muted text-fg-muted flex items-center gap-1">
+                <Laugh className="size-3" aria-hidden />
                 <span>Meme</span>
               </span>
             )}
             {post.type === "NORMAL" && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand/10 text-brand-text border border-brand-subtle-border/20 flex items-center gap-1">
+              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-surface-muted text-fg-muted flex items-center gap-1">
                 <MessageSquare className="size-3" />
-                <span>Discussion</span>
+                <span>Post</span>
               </span>
             )}
           </div>
@@ -304,22 +290,22 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
         {/* Title Input (Optional) */}
         <div className="space-y-1.5">
           <label htmlFor="post-title" className="text-xs font-semibold text-muted-foreground">
-            Post Title <span className="text-[11px] opacity-70">(optional)</span>
+            Title <span className="text-xs text-fg-subtle">(optional)</span>
           </label>
           <input
             id="post-title"
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Add an eye-catching title..."
+            placeholder="Add a title"
             maxLength={120}
-            className="w-full rounded-xl border border-border/60 bg-muted/20 px-3.5 py-2.5 text-sm font-semibold text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary transition-colors"
+            className="w-full rounded-xl border border-border bg-muted/20 px-3.5 py-2.5 text-sm font-semibold text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary transition-colors"
           />
         </div>
 
         {/* Tab Switcher: Write vs Live Preview */}
-        <div className="flex items-center justify-between border-b border-border/40 pb-2">
-          <div className="flex items-center gap-1 bg-muted/30 p-1 rounded-xl border border-border/30">
+        <div className="flex items-center justify-between border-b border-border pb-2">
+          <div className="flex items-center gap-1 bg-muted/30 p-1 rounded-xl border border-border">
             <button
               type="button"
               onClick={() => {
@@ -350,7 +336,7 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
               )}
             >
               <Eye className="size-3.5" />
-              <span>Live Preview</span>
+              <span>Preview</span>
             </button>
           </div>
 
@@ -359,7 +345,7 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
             className={cn(
               "text-xs font-semibold flex items-center gap-1 transition-colors",
               isOverLimit
-                ? "text-destructive font-black"
+                ? "text-destructive font-bold"
                 : charRemaining < 150
                   ? "text-warning"
                   : "text-muted-foreground"
@@ -375,7 +361,7 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
         {activeTab === "write" ? (
           <div className="space-y-2">
             {/* Formatting Toolbar */}
-            <div className="flex items-center gap-1 flex-wrap p-1.5 rounded-xl border border-border/40 bg-muted/20 text-muted-foreground">
+            <div className="flex items-center gap-1 flex-wrap p-1.5 rounded-xl border border-border bg-muted/20 text-muted-foreground">
               <button
                 type="button"
                 onClick={() => insertFormatting("**", "**")}
@@ -432,25 +418,25 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
               value={body}
               onChange={(e) => setBody(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="What's happening on campus? Write your thoughts, questions, or updates..."
+              placeholder="Write something"
               className={cn(
                 "w-full min-h-[240px] rounded-2xl border bg-muted/15 p-4 text-sm sm:text-base leading-relaxed text-foreground placeholder:text-muted-foreground/50 focus:outline-none resize-none transition-colors font-sans",
                 isOverLimit
                   ? "border-destructive focus:border-destructive ring-1 ring-destructive"
-                  : "border-border/60 focus:border-primary"
+                  : "border-border focus:border-primary"
               )}
             />
 
-            <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-1">
-              <span>Supports Markdown formatting, hashtags, and media links</span>
-              <span className="hidden sm:inline-block opacity-75">Press Cmd+Enter to save</span>
+            <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
+              <span>Markdown, #tags and links work here</span>
+              <span className="hidden sm:inline-block">Ctrl or Cmd + Enter to save</span>
             </div>
           </div>
         ) : (
           /* Tab 2: Live Preview */
-          <div className="p-4 sm:p-5 rounded-2xl border border-border/50 bg-card min-h-[240px]">
+          <div className="p-4 sm:p-5 rounded-2xl border border-border bg-card min-h-[240px]">
             {title && (
-              <h2 className="text-base sm:text-lg font-black text-foreground mb-3 leading-snug">{title}</h2>
+              <h2 className="text-base sm:text-lg font-bold text-foreground mb-3 leading-snug">{title}</h2>
             )}
             {body.trim() ? (
               <RichText
@@ -467,10 +453,10 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
         )}
 
         {/* ─── Scope / Audience Setting ─── */}
-        <div className="p-4 rounded-2xl border border-border/50 bg-muted/20 space-y-3">
+        <div className="p-4 rounded-2xl border border-border bg-muted/20 space-y-3">
           <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
             <Globe className="size-3.5 text-primary" />
-            <span>Campus Visibility Scope</span>
+            <span>Who can see it</span>
           </label>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -484,7 +470,7 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
                 "flex items-center gap-3 p-3 rounded-xl border text-left transition-colors cursor-pointer",
                 scope === "CAMPUS"
                   ? "border-primary bg-primary/10 text-foreground"
-                  : "border-border/40 hover:bg-muted/50 text-muted-foreground"
+                  : "border-border hover:bg-muted/50 text-muted-foreground"
               )}
             >
               <div
@@ -496,8 +482,8 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
                 <School className="size-4" />
               </div>
               <div className="min-w-0">
-                <div className="font-bold text-xs text-foreground">My College Only</div>
-                <div className="text-[11px] text-muted-foreground truncate">
+                <div className="font-bold text-xs text-foreground">My college only</div>
+                <div className="text-xs text-muted-foreground truncate">
                   Visible to {collegeName || "your college"} students
                 </div>
               </div>
@@ -513,7 +499,7 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
                 "flex items-center gap-3 p-3 rounded-xl border text-left transition-colors cursor-pointer",
                 scope === "GLOBAL"
                   ? "border-primary bg-primary/10 text-foreground"
-                  : "border-border/40 hover:bg-muted/50 text-muted-foreground"
+                  : "border-border hover:bg-muted/50 text-muted-foreground"
               )}
             >
               <div
@@ -525,8 +511,8 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
                 <Globe className="size-4" />
               </div>
               <div className="min-w-0">
-                <div className="font-bold text-xs text-foreground">All Colleges (Global)</div>
-                <div className="text-[11px] text-muted-foreground truncate">
+                <div className="font-bold text-xs text-foreground">All colleges</div>
+                <div className="text-xs text-muted-foreground truncate">
                   Featured on the national campus feed
                 </div>
               </div>
@@ -535,50 +521,18 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
         </div>
       </div>
 
-      {/* ─── Discard Confirmation Modal ─── */}
-      <AnimatePresence>
-        {showDiscardDialog && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="w-full max-w-sm rounded-2xl border border-border bg-card p-5 shadow-2xl space-y-4"
-            >
-              <div className="flex items-center gap-2.5 text-warning">
-                <AlertCircle className="size-5" />
-                <h3 className="font-bold text-sm text-foreground">Discard unsaved changes?</h3>
-              </div>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                You have unsaved edits on this post. Leaving now will discard your modifications.
-              </p>
-              <div className="flex items-center justify-end gap-2 pt-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowDiscardDialog(false)}
-                  className="text-xs font-semibold"
-                >
-                  Keep Editing
-                </Button>
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => {
-                    setShowDiscardDialog(false);
-                    router.back();
-                  }}
-                  className="text-xs font-bold"
-                >
-                  Discard Changes
-                </Button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      <ConfirmDialog
+        isOpen={showDiscardDialog}
+        onClose={() => setShowDiscardDialog(false)}
+        onConfirm={() => {
+          setShowDiscardDialog(false);
+          router.back();
+        }}
+        title="Leave without saving?"
+        description="Your edits to this post will be lost."
+        confirmText="Leave"
+        variant="danger"
+      />
     </div>
   );
 }

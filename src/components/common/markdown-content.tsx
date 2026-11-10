@@ -61,7 +61,6 @@ const INLINE_PATTERN = new RegExp(
 
 const MAX_INLINE_DEPTH = 4;
 
-
 /** Splits a pipe-delimited markdown table row while respecting escaped pipes. */
 function splitTableRow(line: string): string[] {
   let row = line.trim();
@@ -175,7 +174,7 @@ function parseInline(text: string, keyPrefix: string, depth = 0): React.ReactNod
       );
     } else if (bold !== undefined || boldAlt !== undefined) {
       nodes.push(
-        <strong key={key} className="font-black text-foreground">
+        <strong key={key} className="font-bold text-foreground">
           {parseInline((bold ?? boldAlt)!, key, depth + 1)}
         </strong>
       );
@@ -215,7 +214,6 @@ function parseInline(text: string, keyPrefix: string, depth = 0): React.ReactNod
   return nodes;
 }
 
-
 function MarkdownTable({
   headers,
   alignments,
@@ -248,7 +246,7 @@ function MarkdownTable({
                   key={["h", tableKey, columnIndex].join("-")}
                   scope="col"
                   className={cn(
-                    "border-b border-border/70 font-black text-foreground align-middle",
+                    "border-b border-border/70 font-bold text-foreground align-middle",
                     headerPadding,
                     alignment === "center" && "text-center",
                     alignment === "right" && "text-right",
@@ -296,7 +294,12 @@ function MarkdownTable({
   );
 }
 
-export function MarkdownContent({ content, className, compact = false, autoEmbed = false }: MarkdownContentProps) {
+export function MarkdownContent({
+  content,
+  className,
+  compact = false,
+  autoEmbed = false,
+}: MarkdownContentProps) {
   if (!content?.trim()) return null;
 
   const blocks: React.ReactNode[] = [];
@@ -316,7 +319,6 @@ export function MarkdownContent({ content, className, compact = false, autoEmbed
       index++;
       continue;
     }
-
 
     // GFM-style table. Detect before paragraph/list parsing so pipe-heavy
     // content cannot collapse into the raw "|...|---|..." layout.
@@ -395,19 +397,37 @@ export function MarkdownContent({ content, className, compact = false, autoEmbed
       const anchor = headingIds ? { id: headingIds.next(text), className: "scroll-mt-24" } : null;
       if (level === 1) {
         blocks.push(
-          <h2 key={key++} id={anchor?.id} className={cn("border-b border-border/30 pb-2 pt-4 text-2xl font-black tracking-tight text-foreground md:text-3xl", anchor?.className)}>
+          <h2
+            key={key++}
+            id={anchor?.id}
+            className={cn(
+              "border-b border-border/30 pb-2 pt-4 text-2xl font-bold tracking-tight text-foreground md:text-3xl",
+              anchor?.className
+            )}
+          >
             {inline}
           </h2>
         );
       } else if (level === 2) {
         blocks.push(
-          <h3 key={key++} id={anchor?.id} className={cn("pt-3 text-xl font-black tracking-tight text-foreground md:text-2xl", anchor?.className)}>
+          <h3
+            key={key++}
+            id={anchor?.id}
+            className={cn(
+              "pt-3 text-xl font-bold tracking-tight text-foreground md:text-2xl",
+              anchor?.className
+            )}
+          >
             {inline}
           </h3>
         );
       } else {
         blocks.push(
-          <h4 key={key++} id={anchor?.id} className={cn("pt-2 text-lg font-bold text-foreground md:text-xl", anchor?.className)}>
+          <h4
+            key={key++}
+            id={anchor?.id}
+            className={cn("pt-2 text-lg font-bold text-foreground md:text-xl", anchor?.className)}
+          >
             {inline}
           </h4>
         );
@@ -461,7 +481,7 @@ export function MarkdownContent({ content, className, compact = false, autoEmbed
       blocks.push(
         <ol
           key={key++}
-          className="list-decimal space-y-1.5 pl-5 font-medium marker:font-black marker:text-primary"
+          className="list-decimal space-y-1.5 pl-5 font-medium marker:font-bold marker:text-primary"
         >
           {items.map((item, i) => (
             <li key={i}>{parseInline(item, `ol${key}-${i}`)}</li>

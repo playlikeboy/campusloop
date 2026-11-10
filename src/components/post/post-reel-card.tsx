@@ -4,6 +4,7 @@ import {
   BadgeCheck,
   Bookmark,
   Edit3,
+  Flag,
   Flame,
   MessageCircle,
   MoreHorizontal,
@@ -20,21 +21,29 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import { FeedSocialContextBar } from "@/components/feed/feed-social-context";
 import { AnimatedIcon } from "@/components/ui/animated-icon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { FeedSocialContextBar } from "@/components/feed/feed-social-context";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLinkItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { PollCard } from "@/components/ui/poll-card";
 import { RichText } from "@/components/ui/rich-text";
 import type { FeedPost } from "@/hooks/use-feed";
 import { useHlsVideo } from "@/hooks/use-hls-video";
 import { repostPost, voteOnPost } from "@/lib/api";
-import { isCollegeVerifiedUser } from "@/lib/user-verification";
 import type { UserCapability } from "@/lib/capabilities";
-import { haptics } from "@/lib/haptics";
-import { sounds } from "@/lib/sounds";
-import { cleanSnippet, cn, formatTimeAgo, getAvatarUrl, getCollegeShortName } from "@/lib/utils";
 import { hasAttachedVideoContent } from "@/lib/embeds";
+import { haptics } from "@/lib/haptics";
 import { extractMediaAttachments, stripMediaAttachmentMarkers } from "@/lib/media-attachments";
+import { sounds } from "@/lib/sounds";
+import { isCollegeVerifiedUser } from "@/lib/user-verification";
+import { cleanSnippet, cn, formatTimeAgo, getAvatarUrl, getCollegeShortName } from "@/lib/utils";
 import { extractVideoStreamInfo } from "@/lib/video/stream-helper";
 
 // Dynamically import heavy modals to keep the reels bundle ultra-lightweight
@@ -137,9 +146,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
   // Split content into clean headline & body description and extract tags without duplication
   const { headline, descriptionText, tags } = useMemo(() => {
     const rawBody = post.body || "";
-    const visibleBody = videoUrl
-      ? rawBody.replace(/!\[video:[^\]]*\]\([^\)]+\)/gi, "").trim()
-      : rawBody;
+    const visibleBody = videoUrl ? rawBody.replace(/!\[video:[^\]]*\]\([^)]+\)/gi, "").trim() : rawBody;
     let h = post.title || "";
     let desc = visibleBody;
 
@@ -147,7 +154,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
       if (visibleBody.startsWith("# ")) {
         const firstLineEnd = visibleBody.indexOf("\n");
         if (firstLineEnd !== -1) {
-          h = visibleBody.slice(2, firstLineEnd).trim()
+          h = visibleBody.slice(2, firstLineEnd).trim();
           desc = visibleBody.slice(firstLineEnd + 1).trim();
         } else {
           h = visibleBody.slice(2).trim();
@@ -270,7 +277,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
     setUserVote(newValue);
     setVotesCount(newCount);
     if (reactionEmoji) {
-      toast.success(`Reacted ${reactionEmoji}`);
+      toast.success("Reaction added");
     }
 
     try {
@@ -319,9 +326,9 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
       setIsReposted(true);
       setShowRepostModal(false);
       setQuoteThoughts("");
-      toast.success(isQuote ? "Quote posted to your campus timeline!" : "Loop reposted!");
+      toast.success(isQuote ? "Posted with your comment" : "Reposted");
     } catch {
-      toast.error("Failed to repost.");
+      toast.error("Couldn't repost. Try again.");
     } finally {
       setIsReposting(false);
     }
@@ -350,10 +357,10 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
     setTimeout(() => setShowRepostBurst(false), 900);
     try {
       await repostPost(post.id);
-      toast.success("Reposted to your loop");
+      toast.success("Reposted");
     } catch {
       setIsReposted(false);
-      toast.error("Failed to repost.");
+      toast.error("Couldn't repost. Try again.");
     }
   }
 
@@ -368,14 +375,14 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
     if (navigator.share) {
       navigator
         .share({
-          title: `Loop by ${authorName} on CampusLoop`,
+          title: `Post by ${authorName} on CampusLoop`,
           text: cleanSnippet(post.body, 100),
           url: shareUrl,
         })
         .catch(() => {});
     } else {
       navigator.clipboard.writeText(shareUrl);
-      toast.success("Loop link copied to clipboard!");
+      toast.success("Link copied");
     }
   }
 
@@ -391,7 +398,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
     haptics.light();
     const nextSaved = !isSaved;
     setIsSaved(nextSaved);
-    toast.success(nextSaved ? "Saved to your bookmarks" : "Removed from bookmarks");
+    toast.success(nextSaved ? "Saved" : "Removed from saved");
     try {
       await fetch(`/api/posts/${post.id}/save`, { method: "POST" });
     } catch {
@@ -428,20 +435,21 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
 
   // ─── UNIFIED POST ACTION BAR (Horizontal, Beautifully Aligned, Clean Touch Targets) ───
   const renderPostActionBar = () => (
-    <div className="w-full shrink-0 border-t border-border/25 pt-2.5 pb-0.5 flex items-center justify-between gap-1 select-none text-foreground">
-      {/* Left Group: Vibe, Comment, Loop */}
+    <div className="w-full shrink-0 border-t border-border pt-2.5 pb-0.5 flex items-center justify-between gap-1 select-none text-foreground">
+      {/* Left group: like, comment, repost */}
       <div className="flex items-center gap-1 sm:gap-2">
-        {/* 1. Vibe / Like */}
+        {/* 1. Like */}
         <motion.button
           type="button"
           onClick={() => handleVote()}
-          aria-label={userVote === 1 ? "Unvibe post" : "Vibe post"}
+          aria-pressed={userVote === 1}
+          aria-label={userVote === 1 ? "Unlike post" : "Like post"}
           whileTap={{ scale: 0.88 }}
           className={cn(
             "h-10 sm:h-11 px-3 sm:px-3.5 rounded-full flex items-center gap-1.5 transition-transform text-xs font-bold cursor-pointer group active:scale-95",
             userVote === 1
-              ? "bg-danger/15 text-danger border border-danger/35"
-              : "bg-muted/30 hover:bg-muted/60 text-foreground/80 hover:text-danger border border-border/40"
+              ? "bg-brand-subtle text-brand-text border border-brand-subtle-border"
+              : "bg-muted/30 hover:bg-muted/60 text-foreground/80 hover:text-brand-text border border-border"
           )}
         >
           <motion.div
@@ -458,15 +466,15 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
               className={cn(
                 "size-4 sm:size-4.5 transition-colors",
                 userVote === 1
-                  ? "fill-danger text-danger"
-                  : "text-foreground/80 group-hover:text-danger fill-none"
+                  ? "fill-brand text-brand-text"
+                  : "text-foreground/80 group-hover:text-brand-text fill-none"
               )}
             />
           </motion.div>
           <span
             className={cn(
               "text-xs font-bold tabular-nums transition-colors",
-              userVote === 1 ? "text-danger font-extrabold" : "text-foreground/75"
+              userVote === 1 ? "text-brand-text font-bold" : "text-foreground/75"
             )}
           >
             {votesCount}
@@ -478,24 +486,23 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
           type="button"
           onClick={() => onOpenComments(post)}
           aria-label="Comment on post"
-          className="h-10 sm:h-11 px-3 sm:px-3.5 rounded-full flex items-center gap-1.5 transition-transform text-xs font-bold cursor-pointer bg-muted/30 hover:bg-muted/60 text-foreground/80 hover:text-foreground border border-border/40 active:scale-95"
+          className="h-10 sm:h-11 px-3 sm:px-3.5 rounded-full flex items-center gap-1.5 transition-transform text-xs font-bold cursor-pointer bg-muted/30 hover:bg-muted/60 text-foreground/80 hover:text-foreground border border-border active:scale-95"
         >
           <AnimatedIcon icon={MessageCircle} animation="pop" size={17} />
-          <span className="text-xs font-bold text-foreground/75 tabular-nums">
-            {commentsCount}
-          </span>
+          <span className="text-xs font-bold text-foreground/75 tabular-nums">{commentsCount}</span>
         </button>
 
-        {/* 3. Repost / Loop */}
+        {/* 3. Repost */}
         <button
           type="button"
           onClick={handleInstantRepost}
-          aria-label={isReposted ? "Looped post" : "Loop post"}
+          aria-pressed={isReposted}
+          aria-label={isReposted ? "Reposted" : "Repost"}
           className={cn(
             "size-10 sm:size-11 rounded-full flex items-center justify-center transition-transform cursor-pointer border active:scale-95",
             isReposted
-              ? "bg-success/15 text-success border-success/35"
-              : "bg-muted/30 hover:bg-muted/60 text-foreground/80 hover:text-foreground border border-border/40"
+              ? "bg-brand-subtle text-brand-text border-brand-subtle-border"
+              : "bg-muted/30 hover:bg-muted/60 text-foreground/80 hover:text-foreground border border-border"
           )}
         >
           <AnimatedIcon
@@ -505,7 +512,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
             className={cn(
               "transition-transform duration-300 ease-out",
               repostSpin && "rotate-180 scale-125",
-              isReposted && !repostSpin && "text-success"
+              isReposted && !repostSpin && "text-brand-text"
             )}
           />
         </button>
@@ -522,7 +529,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
             "size-10 sm:size-11 rounded-full flex items-center justify-center transition-transform cursor-pointer border active:scale-95",
             isSaved
               ? "bg-primary/15 text-primary border-primary/35"
-              : "bg-muted/30 hover:bg-muted/60 text-foreground/80 hover:text-foreground border border-border/40"
+              : "bg-muted/30 hover:bg-muted/60 text-foreground/80 hover:text-foreground border border-border"
           )}
         >
           <AnimatedIcon
@@ -538,75 +545,41 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
           type="button"
           onClick={handleShare}
           aria-label="Share post"
-          className="size-10 sm:size-11 rounded-full flex items-center justify-center transition-transform cursor-pointer bg-muted/30 hover:bg-muted/60 text-foreground/80 hover:text-foreground border border-border/40 active:scale-95"
+          className="size-10 sm:size-11 rounded-full flex items-center justify-center transition-transform cursor-pointer bg-muted/30 hover:bg-muted/60 text-foreground/80 hover:text-foreground border border-border active:scale-95"
         >
           <AnimatedIcon icon={Share2} animation="pop" size={17} />
         </button>
 
         {/* 6. More Options */}
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => setShowMoreMenu((prev) => !prev)}
+        <DropdownMenu open={showMoreMenu} onOpenChange={setShowMoreMenu}>
+          <DropdownMenuTrigger
             aria-label="More options"
-            className="size-10 sm:size-11 rounded-full flex items-center justify-center transition-transform cursor-pointer bg-muted/30 hover:bg-muted/60 text-foreground/80 hover:text-foreground border border-border/40 active:scale-95"
+            className="size-11 rounded-full flex items-center justify-center transition-ui cursor-pointer bg-surface-muted hover:bg-surface-sunken text-fg-muted hover:text-fg border border-border active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <MoreHorizontal className="size-4.5" />
-          </button>
-
-          {showMoreMenu && (
-            <>
-              <div className="fixed inset-0 z-40" onClick={() => setShowMoreMenu(false)} />
-              <div
-                className="absolute right-0 bottom-full mb-2 w-48 rounded-2xl border border-border bg-surface-raised text-fg shadow-lg z-50 py-1.5 animate-in fade-in zoom-in-95"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {currentUserId && post.authorId === currentUserId && (
-                  <Link
-                    href={`/post/${post.id}/edit`}
-                    onClick={() => setShowMoreMenu(false)}
-                    className="w-full text-left px-3.5 py-2 text-xs font-semibold hover:bg-muted/60 transition-colors cursor-pointer flex items-center gap-2 text-primary"
-                  >
-                    <Edit3 className="size-4" />
-                    <span>Edit Post</span>
-                  </Link>
-                )}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowMoreMenu(false);
-                    setShowRepostModal(true);
-                  }}
-                  className="w-full text-left px-3.5 py-2 text-xs font-semibold hover:bg-muted/60 transition-colors cursor-pointer flex items-center gap-2"
-                >
-                  <Repeat2 className="size-4 text-success" />
-                  <span>Quote Repost</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowMoreMenu(false);
-                    handleShare();
-                  }}
-                  className="w-full text-left px-3.5 py-2 text-xs font-semibold hover:bg-muted/60 transition-colors cursor-pointer flex items-center gap-2"
-                >
-                  <Share2 className="size-4 text-brand-text" />
-                  <span>Share Link</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowMoreMenu(false);
-                    setShowReport(true);
-                  }}
-                  className="w-full text-left px-3.5 py-2 text-xs font-semibold hover:bg-danger/15 text-danger transition-colors cursor-pointer flex items-center gap-2 border-t border-border/30 mt-1"
-                >
-                  <span>Report</span>
-                </button>
-              </div>
-            </>
-          )}
-        </div>
+            <MoreHorizontal className="size-4.5" aria-hidden />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent side="top" align="end" className="w-48">
+            {currentUserId && post.authorId === currentUserId && (
+              <DropdownMenuLinkItem render={<Link href={`/post/${post.id}/edit`} />}>
+                <Edit3 aria-hidden />
+                Edit post
+              </DropdownMenuLinkItem>
+            )}
+            <DropdownMenuItem onClick={() => setShowRepostModal(true)}>
+              <Repeat2 aria-hidden />
+              Repost
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleShare}>
+              <Share2 aria-hidden />
+              Copy link
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem variant="danger" onClick={() => setShowReport(true)}>
+              <Flag aria-hidden />
+              Report
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );
@@ -619,28 +592,27 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
         <motion.button
           type="button"
           onClick={() => handleVote()}
-          aria-label={userVote === 1 ? "Unvibe video" : "Vibe video"}
+          aria-pressed={userVote === 1}
+          aria-label={userVote === 1 ? "Unlike video" : "Like video"}
           whileTap={{ scale: 0.85 }}
           className={cn(
-            "size-10 sm:size-11 rounded-full border flex items-center justify-center backdrop-blur-md transition-colors cursor-pointer shadow-lg",
+            "size-10 sm:size-11 rounded-full border flex items-center justify-center transition-colors cursor-pointer shadow-lg",
             userVote === 1
-              ? "border-danger/50 text-danger bg-danger/25"
-              : "border-white/20 bg-black/45 text-white/90 hover:text-danger hover:border-danger/30"
+              ? "border-brand text-brand-text bg-brand-subtle"
+              : "border-white/20 bg-black/45 text-white/90 hover:text-brand-text hover:border-brand-subtle-border"
           )}
         >
           <Flame
             className={cn(
               "size-4.5 sm:size-5 transition-colors",
-              userVote === 1
-                ? "fill-danger text-danger"
-                : "fill-none"
+              userVote === 1 ? "fill-brand text-brand-text" : "fill-none"
             )}
           />
         </motion.button>
         <span
           className={cn(
-            "text-[10px] sm:text-[11px] font-bold tabular-nums drop-shadow-md",
-            userVote === 1 ? "text-danger font-extrabold" : "text-white/80"
+            "text-xs sm:text-xs font-bold tabular-nums drop-shadow-md",
+            userVote === 1 ? "text-brand-text font-bold" : "text-white/80"
           )}
         >
           {votesCount}
@@ -653,24 +625,25 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
           type="button"
           onClick={() => onOpenComments(post)}
           aria-label="Comment on video"
-          className="size-10 sm:size-11 rounded-full border border-white/20 bg-black/45 backdrop-blur-md flex items-center justify-center text-white/90 hover:text-white shadow-lg transition-transform active:scale-95 cursor-pointer"
+          className="size-10 sm:size-11 rounded-full border border-white/20 bg-black/45 flex items-center justify-center text-white/90 hover:text-white shadow-lg transition-transform active:scale-95 cursor-pointer"
         >
           <AnimatedIcon icon={MessageCircle} animation="pop" size={19} />
         </button>
-        <span className="text-[10px] sm:text-[11px] font-bold text-white/80 tabular-nums drop-shadow-md">
+        <span className="text-xs sm:text-xs font-bold text-white/80 tabular-nums drop-shadow-md">
           {commentsCount}
         </span>
       </div>
 
-      {/* 3. Repost / Loop */}
+      {/* 3. Repost */}
       <button
         type="button"
         onClick={handleInstantRepost}
-        aria-label={isReposted ? "Looped" : "Loop video"}
+        aria-pressed={isReposted}
+        aria-label={isReposted ? "Reposted" : "Repost video"}
         className={cn(
-          "size-10 sm:size-11 rounded-full border flex items-center justify-center backdrop-blur-md transition-transform cursor-pointer shadow-lg active:scale-95",
+          "size-10 sm:size-11 rounded-full border flex items-center justify-center transition-transform cursor-pointer shadow-lg active:scale-95",
           isReposted
-            ? "border-success/50 text-success bg-success/25"
+            ? "border-brand text-brand-text bg-brand-subtle"
             : "border-white/20 bg-black/45 text-white/90 hover:text-white"
         )}
       >
@@ -681,7 +654,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
           className={cn(
             "transition-transform duration-300 ease-out",
             repostSpin && "rotate-180 scale-125",
-            isReposted && !repostSpin && "text-success"
+            isReposted && !repostSpin && "text-brand-text"
           )}
         />
       </button>
@@ -692,7 +665,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
         onClick={handleToggleSave}
         aria-label="Save video"
         className={cn(
-          "size-10 sm:size-11 rounded-full border flex items-center justify-center backdrop-blur-md transition-transform cursor-pointer shadow-lg active:scale-95",
+          "size-10 sm:size-11 rounded-full border flex items-center justify-center transition-transform cursor-pointer shadow-lg active:scale-95",
           isSaved
             ? "border-primary/50 text-primary bg-primary/25"
             : "border-white/20 bg-black/45 text-white/90 hover:text-white"
@@ -711,75 +684,41 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
         type="button"
         onClick={handleShare}
         aria-label="Share video"
-        className="size-10 sm:size-11 rounded-full border border-white/20 bg-black/45 backdrop-blur-md flex items-center justify-center text-white/90 hover:text-white shadow-lg transition-transform active:scale-95 cursor-pointer"
+        className="size-10 sm:size-11 rounded-full border border-white/20 bg-black/45 flex items-center justify-center text-white/90 hover:text-white shadow-lg transition-transform active:scale-95 cursor-pointer"
       >
         <AnimatedIcon icon={Share2} animation="pop" size={18} />
       </button>
 
       {/* 6. More */}
-      <div className="relative">
-        <button
-          type="button"
-          onClick={() => setShowMoreMenu((prev) => !prev)}
+      <DropdownMenu open={showMoreMenu} onOpenChange={setShowMoreMenu}>
+        <DropdownMenuTrigger
           aria-label="More options"
-          className="size-10 sm:size-11 rounded-full border border-white/20 bg-black/45 backdrop-blur-md flex items-center justify-center text-white/90 hover:text-white shadow-lg transition-transform active:scale-95 cursor-pointer"
+          className="size-10 sm:size-11 rounded-full border border-white/20 bg-black/45 flex items-center justify-center text-white/90 hover:text-white shadow-lg transition-transform active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <MoreHorizontal className="size-4.5" />
-        </button>
-
-        {showMoreMenu && (
-          <>
-            <div className="fixed inset-0 z-40" onClick={() => setShowMoreMenu(false)} />
-            <div
-              className="absolute right-full mr-2 bottom-0 w-44 rounded-2xl border border-border bg-surface-raised text-fg shadow-lg z-50 py-1.5 animate-in fade-in zoom-in-95"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {currentUserId && post.authorId === currentUserId && (
-                <Link
-                  href={`/post/${post.id}/edit`}
-                  onClick={() => setShowMoreMenu(false)}
-                  className="w-full text-left px-3.5 py-2 text-xs font-semibold hover:bg-surface-muted transition-colors cursor-pointer flex items-center gap-2 text-primary"
-                >
-                  <Edit3 className="size-4" />
-                  <span>Edit Post</span>
-                </Link>
-              )}
-              <button
-                type="button"
-                onClick={() => {
-                  setShowMoreMenu(false);
-                  setShowRepostModal(true);
-                }}
-                className="w-full text-left px-3.5 py-2 text-xs font-semibold hover:bg-surface-muted transition-colors cursor-pointer flex items-center gap-2"
-              >
-                <Repeat2 className="size-4 text-success" />
-                <span>Repost</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowMoreMenu(false);
-                  handleShare();
-                }}
-                className="w-full text-left px-3.5 py-2 text-xs font-semibold hover:bg-surface-muted transition-colors cursor-pointer flex items-center gap-2"
-              >
-                <Share2 className="size-4 text-brand-text" />
-                <span>Share Link</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowMoreMenu(false);
-                  setShowReport(true);
-                }}
-                className="w-full text-left px-3.5 py-2 text-xs font-semibold hover:bg-danger-subtle text-danger transition-colors cursor-pointer flex items-center gap-2 border-t border-border mt-1"
-              >
-                <span>Report</span>
-              </button>
-            </div>
-          </>
-        )}
-      </div>
+          <MoreHorizontal className="size-4.5" aria-hidden />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent side="left" align="end" className="w-48">
+          {currentUserId && post.authorId === currentUserId && (
+            <DropdownMenuLinkItem render={<Link href={`/post/${post.id}/edit`} />}>
+              <Edit3 aria-hidden />
+              Edit post
+            </DropdownMenuLinkItem>
+          )}
+          <DropdownMenuItem onClick={() => setShowRepostModal(true)}>
+            <Repeat2 aria-hidden />
+            Repost
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleShare}>
+            <Share2 aria-hidden />
+            Copy link
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem variant="danger" onClick={() => setShowReport(true)}>
+            <Flag aria-hidden />
+            Report
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 
@@ -832,6 +771,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
           className="relative w-full h-full sm:max-w-[420px] sm:max-h-[calc(100vh-140px)] sm:rounded-3xl overflow-hidden bg-black flex items-center justify-center cursor-pointer select-none"
         >
           {/* 9:16 Video Player & Audio Stream */}
+          {/* biome-ignore lint/a11y/useMediaCaption: student-uploaded and Reddit clips ship without caption files */}
           <video
             ref={videoRef}
             loop
@@ -840,6 +780,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
             className="w-full h-full object-cover"
           />
           {isActive && streamInfo?.audioUrl && !usingHls && (
+            // biome-ignore lint/a11y/useMediaCaption: separate audio track of the same captionless clip
             <audio
               ref={audioRef}
               src={streamInfo.audioUrl}
@@ -860,8 +801,8 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
                 transition={{ duration: 0.45, ease: "easeOut" }}
                 className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center"
               >
-                <div className="rounded-full bg-black/40 p-6 backdrop-blur-md">
-                  <Flame className="size-20 fill-danger text-danger animate-pulse" />
+                <div className="rounded-full bg-black/40 p-6">
+                  <Flame className="size-20 fill-brand text-brand-text" />
                 </div>
               </motion.div>
             )}
@@ -877,8 +818,8 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
                 transition={{ duration: 0.5, ease: "easeOut" }}
                 className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center"
               >
-                <div className="rounded-full bg-success/25 border border-success/40 p-6 backdrop-blur-md">
-                  <Repeat2 className="size-20 text-success drop-shadow-lg" strokeWidth={2.25} />
+                <div className="rounded-full bg-brand-subtle border border-brand-subtle-border p-6">
+                  <Repeat2 className="size-20 text-brand-text" strokeWidth={2.25} />
                 </div>
               </motion.div>
             )}
@@ -894,7 +835,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
                 transition={{ duration: 0.3 }}
                 className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center"
               >
-                <div className="size-16 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-white">
+                <div className="size-16 rounded-full bg-black/60 flex items-center justify-center text-white">
                   {isPlaying ? (
                     <Play className="size-7 fill-white ml-0.5" />
                   ) : (
@@ -909,7 +850,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
           <button
             type="button"
             onClick={handleToggleMute}
-            className="absolute top-4 right-4 z-30 size-9 rounded-full bg-black/50 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/75 transition-colors cursor-pointer"
+            className="absolute top-4 right-4 z-30 size-9 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/75 transition-colors cursor-pointer"
             aria-label={isMuted ? "Unmute video" : "Mute video"}
           >
             {isMuted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
@@ -957,7 +898,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
                   type="button"
                   onClick={handleToggleFollowAuthor}
                   className={cn(
-                    "ml-1 text-[11px] font-bold px-2.5 py-1 rounded-full border transition-colors cursor-pointer select-none",
+                    "ml-1 text-xs font-bold px-2.5 py-1 rounded-full border transition-colors cursor-pointer select-none",
                     isFollowingAuthor
                       ? "bg-white/20 border-white/30 text-white"
                       : "bg-white text-black border-white hover:bg-white/90"
@@ -979,7 +920,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
                       e.stopPropagation();
                       setIsExpandedCaption((prev) => !prev);
                     }}
-                    className="text-[11px] font-bold text-white/70 hover:text-white mt-0.5 cursor-pointer"
+                    className="text-xs font-bold text-white/70 hover:text-white mt-0.5 cursor-pointer"
                   >
                     {isExpandedCaption ? "Show less" : "...more"}
                   </button>
@@ -989,7 +930,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
 
             {/* Campus Line */}
             {post.institution && (
-              <div className="flex items-center gap-1.5 text-[10px] text-white/70 font-medium min-w-0">
+              <div className="flex items-center gap-1.5 text-xs text-white/70 font-medium min-w-0">
                 <Link
                   href={`/college/${post.institution.slug || post.institution.id || post.institutionId}`}
                   onClick={(e) => e.stopPropagation()}
@@ -1001,7 +942,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
                 <span className="whitespace-nowrap">{formatTimeAgo(new Date(post.createdAt))}</span>
                 {post.isEdited && (
                   <span
-                    className="text-white/60 text-[10px] italic"
+                    className="text-white/60 text-xs italic"
                     title={`Edited ${post.updatedAt ? formatTimeAgo(new Date(post.updatedAt)) : ""}`}
                   >
                     (edited)
@@ -1043,8 +984,8 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
             transition={{ duration: 0.45, ease: "easeOut" }}
             className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center"
           >
-            <div className="rounded-full bg-black/40 p-6 backdrop-blur-md">
-              <Flame className="size-20 fill-danger text-danger animate-pulse" />
+            <div className="rounded-full bg-black/40 p-6">
+              <Flame className="size-20 fill-brand text-brand-text" />
             </div>
           </motion.div>
         )}
@@ -1060,8 +1001,8 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
             transition={{ duration: 0.5, ease: "easeOut" }}
             className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center"
           >
-            <div className="rounded-full bg-success/25 border border-success/40 p-6 backdrop-blur-md">
-              <Repeat2 className="size-20 text-success drop-shadow-lg" strokeWidth={2.25} />
+            <div className="rounded-full bg-brand-subtle border border-brand-subtle-border p-6">
+              <Repeat2 className="size-20 text-brand-text" strokeWidth={2.25} />
             </div>
           </motion.div>
         )}
@@ -1080,7 +1021,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
           >
             <Avatar className="size-10 sm:size-11 border border-white/20 shadow-md">
               {avatarUrl && <AvatarImage src={avatarUrl} alt={authorName} />}
-              <AvatarFallback className="bg-brand-subtle text-brand-text font-black text-xs">
+              <AvatarFallback className="bg-brand-subtle text-brand-text font-bold text-xs">
                 {avatarFallback}
               </AvatarFallback>
             </Avatar>
@@ -1127,7 +1068,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
               </span>
               {post.isEdited && (
                 <span
-                  className="text-muted-foreground/60 text-[10px] italic shrink-0"
+                  className="text-muted-foreground/60 text-xs italic shrink-0"
                   title={`Edited ${post.updatedAt ? formatTimeAgo(new Date(post.updatedAt)) : ""}`}
                 >
                   (edited)
@@ -1136,7 +1077,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
             </div>
 
             {post.institution?.name && (
-              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/80 mt-0.5 min-w-0">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground/80 mt-0.5 min-w-0">
                 <span className="size-1.5 rounded-full bg-success ring-2 ring-success/20 shrink-0" />
                 <Link
                   href={`/college/${post.institution.slug || post.institution.id || post.institutionId}`}
@@ -1156,7 +1097,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
             type="button"
             onClick={handleToggleFollowAuthor}
             className={cn(
-              "px-3.5 py-1.5 rounded-full text-xs font-black transition-colors cursor-pointer shrink-0 shadow-xs",
+              "px-3.5 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer shrink-0 shadow-xs",
               isFollowingAuthor
                 ? "bg-white/10 text-white/80 hover:bg-white/15 border border-white/20"
                 : "bg-primary text-primary-foreground hover:bg-primary/90"
@@ -1173,7 +1114,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
         className="flex-1 min-h-0 flex flex-col justify-start overflow-y-auto no-scrollbar space-y-3 sm:space-y-4 py-3 pb-2"
       >
         {headline && (
-          <h2 className="text-lg sm:text-xl md:text-2xl font-black text-foreground tracking-tight leading-snug">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground tracking-tight leading-snug">
             {headline}
           </h2>
         )}

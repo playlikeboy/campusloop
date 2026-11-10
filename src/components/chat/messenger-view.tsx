@@ -1,34 +1,20 @@
 "use client";
 
-import {
-  Archive,
-  BellOff,
-  CheckCheck,
-  Loader2,
-  Menu,
-  MoreVertical,
-  Pin,
-  Plus,
-  Search,
-  ShieldCheck,
-  Users2,
-  X,
-  Zap,
-} from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { UserPlus } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 import useSWR from "swr";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { PresenceDot } from "@/components/ui/presence-dot";
-import type { UserProfile } from "@/db/schema";
 import { type CachedConversation, getCachedConversations, setCachedConversations } from "@/lib/chat-cache";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
+import { isGroupConversation } from "./chat-format";
+import { ChatInboxHeader, type InboxFilter } from "./chat-inbox-header";
+import { ChatActiveNow, ChatInboxList, ChatPeopleResults } from "./chat-inbox-list";
 import { ConversationActionModal } from "./conversation-action-modal";
 import { CreateGroupModal } from "./create-group-modal";
 import { MessengerPane } from "./messenger-pane";
+import { usePeopleSearch } from "./use-people-search";
 
 const fetcher = async <T,>(url: string): Promise<T> => {
   const res = await fetch(url);
@@ -42,70 +28,33 @@ interface MessengerViewProps {
   initialConversationId?: string;
 }
 
-type InboxFilter = "ALL" | "UNREAD" | "GROUPS" | "CAMPUS" | "ARCHIVED";
-
+/** Two-pane messenger: inbox on the left, open chat on the right (one pane at a time on phones). */
 export function MessengerView({
   currentUserId,
   initialTargetUserId,
   initialConversationId,
 }: MessengerViewProps) {
-  const router = useRouter();
-
-  const [activeConversationId, setActiveConversationId] = useState<string | null>(
-    initialConversationId || null
-  );
+  const [activeId, setActiveId] = useState<string | null>(initialConversationId || null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<UserProfile[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [activeFilter, setActiveFilter] = useState<InboxFilter>("ALL");
+  const [filter, setFilter] = useState<InboxFilter>("ALL");
   const [actionConv, setActionConv] = useState<CachedConversation | null>(null);
-  const [showActionModal, setShowActionModal] = useState(false);
-  const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
+  const [showCreateGroup, setShowCreateGroup] = useState(false);
+  const [startingId, setStartingId] = useState<string | null>(null);
 
-  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const isLongPressRef = useRef(false);
+  const people = usePeopleSearch(searchQuery);
 
-  const handleTouchStart = (conv: CachedConversation) => {
-    isLongPressRef.current = false;
-    longPressTimerRef.current = setTimeout(() => {
-      isLongPressRef.current = true;
-      if (typeof navigator !== "undefined" && navigator.vibrate) {
-        navigator.vibrate(40);
-      }
-      setActionConv(conv);
-      setShowActionModal(true);
-    }, 450);
-  };
-
-  const handleTouchEnd = () => {
-    if (longPressTimerRef.current) {
-      clearTimeout(longPressTimerRef.current);
-      longPressTimerRef.current = null;
-    }
-  };
-
-  const handleTouchMove = () => {
-    if (longPressTimerRef.current) {
-      clearTimeout(longPressTimerRef.current);
-      longPressTimerRef.current = null;
-    }
-  };
-
-  // Keep state in sync if URL route changes to another /chat/[id]
+  // Keep state in sync when the route changes to another /chat/[id].
   useEffect(() => {
-    if (initialConversationId) {
-      setActiveConversationId(initialConversationId);
-    }
+    if (initialConversationId) setActiveId(initialConversationId);
   }, [initialConversationId]);
 
-  // Fast Hard Cache: Initial fallback from in-memory / local storage cache for 0ms instant display
+  // Cached inbox renders instantly, then SWR polls so new messages show up.
   const initialCache = getCachedConversations();
-
-  // SWR for conversations list (polls every 2.5s for real-time WhatsApp inbox sync)
   const {
     data: conversations,
-    isLoading: isLoadingConvs,
-    mutate: mutateConvs,
+    error,
+    isLoading,
+    mutate,
   } = useSWR<CachedConversation[]>("/api/chat", fetcher, {
     fallbackData: initialCache || undefined,
     refreshInterval: 2500,
@@ -115,674 +64,201 @@ export function MessengerView({
     },
   });
 
-  // Auto-select first conversation on desktop if visiting /chat root
+  // On desktop, opening /chat selects the newest chat.
   useEffect(() => {
-    if (
-      !initialConversationId &&
-      !activeConversationId &&
-      conversations &&
-      conversations.length > 0 &&
-      typeof window !== "undefined" &&
-      window.innerWidth >= 768
-    ) {
-      const firstId = conversations[0].id;
-      setActiveConversationId(firstId);
-      window.history.replaceState(null, "", `/chat/${firstId}`);
-    }
-  }, [conversations, activeConversationId, initialConversationId]);
+    if (initialConversationId || activeId || !conversations?.length || window.innerWidth < 768) return;
+    const firstId = conversations[0].id;
+    setActiveId(firstId);
+    window.history.replaceState(null, "", `/chat/${firstId}`);
+  }, [conversations, activeId, initialConversationId]);
 
-  // Sync state when browser back / forward buttons are pressed
+  // Browser back / forward.
   useEffect(() => {
-    const handlePopState = () => {
+    const onPop = () => {
       const match = window.location.pathname.match(/(?:\/app)?\/chat\/([^/]+)/);
-      setActiveConversationId(match ? match[1] : null);
+      setActiveId(match ? match[1] : null);
     };
-    window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
   }, []);
 
-  const selectConversation = useCallback((convId: string, playSound = false) => {
-    if (playSound) {
+  const selectConversation = useCallback((convId: string, withFeedback = true) => {
+    if (withFeedback) {
       sounds.tap();
       haptics.light();
     }
-    setActiveConversationId(convId);
-    if (typeof window !== "undefined") {
-      window.history.pushState(null, "", `/chat/${convId}`);
-    }
+    setActiveId(convId);
+    window.history.pushState(null, "", `/chat/${convId}`);
   }, []);
 
-  const handleSelectConversation = useCallback(
-    (convId: string) => {
-      selectConversation(convId, true);
+  const backToInbox = useCallback(() => {
+    setActiveId(null);
+    window.history.pushState(null, "", "/chat");
+  }, []);
+
+  const startConversation = useCallback(
+    async (participantId: string) => {
+      setStartingId(participantId);
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ participantId }),
+        });
+        if (!res.ok) throw new Error("Failed to create conversation");
+        const data = (await res.json()) as { id: string };
+        setSearchQuery("");
+        selectConversation(data.id);
+        mutate();
+      } catch {
+        toast.error("Couldn't open this chat. Check your connection and try again.");
+      } finally {
+        setStartingId(null);
+      }
     },
-    [selectConversation]
+    [mutate, selectConversation]
   );
 
-  const handledTargetUserIdRef = useRef<string | null>(null);
-
-  // Auto-start or select conversation if targetUserId was provided via URL query (silent, runs once)
+  // ?userId= opens (or starts) a chat with that person once.
+  const handledTargetRef = useRef<string | null>(null);
   useEffect(() => {
     if (!initialTargetUserId || !conversations) return;
-    if (handledTargetUserIdRef.current === initialTargetUserId) return;
-
+    if (handledTargetRef.current === initialTargetUserId) return;
+    handledTargetRef.current = initialTargetUserId;
     const existing = conversations.find((c) => c.otherParticipant?.id === initialTargetUserId);
-    if (existing) {
-      handledTargetUserIdRef.current = initialTargetUserId;
-      selectConversation(existing.id, false);
-    } else {
-      handledTargetUserIdRef.current = initialTargetUserId;
-      startConversation(initialTargetUserId);
-    }
+    if (existing) selectConversation(existing.id, false);
+    else void startConversation(initialTargetUserId);
   }, [initialTargetUserId, conversations, startConversation, selectConversation]);
 
-  const handleBackToInbox = useCallback(() => {
-    setActiveConversationId(null);
-    if (typeof window !== "undefined") {
-      window.history.pushState(null, "", "/chat");
-    }
-  }, []);
-
-  async function handleSearchChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const query = e.target.value;
-    setSearchQuery(query);
-
-    if (!query.trim()) {
-      setSearchResults([]);
-      return;
-    }
-
-    setIsSearching(true);
-    try {
-      const res = await fetch(`/api/chat/search?q=${encodeURIComponent(query)}`);
-      if (res.ok) {
-        const data = (await res.json()) as UserProfile[];
-        setSearchResults(data);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsSearching(false);
-    }
-  }
-
-  async function startConversation(participantId: string) {
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ participantId }),
-      });
-
-      if (!res.ok) throw new Error("Failed to create conversation");
-
-      const data = (await res.json()) as { id: string };
-
-      setSearchQuery("");
-      setSearchResults([]);
-      handleSelectConversation(data.id);
-      mutateConvs();
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  function formatRelativeTime(dateVal: string) {
-    try {
-      const d = new Date(dateVal);
-      const now = new Date();
-      const diffMs = now.getTime() - d.getTime();
-      const mins = Math.floor(diffMs / 60000);
-      if (mins < 1) return "Just now";
-      if (mins < 60) return `${mins}m`;
-      const hours = Math.floor(mins / 60);
-      if (hours < 24 && d.getDate() === now.getDate()) {
-        return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-      }
-      const days = Math.floor(hours / 24);
-      if (days === 1) return "Yesterday";
-      if (days < 7) return `${days}d`;
-      return d.toLocaleDateString([], { month: "short", day: "numeric" });
-    } catch {
-      return "";
-    }
-  }
-
-  // Filter conversations
-  const filteredConversations = useMemo(() => {
-    if (!conversations) return [];
-    let list = [...conversations];
-
-    // Keep one inbox row per direct participant while leaving group/community
-    // conversations untouched.
-    const seenDirectParticipants = new Set<string>();
-    list = list.filter((conversation) => {
-      if (conversation.isGroup || conversation.type === "GROUP" || conversation.isCommunity) return true;
-      const participantId = conversation.otherParticipant?.id;
-      if (!participantId) return true;
-      if (seenDirectParticipants.has(participantId)) return false;
-      seenDirectParticipants.add(participantId);
+  // One row per direct participant; archived chats live in their own filter.
+  const { visible, unreadCount, archivedCount } = useMemo(() => {
+    const seen = new Set<string>();
+    const deduped = (conversations || []).filter((c) => {
+      if (isGroupConversation(c)) return true;
+      const pid = c.otherParticipant?.id;
+      if (!pid) return true;
+      if (seen.has(pid)) return false;
+      seen.add(pid);
       return true;
     });
+    const active = deduped.filter((c) => !c.isArchived && c.otherParticipant);
+    const byFilter: Record<InboxFilter, CachedConversation[]> = {
+      ALL: active,
+      UNREAD: active.filter((c) => (c.unreadCount || 0) > 0),
+      GROUPS: active.filter(isGroupConversation),
+      CAMPUS: active.filter((c) => Boolean(c.otherParticipant?.institutionId) && !isGroupConversation(c)),
+      ARCHIVED: deduped.filter((c) => Boolean(c.isArchived) && c.otherParticipant),
+    };
+    return {
+      visible: byFilter[filter],
+      unreadCount: byFilter.UNREAD.length,
+      archivedCount: byFilter.ARCHIVED.length,
+    };
+  }, [conversations, filter]);
 
-    if (activeFilter === "ARCHIVED") {
-      return list.filter((c) => Boolean(c.isArchived));
-    }
-
-    // By default, exclude archived conversations from main tabs
-    list = list.filter((c) => !c.isArchived);
-
-    if (activeFilter === "UNREAD") {
-      list = list.filter((c) => (c.unreadCount || 0) > 0);
-    } else if (activeFilter === "GROUPS") {
-      list = list.filter((c) => Boolean(c.isGroup || c.type === "GROUP" || c.isCommunity));
-    } else if (activeFilter === "CAMPUS") {
-      list = list.filter((c) => Boolean(c.otherParticipant?.institutionId && !c.isGroup));
-    }
-
-    return list;
-  }, [conversations, activeFilter]);
-
-  const activeConv = conversations?.find((c) => c.id === activeConversationId);
-  const activeParticipant = activeConv ? activeConv.otherParticipant : null;
+  const activeConv = conversations?.find((c) => c.id === activeId);
+  const searching = searchQuery.trim().length > 0;
 
   return (
-    <div className="flex h-full w-full overflow-hidden bg-background select-none">
-      {/* ─── Inbox / Conversation List (Left Column) ─── */}
+    <div className="flex h-full w-full overflow-hidden bg-bg">
       <aside
+        aria-label="Chats"
         className={cn(
-          "w-full md:w-80 lg:w-96 flex flex-col bg-card border-r border-border/30 h-full shrink-0 overflow-hidden relative",
-          activeConversationId ? "hidden md:flex" : "flex"
+          "relative h-full w-full shrink-0 flex-col overflow-hidden border-r border-border bg-surface md:w-80 lg:w-96",
+          activeId ? "hidden md:flex" : "flex"
         )}
       >
-        {/* Top Header */}
-        <div className="p-3.5 sm:p-4 border-b border-border/30 space-y-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  sounds.tap();
-                  haptics.light();
-                  if (typeof window !== "undefined") {
-                    window.dispatchEvent(new CustomEvent("campusloop_open_mobile_drawer"));
-                  }
-                }}
-                className="flex size-11 sm:size-8 items-center justify-center rounded-full hover:bg-muted/70 text-foreground transition-[opacity,transform] cursor-pointer active:scale-95 shrink-0"
-                aria-label="Open navigation menu"
-                title="All Hubs & Navigation"
-              >
-                <Menu className="size-4.5" />
-              </button>
-              <Link
-                href="/feeds"
-                className="size-11 sm:size-8 shrink-0 rounded-full bg-muted/60 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-                title="Back to Campus Feed"
-              >
-                <img src="/logo.png" alt="CampusLoop" className="size-5 object-contain" />
-              </Link>
-              <h1 className="text-xl font-black tracking-tight text-foreground">Messages</h1>
-              {conversations && conversations.length > 0 && (
-                <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                  {conversations.length}
-                </span>
-              )}
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Link
-                href="/dating"
-                onClick={() => {
-                  sounds.pop();
-                  haptics.medium();
-                }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-warning-subtle text-warning border border-warning hover:bg-warning-subtle text-xs font-black transition-[opacity,transform] cursor-pointer shadow-2xs active:scale-95"
-                title="Discover classmates on Campus Match"
-              >
-                <Zap className="size-3.5 fill-warning text-warning" />
-                <span>Match</span>
-              </Link>
-
-              {/* Circular Search Trigger */}
-              <button
-                type="button"
-                onClick={() => {
-                  const input = document.getElementById("chat-search-input");
-                  input?.focus();
-                }}
-                className="size-9 rounded-full bg-card border border-border/50 shadow-xs flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                title="Search conversations"
-              >
-                <Search className="size-4" />
-              </button>
-            </div>
-          </div>
-
-          {/* Active contacts */}
-          {conversations && conversations.length > 0 && (
-            <div className="flex items-center justify-between px-0.5 pt-0.5">
-              <span className="text-xs font-bold text-muted-foreground">
-                Active now
-              </span>
-              <span className="text-[10px] text-muted-foreground">Recent chats</span>
-            </div>
+        <ChatInboxHeader
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          filter={filter}
+          onFilterChange={setFilter}
+          unreadCount={unreadCount}
+          archivedCount={archivedCount}
+        >
+          {!searching && filter === "ALL" && conversations && (
+            <ChatActiveNow conversations={conversations} onSelect={selectConversation} />
           )}
-          {conversations && conversations.length > 0 && (
-            <div className="flex items-center gap-3 overflow-x-auto no-scrollbar py-1 px-0.5 -mx-1 select-none">
-              {conversations.slice(0, 10).map((c) => {
-                const p = c.otherParticipant;
-                if (!p) return null;
-                const isOnlineNow = p.lastSeenAt && Date.now() - new Date(p.lastSeenAt).getTime() < 300000;
-                return (
-                  <button
-                    key={c.id}
-                    type="button"
-                    onClick={() => handleSelectConversation(c.id)}
-                    className="flex flex-col items-center gap-1 shrink-0 group cursor-pointer focus:outline-none"
-                  >
-                    <div className="relative">
-                      <Avatar className="size-11 border-2 border-background shadow-xs group-hover:scale-105 transition-transform">
-                        <AvatarImage src={p.avatarUrl || ""} />
-                        <AvatarFallback className="font-bold text-xs bg-muted text-muted-foreground">
-                          {(p.displayName?.[0] || "U").toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span
-                        className={cn(
-                          "absolute bottom-0 right-0 size-3 rounded-full border-2 border-background",
-                          isOnlineNow ? "bg-primary" : "bg-warning"
-                        )}
-                      />
-                    </div>
-                    <span className="text-[10px] font-bold text-foreground truncate max-w-[52px]">
-                      {p.displayName.split(" ")[0]}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
+        </ChatInboxHeader>
 
-          {/* Search Bar */}
-          <div className="relative w-full">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
-            <input
-              id="chat-search-input"
-              type="text"
-              placeholder="Search students or groups..."
-              value={searchQuery}
-              onChange={handleSearchChange}
-              className="w-full h-9 pl-9 pr-8 rounded-full border border-border/50 bg-muted/50 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-colors"
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+          {searching ? (
+            <ChatPeopleResults
+              query={searchQuery}
+              results={people.results}
+              loading={people.loading}
+              failed={people.failed}
+              startingId={startingId}
+              onPick={(id) => void startConversation(id)}
             />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchQuery("");
-                  setSearchResults([]);
-                }}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
-              >
-                <X className="size-3.5" />
-              </button>
-            )}
-          </div>
-
-          {/* WhatsApp-Style Filter Pills */}
-          <div className="flex items-center gap-1.5 pt-0.5 overflow-x-auto scrollbar-none">
-            <button
-              type="button"
-              onClick={() => setActiveFilter("ALL")}
-              className={cn(
-                "px-3 py-1 rounded-xl text-xs font-bold transition-colors cursor-pointer",
-                activeFilter === "ALL"
-                  ? "bg-primary text-primary-foreground shadow-2xs"
-                  : "bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted"
-              )}
-            >
-              All
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveFilter("UNREAD")}
-              className={cn(
-                "px-3 py-1 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1",
-                activeFilter === "UNREAD"
-                  ? "bg-primary text-primary-foreground shadow-2xs"
-                  : "bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted"
-              )}
-            >
-              <span>Unread</span>
-              {conversations &&
-                conversations.filter((c) => (c.unreadCount || 0) > 0 && !c.isArchived).length > 0 && (
-                  <span className="size-1.5 rounded-full bg-warning" />
-                )}
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveFilter("GROUPS")}
-              className={cn(
-                "px-3 py-1 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1",
-                activeFilter === "GROUPS"
-                  ? "bg-primary text-primary-foreground shadow-2xs"
-                  : "bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted"
-              )}
-            >
-              <Users2 className="size-3" />
-              <span>Groups</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveFilter("CAMPUS")}
-              className={cn(
-                "px-3 py-1 rounded-xl text-xs font-bold transition-colors cursor-pointer",
-                activeFilter === "CAMPUS"
-                  ? "bg-primary text-primary-foreground shadow-2xs"
-                  : "bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted"
-              )}
-            >
-              Campus
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveFilter("ARCHIVED")}
-              className={cn(
-                "px-3 py-1 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1",
-                activeFilter === "ARCHIVED"
-                  ? "bg-primary text-primary-foreground shadow-2xs"
-                  : "bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted"
-              )}
-            >
-              <Archive className="size-3" />
-              <span>Archived</span>
-              {conversations && conversations.filter((c) => Boolean(c.isArchived)).length > 0 && (
-                <span className="text-[10px] opacity-80">
-                  ({conversations.filter((c) => Boolean(c.isArchived)).length})
-                </span>
-              )}
-            </button>
-          </div>
+          ) : (
+            <ChatInboxList
+              conversations={visible}
+              loading={!conversations && isLoading}
+              failed={Boolean(error)}
+              filter={filter}
+              activeId={activeId}
+              currentUserId={currentUserId}
+              onSelect={selectConversation}
+              onOpenActions={setActionConv}
+              onRetry={() => mutate()}
+              onShowAll={() => setFilter("ALL")}
+            />
+          )}
         </div>
 
-        {/* Search Results Dropdown / Replacement List */}
-        {searchQuery.trim() ? (
-          <div className="flex-1 overflow-y-auto p-2 space-y-1">
-            <p className="px-3 py-1 text-xs font-bold text-muted-foreground">
-              Search Results
-            </p>
-            {isSearching ? (
-              <div className="p-6 text-center text-xs text-muted-foreground flex items-center justify-center gap-2">
-                <Loader2 className="size-4 animate-spin" />
-                <span>Searching peers...</span>
-              </div>
-            ) : searchResults.length > 0 ? (
-              searchResults.map((user) => (
-                <div
-                  key={user.id}
-                  onClick={() => startConversation(user.id)}
-                  className="flex items-center gap-3 p-2.5 rounded-2xl hover:bg-muted/40 transition-colors cursor-pointer"
-                >
-                  <Avatar className="size-10 border border-border/40 shrink-0">
-                    <AvatarImage src={user.avatarUrl || ""} />
-                    <AvatarFallback className="text-xs font-black bg-primary/10 text-primary">
-                      {user.displayName[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="min-w-0 flex-1 space-y-0.5">
-                    <p className="text-xs font-black text-foreground truncate flex items-center gap-1">
-                      <span>{user.displayName}</span>
-                      <ShieldCheck className="size-3 text-brand shrink-0" />
-                    </p>
-                    <p className="text-[10px] text-muted-foreground truncate">
-                      @{user.username} {user.branch ? `• ${user.branch}` : ""}
-                    </p>
-                  </div>
-                  <button
-                    aria-label="Start chat"
-                    type="button"
-                    className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 size-7 min-h-11 min-w-11 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold hover:bg-primary hover:text-primary-foreground transition-colors shrink-0"
-                  >
-                    <Plus className="size-3.5" />
-                  </button>
-                </div>
-              ))
-            ) : (
-              <div className="p-6 text-center text-xs text-muted-foreground">
-                No students found for &ldquo;{searchQuery}&rdquo;.
-              </div>
-            )}
-          </div>
-        ) : (
-          /* Conversation Inbox List */
-          <div className="flex-1 overflow-y-auto p-2 space-y-1">
-            {!conversations && isLoadingConvs ? (
-              <div className="space-y-1.5 p-1">
-                {[1, 2, 3, 4, 5, 6, 7].map((i) => (
-                  <div
-                    key={i}
-                    className="flex items-center gap-3 p-3 rounded-2xl border border-border/10 bg-muted/10 animate-pulse"
-                  >
-                    <div className="size-11 rounded-full bg-muted/60 shrink-0" />
-                    <div className="min-w-0 flex-1 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="h-3.5 w-24 bg-muted/60 rounded-full" />
-                        <div className="h-2.5 w-8 bg-muted/40 rounded-full" />
-                      </div>
-                      <div className="h-2.5 w-3/4 bg-muted/40 rounded-full" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              filteredConversations.map((conv) => {
-                const other = conv.otherParticipant;
-                if (!other) return null;
-
-                const isSelected = conv.id === activeConversationId;
-                const unread = conv.unreadCount || 0;
-                const isLastMe = conv.lastMessage?.senderId === currentUserId;
-
-                return (
-                  <div
-                    key={conv.id}
-                    onTouchStart={() => handleTouchStart(conv)}
-                    onTouchEnd={handleTouchEnd}
-                    onTouchMove={handleTouchMove}
-                    onContextMenu={(e) => {
-                      e.preventDefault();
-                      setActionConv(conv);
-                      setShowActionModal(true);
-                    }}
-                    onClick={() => {
-                      if (isLongPressRef.current) {
-                        isLongPressRef.current = false;
-                        return;
-                      }
-                      handleSelectConversation(conv.id);
-                    }}
-                    className={cn(
-                      "flex items-center gap-3 p-3 rounded-2xl transition-colors cursor-pointer group relative",
-                      isSelected
-                        ? "bg-primary/10 dark:bg-primary/15 shadow-2xs"
-                        : "hover:bg-muted/40"
-                    )}
-                  >
-                    {/* Avatar with Online presence indicator */}
-                    <div className="relative shrink-0">
-                      <Avatar className="size-11 border border-border/40 shadow-2xs">
-                        <AvatarImage src={other.avatarUrl || ""} />
-                        <AvatarFallback className="text-xs font-black bg-primary/10 text-primary">
-                          {(other.displayName?.[0] || "S").toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <PresenceDot lastSeenAt={other.lastSeenAt} />
-                    </div>
-
-                    {/* Body & Snippet */}
-                    <div className="min-w-0 flex-1 space-y-0.5">
-                      <div className="flex items-center justify-between gap-1">
-                        <div
-                          className={cn(
-                            "text-xs truncate flex items-center gap-1 min-w-0",
-                            isSelected ? "font-black text-foreground" : "font-bold text-foreground"
-                          )}
-                        >
-                          <span className="truncate">{other.displayName}</span>
-                          {other.points && other.points >= 150 && (
-                            <ShieldCheck className="size-3 text-brand shrink-0" />
-                          )}
-                          {conv.isPinned && (
-                            <span title="Pinned chat">
-                              <Pin className="size-2.5 text-warning shrink-0 fill-warning" />
-                            </span>
-                          )}
-                          {conv.isMuted && (
-                            <span title="Muted chat">
-                              <BellOff className="size-2.5 text-muted-foreground shrink-0" />
-                            </span>
-                          )}
-                        </div>
-                        {conv.lastMessage && (
-                          <span
-                            className={cn(
-                              "text-[10px] font-semibold shrink-0",
-                              unread > 0 ? "text-primary font-bold" : "text-muted-foreground"
-                            )}
-                          >
-                            {formatRelativeTime(conv.lastMessage.createdAt)}
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-1 min-w-0 flex-1">
-                          {/* WhatsApp Seen Tick Indicator on last message */}
-                          {isLastMe &&
-                            conv.lastMessage &&
-                            (conv.lastMessage.readAt ? (
-                              <CheckCheck className="size-3.5 text-brand-text shrink-0" />
-                            ) : (
-                              <CheckCheck className="size-3.5 text-muted-foreground shrink-0" />
-                            ))}
-                          <p
-                            className={cn(
-                              "text-[11px] truncate leading-tight",
-                              unread > 0 ? "text-foreground font-bold" : "text-muted-foreground font-medium"
-                            )}
-                          >
-                            {conv.lastMessage?.body || "Start a campus chat..."}
-                          </p>
-                        </div>
-
-                        <div className="flex items-center gap-1 shrink-0">
-                          {/* CampusLoop Primary Unread Badge */}
-                          {unread > 0 && (
-                            <span className="size-5 rounded-full bg-primary text-primary-foreground text-[10px] font-black flex items-center justify-center shrink-0 shadow-2xs animate-in zoom-in-75">
-                              {unread}
-                            </span>
-                          )}
-
-                          {/* 3-Dots Action Button for PC/Desktop */}
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setActionConv(conv);
-                              setShowActionModal(true);
-                            }}
-                            className="size-7 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/80 flex items-center justify-center transition-[opacity,transform] opacity-80 sm:opacity-0 group-hover:opacity-100 cursor-pointer"
-                            title="Chat options"
-                          >
-                            <MoreVertical className="size-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })
-            )}
-
-            {filteredConversations.length === 0 && (
-              <div className="py-16 text-center space-y-3 px-4">
-                <div className="size-12 rounded-2xl bg-muted/60 flex items-center justify-center mx-auto text-muted-foreground">
-                  <Users2 className="size-6" />
-                </div>
-                <p className="text-xs font-bold text-foreground">
-                  {activeFilter === "UNREAD" ? "No unread messages" : "No conversations yet"}
-                </p>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  Search for a classmate, study buddy, or campus group to start a conversation.
-                </p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Floating Green Curved Action Bubble (Mockup style) */}
         <button
           type="button"
           onClick={() => {
             sounds.tap();
             haptics.medium();
-            setShowCreateGroupModal(true);
+            setShowCreateGroup(true);
           }}
-          className="fab-bubble absolute bottom-5 right-5 z-20 flex size-12 items-center justify-center cursor-pointer shadow-lg active:scale-95"
-          title="Create campus group or study pod"
-          aria-label="Create group"
+          className="fab-bubble absolute right-4 bottom-[calc(1rem+var(--nav-mobile-h,0px)+env(safe-area-inset-bottom))] z-20 flex h-13 cursor-pointer items-center gap-2 px-5 text-sm font-semibold outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 lg:bottom-5"
         >
-          <Users2 className="size-5.5 text-white" strokeWidth={2.4} />
+          <UserPlus className="size-5" aria-hidden="true" />
+          <span>New group</span>
         </button>
       </aside>
 
-      {/* ─── Active Chat Window (Right Column / Fullscreen on Mobile) ─── */}
-      <main
+      <section
+        aria-label="Conversation"
         className={cn(
-          "flex-1 flex flex-col h-full overflow-hidden bg-background",
-          !activeConversationId ? "hidden md:flex" : "flex"
+          "h-full min-w-0 flex-1 flex-col overflow-hidden bg-bg",
+          activeId ? "flex" : "hidden md:flex"
         )}
       >
         <MessengerPane
-          conversationId={activeConversationId}
-          otherParticipant={activeParticipant}
+          conversationId={activeId}
+          otherParticipant={activeConv ? activeConv.otherParticipant : null}
           currentUserId={currentUserId}
-          onBack={handleBackToInbox}
+          isMuted={Boolean(activeConv?.isMuted)}
+          onBack={backToInbox}
         />
-      </main>
+      </section>
 
-      {/* Conversation Action Modal (Mobile Long Press & Desktop 3 Dots) */}
       <ConversationActionModal
-        isOpen={showActionModal}
-        onClose={() => {
-          setShowActionModal(false);
-          setActionConv(null);
-        }}
+        isOpen={actionConv !== null}
+        onClose={() => setActionConv(null)}
         conversation={actionConv}
         currentUserId={currentUserId}
-        onActionComplete={() => mutateConvs()}
+        onActionComplete={() => mutate()}
         onDeleteConversation={(convId) => {
-          if (activeConversationId === convId) {
-            handleBackToInbox();
-          }
+          if (activeId === convId) backToInbox();
         }}
       />
 
-      {/* Create Campus Group / Study Pod Modal */}
       <CreateGroupModal
-        isOpen={showCreateGroupModal}
-        onClose={() => setShowCreateGroupModal(false)}
+        isOpen={showCreateGroup}
+        onClose={() => setShowCreateGroup(false)}
         currentUserId={currentUserId}
-        onGroupCreated={(newConvId: string, createdConv?: any) => {
+        onGroupCreated={(newConvId: string, createdConv?: CachedConversation) => {
           if (createdConv) {
-            mutateConvs((prev) => {
-              if (!prev) return [createdConv];
-              const filtered = prev.filter((c) => c.id !== newConvId);
-              return [createdConv, ...filtered];
-            }, false);
+            mutate((prev) => [createdConv, ...(prev || []).filter((c) => c.id !== newConvId)], false);
           } else {
-            mutateConvs();
+            mutate();
           }
-          handleSelectConversation(newConvId);
+          selectConversation(newConvId);
         }}
       />
     </div>

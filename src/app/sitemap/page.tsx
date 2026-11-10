@@ -122,7 +122,7 @@ function RouteList({ title, routes }: { title: string; routes: typeof COMPANY_RO
 export default function SitemapPage() {
   return (
     <MarketingShell>
-      <main className="py-12 sm:py-16">
+      <div className="py-12 sm:py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <h1 className="text-4xl font-bold tracking-tight text-fg">Sitemap</h1>
@@ -165,7 +165,7 @@ export default function SitemapPage() {
             <RouteList title="Resources and legal" routes={RESOURCE_ROUTES} />
           </div>
         </div>
-      </main>
+      </div>
     </MarketingShell>
   );
 }

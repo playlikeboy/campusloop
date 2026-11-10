@@ -1,19 +1,10 @@
 "use client";
 
-import {
-  AlertTriangle,
-  ArrowRight,
-  ExternalLink,
-  Globe,
-  Info,
-  Megaphone,
-  School,
-  ShieldAlert,
-  X,
-} from "lucide-react";
+import { AlertTriangle, ArrowRight, Globe, Info, Megaphone, School, ShieldAlert, X } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import useSWR from "swr";
+import { buttonVariants } from "@/components/ui/button";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -43,11 +34,7 @@ interface CampusBroadcastBannerProps {
   className?: string;
 }
 
-export function CampusBroadcastBanner({
-  scope,
-  institutionId,
-  className,
-}: CampusBroadcastBannerProps) {
+export function CampusBroadcastBanner({ scope, institutionId, className }: CampusBroadcastBannerProps) {
   const [isDismissed, setIsDismissed] = useState(false);
 
   const { data } = useSWR<ActiveBroadcastResponse>(
@@ -63,9 +50,11 @@ export function CampusBroadcastBanner({
 
   // Check if this specific broadcast was dismissed in this session
   useEffect(() => {
-    if (broadcast?.id && typeof window !== "undefined") {
-      const dismissed = sessionStorage.getItem(`campusloop_dismissed_broadcast_${broadcast.id}`);
-      setIsDismissed(Boolean(dismissed));
+    if (!broadcast?.id) return;
+    try {
+      setIsDismissed(Boolean(sessionStorage.getItem(`campusloop_dismissed_broadcast_${broadcast.id}`)));
+    } catch {
+      // Storage blocked: the banner just shows again.
     }
   }, [broadcast?.id]);
 
@@ -73,38 +62,26 @@ export function CampusBroadcastBanner({
     return null;
   }
 
+  // Colour follows meaning: warnings and urgent notices use the status colours, everything else stays neutral.
   const priorityStyles = {
-    INFO: {
-      border: "border-brand-subtle-border/40",
-      bg: "bg-surface",
-      badgeBg: "bg-brand/20 border-brand-subtle-border/30 text-brand-text",
-      icon: Info,
-      label: "Campus info",
-      glow: "",
-    },
+    INFO: { border: "border-border", badgeBg: "bg-surface-muted text-fg-muted", icon: Info, label: "Info" },
     ANNOUNCEMENT: {
-      border: "border-primary/40",
-      bg: "bg-surface",
-      badgeBg: "bg-primary/20 border-primary/30 text-primary",
+      border: "border-border",
+      badgeBg: "bg-surface-muted text-fg-muted",
       icon: Megaphone,
-      label: "Official announcement",
-      glow: "",
+      label: "Announcement",
     },
     WARNING: {
       border: "border-warning/40",
-      bg: "bg-surface",
-      badgeBg: "bg-warning/20 border-warning/30 text-warning",
+      badgeBg: "bg-warning-subtle text-warning",
       icon: AlertTriangle,
-      label: "Campus advisory",
-      glow: "",
+      label: "Heads up",
     },
     URGENT: {
-      border: "border-danger/50",
-      bg: "bg-surface",
-      badgeBg: "bg-danger/20 border-danger/30 text-danger",
+      border: "border-danger/40",
+      badgeBg: "bg-danger-subtle text-danger",
       icon: ShieldAlert,
-      label: "Urgent notice",
-      glow: "",
+      label: "Urgent",
     },
   };
 
@@ -116,20 +93,16 @@ export function CampusBroadcastBanner({
     sounds.tap();
     haptics.light();
     setIsDismissed(true);
-    if (typeof window !== "undefined") {
+    try {
       sessionStorage.setItem(`campusloop_dismissed_broadcast_${broadcast?.id}`, "true");
+    } catch {
+      // Storage blocked: dismissal lasts until the next page load.
     }
   }
 
   return (
     <div
-      className={cn(
-        "relative mx-3 sm:mx-4 my-2.5 rounded-2xl border p-4 transition-colors duration-300 backdrop-blur-md",
-        style.border,
-        style.bg,
-        style.glow,
-        className
-      )}
+      className={cn("relative mx-3 sm:mx-4 my-3 rounded-lg border bg-surface p-4", style.border, className)}
     >
       {/* Top Meta Bar */}
       <div className="flex items-center justify-between gap-2 pb-2">
@@ -137,24 +110,24 @@ export function CampusBroadcastBanner({
           {/* Priority Pill */}
           <span
             className={cn(
-              "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black border",
+              "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold",
               style.badgeBg
             )}
           >
-            <PriorityIcon className="size-3 shrink-0 animate-pulse" />
+            <PriorityIcon className="size-3.5 shrink-0" aria-hidden />
             <span>{style.label}</span>
           </span>
 
           {/* Scope Indicator */}
-          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-muted-foreground bg-muted/40 px-2 py-0.5 rounded-full border border-border/30">
+          <span className="inline-flex items-center gap-1 text-xs text-fg-muted">
             {broadcast.scope === "INDIA" ? (
               <>
-                <Globe className="size-3 text-primary" />
-                <span>Pan-India Broadcast</span>
+                <Globe className="size-3.5" aria-hidden />
+                <span>All colleges</span>
               </>
             ) : (
               <>
-                <School className="size-3 text-primary" />
+                <School className="size-3.5" aria-hidden />
                 <span className="truncate max-w-[200px]">{broadcast.institutionName}</span>
               </>
             )}
@@ -165,64 +138,59 @@ export function CampusBroadcastBanner({
         <button
           type="button"
           onClick={handleDismiss}
-          className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors cursor-pointer"
-          title="Dismiss announcement"
-          aria-label="Dismiss announcement"
+          className="-m-2 flex size-11 items-center justify-center rounded-full text-fg-muted hover:text-fg hover:bg-surface-muted transition-ui cursor-pointer"
+          aria-label="Hide this announcement"
         >
-          <X className="size-3.5" />
+          <X className="size-4" aria-hidden />
         </button>
       </div>
 
       {/* Banner Media Image if available */}
       {broadcast.bannerImageUrl && (
-        <div className="w-full h-36 sm:h-44 rounded-xl overflow-hidden my-2.5 bg-muted/30 border border-border/30">
+        <div className="w-full h-36 sm:h-44 rounded-md overflow-hidden my-2.5 bg-surface-muted">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={broadcast.bannerImageUrl}
             alt={broadcast.title}
             className="w-full h-full object-cover"
+            loading="lazy"
           />
         </div>
       )}
 
       {/* Headline */}
       <Link href={`/post/${broadcast.id}`} className="block group cursor-pointer space-y-1">
-        <h3 className="text-sm sm:text-base font-black text-foreground leading-snug group-hover:underline">
-          {broadcast.title}
-        </h3>
+        <h3 className="text-base leading-snug group-hover:underline">{broadcast.title}</h3>
 
         {/* Body Text */}
-        <p className="text-xs sm:text-[13px] text-muted-foreground leading-relaxed line-clamp-3">
-          {broadcast.body}
-        </p>
+        <p className="text-sm text-fg-muted line-clamp-3">{broadcast.body}</p>
       </Link>
 
       {/* Bottom Actions Bar */}
-      <div className="mt-3 pt-2.5 border-t border-border/30 flex flex-wrap items-center justify-between gap-2.5">
+      <div className="mt-3 pt-2.5 border-t border-border flex flex-wrap items-center justify-between gap-2.5">
         <div className="flex items-center gap-2">
           {broadcast.actionLabel && broadcast.actionUrl && (
             <a
               href={broadcast.actionUrl}
               target={broadcast.actionUrl.startsWith("http") ? "_blank" : undefined}
               rel={broadcast.actionUrl.startsWith("http") ? "noopener noreferrer" : undefined}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-foreground text-background text-xs font-bold hover:opacity-90 transition-colors shadow-xs cursor-pointer"
+              className={buttonVariants({ size: "sm" })}
             >
               <span>{broadcast.actionLabel}</span>
-              <ArrowRight className="size-3" />
+              <ArrowRight className="size-4" aria-hidden />
             </a>
           )}
 
           <Link
             href={`/post/${broadcast.id}`}
-            className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline transition-colors px-2 py-1"
+            className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-brand-text hover:underline underline-offset-4 px-2"
           >
-            <span>Campus Discussion</span>
-            <ExternalLink className="size-3" />
+            <span>Open post</span>
           </Link>
         </div>
 
         {broadcast.createdAt && (
-          <span className="text-[10px] text-muted-foreground font-semibold">
+          <span className="text-xs text-fg-subtle tabular-nums">
             {new Date(broadcast.createdAt).toLocaleDateString("en-IN", {
               day: "numeric",
               month: "short",

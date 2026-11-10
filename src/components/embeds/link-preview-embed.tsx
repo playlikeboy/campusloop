@@ -37,7 +37,7 @@ export function LinkPreviewEmbed({ url }: LinkPreviewEmbedProps) {
 
   if (isLoading) {
     return (
-      <div className="mt-3 p-3 rounded-2xl border border-border/40 bg-card/40 animate-pulse flex items-center gap-3">
+      <div className="mt-3 p-3 rounded-2xl border border-border bg-surface-muted animate-pulse flex items-center gap-3">
         <div className="size-12 rounded-xl bg-muted/60" />
         <div className="space-y-1.5 flex-1">
           <div className="h-3.5 bg-muted/60 rounded-md w-3/4" />
@@ -69,14 +69,14 @@ export function LinkPreviewEmbed({ url }: LinkPreviewEmbedProps) {
       target="_blank"
       rel="noopener noreferrer"
       onClick={(e) => e.stopPropagation()}
-      className="mt-3 block overflow-hidden rounded-2xl border border-border/40 bg-card hover:bg-muted/20 transition-ui shadow-xs group"
+      className="mt-3 block overflow-hidden rounded-2xl border border-border bg-card hover:bg-muted/20 transition-ui shadow-xs group"
     >
       {data.image && (
         <div className="relative aspect-1.91/1 max-h-52 w-full overflow-hidden bg-muted/30">
           <img
             src={data.image}
             alt={data.title || "Link Preview"}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-103"
+            className="h-full w-full object-cover transition-transform duration-300"
             loading="lazy"
             onError={(e) => {
               (e.target as HTMLElement).style.display = "none";
@@ -86,7 +86,7 @@ export function LinkPreviewEmbed({ url }: LinkPreviewEmbedProps) {
       )}
 
       <div className="p-3.5 space-y-1">
-        <div className="flex items-center gap-1.5 text-[11px] font-bold text-muted-foreground">
+        <div className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground">
           {data.favicon ? (
             <img
               src={data.favicon}
@@ -110,7 +110,7 @@ export function LinkPreviewEmbed({ url }: LinkPreviewEmbedProps) {
         )}
 
         {data.description && (
-          <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">{data.description}</p>
+          <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">{data.description}</p>
         )}
       </div>
     </a>

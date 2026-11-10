@@ -1,6 +1,6 @@
 "use client";
 
-import { Bookmark, FileText, FolderOpen, GraduationCap, Sparkles, TrendingUp } from "lucide-react";
+import { Chip } from "@/components/ui/chip";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
@@ -8,8 +8,6 @@ import { cn } from "@/lib/utils";
 export interface AcademicTabItem {
   id: string;
   label: string;
-  icon: any;
-  count?: number;
 }
 
 interface AcademicNavTabsProps {
@@ -20,66 +18,43 @@ interface AcademicNavTabsProps {
 }
 
 const TABS: AcademicTabItem[] = [
-  { id: "for_you", label: "For You", icon: Sparkles },
-  { id: "TRENDING", label: "Trending", icon: TrendingUp },
-  { id: "NOTES", label: "Notes", icon: FileText },
-  { id: "PYQ", label: "PYQs", icon: GraduationCap },
-  { id: "PLAYLISTS", label: "Playlists", icon: FolderOpen },
-  { id: "SAVED", label: "Saved", icon: Bookmark },
+  { id: "for_you", label: "For you" },
+  { id: "TRENDING", label: "Popular now" },
+  { id: "NOTES", label: "Notes" },
+  { id: "PYQ", label: "PYQs" },
+  { id: "PLAYLISTS", label: "Playlists" },
+  { id: "SAVED", label: "Saved" },
 ];
 
+/** View switcher for the study material feed. One chip is always selected. */
 export function AcademicNavTabs({ activeTab, onTabChange, savedCount, className }: AcademicNavTabsProps) {
   return (
-    <nav
-      role="tablist"
-      aria-label="Academics content sections"
-      className={cn("flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar border-b border-border/30 pb-2 select-none", className)}
+    <fieldset
+      className={cn(
+        "-mx-4 m-0 flex min-w-0 gap-2 overflow-x-auto border-0 px-4 pb-1 no-scrollbar sm:mx-0 sm:px-0",
+        className
+      )}
     >
+      <legend className="sr-only">Show</legend>
       {TABS.map((tab) => {
-        const Icon = tab.icon;
-        const isSelected = activeTab === tab.id;
-        const count = tab.id === "SAVED" ? savedCount : undefined;
-
+        const selected = activeTab === tab.id;
+        const count = tab.id === "SAVED" && savedCount ? savedCount : undefined;
         return (
-          <button
+          <Chip
             key={tab.id}
-            role="tab"
-            aria-selected={isSelected}
-            aria-controls={`tabpanel-${tab.id}`}
-            id={`tab-${tab.id}`}
-            type="button"
+            selected={selected}
+            count={count}
             onClick={() => {
+              if (selected) return;
               sounds.tap();
               haptics.light();
               onTabChange(tab.id);
             }}
-            className={cn(
-              "group relative inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-full text-xs sm:text-[13px] font-bold transition-ui cursor-pointer shrink-0 whitespace-nowrap",
-              isSelected
-                ? "bg-foreground text-background shadow-xs font-black"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-            )}
           >
-            <Icon
-              className={cn(
-                "size-3.5 sm:size-4 transition-colors",
-                isSelected ? "text-background" : "text-muted-foreground group-hover:text-foreground"
-              )}
-            />
-            <span>{tab.label}</span>
-            {typeof count === "number" && count > 0 && (
-              <span
-                className={cn(
-                  "ml-0.5 px-1.5 py-0.2 rounded-full text-[10px] font-mono",
-                  isSelected ? "bg-background/20 text-background" : "bg-muted text-muted-foreground"
-                )}
-              >
-                {count}
-              </span>
-            )}
-          </button>
+            {tab.label}
+          </Chip>
         );
       })}
-    </nav>
+    </fieldset>
   );
 }

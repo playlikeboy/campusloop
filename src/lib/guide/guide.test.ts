@@ -50,7 +50,11 @@ describe("product guide catalogue", () => {
   });
 
   it("uses every category", () => {
-    for (const c of GUIDE_CATEGORIES) expect(GUIDES.some((g) => g.category === c.name), c.name).toBe(true);
+    for (const c of GUIDE_CATEGORIES)
+      expect(
+        GUIDES.some((g) => g.category === c.name),
+        c.name
+      ).toBe(true);
   });
 
   it("points at app routes that exist", () => {

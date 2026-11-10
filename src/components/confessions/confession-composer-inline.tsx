@@ -1,30 +1,23 @@
 "use client";
 
-import {
-  Globe,
-  Loader2,
-  Lock,
-  School,
-  Send,
-  ShieldCheck,
-  Sparkles,
-  VenetianMask,
-  X,
-} from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { Lock } from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Chip } from "@/components/ui/chip";
+import { SegmentedControl } from "@/components/ui/segmented-control";
+import { QuestionSticker } from "@/components/ui/stickers";
+import { MAX_POST_CHARS } from "@/constants";
 import { useProfile } from "@/hooks/use-profile";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
-
 export const CONFESSION_CATEGORIES = [
-  { id: "hostel_lore", label: "Hostel Lore", tag: "#HostelLore" },
-  { id: "placement_tea", label: "Placement Tea", tag: "#PlacementTea" },
-  { id: "crush", label: "Campus Crush", tag: "#CampusCrush" },
-  { id: "exam_vent", label: "Exam & Academics", tag: "#ExamVent" },
-  { id: "prof_stories", label: "Professor Tales", tag: "#ProfTales" },
-  { id: "unfiltered", label: "Unfiltered Reality", tag: "#Unfiltered" },
+  { id: "hostel_lore", label: "Hostel", tag: "#HostelLore" },
+  { id: "placement_tea", label: "Placements", tag: "#PlacementTea" },
+  { id: "crush", label: "Crush", tag: "#CampusCrush" },
+  { id: "exam_vent", label: "Exams", tag: "#ExamVent" },
+  { id: "prof_stories", label: "Profs", tag: "#ProfTales" },
+  { id: "unfiltered", label: "Anything else", tag: "#Unfiltered" },
 ] as const;
 
 interface ConfessionComposerInlineProps {
@@ -41,36 +34,27 @@ export function ConfessionComposerInline({
   className,
 }: ConfessionComposerInlineProps) {
   const { profile } = useProfile();
-  const [isExpanded, setIsExpanded] = useState(false);
   const [body, setBody] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("hostel_lore");
   const [postScope, setPostScope] = useState<"CAMPUS" | "GLOBAL">(initialScope);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setPostScope(initialScope);
   }, [initialScope]);
 
-  useEffect(() => {
-    if (isExpanded) {
-      textareaRef.current?.focus();
-    }
-  }, [isExpanded]);
-
   const activeCategory = CONFESSION_CATEGORIES.find((c) => c.id === selectedCategory);
-  const activePseudonym = profile?.anonymousUsername || "Anonymous Student";
+  const activePseudonym = profile?.anonymousUsername || "anonymous";
 
   async function handleSubmit(e?: React.FormEvent) {
     e?.preventDefault();
     if (!body.trim()) {
-      toast.error("Please whisper your confession before posting.");
+      toast.error("Write something first.");
       return;
     }
 
     if (body.trim().length < 5) {
-      toast.error("Confessions must be at least 5 characters long.");
+      toast.error("Write at least 5 characters.");
       return;
     }
 
@@ -120,220 +104,69 @@ export function ConfessionComposerInline({
       const data = (await res.json()) as any;
 
       if (!res.ok || data.error) {
-        throw new Error(data.error || "Failed to broadcast anonymous confession");
+        throw new Error(data.error || "Couldn't post your confession. Try again.");
       }
 
       sounds.pop();
       haptics.success();
-      toast.success("Confession whispered anonymously!", {
-        description: "Sealed with cryptographic pseudonym. +5 Loop Points earned!",
-      });
+      toast.success("Posted anonymously");
 
       setBody("");
-      setIsExpanded(false);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Network error publishing confession");
+      toast.error(err instanceof Error ? err.message : "Couldn't post. Check your internet and try again.");
     } finally {
       setIsSubmitting(false);
     }
   }
 
   return (
-    <div
-      ref={containerRef}
-      className={cn(
-        "relative rounded-xl border transition-colors duration-200",
-        isExpanded
-          ? "border-brand-subtle-border/30 bg-card/80 shadow-md p-3 sm:p-3.5 backdrop-blur-md"
-          : "border-border/30 bg-muted/20 hover:bg-muted/35 hover:border-border/50 p-2 sm:p-2.5 cursor-pointer",
-        className
-      )}
-    >
-      {!isExpanded ? (
-        /* Collapsed Compact Input Entry Point */
-        <div
-          onClick={() => {
-            sounds.tap();
-            haptics.light();
-            setIsExpanded(true);
-          }}
-          className="flex items-center gap-2.5 w-full min-w-0"
-        >
-          <div className="flex size-7.5 shrink-0 items-center justify-center rounded-lg bg-brand/10 text-brand-text border border-brand-subtle-border/20">
-            <VenetianMask className="size-4" />
-          </div>
+    <div className={cn("space-y-3", className)}>
+      <QuestionSticker
+        variant="flat"
+        prompt="Confess anonymously"
+        placeholder="Say what you can't say out loud…"
+        value={body}
+        onChange={setBody}
+        onSubmit={() => handleSubmit()}
+        submitLabel="Post anonymously"
+        maxLength={MAX_POST_CHARS}
+        loading={isSubmitting}
+      />
 
-          <div className="flex-1 min-w-0">
-            <p className="text-xs text-muted-foreground truncate select-none">
-              Spill an anonymous campus secret or hostel tea...
-            </p>
-            <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground/70 select-none mt-0.5">
-              <span className="flex items-center gap-1">
-                <Lock className="size-2.5 text-success/90" />
-                100% Anonymous
-              </span>
-              <span>·</span>
-              <span>Zero Profile Trace</span>
-            </div>
-          </div>
+      <p className="flex items-center gap-1.5 text-xs text-fg-muted">
+        <Lock className="size-3.5" aria-hidden />
+        Posting as <span className="font-semibold text-fg">@{activePseudonym}</span>. Your real name stays
+        hidden.
+      </p>
 
-          <button
-            type="button"
-            className="inline-flex h-7 px-3 items-center justify-center rounded-full bg-brand/20 hover:bg-brand-hover/30 text-brand-text border border-brand-subtle-border/30 text-xs font-semibold transition-transform shrink-0 active:scale-95 cursor-pointer"
-          >
-            Whisper
-          </button>
-        </div>
-      ) : (
-        /* Expanded Whisper Composer */
-        <form onSubmit={handleSubmit} className="space-y-2.5 animate-in fade-in zoom-in-98 duration-150">
-          {/* Header & Cryptographic Notice */}
-          <div className="flex items-center justify-between border-b border-border/20 pb-2">
-            <div className="flex items-center gap-2 min-w-0">
-              <div className="flex size-6.5 items-center justify-center rounded-md bg-brand/15 text-brand-text border border-brand-subtle-border/25 shrink-0">
-                <VenetianMask className="size-3.5" />
-              </div>
-              <div className="flex flex-col min-w-0">
-                <span className="text-xs font-semibold tracking-tight text-foreground truncate flex items-center gap-1">
-                  Whisper as <span className="text-brand-text">@{activePseudonym}</span>
-                </span>
-                <span className="text-[10px] text-muted-foreground flex items-center gap-1 truncate">
-                  <ShieldCheck className="size-2.5 text-success shrink-0" />
-                  Real identity is cryptographic &amp; never exposed
-                </span>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => {
-                sounds.tap();
-                setIsExpanded(false);
-              }}
-              className="flex size-6.5 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0 ml-1"
-              title="Close whisper box"
-              aria-label="Close whisper box"
+      <fieldset className="space-y-2">
+        <legend className="text-xs font-medium text-fg-muted">Topic</legend>
+        <div className="flex flex-wrap gap-1.5">
+          {CONFESSION_CATEGORIES.map((cat) => (
+            <Chip
+              key={cat.id}
+              size="sm"
+              selected={selectedCategory === cat.id}
+              onClick={() => setSelectedCategory(cat.id)}
             >
-              <X className="size-3.5" />
-            </button>
-          </div>
+              {cat.label}
+            </Chip>
+          ))}
+        </div>
+      </fieldset>
 
-          {/* Textarea Input */}
-          <div className="relative">
-            <textarea
-              ref={textareaRef}
-              rows={3}
-              maxLength={1000}
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
-              placeholder="What's the secret, hostel lore, or confession you can't tell anyone openly? Drop it here safely..."
-              className="w-full bg-transparent text-sm leading-relaxed text-foreground placeholder:text-muted-foreground/60 outline-none resize-none focus:outline-none selection:bg-brand/30 min-h-[75px]"
-            />
-          </div>
-
-          {/* Category Chips Bar */}
-          <div className="space-y-1 pt-0.5">
-            <label className="text-[10px] font-semibold text-muted-foreground/70 flex items-center gap-1">
-              <Sparkles className="size-2.5 text-brand-text" />
-              <span>Topic</span>
-            </label>
-            <div className="flex flex-wrap gap-1">
-              {CONFESSION_CATEGORIES.map((cat) => {
-                const isSelected = selectedCategory === cat.id;
-                return (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    onClick={() => {
-                      sounds.tap();
-                      haptics.light();
-                      setSelectedCategory(cat.id);
-                    }}
-                    className={cn(
-                      "h-6 px-2 rounded-full text-[11px] font-medium transition-colors cursor-pointer border select-none shrink-0",
-                      isSelected
-                        ? "bg-brand/25 text-brand-text border-brand-subtle-border/40 font-semibold shadow-2xs"
-                        : "bg-muted/30 hover:bg-muted/60 text-muted-foreground border-border/25 hover:text-foreground"
-                    )}
-                  >
-                    {cat.label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Scope Selection Pill Bar & Actions */}
-          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-border/15">
-            <div className="flex items-center gap-0.5 p-0.5 rounded-full bg-muted/30 border border-border/30 text-[10px] font-medium">
-              <button
-                type="button"
-                onClick={() => {
-                  sounds.tap();
-                  setPostScope("GLOBAL");
-                }}
-                className={cn(
-                  "flex items-center gap-1 px-2.5 py-0.5 rounded-full transition-colors cursor-pointer",
-                  postScope === "GLOBAL"
-                    ? "bg-foreground text-background font-bold shadow-2xs"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <Globe className="size-2.5" />
-                <span>All India</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  sounds.tap();
-                  setPostScope("CAMPUS");
-                }}
-                className={cn(
-                  "flex items-center gap-1 px-2.5 py-0.5 rounded-full transition-colors cursor-pointer max-w-[130px] truncate",
-                  postScope === "CAMPUS"
-                    ? "bg-foreground text-background font-bold shadow-2xs"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <School className="size-2.5 shrink-0" />
-                <span className="truncate">{campusName}</span>
-              </button>
-            </div>
-
-            <div className="flex items-center gap-1.5 ml-auto">
-              <span className="text-[10px] text-muted-foreground/70 font-mono">
-                {body.length}/1000
-              </span>
-
-              <button
-                type="button"
-                onClick={() => setIsExpanded(false)}
-                className="h-7 px-2.5 rounded-full text-xs font-medium text-muted-foreground hover:bg-muted/60 transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
-
-              <button
-                type="submit"
-                disabled={isSubmitting || !body.trim()}
-                className="h-7 px-3.5 rounded-full bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-semibold transition-transform active:scale-95 disabled:opacity-50 flex items-center gap-1 shadow-xs cursor-pointer"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="size-3 animate-spin" />
-                    <span>Sealing...</span>
-                  </>
-                ) : (
-                  <>
-                    <Send className="size-3" />
-                    <span>Post</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </form>
-      )}
+      <fieldset className="space-y-2">
+        <legend className="text-xs font-medium text-fg-muted">Who can see it</legend>
+        <SegmentedControl
+          size="sm"
+          value={postScope}
+          onChange={setPostScope}
+          options={[
+            { value: "GLOBAL", label: "All colleges" },
+            { value: "CAMPUS", label: `Only ${campusName}` },
+          ]}
+        />
+      </fieldset>
     </div>
   );
 }

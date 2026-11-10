@@ -1,19 +1,19 @@
-import type { Metadata } from "next";
+import { breadcrumbJsonLd, buildMetadata } from "@/lib/seo";
+import { JsonLd } from "@/lib/seo/json-ld-script";
 import { EventsClient } from "./events-client";
 
-export const metadata: Metadata = {
-  robots: { index: true, follow: true },
+export const metadata = buildMetadata({
   title: "Events",
-  description: "Find campus events, hackathons, workshops and college fests.",
-  alternates: { canonical: "https://campusloop.space/events" },
-  openGraph: {
-    title: "Events",
-    description: "Find campus events, hackathons, workshops and college fests.",
-    url: "https://campusloop.space/events",
-    siteName: "CampusLoop",
-  },
-};
+  description:
+    "Find fests, hackathons, workshops and club meetups at colleges across India, and register in a tap.",
+  path: "/events",
+});
 
 export default function EventsPage() {
-  return <EventsClient />;
+  return (
+    <>
+      <JsonLd data={breadcrumbJsonLd([{ name: "Events", path: "/events" }])} />
+      <EventsClient />
+    </>
+  );
 }

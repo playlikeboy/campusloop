@@ -2,6 +2,33 @@ import { describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
 vi.mock("server-only", () => ({}));
+// Never touch a real database from unit tests. Empty category/author tables
+// exercise the built-in fallbacks the MCP tools return when the DB is unseeded.
+vi.mock("@/db", async () =>
+  (await import("@/test/mock-db")).mockDbModule({
+    tables: {
+      articles: [
+        {
+          id: "art_test_101",
+          slug: "sample-article-test",
+          title: "Sample Test Article",
+          content: "This is a test article.",
+          category: "TECH_AND_PROGRAMMING",
+          status: "PUBLISHED",
+          tags: ["test"],
+          viewsCount: 3,
+          upvotesCount: 1,
+          author: null,
+          institution: null,
+          links: [],
+          publishedAt: new Date(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ],
+    },
+  }),
+);
 
 import { GET, OPTIONS, POST } from "@/app/mcp/articles/route";
 import { GET as getOpenApi } from "@/app/mcp/articles/openapi.json/route";

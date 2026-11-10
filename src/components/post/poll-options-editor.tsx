@@ -29,7 +29,7 @@ export function PollOptionsEditor({ options, onChange, onAdd, onRemove }: PollOp
               <button
                 type="button"
                 onClick={onAdd}
-                className="flex items-center gap-1 rounded-xl border border-success/30 bg-success/10 px-2.5 py-1 text-[10px] font-bold text-success transition-transform hover:bg-success/20 active:scale-95 cursor-pointer"
+                className="flex items-center gap-1 rounded-xl border border-success/30 bg-success/10 px-2.5 py-1 text-xs font-bold text-success transition-transform hover:bg-success/20 active:scale-95 cursor-pointer"
               >
                 <Plus className="size-3" /> Add Option
               </button>
@@ -45,7 +45,7 @@ export function PollOptionsEditor({ options, onChange, onAdd, onRemove }: PollOp
                 transition={{ delay: index * 0.03 }}
                 className="flex items-center gap-2"
               >
-                <span className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-success/15 text-xs font-black text-success border border-success/20 shadow-xs">
+                <span className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-success/15 text-xs font-bold text-success border border-success/20 shadow-xs">
                   {String.fromCharCode(65 + index)}
                 </span>
                 <input
@@ -55,7 +55,7 @@ export function PollOptionsEditor({ options, onChange, onAdd, onRemove }: PollOp
                   required={index < 2}
                   maxLength={80}
                   onChange={(e) => onChange(index, e.target.value)}
-                  className="h-10 flex-1 rounded-xl border border-border/60 bg-card px-3.5 text-xs font-medium outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-success/50 focus:ring-1 focus:ring-success/20 shadow-xs"
+                  className="h-10 flex-1 rounded-md border border-border bg-surface px-3.5 text-sm font-medium outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-success/50 focus:ring-1 focus:ring-success/20 shadow-xs"
                 />
                 {options.length > 2 && (
                   <button
@@ -71,8 +71,8 @@ export function PollOptionsEditor({ options, onChange, onAdd, onRemove }: PollOp
             ))}
           </div>
 
-          <p className="text-[10px] font-semibold text-muted-foreground flex items-center justify-between">
-            <span>Minimum 2 options required</span>
+          <p className="text-xs font-semibold text-muted-foreground flex items-center justify-between">
+            <span>Add at least 2 options</span>
             <span className="tabular-nums font-bold">{options.filter((o) => o.trim()).length}/6 options</span>
           </p>
         </div>

@@ -8,20 +8,32 @@ import { hexclaveServerApp } from "@/hexclave/server";
 import { runInBackground } from "@/lib/background";
 import { sendEmail } from "@/lib/email";
 import { buildWelcomeEmail } from "@/lib/email-templates";
+import { findWhitelistedDomain } from "@/lib/institutions";
 import { getAvatarUrl } from "@/lib/utils";
 import { validateDisplayName, validateUsername } from "@/lib/validation";
 import { getViewerInstitutionId } from "@/lib/viewer";
-import { findWhitelistedDomain } from "@/lib/institutions";
 
-export async function completeOnboarding(formData: FormData) {
+export type OnboardingResult =
+  | { success: true }
+  /** `step` is the onboarding step that holds the field to fix. */
+  | { success: false; error: string; step?: number };
+
+/**
+ * Errors come back as values, not throws: Next.js hides thrown messages from
+ * server actions in production, and the student needs to know what to fix.
+ */
+export async function completeOnboarding(formData: FormData): Promise<OnboardingResult> {
   const user = await hexclaveServerApp.getUser();
   if (!user) {
-    throw new Error("Not authenticated");
+    return { success: false, error: "You're signed out. Sign in again to finish your profile." };
   }
 
   const email = user.primaryEmail;
   if (!email) {
-    throw new Error("No verified email address found on your account.");
+    return {
+      success: false,
+      error: "Your account has no email address. Sign out and sign up with your college email.",
+    };
   }
 
   const username = formData.get("username") as string;
@@ -61,24 +73,24 @@ export async function completeOnboarding(formData: FormData) {
 
   // Strict Gender Validation
   if (!rawGender || !["MALE", "FEMALE", "OTHER"].includes(rawGender)) {
-    throw new Error("Please select your gender identification to complete onboarding.");
+    return { success: false, error: "Pick a gender to continue.", step: 1 };
   }
   const gender = rawGender as "MALE" | "FEMALE" | "OTHER";
 
   // Strict Name & Username Validation
   const nameVal = validateDisplayName(displayName);
   if (!nameVal.isValid) {
-    throw new Error(nameVal.error);
+    return { success: false, error: nameVal.error ?? "Check your name.", step: 0 };
   }
 
   const userVal = validateUsername(username);
   if (!userVal.isValid) {
-    throw new Error(userVal.error);
+    return { success: false, error: userVal.error ?? "Check your username.", step: 0 };
   }
 
   const domain = email.split("@")[1]?.toLowerCase();
   if (!domain) {
-    throw new Error("Invalid email format");
+    return { success: false, error: "Your email address looks wrong. Sign out and sign up again." };
   }
 
   const db = getDb();
@@ -226,7 +238,7 @@ export async function completeOnboarding(formData: FormData) {
       "code" in error &&
       (error as { code?: string }).code === "23505"
     ) {
-      throw new Error("Username already taken. Please pick a different one.");
+      return { success: false, error: "That username is taken. Pick a different one.", step: 0 };
     }
     throw error;
   }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { privateMetadata } from "@/lib/seo";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 import { BikeDetailClient } from "./bike-detail-client";
 
@@ -7,11 +8,7 @@ interface BikeDetailPageProps {
   params: Promise<{ bikeId: string }>;
 }
 
-export const metadata: Metadata = {
-  title: "Book Campus Bike Rental",
-  description: "Rent verified scooters, motorcycles, and EV bikes on campus with instant pickup.",
-  robots: { index: true, follow: true },
-};
+export const metadata: Metadata = privateMetadata("Bike details");
 
 export default async function BikeDetailPage({ params }: BikeDetailPageProps) {
   const { bikeId } = await params;

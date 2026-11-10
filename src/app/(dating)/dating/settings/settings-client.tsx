@@ -1,24 +1,18 @@
 "use client";
 
-import {
-  Check,
-  Eye,
-  EyeOff,
-  Globe,
-  Loader2,
-  RotateCcw,
-  School,
-  User,
-} from "lucide-react";
+import { ChevronRight, HeartCrack, RotateCcw, UserPen } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn } from "@/lib/utils";
 
 type Prefs = {
   gender: "DEFAULT" | "MALE" | "FEMALE" | "ALL";
@@ -32,49 +26,28 @@ type PrefsResponse = {
   recommendedGender: "MALE" | "FEMALE" | "ALL";
 };
 
-function Option({
-  selected,
-  onClick,
-  children,
-}: {
-  selected: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
+function Group({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
   return (
-    <button
-      type="button"
-      onClick={() => {
-        sounds.tap();
-        haptics.light();
-        onClick();
-      }}
-      className={cn(
-        "flex items-center justify-between rounded-2xl border px-4 py-3 text-xs sm:text-sm font-bold transition-[opacity,transform] cursor-pointer active:scale-[0.98]",
-        selected
-          ? "border-primary bg-primary/10 text-primary font-bold shadow-2xs ring-1 ring-primary/20"
-          : "border-border/80 bg-card text-muted-foreground hover:text-foreground hover:bg-muted/40"
-      )}
-    >
+    <section className="space-y-2.5">
+      <div>
+        <h2 className="text-base font-semibold text-fg">{title}</h2>
+        {hint && <p className="text-sm text-fg-muted">{hint}</p>}
+      </div>
       {children}
-      {selected && <Check className="size-4 shrink-0 text-primary" />}
-    </button>
+    </section>
   );
 }
 
 export function SettingsClient() {
-  const { data, isLoading, mutate } = useSWR<PrefsResponse>("/api/dating/preferences", fetcher);
-  const [saving, setSaving] = useState(false);
-
+  const { data, error, isLoading, mutate } = useSWR<PrefsResponse>("/api/dating/preferences", fetcher);
+  const [resetting, setResetting] = useState(false);
   const prefs = data?.preferences;
-  const isEnabled = prefs?.isEnabled !== false;
-  const recommended =
-    data?.recommendedGender === "FEMALE" ? "Girls" : data?.recommendedGender === "MALE" ? "Guys" : "Everyone";
 
   async function save(updates: Partial<Prefs>) {
-    if (!prefs) return;
-    setSaving(true);
-    void mutate(data ? { ...data, preferences: { ...prefs, ...updates } } : data, { revalidate: false });
+    if (!prefs || !data) return;
+    sounds.tap();
+    haptics.light();
+    void mutate({ ...data, preferences: { ...prefs, ...updates } }, { revalidate: false });
     try {
       const res = await fetch("/api/dating/preferences", {
         method: "PATCH",
@@ -82,197 +55,118 @@ export function SettingsClient() {
         body: JSON.stringify(updates),
       });
       if (!res.ok) throw new Error();
-      void mutate();
     } catch {
-      toast.error("Couldn't save preferences");
-      void mutate();
-    } finally {
-      setSaving(false);
+      toast.error("Couldn't save. Check your connection and try again.");
     }
+    void mutate();
   }
 
   async function resetSwipes() {
-    sounds.tap();
     haptics.medium();
-    const res = await fetch("/api/dating/swipe", { method: "DELETE" });
-    if (res.ok) toast.success("Swipe deck history reset!");
-    else toast.error("Couldn't reset deck");
+    setResetting(true);
+    const res = await fetch("/api/dating/swipe", { method: "DELETE" }).catch(() => null);
+    setResetting(false);
+    if (res?.ok) toast.success("Skipped profiles will show up again.");
+    else toast.error("Couldn't reset. Try again in a moment.");
   }
 
-  return (
-    <div className="mx-auto flex w-full max-w-lg flex-1 flex-col px-3 sm:px-4 text-foreground select-none">
-      <div className="flex-1 py-2 space-y-6">
-        {isLoading || !prefs ? (
-          <div className="space-y-4 pt-4">
-            <Skeleton className="h-10 w-full rounded-2xl" />
-            <Skeleton className="h-28 w-full rounded-2xl" />
-            <Skeleton className="h-28 w-full rounded-2xl" />
-          </div>
-        ) : (
-          <>
-            {/* Pause Matching Card */}
-            <div className="rounded-2xl border border-border/60 bg-card p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-xs sm:text-sm font-black text-foreground">Matching Profile Visibility</h3>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
-                    {isEnabled ? "Your profile is active in campus decks" : "Paused — hidden from decks"}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => save({ isEnabled: !isEnabled })}
-                  className={cn(
-                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black transition-[opacity,transform] cursor-pointer active:scale-95",
-                    isEnabled
-                      ? "bg-success-subtle text-success border border-success"
-                      : "bg-muted text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  {isEnabled ? (
-                    <>
-                      <Eye className="size-3.5" />
-                      <span>Active</span>
-                    </>
-                  ) : (
-                    <>
-                      <EyeOff className="size-3.5" />
-                      <span>Paused</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {/* Scope: Campus vs Global */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between px-1">
-                <span className="text-xs font-bold text-muted-foreground">
-                  Discovery Radius
-                </span>
-                {saving && <Loader2 className="size-3 animate-spin text-muted-foreground" />}
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <Option
-                  selected={prefs.scope === "CAMPUS"}
-                  onClick={() => save({ scope: "CAMPUS" })}
-                >
-                  <div className="flex items-center gap-2">
-                    <School className="size-4 text-success" />
-                    <span>My College Only</span>
-                  </div>
-                </Option>
-                <Option
-                  selected={prefs.scope === "GLOBAL"}
-                  onClick={() => save({ scope: "GLOBAL" })}
-                >
-                  <div className="flex items-center gap-2">
-                    <Globe className="size-4 text-brand-text" />
-                    <span>All Colleges (India)</span>
-                  </div>
-                </Option>
-              </div>
-            </div>
-
-            {/* Gender Preferences */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between px-1">
-                <span className="text-xs font-bold text-muted-foreground">
-                  Show Me
-                </span>
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                <Option
-                  selected={prefs.gender === "FEMALE"}
-                  onClick={() => save({ gender: "FEMALE" })}
-                >
-                  <span>Girls</span>
-                </Option>
-                <Option
-                  selected={prefs.gender === "MALE"}
-                  onClick={() => save({ gender: "MALE" })}
-                >
-                  <span>Guys</span>
-                </Option>
-                <Option
-                  selected={prefs.gender === "ALL"}
-                  onClick={() => save({ gender: "ALL" })}
-                >
-                  <span>Everyone</span>
-                </Option>
-              </div>
-            </div>
-
-            {/* Sort Strategy */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between px-1">
-                <span className="text-xs font-bold text-muted-foreground">
-                  Deck Priority Algorithm
-                </span>
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                <Option
-                  selected={prefs.sort === "COMPATIBILITY"}
-                  onClick={() => save({ sort: "COMPATIBILITY" })}
-                >
-                  <span className="truncate">Interests</span>
-                </Option>
-                <Option
-                  selected={prefs.sort === "RECENT"}
-                  onClick={() => save({ sort: "RECENT" })}
-                >
-                  <span className="truncate">Active Now</span>
-                </Option>
-                <Option
-                  selected={prefs.sort === "POPULAR"}
-                  onClick={() => save({ sort: "POPULAR" })}
-                >
-                  <span className="truncate">Trending</span>
-                </Option>
-              </div>
-            </div>
-
-            {/* Deck Management Actions */}
-            <div className="space-y-2 pt-2">
-              <span className="text-xs font-bold text-muted-foreground px-1">
-                Deck Controls
-              </span>
-              <div className="space-y-2">
-                <button
-                  type="button"
-                  onClick={resetSwipes}
-                  className="flex w-full items-center justify-between p-3.5 rounded-2xl border border-border/60 bg-card hover:bg-muted/40 transition-colors text-left cursor-pointer active:scale-98"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex size-8 items-center justify-center rounded-xl bg-muted/60 text-muted-foreground">
-                      <RotateCcw className="size-4" />
-                    </div>
-                    <div>
-                      <p className="text-xs sm:text-sm font-bold text-foreground">Reset Swipe History</p>
-                      <p className="text-[10px] text-muted-foreground">Unpass previously skipped profiles</p>
-                    </div>
-                  </div>
-                </button>
-
-                <Link
-                  href="/profile/edit"
-                  className="flex w-full items-center justify-between p-3.5 rounded-2xl border border-border/60 bg-card hover:bg-muted/40 transition-colors text-left cursor-pointer active:scale-98"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex size-8 items-center justify-center rounded-xl bg-crush-subtle text-crush-text">
-                      <User className="size-4" />
-                    </div>
-                    <div>
-                      <p className="text-xs sm:text-sm font-bold text-foreground">Edit Profile Photos &amp; Bio</p>
-                      <p className="text-[10px] text-muted-foreground">Update prompt tags and campus photos</p>
-                    </div>
-                  </div>
-                </Link>
-              </div>
-            </div>
-          </>
-        )}
+  if (isLoading) {
+    return (
+      <div className="mx-auto w-full max-w-lg flex-1 space-y-6 px-4 py-2" aria-busy="true">
+        <Skeleton className="h-16 w-full rounded-lg" />
+        <Skeleton className="h-20 w-full rounded-lg" />
+        <Skeleton className="h-20 w-full rounded-lg" />
       </div>
+    );
+  }
+
+  if (!prefs || !data) {
+    return (
+      <div className="mx-auto w-full max-w-lg flex-1 px-4 py-2">
+        <EmptyState
+          icon={HeartCrack}
+          title="Couldn't load your settings"
+          description={error ? "Check your connection and try again." : undefined}
+          action={<Button onClick={() => void mutate()}>Try again</Button>}
+        />
+      </div>
+    );
+  }
+
+  const isEnabled = prefs.isEnabled !== false;
+  const gender = prefs.gender === "DEFAULT" ? data.recommendedGender : prefs.gender;
+
+  return (
+    <div className="mx-auto w-full max-w-lg flex-1 space-y-7 px-4 py-2 pb-10">
+      <label className="flex cursor-pointer items-center justify-between gap-4 rounded-lg border border-border bg-surface px-4 py-3.5">
+        <span>
+          <span className="block text-base font-semibold text-fg">Show my profile</span>
+          <span className="block text-sm text-fg-muted">
+            {isEnabled ? "People can find you in Campus Match." : "Hidden. New people can't see you."}
+          </span>
+        </span>
+        <Switch checked={isEnabled} onCheckedChange={(on) => void save({ isEnabled: on })} />
+      </label>
+
+      <Group title="Who you see">
+        <SegmentedControl
+          aria-label="Colleges to show"
+          fullWidth
+          value={prefs.scope}
+          onChange={(scope) => void save({ scope })}
+          options={[
+            { value: "CAMPUS", label: "My college" },
+            { value: "GLOBAL", label: "All colleges" },
+          ]}
+        />
+        <SegmentedControl
+          aria-label="Show me"
+          fullWidth
+          value={gender}
+          onChange={(g) => void save({ gender: g })}
+          options={[
+            { value: "FEMALE", label: "Girls" },
+            { value: "MALE", label: "Guys" },
+            { value: "ALL", label: "Everyone" },
+          ]}
+        />
+      </Group>
+
+      <Group title="Show first">
+        <SegmentedControl
+          aria-label="Order of profiles"
+          fullWidth
+          value={prefs.sort}
+          onChange={(sort) => void save({ sort })}
+          options={[
+            { value: "COMPATIBILITY", label: "Same interests" },
+            { value: "RECENT", label: "Active" },
+            { value: "POPULAR", label: "Popular" },
+          ]}
+        />
+      </Group>
+
+      <Group title="Your profile">
+        <div className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-surface">
+          <Link
+            href="/profile/edit"
+            className="flex min-h-14 items-center gap-3 px-4 py-3 text-sm font-medium text-fg transition-ui outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+          >
+            <UserPen className="size-5 text-fg-muted" aria-hidden="true" />
+            <span className="flex-1">Edit photos and bio</span>
+            <ChevronRight className="size-4 text-fg-subtle" aria-hidden="true" />
+          </Link>
+          <button
+            type="button"
+            onClick={() => void resetSwipes()}
+            disabled={resetting}
+            className="flex min-h-14 w-full cursor-pointer items-center gap-3 px-4 py-3 text-left text-sm font-medium text-fg transition-ui outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset disabled:opacity-60"
+          >
+            <RotateCcw className="size-5 text-fg-muted" aria-hidden="true" />
+            <span className="flex-1">See skipped profiles again</span>
+          </button>
+        </div>
+      </Group>
     </div>
   );
 }

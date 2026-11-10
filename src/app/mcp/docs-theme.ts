@@ -33,14 +33,20 @@ const SEMANTIC_VARS = [
 
 const TAILWIND_COLORS = Object.fromEntries(SEMANTIC_VARS.map((name) => [name, `var(--${name})`]));
 
-export const MCP_DOCS_STYLE = `<style>
+export const MCP_DOCS_STYLE = `<link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <style>
     /* ds-allow: standalone page without globals.css; values mirror tokens.css light theme */
-    :root { --bg: #fcfbf8; --surface: #ffffff; --surface-muted: #f7f6f2; --fg: #1c1b18; --fg-muted: #5c5850; --fg-subtle: #6e6a61; --border: #e2dfd7; --brand: #3b5bfd; --brand-hover: #2a45e0; --brand-fg: #ffffff; --brand-text: #2a45e0; --brand-subtle: #eef2ff; --brand-subtle-border: #bcc9ff; --success: #15803d; --success-fg: #ffffff; --success-subtle: #dcfce7; --danger: #b91c1c; --danger-fg: #ffffff; --danger-subtle: #fee2e2; --warning: #b45309; --warning-fg: #ffffff; --warning-subtle: #fef3c7; color-scheme: light; }
+    :root { --bg: #ffffff; --surface: #ffffff; --surface-muted: #f5f3fa; --fg: #15131d; --fg-muted: #57526a; --fg-subtle: #6c6780; --border: #e2deec; --brand: #6b3df5; --brand-hover: #5a2be0; --brand-fg: #ffffff; --brand-text: #5a2be0; --brand-subtle: #f2edff; --brand-subtle-border: #d0c0ff; --success: #0b7a55; --success-fg: #ffffff; --success-subtle: #ddf8ec; --danger: #b81d31; --danger-fg: #ffffff; --danger-subtle: #ffe5e8; --warning: #a84f05; --warning-fg: #ffffff; --warning-subtle: #fff0d9; color-scheme: light; }
     @media (prefers-color-scheme: dark) {
       /* ds-allow: standalone page without globals.css; values mirror tokens.css dark theme */
-      :root { --bg: #12110f; --surface: #1c1b18; --surface-muted: #2d2b27; --fg: #f7f6f2; --fg-muted: #a29e94; --fg-subtle: #a29e94; --border: #2d2b27; --brand: #3b5bfd; --brand-hover: #2a45e0; --brand-fg: #ffffff; --brand-text: #8fa4ff; --brand-subtle: #1c2a6b; --brand-subtle-border: #2236b3; --success: #4ade80; --success-fg: #12110f; --success-subtle: #0b3d1f; --danger: #f87171; --danger-fg: #12110f; --danger-subtle: #4c0f0f; --warning: #fbbf24; --warning-fg: #12110f; --warning-subtle: #42250a; color-scheme: dark; }
+      :root { --bg: #0d0a17; --surface: #120e1f; --surface-muted: #211b30; --fg: #f5f3fa; --fg-muted: #cbc6d9; --fg-subtle: #a7a1ba; --border: #2a2439; --brand: #7650fa; --brand-hover: #6b3df5; --brand-fg: #ffffff; --brand-text: #b8a2ff; --brand-subtle: #24164f; --brand-subtle-border: #3a1a91; --success: #3ddc97; --success-fg: #15131d; --success-subtle: #0e3a2a; --danger: #ff7a85; --danger-fg: #15131d; --danger-subtle: #4a1219; --warning: #ffb547; --warning-fg: #15131d; --warning-subtle: #452c08; color-scheme: dark; }
     }
-    body { font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--fg); }
+    body { font-family: "Figtree", "Noto Sans Devanagari", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--fg); }
+    h1, h2, h3, h4 { font-family: "Bricolage Grotesque", "Figtree", system-ui, sans-serif; letter-spacing: -0.02em; }
+    ::selection { background: var(--brand-subtle); color: var(--fg); }
+    a { text-underline-offset: 3px; }
     pre, code { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
   </style>`;
 

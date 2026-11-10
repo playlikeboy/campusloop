@@ -1,7 +1,14 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { PlayerShell } from "@/components/courses/learn/player-shell";
-import { canEditCourse, currentProfile, ensureEnrollment, getCourseDetail, getViewerState } from "@/lib/courses/server";
+import {
+  canEditCourse,
+  currentProfile,
+  ensureEnrollment,
+  getCourseDetail,
+  getViewerState,
+} from "@/lib/courses/server";
+import { privateMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +18,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug, lectureId } = await params;
   const d = await getCourseDetail(slug);
   const l = d?.lectures.find((x) => x.id === lectureId);
-  return { title: l && d ? `${l.title} · ${d.course.title}` : "Course player" };
+  if (!l || !d) return privateMetadata("Lecture");
+  const title = `${l.title} · ${d.course.title}`;
+  return privateMetadata(title.length > 60 ? `${title.slice(0, 57).trimEnd()}...` : title);
 }
 
 export default async function LecturePage({ params, searchParams }: Props) {
@@ -26,7 +35,8 @@ export default async function LecturePage({ params, searchParams }: Props) {
   if (!lecture) notFound();
 
   // Free previews are open to everyone; everything else needs an account.
-  if (!profile && !lecture.isPreview) redirect(`/sign-in?returnTo=${encodeURIComponent(`/learn/${slug}/${lectureId}`)}`);
+  if (!profile && !lecture.isPreview)
+    redirect(`/sign-in?returnTo=${encodeURIComponent(`/learn/${slug}/${lectureId}`)}`);
   // Courses are free, so opening a lecture enrols you.
   if (profile && d.course.status === "PUBLISHED") await ensureEnrollment(d.course.id, profile.id);
 

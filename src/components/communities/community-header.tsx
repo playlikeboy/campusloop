@@ -1,25 +1,14 @@
 "use client";
 
-import {
-  ArrowLeft,
-  Check,
-  EyeOff,
-  Globe,
-  Lock,
-  MessageSquare,
-  Settings,
-  Share2,
-  ShieldCheck,
-  Users,
-} from "lucide-react";
+import { ArrowLeft, EyeOff, Link2, Lock } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
 import { toast } from "sonner";
 import { recordCommunityInviteShare } from "@/app/(app)/(main)/communities/actions";
 import { JoinCommunityButton } from "@/app/(app)/(main)/communities/join-community-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { cn, getAvatarUrl } from "@/lib/utils";
 
 interface CommunityHeaderProps {
   community: {
@@ -48,6 +37,7 @@ interface CommunityHeaderProps {
   memberStatus?: string;
 }
 
+/** Compact header for community sub-pages (members, settings) with section links. */
 export function CommunityHeader({
   community,
   membersCount,
@@ -56,246 +46,86 @@ export function CommunityHeader({
   isAdmin,
 }: CommunityHeaderProps) {
   const pathname = usePathname();
-  const [copied, setCopied] = useState(false);
-
   const identifier = community.slug || community.id;
   const baseUrl = `/communities/${identifier}`;
 
   async function handleShareInvite() {
-    const shareUrl =
-      typeof window !== "undefined"
-        ? `${window.location.origin}/communities/${identifier}`
-        : `https://campusloop.space/communities/${identifier}`;
-
-    const shareText = `Join c/${community.name} on CampusLoop!\n${
-      community.description || "Verified student sub-hub"
-    }\n\n${shareUrl}`;
-
-    if (navigator.clipboard) {
-      await navigator.clipboard.writeText(shareText);
-      setCopied(true);
-      toast.success("Community invite link copied! +10 LP awarded");
-      setTimeout(() => setCopied(false), 2500);
+    try {
+      await navigator.clipboard.writeText(
+        `Join c/${community.name} on CampusLoop\n${window.location.origin}${baseUrl}`
+      );
+      toast.success("Invite link copied");
       recordCommunityInviteShare(community.id).catch(() => {});
+    } catch {
+      toast.error("Couldn't copy the link. Copy it from the address bar.");
     }
   }
 
+  const links = [
+    { href: baseUrl, label: "Posts" },
+    { href: `${baseUrl}/members`, label: "Members" },
+    ...(isAdmin ? [{ href: `${baseUrl}/settings`, label: "Settings" }] : []),
+  ];
+
   return (
-    <header className="select-none">
-      {/* ─── Sticky Twitter/X Top Navigation Bar ─── */}
-      <div className="sticky top-12 lg:top-0 z-30 bg-background/88 px-3.5 py-2 backdrop-blur-sm border-b border-border/30 flex items-center justify-between">
-        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-          <Link
-            href="/communities"
-            className="flex size-9 shrink-0 items-center justify-center rounded-full hover:bg-muted/70 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-            aria-label="Back to communities"
-          >
-            <ArrowLeft className="size-4.5" />
+    <header className="space-y-3 px-4 pt-3">
+      <div className="flex items-center justify-between gap-2">
+        <Button asChild variant="ghost" size="sm" className="-ml-2">
+          <Link href={baseUrl}>
+            <ArrowLeft />
+            Back
           </Link>
-          <div className="min-w-0">
-            <div className="flex items-center gap-1.5">
-              <h1 className="text-sm font-black tracking-tight text-foreground truncate max-w-[190px] sm:max-w-xs">
-                c/{community.name}
-              </h1>
-              {community.privacy === "PRIVATE" ? (
-                <Lock className="size-3 text-warning shrink-0" />
-              ) : community.privacy === "UNLISTED" ? (
-                <EyeOff className="size-3 text-brand-text shrink-0" />
-              ) : (
-                <Globe className="size-3 text-muted-foreground shrink-0" />
-              )}
-            </div>
-            <p className="text-[11px] text-muted-foreground font-normal truncate">
-              {membersCount} {membersCount === 1 ? "member" : "members"} · {postsCount}{" "}
-              {postsCount === 1 ? "discussion" : "discussions"}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 shrink-0">
-          {isAdmin && (
-            <Link
-              href={`${baseUrl}/settings`}
-              className={cn(
-                "flex size-8 items-center justify-center rounded-full border transition-colors cursor-pointer",
-                pathname === `${baseUrl}/settings`
-                  ? "bg-foreground text-background border-foreground font-black"
-                  : "border-border/60 text-muted-foreground hover:text-foreground hover:bg-muted/60"
-              )}
-              title="Community Settings"
-            >
-              <Settings className="size-3.5" />
-            </Link>
-          )}
-
-          <button
-            aria-label="Share community"
-            type="button"
-            onClick={handleShareInvite}
-            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 flex size-8 min-h-11 min-w-11 items-center justify-center rounded-full border border-border/60 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors cursor-pointer shadow-2xs"
-            title="Share Community"
-          >
-            {copied ? <Check className="size-3.5 text-primary" /> : <Share2 className="size-3.5" />}
-          </button>
-        </div>
+        </Button>
+        <Button variant="ghost" size="icon" aria-label="Copy invite link" onClick={handleShareInvite}>
+          <Link2 />
+        </Button>
       </div>
 
-      {/* ─── Hero Banner Area ─── */}
-      <div className="relative h-28 sm:h-40 w-full bg-surface-muted overflow-hidden">
-        {community.bannerUrl ? (
-          <img
-            src={community.bannerUrl}
-            alt={`${community.name} Banner`}
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-cover"
+      <div className="flex items-center gap-3">
+        <Avatar className="size-14 shrink-0 rounded-sm">
+          <AvatarImage
+            src={getAvatarUrl(community.avatarUrl, community.name)}
+            alt=""
+            className="object-cover"
           />
-        ) : (
-          <div className="w-full h-full bg-brand" />
-        )}
-
-        {/* Privacy Badge */}
-        <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
-          {community.privacy === "PRIVATE" ? (
-            <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-background/90 text-warning backdrop-blur-sm shadow-xs flex items-center gap-1">
-              <Lock className="size-3" /> Private
-            </span>
-          ) : community.privacy === "UNLISTED" ? (
-            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-background/90 text-brand-text backdrop-blur-sm shadow-xs flex items-center gap-1">
-              <EyeOff className="size-3" /> Secret
-            </span>
-          ) : (
-            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-background/90 text-foreground backdrop-blur-sm shadow-xs flex items-center gap-1">
-              <Globe className="size-3" /> Public Hub
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* ─── Community Avatar & Action Row (Row 1) ─── */}
-      <div className="px-3.5 sm:px-5">
-        <div className="flex items-end justify-between -mt-10 sm:-mt-12 mb-2.5">
-          {community.avatarUrl ? (
-            <Avatar className="size-20 sm:size-24 rounded-2xl border-4 border-background bg-card shadow-md shrink-0">
-              <AvatarImage src={community.avatarUrl} alt={community.name} className="object-cover" />
-              <AvatarFallback className="bg-brand text-brand-fg text-2xl font-black">
-                {community.name.slice(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-          ) : (
-            <div
-              className="size-22 sm:size-26 rounded-2xl sm:rounded-3xl border-4 border-background bg-brand text-brand-fg shadow-lg flex items-center justify-center text-2xl font-bold shrink-0 overflow-hidden"
-            >
-              {community.name.slice(0, 2).toUpperCase()}
-            </div>
-          )}
-
-          <div className="flex items-center gap-2 pb-1">
-            <JoinCommunityButton communityId={community.id} initialIsMember={isMember} />
-          </div>
-        </div>
-
-        {/* ─── Community Info & Bio (Row 2 - Strictly Below Avatar) ─── */}
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h1 className="text-lg sm:text-xl font-black tracking-tight text-foreground">{community.name}</h1>
-            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-success bg-success-subtle border border-success px-2 py-0.5 rounded-full">
-              <ShieldCheck className="size-3" /> Verified Hub
-            </span>
-          </div>
-
-          <p className="text-xs text-muted-foreground flex items-center gap-2 font-medium flex-wrap">
-            <span className="text-primary font-bold">{community.category || "General"}</span>
-            <span>•</span>
-            <span>
-              Founded by{" "}
-              <Link
-                href={`/@${community.creator?.username || "admin"}`}
-                className="text-foreground hover:underline font-bold"
-              >
-                @{community.creator?.username || "admin"}
-              </Link>
-            </span>
+          <AvatarFallback className="rounded-sm">{community.name.slice(0, 2).toUpperCase()}</AvatarFallback>
+        </Avatar>
+        <div className="min-w-0 flex-1">
+          <h1 className="flex items-center gap-1.5 truncate text-xl font-bold text-fg">
+            c/{community.name}
+            {community.privacy === "PRIVATE" && (
+              <Lock className="size-4 shrink-0 text-fg-subtle" aria-label="Private" />
+            )}
+            {community.privacy === "UNLISTED" && (
+              <EyeOff className="size-4 shrink-0 text-fg-subtle" aria-label="Hidden" />
+            )}
+          </h1>
+          <p className="text-sm text-fg-muted tabular-nums">
+            {membersCount} {membersCount === 1 ? "member" : "members"} · {postsCount}{" "}
+            {postsCount === 1 ? "post" : "posts"}
           </p>
-
-          {community.description && (
-            <p className="text-xs sm:text-sm text-foreground/90 font-normal leading-relaxed pt-1">
-              {community.description}
-            </p>
-          )}
-
-          {/* Twitter-Style Metadata Row */}
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 pt-2 text-[11px] text-muted-foreground">
-            <Link href={`${baseUrl}/members`} className="hover:underline flex items-center gap-1">
-              <Users className="size-3.5" />
-              <span className="font-bold text-foreground">{membersCount}</span> Members
-            </Link>
-
-            <span className="flex items-center gap-1">
-              <MessageSquare className="size-3.5" />
-              <span className="font-bold text-foreground">{postsCount}</span> Discussions
-            </span>
-
-            <span className="flex items-center gap-1">
-              <strong className="text-foreground font-black">{community.points || 0}</strong> LP Clout
-            </span>
-          </div>
         </div>
+        <JoinCommunityButton communityId={community.id} initialIsMember={isMember} />
       </div>
 
-      {/* ─── Twitter/X Sticky Segmented Tabs ─── */}
-      <div className="border-b border-border/30 bg-background/80 backdrop-blur-sm sticky top-[47px] z-30 flex items-center justify-around mt-3">
-        <Link
-          href={baseUrl}
-          className={cn(
-            "relative flex-1 py-2.5 text-center text-xs sm:text-sm font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5",
-            pathname === baseUrl
-              ? "text-foreground font-black"
-              : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
-          )}
-        >
-          <MessageSquare className="size-3.5" />
-          <span>Discussions</span>
-          <span className="text-[11px] font-semibold text-muted-foreground">({postsCount})</span>
-          {pathname === baseUrl && (
-            <span className="absolute bottom-0 inset-x-4 sm:inset-x-8 h-[3px] bg-primary rounded-full" />
-          )}
-        </Link>
-
-        <Link
-          href={`${baseUrl}/members`}
-          className={cn(
-            "relative flex-1 py-3 text-center text-xs sm:text-sm font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5",
-            pathname === `${baseUrl}/members`
-              ? "text-foreground font-black"
-              : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
-          )}
-        >
-          <Users className="size-3.5" />
-          <span>Members</span>
-          <span className="text-[11px] font-semibold text-muted-foreground">({membersCount})</span>
-          {pathname === `${baseUrl}/members` && (
-            <span className="absolute bottom-0 inset-x-4 sm:inset-x-8 h-[3px] bg-primary rounded-full" />
-          )}
-        </Link>
-
-        {isAdmin && (
-          <Link
-            href={`${baseUrl}/settings`}
-            className={cn(
-              "relative flex-1 py-3 text-center text-xs sm:text-sm font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5",
-              pathname === `${baseUrl}/settings`
-                ? "text-foreground font-black"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
-            )}
-          >
-            <Settings className="size-3.5" />
-            <span>Settings</span>
-            {pathname === `${baseUrl}/settings` && (
-              <span className="absolute bottom-0 inset-x-4 sm:inset-x-8 h-[3px] bg-primary rounded-full" />
-            )}
-          </Link>
-        )}
-      </div>
+      <nav aria-label="Community sections" className="-mx-4 flex gap-4 border-b border-border px-4">
+        {links.map((l) => {
+          const active = pathname === l.href;
+          return (
+            <Link
+              key={l.href}
+              href={l.href}
+              aria-current={active ? "page" : undefined}
+              className={cn(
+                "-mb-px inline-flex min-h-11 items-center border-b-2 px-1 text-sm font-semibold transition-ui",
+                active ? "border-brand text-fg" : "border-transparent text-fg-muted hover:text-fg"
+              )}
+            >
+              {l.label}
+            </Link>
+          );
+        })}
+      </nav>
     </header>
   );
 }

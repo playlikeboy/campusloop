@@ -5,14 +5,14 @@ import { useCallback, useEffect, useState } from "react";
 import { MobileDrawer } from "@/components/navigation/mobile-drawer";
 import { PreviewModeBanner } from "@/components/preview/preview-mode-banner";
 import { GlobalSearchModal } from "@/components/search/global-search-modal";
+import { ROUTES } from "@/constants/navigation";
 import type { UserProfile } from "@/db/schema";
 import { useUnreadNotificationsCount } from "@/hooks/use-notifications";
-import { haptics } from "@/lib/haptics";
-import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
 import { AppBottomNav } from "./app-bottom-nav";
 import { AppSidebar } from "./app-sidebar";
 import { AppTopBar } from "./app-top-bar";
+import { navPress } from "./nav-utils";
 
 type AnonMode = "ALL" | "NON_ANONYMOUS";
 
@@ -43,8 +43,15 @@ export interface AppShellProps extends Omit<AppChromeProps, "topBar" | "children
  * Chrome: desktop sidebar, top bar, mobile drawer, bottom tab bar and the search palette.
  * Renders as `sidebar + [column: top bar + children]` inside the parent's flex row.
  */
-export function AppChrome({ profile, collegeName, isAdmin, isViewer, topBar = "full", children }: AppChromeProps) {
-  const pathname = usePathname() || "/feeds";
+export function AppChrome({
+  profile,
+  collegeName,
+  isAdmin,
+  isViewer,
+  topBar = "full",
+  children,
+}: AppChromeProps) {
+  const pathname = usePathname() || ROUTES.home;
   const unreadCount = useUnreadNotificationsCount();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -60,8 +67,7 @@ export function AppChrome({ profile, collegeName, isAdmin, isViewer, topBar = "f
     const onKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && (e.key === "k" || e.key === "K")) {
         e.preventDefault();
-        sounds.tap();
-        haptics.light();
+        navPress();
         setSearchOpen(true);
       }
     };
@@ -107,8 +113,7 @@ export function AppChrome({ profile, collegeName, isAdmin, isViewer, topBar = "f
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ feedVisibility: mode }),
     }).catch(() => {});
-    sounds.tap();
-    haptics.light();
+    navPress();
   }, []);
 
   const topBarNode =
@@ -148,7 +153,7 @@ export function AppChrome({ profile, collegeName, isAdmin, isViewer, topBar = "f
         onAnonModeChange={changeAnonMode}
         onOpenSearch={openSearch}
       />
-      <AppBottomNav restricted={isViewer || !profile} />
+      <AppBottomNav restricted={isViewer || !profile} username={profile?.username} />
       <GlobalSearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );

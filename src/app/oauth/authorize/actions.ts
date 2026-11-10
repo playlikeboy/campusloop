@@ -17,7 +17,15 @@ export async function decideAuthorization(formData: FormData) {
   if (check.kind === "fatal") redirect(`/oauth/authorize?${query}`);
   if (check.kind === "error") redirect(check.redirectTo);
 
-  if (decision !== "allow") redirect(errorRedirect(check.redirectUri, "access_denied", "The user declined to share their CampusLoop account", check.state));
+  if (decision !== "allow")
+    redirect(
+      errorRedirect(
+        check.redirectUri,
+        "access_denied",
+        "The user declined to share their CampusLoop account",
+        check.state
+      )
+    );
 
   const user = await getCachedAuthUser().catch(() => null);
   const profile = user ? await getCachedUserProfile(user.id) : null;

@@ -1,12 +1,9 @@
 "use client";
 
-import {
-  ArrowRight,
-  Search,
-  X,
-} from "lucide-react";
+import { ArrowDown, ArrowRight, ArrowUp, CornerDownLeft, Search, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ADMIN_NAV_SECTIONS } from "./admin-sidebar";
 
@@ -90,44 +87,48 @@ export function AdminGlobalSearch({ isOpen, onClose }: AdminGlobalSearchProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center p-3 sm:p-6 sm:pt-20 bg-background/80 backdrop-blur-md animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-start justify-center bg-overlay p-3 sm:p-6 sm:pt-20"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-2xl bg-card border border-border/80 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-150"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Search admin pages"
+        className="flex max-h-[85dvh] w-full max-w-2xl flex-col overflow-hidden rounded-xl border border-border bg-surface-raised shadow-lg"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Search Input Bar */}
-        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-border/60 bg-muted/20">
-          <Search className="size-4 text-muted-foreground shrink-0" />
+        <div className="flex items-center gap-3 border-b border-border px-4 py-2">
+          <Search className="size-4 shrink-0 text-fg-muted" aria-hidden />
           <input
             type="text"
             autoFocus
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search admin operations, routes, tools, or shortcuts..."
-            className="flex-1 bg-transparent text-sm font-medium text-foreground placeholder:text-muted-foreground/70 outline-none"
+            placeholder="Search admin pages"
+            aria-label="Search admin pages"
+            className="h-11 flex-1 bg-transparent text-base text-fg outline-none placeholder:text-fg-subtle sm:text-sm"
           />
           {query && (
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon-sm"
               onClick={() => setQuery("")}
-              className="text-muted-foreground hover:text-foreground p-1"
+              aria-label="Clear search"
             >
-              <X className="size-3.5" />
-            </button>
+              <X aria-hidden />
+            </Button>
           )}
-          <span className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-mono font-semibold text-muted-foreground bg-muted/60 border border-border/40 rounded">
-            ESC
-          </span>
+          <kbd className="hidden rounded-sm border border-border px-1.5 py-0.5 font-mono text-xs text-fg-muted sm:inline-flex">
+            Esc
+          </kbd>
         </div>
 
-        {/* Results List */}
-        <div className="flex-1 overflow-y-auto p-2 space-y-1">
+        <div className="flex-1 space-y-1 overflow-y-auto p-2" role="listbox" aria-label="Admin pages">
           {filteredItems.length === 0 ? (
-            <div className="py-12 text-center text-xs text-muted-foreground">
-              No admin operational areas match &ldquo;{query}&rdquo;
-            </div>
+            <p className="py-12 text-center text-sm text-fg-muted">
+              No admin page matches &ldquo;{query}&rdquo;. Try another word.
+            </p>
           ) : (
             filteredItems.map((item, index) => {
               const Icon = item.icon;
@@ -136,57 +137,34 @@ export function AdminGlobalSearch({ isOpen, onClose }: AdminGlobalSearchProps) {
                 <button
                   key={item.id}
                   type="button"
+                  role="option"
+                  aria-selected={isSelected}
                   onClick={() => {
                     router.push(item.href);
                     onClose();
                   }}
                   onMouseEnter={() => setSelectedIndex(index)}
                   className={cn(
-                    "w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-left transition-colors cursor-pointer",
-                    isSelected
-                      ? "bg-primary text-primary-foreground"
-                      : "hover:bg-muted/50 text-foreground"
+                    "flex min-h-11 w-full cursor-pointer items-center justify-between gap-3 rounded-md px-3 py-2 text-left text-fg transition-ui",
+                    isSelected ? "bg-brand-subtle" : "hover:bg-surface-muted"
                   )}
                 >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div
-                      className={cn(
-                        "size-8 rounded-lg flex items-center justify-center shrink-0 border transition-colors",
-                        isSelected
-                          ? "bg-primary-foreground/15 border-primary-foreground/20 text-primary-foreground"
-                          : "bg-muted/40 border-border/40 text-muted-foreground"
-                      )}
-                    >
-                      <Icon className="size-4" />
-                    </div>
+                  <div className="flex min-w-0 items-center gap-3">
+                    <Icon
+                      className={cn("size-4 shrink-0", isSelected ? "text-brand-text" : "text-fg-muted")}
+                    />
                     <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold truncate">{item.title}</span>
-                        <span
-                          className={cn(
-                            "text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded border shrink-0",
-                            isSelected
-                              ? "bg-primary-foreground/20 border-primary-foreground/30 text-primary-foreground"
-                              : "bg-muted/60 border-border/40 text-muted-foreground"
-                          )}
-                        >
-                          {item.category}
-                        </span>
-                      </div>
-                      <p
-                        className={cn(
-                          "text-[11px] truncate",
-                          isSelected ? "text-primary-foreground/80" : "text-muted-foreground"
-                        )}
-                      >
-                        {item.description}
+                      <p className="truncate text-sm font-semibold">
+                        {item.title} <span className="font-normal text-fg-subtle">· {item.category}</span>
                       </p>
+                      <p className="truncate text-xs text-fg-muted">{item.description}</p>
                     </div>
                   </div>
                   <ArrowRight
+                    aria-hidden
                     className={cn(
-                      "size-3.5 shrink-0 transition-transform",
-                      isSelected ? "translate-x-0.5 text-primary-foreground" : "opacity-0"
+                      "size-4 shrink-0 text-brand-text",
+                      isSelected ? "opacity-100" : "opacity-0"
                     )}
                   />
                 </button>
@@ -195,20 +173,19 @@ export function AdminGlobalSearch({ isOpen, onClose }: AdminGlobalSearchProps) {
           )}
         </div>
 
-        {/* Modal Footer Controls */}
-        <div className="px-4 py-2 border-t border-border/60 bg-muted/15 flex items-center justify-between text-[11px] text-muted-foreground">
+        <div className="hidden items-center justify-between border-t border-border px-4 py-2 text-xs text-fg-muted sm:flex">
           <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1 font-mono">
-              <span className="px-1 py-0.5 bg-muted rounded border border-border/40 text-[10px]">↑</span>
-              <span className="px-1 py-0.5 bg-muted rounded border border-border/40 text-[10px]">↓</span>
-              <span>to navigate</span>
+            <span className="flex items-center gap-1">
+              <ArrowUp className="size-3.5" aria-hidden />
+              <ArrowDown className="size-3.5" aria-hidden />
+              to move
             </span>
-            <span className="flex items-center gap-1 font-mono">
-              <span className="px-1 py-0.5 bg-muted rounded border border-border/40 text-[10px]">↵</span>
-              <span>to select</span>
+            <span className="flex items-center gap-1">
+              <CornerDownLeft className="size-3.5" aria-hidden />
+              to open
             </span>
           </div>
-          <span>{filteredItems.length} destinations</span>
+          <span>{filteredItems.length} pages</span>
         </div>
       </div>
     </div>

@@ -1,72 +1,79 @@
-import { and, desc, eq } from "drizzle-orm";
-import { NextResponse } from "next/server";
+import { desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
-import { posts } from "@/db/schema";
+import { externalPosts, posts, userProfiles } from "@/db/schema";
+import { SITE_NAME, SITE_URL } from "@/lib/seo/constants";
+import { indexablePostsWhere } from "@/lib/seo/public-posts";
+import { escapeXml } from "@/lib/seo/sitemap";
 
-export async function GET() {
-  try {
-    const db = getDb();
-    const list = await db.query.posts.findMany({
-      where: and(eq(posts.isAnonymous, false), eq(posts.status, "PUBLISHED")),
-      orderBy: [desc(posts.createdAt)],
-      limit: 20,
-      with: {
-        author: true,
-        institution: true,
-      },
-    });
+type FeedItem = { id: string; title: string | null; body: string; createdAt: Date; username: string | null };
 
-    let items = "";
-    for (const item of list) {
-      const title = item.title || `Post by @${item.author?.username || "student"}`;
-      const description = item.body.replace(/[<>&'"]/g, (c) => {
-        switch (c) {
-          case "<":
-            return "&lt;";
-          case ">":
-            return "&gt;";
-          case "&":
-            return "&amp;";
-          case "'":
-            return "&apos;";
-          case '"':
-            return "&quot;";
-          default:
-            return c;
-        }
-      });
+function firstLine(text: string, max = 90): string {
+  const line =
+    text
+      .split("\n")
+      .find((l) => l.trim())
+      ?.trim() ?? "";
+  return line.length > max ? `${line.slice(0, max - 1)}…` : line;
+}
 
-      items += `
+function buildRss(items: FeedItem[]): string {
+  const body = items
+    .map((item) => {
+      const link = `${SITE_URL}/post/${item.id}`;
+      const title = item.title?.trim() || firstLine(item.body) || `Post by @${item.username ?? "student"}`;
+      return `
     <item>
-      <title>${title}</title>
-      <link>https://campusloop.space/post/${item.id}</link>
-      <guid>https://campusloop.space/post/${item.id}</guid>
+      <title>${escapeXml(title)}</title>
+      <link>${link}</link>
+      <guid isPermaLink="true">${link}</guid>
       <pubDate>${new Date(item.createdAt).toUTCString()}</pubDate>
-      <description>${description}</description>
+      <description>${escapeXml(item.body.slice(0, 1000))}</description>
     </item>`;
-    }
+    })
+    .join("");
 
-    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+  return `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>CampusLoop Public Feed</title>
-    <link>https://campusloop.space</link>
-    <description>Latest public discussions and campus updates from CampusLoop.</description>
-    <language>en-us</language>
-    <atom:link href="https://campusloop.space/feed.xml" rel="self" type="application/rss+xml" />${items}
+    <title>${SITE_NAME}: latest public posts</title>
+    <link>${SITE_URL}</link>
+    <description>Recent public posts from students on ${SITE_NAME}.</description>
+    <language>en-in</language>
+    <atom:link href="${SITE_URL}/feed.xml" rel="self" type="application/rss+xml" />${body}
   </channel>
 </rss>`;
+}
 
-    return new NextResponse(xml, {
-      headers: {
-        "Content-Type": "application/xml",
-        "Cache-Control": "public, max-age=600, s-maxage=1200",
-      },
-    });
+function rssResponse(xml: string, maxAge: number) {
+  return new Response(xml, {
+    headers: {
+      "Content-Type": "application/rss+xml; charset=utf-8",
+      "Cache-Control": `public, max-age=${maxAge}, s-maxage=${maxAge * 2}`,
+    },
+  });
+}
+
+/** Public RSS feed. Uses the same filter as the posts sitemap, so nothing anonymous leaks. */
+export async function GET() {
+  try {
+    const rows = await getDb()
+      .select({
+        id: posts.id,
+        title: posts.title,
+        body: posts.body,
+        createdAt: posts.createdAt,
+        username: userProfiles.username,
+      })
+      .from(posts)
+      .leftJoin(externalPosts, eq(externalPosts.postId, posts.id))
+      .leftJoin(userProfiles, eq(userProfiles.id, posts.authorId))
+      .where(indexablePostsWhere())
+      .orderBy(desc(posts.createdAt))
+      .limit(20);
+    return rssResponse(buildRss(rows), 600);
   } catch (error) {
     console.error("RSS feed error:", error);
-    return new NextResponse('<rss version="2.0"><channel></channel></rss>', {
-      headers: { "Content-Type": "application/xml" },
-    });
+    // Still a valid, empty channel so feed readers do not mark it broken.
+    return rssResponse(buildRss([]), 120);
   }
 }

@@ -123,7 +123,7 @@ export function CommunityEmbed({ slugOrId }: CommunityEmbedProps) {
   return (
     <div
       onClick={handleCardClick}
-      className="mt-3.5 block overflow-hidden rounded-3xl border border-border/60 bg-card p-4 sm:p-5 shadow-md space-y-4 select-none cursor-pointer group/comm hover:border-primary/40 hover:shadow-lg transition-colors no-card-nav"
+      className="mt-3.5 block overflow-hidden rounded-3xl border border-border bg-card p-4 sm:p-5 shadow-md space-y-4 select-none cursor-pointer group/comm hover:border-primary/40 hover:shadow-lg transition-colors no-card-nav"
       data-no-nav="true"
     >
       {/* Top Row: Community Icon, Badge, Share, Title & Description */}
@@ -145,25 +145,27 @@ export function CommunityEmbed({ slugOrId }: CommunityEmbedProps) {
         {/* Info Column */}
         <div className="flex-1 min-w-0 space-y-1">
           <div className="flex items-center justify-between gap-2">
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
               Community
             </span>
             <button
               type="button"
               onClick={handleShare}
-              className="size-8 rounded-full border border-border/60 hover:border-border bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
-              title="Share Community"
+              className="size-10 rounded-full border border-border hover:border-border bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
+              title="Share community"
               aria-label="Share community"
             >
               <Share2 className="size-3.5" />
             </button>
           </div>
 
-          <h3 className="font-black text-base sm:text-lg text-foreground tracking-tight leading-snug truncate group-hover/comm:text-primary transition-colors">
+          <h3 className="font-bold text-base sm:text-lg text-foreground tracking-tight leading-snug truncate group-hover/comm:text-primary transition-colors">
             {community.name}
           </h3>
 
-          <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">{community.description}</p>
+          <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+            {community.description}
+          </p>
         </div>
       </div>
 
@@ -206,7 +208,7 @@ export function CommunityEmbed({ slugOrId }: CommunityEmbedProps) {
           {community.tags.map((tag) => (
             <span
               key={tag}
-              className="rounded-full border border-border/60 bg-muted/30 px-3 py-1 text-[11px] sm:text-xs font-semibold text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-default"
+              className="rounded-full border border-border bg-muted/30 px-3 py-1 text-xs sm:text-xs font-semibold text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-default"
             >
               {tag}
             </span>
@@ -215,7 +217,7 @@ export function CommunityEmbed({ slugOrId }: CommunityEmbedProps) {
       )}
 
       {/* Bottom Row: Link Capsule Bar */}
-      <div className="rounded-2xl border border-border/60 bg-muted/30 hover:bg-muted/50 transition-colors px-3.5 py-2.5 flex items-center justify-between group/link">
+      <div className="rounded-2xl border border-border bg-muted/30 hover:bg-muted/50 transition-colors px-3.5 py-2.5 flex items-center justify-between group/link">
         <div className="flex items-center gap-2 min-w-0 text-xs font-medium">
           <Link2 className="size-3.5 text-muted-foreground shrink-0" />
           <span className="font-semibold text-foreground truncate">campusloop.space</span>

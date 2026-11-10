@@ -10,14 +10,14 @@ export async function generateMetadata({ params }: ProfileDetailProps): Promise<
   const { username } = await params;
   return {
     title: `@${username}`,
-    description: `View @${username}'s student profile on CampusLoop.`,
     robots: { index: false, follow: true },
   };
 }
 
+/** Old URL. Profiles live at /@username. */
 export default async function LegacyProfileRedirectPage({ params, searchParams }: ProfileDetailProps) {
   const { username } = await params;
   const search = await searchParams;
-  const tab = search?.tab;
-  redirect(tab ? `/@${username}?tab=${tab}` : `/@${username}`);
+  const tab = typeof search?.tab === "string" ? search.tab : undefined;
+  redirect(tab ? `/@${username}?tab=${encodeURIComponent(tab)}` : `/@${username}`);
 }

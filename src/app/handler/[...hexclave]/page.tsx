@@ -1,13 +1,12 @@
-import { HexclaveHandler } from "@hexclave/next";
+import { HexclaveHandler, HexclaveTheme } from "@hexclave/next";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AuthStateCleaner } from "@/components/auth/auth-state-cleaner";
+import { AUTH_THEME } from "@/components/auth/auth-theme";
 import { sanitizeReturnTo } from "@/lib/auth-redirect";
+import { privateMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Authentication | CampusLoop",
-  robots: { index: false, follow: false },
-};
+export const metadata: Metadata = privateMetadata("Sign in");
 
 export default async function Handler({
   params,
@@ -24,17 +23,13 @@ export default async function Handler({
       ? resolvedSearchParams.after_auth_return_to
       : undefined;
   const rawReturnTo =
-    typeof resolvedSearchParams?.returnTo === "string"
-      ? resolvedSearchParams.returnTo
-      : undefined;
+    typeof resolvedSearchParams?.returnTo === "string" ? resolvedSearchParams.returnTo : undefined;
 
   const hexclaveParts = resolvedParams?.hexclave || [];
 
   // Intercept sign-out / logout paths to prevent Hexclave server-component sign-out crashes
   if (
-    hexclaveParts.some((part) =>
-      ["sign-out", "signout", "logout", "log-out"].includes(part.toLowerCase())
-    )
+    hexclaveParts.some((part) => ["sign-out", "signout", "logout", "log-out"].includes(part.toLowerCase()))
   ) {
     const rawReturnTo =
       typeof resolvedSearchParams?.returnTo === "string"
@@ -78,7 +73,9 @@ export default async function Handler({
   return (
     <>
       <AuthStateCleaner />
-      <HexclaveHandler fullPage />
+      <HexclaveTheme theme={AUTH_THEME}>
+        <HexclaveHandler fullPage />
+      </HexclaveTheme>
     </>
   );
 }

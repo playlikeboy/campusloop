@@ -5,6 +5,7 @@ import { getDb } from "@/db";
 import { posts, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { deriveAnonHandle } from "@/lib/anonymity";
+import { privateMetadata } from "@/lib/seo";
 import { isViewerProfile } from "@/lib/viewer";
 import { PostEditClient } from "./post-edit-client";
 
@@ -12,19 +13,8 @@ interface EditPostPageProps {
   params: Promise<{ id: string }>;
 }
 
-export async function generateMetadata({ params }: EditPostPageProps): Promise<Metadata> {
-  const { id } = await params;
-  return {
-    title: "Edit Post",
-    description: "Edit your post on CampusLoop campus social network.",
-    robots: {
-      index: false,
-      follow: false,
-    },
-    alternates: {
-      canonical: `/post/${id}/edit`,
-    },
-  };
+export async function generateMetadata(): Promise<Metadata> {
+  return privateMetadata("Edit post");
 }
 
 export default async function EditPostPage({ params }: EditPostPageProps) {
@@ -74,7 +64,7 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen border-x border-border/30 bg-background pb-20">
+    <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen border-x border-border bg-background pb-20">
       <PostEditClient post={post} currentUserId={profile.id} />
     </main>
   );

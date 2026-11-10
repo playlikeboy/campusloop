@@ -1,144 +1,57 @@
 "use client";
 
-import {
-  Award,
-  CheckCircle2,
-  Crown,
-  Flame,
-  Lock,
-  Sparkles,
-  Star,
-  Trophy,
-  Zap,
-} from "lucide-react";
-import { STREAK_MILESTONES } from "@/constants/streaks";
+import { ChevronRight } from "lucide-react";
+import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useStreaks } from "@/hooks/use-streaks";
 import { cn } from "@/lib/utils";
+import { StreakWeek } from "./streak-week";
 
 interface ProfileStreakCardProps {
   className?: string;
   profileId?: string;
 }
 
-const MILESTONE_ICONS: Record<string, typeof Flame> = {
-  Seedling: Sparkles,
-  Flame: Flame,
-  Zap: Zap,
-  Star: Star,
-  Award: Award,
-  Crown: Crown,
-  Trophy: Trophy,
-  Sparkles: Sparkles,
-};
-
+/** Calm streak summary: current run, best run and the last 7 days. */
 export function ProfileStreakCard({ className, profileId }: ProfileStreakCardProps) {
-  const { streak, isLoading } = useStreaks(profileId);
+  const { streak, isLoading, isError } = useStreaks(profileId);
 
-  if (isLoading || !streak) {
+  if (isLoading) {
+    return <Skeleton className={cn("h-44 rounded-lg", className)} />;
+  }
+  if (isError || !streak) {
     return (
-      <div className={cn("rounded-2xl border border-border/40 bg-card/60 p-5 space-y-4 animate-pulse", className)}>
-        <div className="h-5 w-32 rounded bg-muted/60" />
-        <div className="grid grid-cols-3 gap-3">
-          <div className="h-16 rounded-xl bg-muted/40" />
-          <div className="h-16 rounded-xl bg-muted/40" />
-          <div className="h-16 rounded-xl bg-muted/40" />
-        </div>
-      </div>
+      <p className={cn("rounded-lg border border-border bg-surface p-4 text-sm text-fg-muted", className)}>
+        Couldn't load the streak. Try again in a minute.
+      </p>
     );
   }
 
-  const { currentStreak, longestStreak, totalQualifiedDays, isSafeToday } = streak;
-  const displayStreak = Math.max(1, currentStreak);
-  const displayLongest = Math.max(1, longestStreak);
+  const { currentStreak, longestStreak, isSafeToday, weeklyTracker } = streak;
+  const href = profileId ? `/streaks?profileId=${encodeURIComponent(profileId)}` : "/streaks";
 
   return (
-    <div className={cn("rounded-2xl border border-border/40 bg-card/60 p-5 space-y-5", className)}>
-      {/* ─── Header ─── */}
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-reward/15 text-reward-text">
-            <Flame className="size-4.5 fill-reward/20 text-reward-text" />
-          </div>
-          <div>
-            <h3 className="text-sm font-black text-foreground">Campus Streak &amp; Milestones</h3>
-            <p className="text-xs text-muted-foreground font-medium">Daily authentic campus engagement</p>
-          </div>
+    <section className={cn("space-y-4 rounded-lg border border-border bg-surface p-4", className)}>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-lg text-fg">
+            {currentStreak} {currentStreak === 1 ? "day" : "days"} in a row
+          </h2>
+          <p className="text-sm text-fg-muted">
+            Best: {longestStreak} {longestStreak === 1 ? "day" : "days"}
+          </p>
         </div>
-
-        {isSafeToday && (
-          <span className="inline-flex items-center gap-1 rounded-md bg-success/15 px-2 py-0.5 text-xs font-bold text-success">
-            <CheckCircle2 className="size-3 text-success" />
-            <span>Safe Today</span>
-          </span>
-        )}
+        {isSafeToday && <Badge variant="verified">Streak safe today</Badge>}
       </div>
-
-      {/* ─── 3 Symmetrical Stat Counters ─── */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="rounded-xl border border-border/30 bg-background/60 p-3 text-center space-y-0.5">
-          <div className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
-            {displayStreak}
-          </div>
-          <div className="text-xs text-muted-foreground font-semibold">Active Streak</div>
-        </div>
-
-        <div className="rounded-xl border border-border/30 bg-background/60 p-3 text-center space-y-0.5">
-          <div className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
-            {displayLongest}
-          </div>
-          <div className="text-xs text-muted-foreground font-semibold">Longest Run</div>
-        </div>
-
-        <div className="rounded-xl border border-border/30 bg-background/60 p-3 text-center space-y-0.5">
-          <div className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
-            {totalQualifiedDays}
-          </div>
-          <div className="text-xs text-muted-foreground font-semibold">Total Days</div>
-        </div>
-      </div>
-
-      {/* ─── Milestones Ladder ─── */}
-      <div className="space-y-2.5">
-        <span className="text-xs font-bold text-muted-foreground">
-          Milestone Progression
-        </span>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-          {STREAK_MILESTONES.slice(0, 8).map((m) => {
-            const isUnlocked = longestStreak >= m.days;
-            const Icon = MILESTONE_ICONS[m.iconName] || Sparkles;
-
-            return (
-              <div
-                key={m.days}
-                className={cn(
-                  "flex items-center gap-2.5 p-2.5 rounded-xl border transition-colors select-none",
-                  isUnlocked
-                    ? "border-primary/25 bg-primary/[0.04] text-foreground"
-                    : "border-border/30 bg-muted/20 opacity-60 text-muted-foreground"
-                )}
-                title={m.description}
-              >
-                <div
-                  className={cn(
-                    "flex size-8 shrink-0 items-center justify-center rounded-lg",
-                    isUnlocked ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"
-                  )}
-                >
-                  {isUnlocked ? <Icon className="size-4" /> : <Lock className="size-3.5" />}
-                </div>
-
-                <div className="min-w-0 flex-1 space-y-0.5">
-                  <div className="truncate text-xs font-bold text-foreground">{m.title}</div>
-                  <div className="text-[11px] font-semibold text-muted-foreground">
-                    {m.days} Days · +{m.points} LP
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </div>
+      <StreakWeek days={weeklyTracker} />
+      <Link
+        href={href}
+        className="flex min-h-11 items-center justify-between rounded-md text-sm font-semibold text-brand-text outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        See full streak
+        <ChevronRight aria-hidden="true" className="size-4" />
+      </Link>
+    </section>
   );
 }

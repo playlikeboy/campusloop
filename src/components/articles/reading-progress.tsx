@@ -27,10 +27,11 @@ export function ReadingProgress() {
   }, []);
 
   return (
-    <div
-      aria-hidden="true"
-      className="fixed top-14 left-0 h-0.5 bg-primary z-50 transition-ui duration-75 pointer-events-none"
-      style={{ width: `${progress}%` }}
-    />
+    <div aria-hidden="true" className="pointer-events-none fixed inset-x-0 top-14 z-50 h-1 bg-poll-track">
+      <div
+        className="h-full origin-left rounded-r-full bg-brand"
+        style={{ transform: `scaleX(${progress / 100})` }}
+      />
+    </div>
   );
 }

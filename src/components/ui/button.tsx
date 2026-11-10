@@ -10,8 +10,8 @@ const FOCUS =
 
 const buttonVariants = cva(
   cn(
-    "group/button inline-flex shrink-0 cursor-pointer items-center justify-center rounded-md border border-transparent font-semibold whitespace-nowrap select-none",
-    "transition-colors duration-(--dur-base) ease-(--ease-standard) active:scale-[0.98]",
+    "group/button inline-flex shrink-0 cursor-pointer items-center justify-center rounded-full border border-transparent font-semibold whitespace-nowrap select-none",
+    "transition-ui active:scale-[0.97]",
     FOCUS,
     "disabled:pointer-events-none disabled:opacity-50 aria-busy:pointer-events-none",
     "aria-invalid:border-danger aria-invalid:ring-2 aria-invalid:ring-danger/30",
@@ -26,23 +26,27 @@ const buttonVariants = cva(
           "border-border bg-surface text-fg hover:bg-surface-muted data-[active=true]:border-brand data-[active=true]:bg-brand-subtle data-[active=true]:text-brand-text",
         ghost:
           "text-fg hover:bg-surface-muted data-[active=true]:bg-brand-subtle data-[active=true]:text-brand-text",
-        danger: "bg-danger text-danger-fg hover:opacity-90 focus-visible:ring-danger",
-        crush: "bg-crush text-crush-fg hover:opacity-90 focus-visible:ring-crush",
+        danger: "bg-danger text-danger-fg hover:bg-danger/90 focus-visible:ring-danger",
+        crush: "bg-crush text-crush-fg hover:bg-crush/90 focus-visible:ring-crush",
         link: "h-auto rounded-none px-0 text-brand-text underline-offset-4 hover:underline active:scale-100",
-        success: "bg-success text-success-fg hover:opacity-90 focus-visible:ring-success",
+        success: "bg-success text-success-fg hover:bg-success/90 focus-visible:ring-success",
         pill: "rounded-full bg-surface-muted text-fg hover:bg-surface-sunken data-[active=true]:bg-brand-subtle data-[active=true]:text-brand-text",
         pillTab:
           "rounded-full bg-surface-muted text-fg-muted hover:text-fg data-[active=true]:bg-surface data-[active=true]:text-fg data-[active=true]:shadow-xs",
-        circleIcon: "rounded-full border-border bg-surface text-fg-muted hover:bg-surface-muted hover:text-fg",
+        circleIcon:
+          "rounded-full border-border bg-surface text-fg-muted hover:bg-surface-muted hover:text-fg",
+        /** White sticker button for use on a violet story field. */
+        onField:
+          "bg-sticker text-brand-text shadow-sticker hover:bg-brand-subtle focus-visible:ring-story-field-fg focus-visible:ring-offset-story-field",
       },
       size: {
         md: "h-11 min-h-11 gap-2 px-4 text-sm",
-        sm: "h-9 min-h-9 gap-1.5 px-3 text-sm [&_svg:not([class*='size-'])]:size-3.5",
+        sm: "h-9 min-h-9 gap-1.5 px-3 text-sm pointer-coarse:h-11 pointer-coarse:min-h-11 [&_svg:not([class*='size-'])]:size-3.5",
         xs: "h-7 min-h-7 gap-1 px-2.5 text-xs [&_svg:not([class*='size-'])]:size-3",
         lg: "h-13 min-h-13 gap-2.5 px-6 text-base",
         icon: "size-11 min-h-11 min-w-11",
-        "icon-sm": "size-9 min-h-9 min-w-9",
-        "icon-xs": "size-7 min-h-7 min-w-7 rounded-sm",
+        "icon-sm": "size-9 min-h-9 min-w-9 pointer-coarse:size-11 pointer-coarse:min-h-11 pointer-coarse:min-w-11",
+        "icon-xs": "size-7 min-h-7 min-w-7",
         "icon-lg": "size-13 min-h-13 min-w-13",
       },
     },
@@ -89,7 +93,10 @@ function resolveSize(s?: ButtonSize | null): CanonicalSize {
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, loading = false, selected, disabled, children, ...props }, ref) => {
+  (
+    { className, variant, size, asChild = false, loading = false, selected, disabled, children, ...props },
+    ref
+  ) => {
     const classes = cn(
       buttonVariants({ variant: resolveVariant(variant), size: resolveSize(size) }),
       className

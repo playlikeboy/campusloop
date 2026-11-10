@@ -1,11 +1,7 @@
-import type { Metadata } from "next";
+import { privateMetadata } from "@/lib/seo";
 import { MerchantStoreClient } from "./merchant-store-client";
 
-export const metadata: Metadata = {
-  title: "Store Settings | Merchant Portal",
-  description: "Configure store details, delivery radius, and prep timing.",
-  robots: { index: false, follow: false },
-};
+export const metadata = privateMetadata("Store details");
 
 export default function MerchantStorePage() {
   return <MerchantStoreClient />;

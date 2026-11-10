@@ -187,7 +187,7 @@ export function PullToRefresh({ onRefresh, children, disabled = false }: PullToR
           top: `calc(env(safe-area-inset-top, 0px) + ${Math.max(pullDistance * 0.85 + 12, 12)}px)`,
         }}
       >
-        <div className="flex size-10 items-center justify-center rounded-full bg-card/95 text-foreground border border-border/80 shadow-lg backdrop-blur-md">
+        <div className="flex size-10 items-center justify-center rounded-full bg-card text-foreground border border-border/80 shadow-lg">
           {isRefreshing ? (
             <Loader2 className="size-5 animate-spin text-primary" />
           ) : (

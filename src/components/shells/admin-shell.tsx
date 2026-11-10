@@ -1,6 +1,15 @@
 "use client";
 
-import { ArrowLeft, Ghost, Menu, PanelLeftClose, PanelLeftOpen, Search, Shield, ShieldAlert } from "lucide-react";
+import {
+  ArrowLeft,
+  Ghost,
+  Menu,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Search,
+  Shield,
+  ShieldAlert,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -51,13 +60,13 @@ export function AdminSidebar({ collapsed = false }: { collapsed?: boolean }) {
           )}
           aria-label={collapsed ? "Admin inbox" : undefined}
         >
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-brand-subtle text-brand-text">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-sm bg-surface-muted text-fg">
             <Shield className="size-4" aria-hidden="true" />
           </span>
           {!collapsed && (
             <span className="flex flex-col leading-tight">
               <span className="text-sm font-semibold">CampusLoop</span>
-              <span className="text-xs font-medium text-fg-muted">Admin console</span>
+              <span className="text-xs font-medium text-fg-muted">Admin</span>
             </span>
           )}
         </Link>
@@ -65,7 +74,9 @@ export function AdminSidebar({ collapsed = false }: { collapsed?: boolean }) {
         <nav aria-label="Admin" className="space-y-4">
           {ADMIN_NAV_SECTIONS.map((section) => (
             <div key={section.title} className="space-y-0.5">
-              {!collapsed && <p className="px-2.5 pb-1 text-xs font-semibold text-fg-subtle">{section.title}</p>}
+              {!collapsed && (
+                <p className="px-2.5 pb-1 text-xs font-semibold text-fg-subtle">{section.title}</p>
+              )}
               {section.items.map((item) => {
                 const Icon = item.icon;
                 const active = isAdminItemActive(pathname, item.href);
@@ -79,7 +90,9 @@ export function AdminSidebar({ collapsed = false }: { collapsed?: boolean }) {
                     className={cn(
                       "flex min-h-10 items-center rounded-md text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                       collapsed ? "mx-auto size-10 justify-center" : "gap-2.5 px-2.5",
-                      active ? "bg-brand-subtle text-brand-text" : "text-fg-muted hover:bg-surface-muted hover:text-fg"
+                      active
+                        ? "bg-brand-subtle text-brand-text"
+                        : "text-fg-muted hover:bg-surface-muted hover:text-fg"
                     )}
                   >
                     <Icon className="size-4 shrink-0" aria-hidden="true" />
@@ -137,7 +150,8 @@ export function AdminHeader({
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       const target = e.target as HTMLElement | null;
-      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) return;
+      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable))
+        return;
       if (e.key === "/" || ((e.metaKey || e.ctrlKey) && e.key === "k")) {
         e.preventDefault();
         setSearchOpen(true);
@@ -152,9 +166,14 @@ export function AdminHeader({
 
   return (
     <>
-      <header className="sticky top-0 z-[var(--z-sticky-nav)] flex h-14 items-center justify-between gap-3 border-b border-border bg-surface/95 px-[var(--gutter)] backdrop-blur">
+      <header className="sticky top-0 z-[var(--z-sticky-nav)] flex h-14 items-center justify-between gap-3 border-b border-border bg-surface px-[var(--gutter)]">
         <div className="flex min-w-0 items-center gap-2">
-          <button type="button" onClick={onOpenMobileDrawer} className={cn(iconButton, "-ml-2 md:hidden")} aria-label="Open admin menu">
+          <button
+            type="button"
+            onClick={onOpenMobileDrawer}
+            className={cn(iconButton, "-ml-2 md:hidden")}
+            aria-label="Open admin menu"
+          >
             <Menu className="size-5" />
           </button>
           <button
@@ -166,7 +185,10 @@ export function AdminHeader({
           >
             {collapsed ? <PanelLeftOpen className="size-4" /> : <PanelLeftClose className="size-4" />}
           </button>
-          <Link href="/admin" className="truncate text-sm font-semibold text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <Link
+            href="/admin"
+            className="truncate text-sm font-semibold text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
             Admin
           </Link>
           <span
@@ -197,7 +219,7 @@ export function AdminHeader({
           <Link
             href="/admin"
             className={cn(iconButton, "relative")}
-            aria-label={`${pendingReviewCount} items waiting in the inbox`}
+            aria-label={pendingReviewCount > 0 ? `Inbox, ${pendingReviewCount} waiting` : "Inbox"}
           >
             <ShieldAlert className="size-4" aria-hidden="true" />
             {pendingReviewCount > 0 && (
@@ -211,12 +233,16 @@ export function AdminHeader({
           </Link>
 
           <div className="flex items-center gap-2 border-l border-border pl-2">
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand-subtle text-xs font-semibold uppercase text-brand-text">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-muted text-xs font-semibold text-fg">
               {adminProfile?.displayName?.charAt(0) || "A"}
             </span>
             <span className="hidden flex-col leading-tight lg:flex">
-              <span className="max-w-32 truncate text-xs font-semibold text-fg">{adminProfile?.displayName || "Admin"}</span>
-              <span className="max-w-32 truncate text-xs text-fg-muted">{adminProfile?.role || "ADMIN"}</span>
+              <span className="max-w-32 truncate text-xs font-semibold text-fg">
+                {adminProfile?.displayName || "Admin"}
+              </span>
+              <span className="max-w-32 truncate text-xs text-fg-muted">
+                {adminProfile?.role === "ADMIN" || !adminProfile?.role ? "Admin" : adminProfile.role}
+              </span>
             </span>
           </div>
         </div>

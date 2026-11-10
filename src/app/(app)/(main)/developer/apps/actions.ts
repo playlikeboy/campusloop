@@ -22,18 +22,25 @@ async function owner() {
 }
 
 async function ownedApp(id: string, profileId: string) {
-  const app = await getDb().query.oauthClients.findFirst({ where: and(eq(oauthClients.id, id), eq(oauthClients.ownerProfileId, profileId)) });
+  const app = await getDb().query.oauthClients.findFirst({
+    where: and(eq(oauthClients.id, id), eq(oauthClients.ownerProfileId, profileId)),
+  });
   if (!app) throw new Error("App not found");
   return app;
 }
 
-export async function createOauthApp(raw: unknown): Promise<Result<{ clientId: string; secret: string | null }>> {
+export async function createOauthApp(
+  raw: unknown
+): Promise<Result<{ clientId: string; secret: string | null }>> {
   try {
     const profile = await owner();
     const v = validateAppInput(raw);
     if (!v.ok) return v;
     const db = getDb();
-    const [{ n }] = await db.select({ n: count() }).from(oauthClients).where(eq(oauthClients.ownerProfileId, profile.id));
+    const [{ n }] = await db
+      .select({ n: count() })
+      .from(oauthClients)
+      .where(eq(oauthClients.ownerProfileId, profile.id));
     if (Number(n) >= MAX_APPS) return { ok: false, error: `You can register up to ${MAX_APPS} apps.` };
     const id = newClientId();
     const secret = v.value.type === "CONFIDENTIAL" ? await newClientSecret() : null;
@@ -93,9 +100,13 @@ export async function rotateOauthSecret(id: string): Promise<Result<{ secret: st
   try {
     const profile = await owner();
     const app = await ownedApp(id, profile.id);
-    if (app.type !== "CONFIDENTIAL") return { ok: false, error: "Browser and mobile apps don't use a secret." };
+    if (app.type !== "CONFIDENTIAL")
+      return { ok: false, error: "Browser and mobile apps don't use a secret." };
     const s = await newClientSecret();
-    await getDb().update(oauthClients).set({ clientSecretHash: s.hash, secretLast4: s.last4, updatedAt: new Date() }).where(eq(oauthClients.id, app.id));
+    await getDb()
+      .update(oauthClients)
+      .set({ clientSecretHash: s.hash, secretLast4: s.last4, updatedAt: new Date() })
+      .where(eq(oauthClients.id, app.id));
     return { ok: true, secret: s.secret };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Could not rotate the secret" };
@@ -107,7 +118,8 @@ export async function deleteOauthApp(id: string): Promise<Result> {
   try {
     const profile = await owner();
     const app = await ownedApp(id, profile.id);
-    if (app.isFirstParty) return { ok: false, error: "Ecosystem apps can only be removed by CampusLoop admins." };
+    if (app.isFirstParty)
+      return { ok: false, error: "Ecosystem apps can only be removed by CampusLoop admins." };
     await getDb().delete(oauthClients).where(eq(oauthClients.id, app.id));
     revalidatePath("/developer");
     return { ok: true };

@@ -1,60 +1,34 @@
 import type { Metadata } from "next";
+import { breadcrumbJsonLd, buildMetadata } from "@/lib/seo";
+import { JsonLd } from "@/lib/seo/json-ld-script";
 import HashtagFeed from "./hashtag-feed";
 
 interface PageProps {
   params: Promise<{ tag: string }>;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { tag } = await params;
-  const title = `#${tag} Posts & Discussions`;
-  const description = `Explore trending student confessions, polls, and discussions for #${tag} on CampusLoop.`;
-  const url = `https://campusloop.space/hashtag/${encodeURIComponent(tag)}`;
+function readTag(raw: string): string {
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return raw;
+  }
+}
 
-  return {
-    title,
-    description,
-    keywords: [tag, `#${tag}`, "campus hashtag", "student discussions", "CampusLoop feed"],
-    alternates: { canonical: url },
-    openGraph: {
-      title,
-      description,
-      url,
-      siteName: "CampusLoop",
-      locale: "en_IN",
-      type: "website",
-      images: [
-        {
-          url: "https://campusloop.space/og-image.png",
-          width: 1200,
-          height: 630,
-          alt: title,
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: ["https://campusloop.space/og-image.png"],
-    },
-    robots: { index: true, follow: true },
-  };
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const tag = readTag((await params).tag);
+  return buildMetadata({
+    title: `#${tag}`,
+    description: `Posts, polls and questions tagged #${tag} by students on CampusLoop.`,
+    path: `/hashtag/${encodeURIComponent(tag)}`,
+  });
 }
 
 export default async function HashtagPage({ params }: PageProps) {
-  const { tag } = await params;
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    name: `#${tag} Discussions`,
-    url: `https://campusloop.space/hashtag/${encodeURIComponent(tag)}`,
-    description: `Student posts and campus threads tagged with #${tag}.`,
-  };
-
+  const tag = readTag((await params).tag);
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <JsonLd data={breadcrumbJsonLd([{ name: `#${tag}`, path: `/hashtag/${encodeURIComponent(tag)}` }])} />
       <HashtagFeed />
     </>
   );

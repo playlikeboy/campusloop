@@ -1,13 +1,12 @@
+import { ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { privateMetadata } from "@/lib/seo";
 import { isAllowedAdminEmail } from "../admin/_lib/session";
 import { AdminLoginForm } from "./login-form";
 
-export const metadata: Metadata = {
-  title: "Admin Portal | CampusLoop",
-  robots: { index: false, follow: false },
-};
+export const metadata: Metadata = privateMetadata("Admin sign in");
 
 export default async function AdminLoginPage() {
   const user = await hexclaveServerApp.getUser();
@@ -16,19 +15,19 @@ export default async function AdminLoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4">
-      <div className="w-full max-w-sm space-y-6 rounded-2xl border border-border bg-card p-6 shadow-lg">
-        <div className="text-center space-y-1.5">
-          <div className="mx-auto w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-            <span className="h-3 w-3 rounded-full bg-destructive animate-pulse" />
+    <main className="flex min-h-dvh flex-col items-center justify-center bg-bg px-4 py-12">
+      <div className="w-full max-w-sm rounded-xl border border-border bg-surface p-6 shadow-sm">
+        <div className="space-y-2 text-center">
+          <div className="mx-auto flex size-11 items-center justify-center rounded-full bg-brand-subtle text-brand-text">
+            <ShieldCheck className="size-5" aria-hidden />
           </div>
-          <h1 className="text-xl font-bold tracking-tight text-foreground">Admin Portal</h1>
-          <p className="text-xs text-muted-foreground">
-            Sign in with an authorized administrator account to access the moderation and management console.
-          </p>
+          <h1 className="text-2xl text-fg">Admin sign in</h1>
+          <p className="text-sm text-fg-muted">Only CampusLoop staff accounts can open the admin console.</p>
         </div>
-        <AdminLoginForm />
+        <div className="mt-6">
+          <AdminLoginForm />
+        </div>
       </div>
-    </div>
+    </main>
   );
 }

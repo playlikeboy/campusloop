@@ -4,12 +4,10 @@ import { redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { articles, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { privateMetadata } from "@/lib/seo";
 import { ArticleDashboardClient } from "./article-dashboard-client";
 
-export const metadata: Metadata = {
-  title: "My Articles & Drafts Dashboard",
-  description: "Manage your published student articles, drafts, and readership stats on CampusLoop.",
-};
+export const metadata: Metadata = privateMetadata("My articles");
 
 export default async function ArticleDashboardPage() {
   const user = await hexclaveServerApp.getUser();

@@ -1,8 +1,19 @@
-/* The base rules the Floor already decided. Lives in the base layer so utilities still win. */
-*, *::before, *::after { box-sizing: border-box; border-color: var(--border); }
-html, body { overflow-x: clip; width: 100%; max-width: 100%; }
+/* Floor rules every page gets. Lives in the base layer so utilities still win. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  border-color: var(--border);
+}
+html,
+body {
+  overflow-x: clip;
+  width: 100%;
+  max-width: 100%;
+}
 html {
-  scrollbar-color: var(--n-300) transparent;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+  scrollbar-width: thin;
   scroll-padding-top: 96px;
   touch-action: manipulation;
   -webkit-touch-callout: none;
@@ -21,44 +32,132 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-tap-highlight-color: transparent;
-  caret-color: var(--brand);
+  caret-color: var(--caret);
 }
-::selection { background: color-mix(in srgb, var(--brand) 22%, transparent); color: var(--fg); }
-:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; transition: none; }
-a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 0.16em; }
-h1, h2, h3, h4 {
+::selection {
+  background: var(--selection);
+  color: var(--fg);
+}
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  transition: none;
+}
+a {
+  color: inherit;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+h1,
+h2,
+h3,
+h4 {
   margin: 0;
   font-family: var(--font-display);
   font-weight: 700;
   font-synthesis: none;
   letter-spacing: var(--tracking-display);
+  line-height: 1.1;
   overflow-wrap: break-word;
   min-width: 0;
   text-wrap: balance;
 }
-p { margin: 0; text-wrap: pretty; }
-img, video { max-width: 100%; height: auto; }
-svg { display: inline-block; vertical-align: middle; }
-[hidden] { display: none !important; }
-button, input, select, textarea { font: inherit; }
-button, [role="button"], a { touch-action: manipulation; }
-input, textarea, [contenteditable="true"] { caret-color: var(--brand); }
-.num, .figure, td.num, [data-num] { font-variant-numeric: tabular-nums; }
-.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+h1,
+h2 {
+  font-weight: 800;
+  font-stretch: 88%;
+}
+p {
+  margin: 0;
+  text-wrap: pretty;
+}
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+svg {
+  display: inline-block;
+  vertical-align: middle;
+}
+[hidden] {
+  display: none !important;
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+button,
+[role="button"],
+a {
+  touch-action: manipulation;
+}
+input,
+textarea,
+[contenteditable="true"] {
+  caret-color: var(--caret);
+}
+input[type="range"],
+input[type="checkbox"],
+input[type="radio"],
+progress {
+  accent-color: var(--brand);
+}
+.num,
+.figure,
+td.num,
+[data-num],
+time {
+  font-variant-numeric: tabular-nums;
+}
+code,
+kbd,
+pre,
+samp {
+  font-family: var(--font-mono-custom), ui-monospace, monospace;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 
-/* Native scrollbars, themed */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--n-300); border-radius: 9999px; }
-.dark ::-webkit-scrollbar-thumb { background: var(--n-700); }
+/* Native scrollbars, themed from the palette */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}
 
 /* iOS zooms any field under 16px; inputs stay 16px on touch screens */
 @media (max-width: 768px) {
-  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea, select { font-size: 16px; }
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea,
+  select {
+    font-size: 16px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *:not(.keep-motion), *:not(.keep-motion)::before, *:not(.keep-motion)::after {
+  *:not(.keep-motion),
+  *:not(.keep-motion)::before,
+  *:not(.keep-motion)::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

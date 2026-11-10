@@ -20,6 +20,8 @@ import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import useSWR from "swr";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { buttonVariants } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   detectMentionTrigger,
   MentionSuggestions,
@@ -183,14 +185,16 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
 
     setIsUploadingImage(true);
     try {
-      toast.loading("Uploading attached image...", { id: "comment-img" });
+      toast.loading("Uploading photo…", { id: "comment-img" });
       const uploaded = await uploadImageToImgBB(validImageFiles[0]);
       const imgMarkdown = `\n![Image](${uploaded.displayUrl || uploaded.url})`;
       setCommentText((prev) => `${prev.trim()}${imgMarkdown}`);
-      toast.success("Image attached", { id: "comment-img" });
+      toast.success("Photo added", { id: "comment-img" });
       setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 50);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to upload image", { id: "comment-img" });
+      toast.error(err instanceof Error ? err.message : "Couldn't upload the photo. Try a smaller one.", {
+        id: "comment-img",
+      });
     } finally {
       setIsUploadingImage(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -223,7 +227,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
 
     const html = clipboardData.getData("text/html");
     if (html) {
-      const imgRegex = new RegExp("<" + "img[^>]+src=\"([^\">]+)\"", "i");
+      const imgRegex = new RegExp("<" + 'img[^>]+src="([^">]+)"', "i");
       const match = html.match(imgRegex);
       if (match && match[1] && /^https?:\/\//i.test(match[1])) {
         const imgSrc = match[1];
@@ -382,12 +386,12 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
 
       if (!res.ok) {
         const errData = (await res.json()) as { error?: string };
-        throw new Error(errData.error || "Failed to post comment");
+        throw new Error(errData.error || "Couldn't post your comment. Try again.");
       }
 
       await mutate();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not post comment");
+      toast.error(err instanceof Error ? err.message : "Couldn't post your comment. Try again.");
       mutate(currentList, false);
       onCommentCountChange?.(currentList.length);
     } finally {
@@ -463,8 +467,10 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
 
         const isOpA = Boolean(postAuthorId && a.authorId === postAuthorId);
         const isOpB = Boolean(postAuthorId && b.authorId === postAuthorId);
-        const scoreA = (isOpA ? 1000 : 0) + (a.likesCount || 0) * 10 + ((a.author?.points || 0) >= 150 ? 50 : 0);
-        const scoreB = (isOpB ? 1000 : 0) + (b.likesCount || 0) * 10 + ((b.author?.points || 0) >= 150 ? 50 : 0);
+        const scoreA =
+          (isOpA ? 1000 : 0) + (a.likesCount || 0) * 10 + ((a.author?.points || 0) >= 150 ? 50 : 0);
+        const scoreB =
+          (isOpB ? 1000 : 0) + (b.likesCount || 0) * 10 + ((b.author?.points || 0) >= 150 ? 50 : 0);
 
         if (scoreB !== scoreA) return scoreB - scoreA;
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
@@ -488,7 +494,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.16 }}
-            className="fixed inset-0 bg-black/75 backdrop-blur-md"
+            className="fixed inset-0 bg-overlay"
             onClick={onClose}
           />
 
@@ -498,7 +504,10 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 12 }}
             transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-            className="relative z-10 flex h-[84dvh] sm:h-[580px] max-h-[88dvh] w-full flex-col overflow-hidden rounded-t-xl sm:rounded-2xl border-t border-border sm:border sm:border-border bg-surface text-fg sm:max-w-lg"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="fast-comments-title"
+            className="relative z-10 flex h-[84dvh] sm:h-[580px] max-h-[88dvh] w-full flex-col overflow-hidden rounded-t-xl sm:rounded-xl bg-surface-raised text-fg shadow-lg sm:max-w-lg"
             onClick={(e: React.MouseEvent) => e.stopPropagation()}
           >
             {/* ─── Mobile Drag Indicator ─── */}
@@ -509,8 +518,10 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
             {/* ─── Minimal Header ─── */}
             <div className="flex items-center justify-between px-4 py-2.5 border-b border-border shrink-0">
               <div className="flex items-center gap-2">
-                <h3 className="text-sm sm:text-base font-bold text-fg tracking-tight">Comments</h3>
-                <span className="text-[11px] font-semibold text-fg-subtle bg-surface-muted px-2 py-0.5 rounded-full">
+                <h3 id="fast-comments-title" className="text-lg">
+                  Comments
+                </h3>
+                <span className="text-xs font-semibold text-fg-subtle bg-surface-muted px-2 py-0.5 rounded-full">
                   {displayCount}
                 </span>
               </div>
@@ -520,8 +531,8 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                 <button
                   type="button"
                   onClick={() => setSortMode((prev) => (prev === "best" ? "latest" : "best"))}
-                  className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-muted hover:bg-surface-muted border border-border text-[11px] font-semibold text-fg-subtle transition-colors cursor-pointer"
-                  title="Toggle comment sorting"
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-muted hover:bg-surface-muted border border-border text-xs font-semibold text-fg-subtle transition-colors cursor-pointer"
+                  title="Change sort order"
                 >
                   {sortMode === "best" ? (
                     <>
@@ -540,7 +551,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                 <button
                   type="button"
                   onClick={onClose}
-                  className="size-8 rounded-full bg-surface-muted hover:bg-surface-muted text-fg-subtle hover:text-fg flex items-center justify-center transition-colors cursor-pointer"
+                  className="size-10 rounded-full bg-surface-muted hover:bg-surface-muted text-fg-subtle hover:text-fg flex items-center justify-center transition-colors cursor-pointer"
                   aria-label="Close comments"
                 >
                   <X className="size-4" />
@@ -574,20 +585,19 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                   ))}
                 </div>
               ) : rootComments.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-center py-16 px-4 space-y-2">
-                  <div className="size-11 rounded-2xl bg-surface-muted border border-border flex items-center justify-center text-fg-muted">
-                    <MessageCircle className="size-5 stroke-1" />
-                  </div>
-                  <p className="text-xs font-semibold text-fg-subtle">No comments yet</p>
-                  <p className="text-[11px] text-fg-muted max-w-xs">
-                    Be the first to share your thoughts with campus!
-                  </p>
-                </div>
+                <EmptyState
+                  size="compact"
+                  icon={MessageCircle}
+                  title="No comments yet"
+                  description="Say something first."
+                  className="h-full justify-center"
+                />
               ) : (
                 rootComments.map((rootComment) => {
                   const childReplies = repliesMap.get(rootComment.id) || [];
                   const isExpanded = Boolean(expandedReplies[rootComment.id]);
-                  const visibleReplies = isExpanded || childReplies.length <= 1 ? childReplies : childReplies.slice(0, 1);
+                  const visibleReplies =
+                    isExpanded || childReplies.length <= 1 ? childReplies : childReplies.slice(0, 1);
                   const remainingCount = childReplies.length - visibleReplies.length;
 
                   return (
@@ -624,7 +634,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                             <button
                               type="button"
                               onClick={() => toggleExpandReplies(rootComment.id)}
-                              className="flex items-center gap-2 py-1 text-[11px] font-semibold text-fg-subtle hover:text-fg transition-colors cursor-pointer"
+                              className="flex items-center gap-2 py-1 text-xs font-semibold text-fg-subtle hover:text-fg transition-colors cursor-pointer"
                             >
                               <div className="w-4 h-[1.5px] bg-border" />
                               <span>
@@ -637,7 +647,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                             <button
                               type="button"
                               onClick={() => toggleExpandReplies(rootComment.id)}
-                              className="flex items-center gap-2 py-1 text-[11px] font-semibold text-fg-subtle hover:text-fg transition-colors cursor-pointer"
+                              className="flex items-center gap-2 py-1 text-xs font-semibold text-fg-subtle hover:text-fg transition-colors cursor-pointer"
                             >
                               <div className="w-4 h-[1.5px] bg-border" />
                               <span>Hide replies</span>
@@ -656,7 +666,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
               {/* Replying Context Banner */}
               {replyingTo && (
                 <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-brand-subtle/40 border border-brand-subtle-border/20 text-xs">
-                  <span className="text-fg-subtle text-[11px] font-medium flex items-center gap-1.5">
+                  <span className="text-fg-subtle text-xs font-medium flex items-center gap-1.5">
                     <Reply className="size-3 text-brand-text shrink-0" />
                     <span>
                       Replying to <strong className="text-fg">@{replyingTo.handle}</strong>
@@ -673,18 +683,16 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
               )}
 
               {!profile ? (
-                <div className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-surface-muted border border-border w-full">
+                <div className="flex items-center justify-between gap-3 p-3 rounded-md bg-surface-muted w-full">
                   <div className="min-w-0">
-                    <p className="text-xs font-bold text-fg">Want to join the conversation?</p>
-                    <p className="text-[11px] text-fg-subtle">
-                      Sign in with your student email to reply and vote.
-                    </p>
+                    <p className="text-sm font-semibold text-fg">Sign in to comment</p>
+                    <p className="text-xs text-fg-subtle">Use your college email to reply and like.</p>
                   </div>
                   <Link
                     href={`/sign-in?returnTo=${typeof window !== "undefined" ? encodeURIComponent(window.location.pathname) : ""}`}
-                    className="px-3.5 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-opacity shrink-0"
+                    className={buttonVariants({ size: "sm", className: "shrink-0" })}
                   >
-                    Sign In
+                    Sign in
                   </Link>
                 </div>
               ) : (
@@ -692,7 +700,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                   {/* Current User Avatar */}
                   <Avatar className="size-8 rounded-full border border-border shrink-0">
                     <AvatarImage src={isAnonymous ? "" : profile?.avatarUrl || ""} />
-                    <AvatarFallback className="text-[10px] font-bold bg-surface-muted text-fg-subtle">
+                    <AvatarFallback className="text-xs font-bold bg-surface-muted text-fg-subtle">
                       {isAnonymous ? (
                         <VenetianMask className="size-4 text-brand-text" />
                       ) : (
@@ -724,10 +732,10 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                       type="text"
                       placeholder={
                         replyingTo
-                          ? `Reply to @${replyingTo.handle}...`
+                          ? `Reply to @${replyingTo.handle}…`
                           : isAnonymous
-                            ? "Comment anonymously..."
-                            : "Add a comment..."
+                            ? "Comment anonymously…"
+                            : "Add a comment…"
                       }
                       value={commentText}
                       onChange={handleInputChange}
@@ -765,7 +773,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                         toast.info(next ? "Commenting anonymously" : "Commenting publicly");
                       }}
                       className={cn(
-                        "flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold transition-colors cursor-pointer",
+                        "flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold transition-colors cursor-pointer",
                         isAnonymous
                           ? "bg-brand-subtle/80 text-brand-text border border-brand-subtle-border/40"
                           : "text-fg-subtle hover:text-fg"
@@ -859,7 +867,7 @@ function CommentRowItem({
             )}
           >
             <AvatarImage src={cAvatar} />
-            <AvatarFallback className="text-[10px] font-bold bg-surface-muted text-fg-subtle">
+            <AvatarFallback className="text-xs font-bold bg-surface-muted text-fg-subtle">
               {cDisplayName[0] || "U"}
             </AvatarFallback>
           </Avatar>
@@ -882,22 +890,22 @@ function CommentRowItem({
             )}
 
             {isCurrentUser && (
-              <span className="text-[9px] font-bold bg-brand-subtle/80 text-brand-text border border-brand-subtle-border/30 px-1.5 py-0.2 rounded-md">
+              <span className="text-xs font-bold bg-brand-subtle/80 text-brand-text border border-brand-subtle-border/30 px-1.5 py-0.2 rounded-md">
                 You
               </span>
             )}
             {isOP && !isCurrentUser && (
-              <span className="text-[9px] font-bold bg-brand-subtle/80 text-brand-text border border-brand-subtle-border/30 px-1.5 py-0.2 rounded-md">
+              <span className="text-xs font-bold bg-brand-subtle/80 text-brand-text border border-brand-subtle-border/30 px-1.5 py-0.2 rounded-md">
                 Author
               </span>
             )}
 
-            <span className="text-[11px] text-fg-muted">{formatTimeAgo(comment.createdAt)}</span>
+            <span className="text-xs text-fg-muted">{formatTimeAgo(comment.createdAt)}</span>
           </div>
 
           {/* Pinned by Author Badge */}
           {comment.isPinned && !isReply && (
-            <div className="flex items-center gap-1 text-[10px] font-semibold text-warning bg-warning/10 rounded px-1.5 py-0.5 border border-warning/20 w-fit shrink-0">
+            <div className="flex items-center gap-1 text-xs font-semibold text-warning bg-warning/10 rounded px-1.5 py-0.5 border border-warning/20 w-fit shrink-0">
               <Pin className="size-2.5 fill-warning/30 rotate-45" />
               <span>Pinned</span>
             </div>
@@ -906,7 +914,7 @@ function CommentRowItem({
 
         {/* Replying to indicator */}
         {comment.replyToUser && (
-          <div className="text-[11px] text-fg-subtle font-medium">
+          <div className="text-xs text-fg-subtle font-medium">
             Replying to <span className="text-fg font-semibold">@{comment.replyToUser.username}</span>
           </div>
         )}
@@ -945,7 +953,7 @@ function CommentRowItem({
               const base = comment.likesCount || 0;
               const count = base + (isLiked && !comment.hasLiked ? 1 : !isLiked && comment.hasLiked ? -1 : 0);
               return count > 0 ? (
-                <span className="tabular-nums text-[11px] text-danger font-bold">{count}</span>
+                <span className="tabular-nums text-xs text-danger font-bold">{count}</span>
               ) : null;
             })()}
           </button>

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Zap } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import useSWR from "swr";
 import { FollowButton } from "@/components/profile/follow-button";
@@ -39,7 +39,7 @@ export function FeedRecommendedUsers({ className }: FeedRecommendedUsersProps) {
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="w-44 shrink-0 snap-start rounded-2xl border border-border/40 bg-card p-3 space-y-2.5 shadow-2xs"
+              className="w-44 shrink-0 snap-start rounded-2xl border border-border bg-card p-3 space-y-2.5 shadow-2xs"
             >
               <div className="flex items-center gap-2.5">
                 <div className="size-10 rounded-full bg-muted/65 shimmer-effect shrink-0" />
@@ -63,25 +63,14 @@ export function FeedRecommendedUsers({ className }: FeedRecommendedUsersProps) {
 
   return (
     <div className={cn("py-3.5 px-4 space-y-3 select-none overflow-hidden max-w-full", className)}>
-      {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="flex size-6 items-center justify-center rounded-lg bg-primary/15 text-primary">
-            <Zap className="size-3.5" />
-          </div>
-          <div>
-            <h3 className="text-[14px] font-black text-foreground tracking-tight flex items-center gap-1.5">
-              People you might vibe with
-            </h3>
-          </div>
-        </div>
+        <h3 className="text-base">People you may know</h3>
         <Link
-          href="/dating"
-          className="text-xs font-bold text-primary hover:underline flex items-center gap-1 transition-colors"
-          title="Explore student vibe matches"
+          href="/explore"
+          className="inline-flex min-h-11 items-center gap-1 px-1 text-sm font-semibold text-brand-text hover:underline underline-offset-4"
         >
-          <span>Meet peers</span>
-          <ArrowRight className="size-3" />
+          See more
+          <ArrowRight className="size-4" aria-hidden />
         </Link>
       </div>
 
@@ -90,13 +79,13 @@ export function FeedRecommendedUsers({ className }: FeedRecommendedUsersProps) {
         {users.map((user) => (
           <div
             key={user.id}
-            className="w-48 sm:w-52 snap-start shrink-0 flex flex-col justify-between rounded-2xl border border-border/50 bg-card/90 p-3.5 shadow-2xs hover:border-border transition-ui group overflow-hidden"
+            className="w-48 sm:w-52 snap-start shrink-0 flex flex-col justify-between rounded-lg border border-border bg-surface p-3.5 overflow-hidden"
           >
             {/* Top Row: Avatar & Match Badge */}
             <div className="space-y-2">
               <div className="flex items-start justify-between gap-1.5 min-w-0">
                 <Link href={`/@${user.username}`} className="shrink-0">
-                  <Avatar className="size-11 rounded-full border border-border/60 group-hover:scale-105 transition-transform">
+                  <Avatar className="size-11 rounded-full border border-border transition-transform">
                     <AvatarImage src={user.avatarUrl || ""} alt={user.displayName} />
                     <AvatarFallback className="bg-muted text-foreground font-bold text-xs">
                       {user.displayName.slice(0, 2).toUpperCase()}
@@ -104,10 +93,10 @@ export function FeedRecommendedUsers({ className }: FeedRecommendedUsersProps) {
                   </Avatar>
                 </Link>
 
-                {/* Vibe Badge */}
+                {/* Why we suggest them */}
                 <span
                   title={user.matchReason}
-                  className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-black text-primary border border-primary/20 max-w-[110px] truncate shrink leading-tight"
+                  className="inline-flex items-center rounded-full bg-surface-muted px-2 py-0.5 text-xs font-medium text-fg-muted max-w-[110px] truncate shrink leading-tight"
                 >
                   <span className="truncate">{user.matchReason}</span>
                 </span>
@@ -117,15 +106,15 @@ export function FeedRecommendedUsers({ className }: FeedRecommendedUsersProps) {
               <div className="min-w-0">
                 <Link
                   href={`/@${user.username}`}
-                  className="font-bold text-xs text-foreground hover:underline truncate block"
+                  className="font-semibold text-sm text-fg hover:underline truncate block"
                 >
                   {user.displayName}
                 </Link>
-                <p className="text-[11px] text-muted-foreground truncate">@{user.username}</p>
+                <p className="text-xs text-muted-foreground truncate">@{user.username}</p>
 
                 {/* Institution / Branch subtitle */}
-                <p className="text-[10px] text-muted-foreground/80 truncate mt-1">
-                  {user.institution?.name?.split(",")[0] || "Verified Student"}
+                <p className="text-xs text-muted-foreground/80 truncate mt-1">
+                  {user.institution?.name?.split(",")[0] || "Student"}
                   {user.branch ? ` · ${user.branch.toUpperCase()}` : ""}
                 </p>
               </div>
@@ -138,7 +127,7 @@ export function FeedRecommendedUsers({ className }: FeedRecommendedUsersProps) {
                 displayName={user.displayName}
                 initialIsFollowing={user.isFollowing || false}
                 size="sm"
-                className="w-full justify-center text-xs py-1 h-7 rounded-full"
+                className="w-full justify-center"
               />
             </div>
           </div>

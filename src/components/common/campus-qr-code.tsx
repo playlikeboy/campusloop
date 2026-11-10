@@ -25,7 +25,7 @@ export async function generateBrandedQrDataUrl({
   logoUrl = "/logo.png",
   logoSize,
   // ds-allow: QR canvas export needs fixed scan-safe colours
-  darkColor = "#0f172a",
+  darkColor = "#15131D",
   // ds-allow: QR canvas export needs fixed scan-safe colours
   lightColor = "#ffffff",
 }: {
@@ -106,7 +106,7 @@ export function CampusQrCode({
   logoUrl = "/logo.png",
   logoSize,
   // ds-allow: QR canvas export needs fixed scan-safe colours
-  darkColor = "#0f172a",
+  darkColor = "#15131D",
   // ds-allow: QR canvas export needs fixed scan-safe colours
   lightColor = "#ffffff",
   className,
@@ -200,15 +200,15 @@ export function CampusQrCode({
   return (
     <div
       className={cn(
-        "relative inline-flex items-center justify-center rounded-2xl bg-surface p-2.5 transition-colors shadow-xs",
-        bordered && "border border-border/60",
+        "relative inline-flex items-center justify-center rounded-sticker bg-sticker p-2.5 transition-ui",
+        bordered && "border border-sticker-border",
         className
       )}
     >
       <canvas
         ref={canvasRef}
         style={{ width: size, height: size }}
-        className={cn("rounded-xl transition-opacity duration-300", isRendered ? "opacity-100" : "opacity-0")}
+        className={cn("rounded-sm transition-opacity duration-300", isRendered ? "opacity-100" : "opacity-0")}
       />
     </div>
   );

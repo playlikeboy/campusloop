@@ -32,7 +32,7 @@ export const LP_ACTION_REWARDS = {
   ACADEMIC_VOTE_RECEIVED: 2,
 
   // Longform Articles
-  PUBLISH_ARTICLE: 25,
+  PUBLISH_ARTICLE: 15,
   ARTICLE_UPVOTE_RECEIVED: 2,
 
   // Growth & Streaks

@@ -1,9 +1,12 @@
 "use client";
 
-import { ExternalLink, Link2, SkipForward, X } from "lucide-react";
+import { ExternalLink, Link2 } from "lucide-react";
 import { type RefObject, useEffect, useRef, useState } from "react";
 import { MarkdownContent } from "@/components/common/markdown-content";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { CourseLecture } from "@/db/schema";
+import { UpNext } from "./up-next";
 import { type PlayerHandle, YouTubePlayer } from "./youtube-player";
 
 interface Props {
@@ -16,36 +19,15 @@ interface Props {
   onNext: () => void;
 }
 
-/** Five-second "Up next" card after a video ends; cancellable. */
-function UpNext({ title, onGo, onCancel }: { title: string; onGo: () => void; onCancel: () => void }) {
-  const [left, setLeft] = useState(5);
-  useEffect(() => {
-    if (left <= 0) {
-      onGo();
-      return;
-    }
-    const t = setTimeout(() => setLeft((l) => l - 1), 1000);
-    return () => clearTimeout(t);
-  }, [left, onGo]);
-  return (
-    <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/80 p-6 text-white" role="dialog" aria-label="Up next">
-      <div className="max-w-sm text-center">
-        <p className="text-sm text-white/70">Up next in {left}s</p>
-        <p className="mt-1 text-lg font-bold">{title}</p>
-        <div className="mt-4 flex justify-center gap-2">
-          <button type="button" onClick={onGo} className="inline-flex h-10 items-center gap-1.5 rounded-full bg-white px-4 text-sm font-bold text-black cursor-pointer">
-            <SkipForward className="size-4" aria-hidden /> Play now
-          </button>
-          <button type="button" onClick={onCancel} className="inline-flex h-10 items-center gap-1.5 rounded-full bg-white/15 px-4 text-sm font-semibold cursor-pointer">
-            <X className="size-4" aria-hidden /> Cancel
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export function LectureMedia({ lecture, startAt, playerRef, nextTitle, onProgress, onComplete, onNext }: Props) {
+export function LectureMedia({
+  lecture,
+  startAt,
+  playerRef,
+  nextTitle,
+  onProgress,
+  onComplete,
+  onNext,
+}: Props) {
   const [ended, setEnded] = useState(false);
   const fileRef = useRef<HTMLVideoElement>(null);
   useEffect(() => setEnded(false), [lecture.id]);
@@ -57,10 +39,10 @@ export function LectureMedia({ lecture, startAt, playerRef, nextTitle, onProgres
 
   if (lecture.kind === "ARTICLE") {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-8 sm:px-8">
-        <h2 className="mb-6 text-2xl font-black text-foreground">{lecture.title}</h2>
+      <article className="mx-auto max-w-3xl px-4 py-8 sm:px-8">
+        <h2 className="mb-6 text-2xl text-fg sm:text-3xl">{lecture.title}</h2>
         <MarkdownContent content={lecture.body ?? ""} autoEmbed />
-      </div>
+      </article>
     );
   }
 
@@ -74,28 +56,44 @@ export function LectureMedia({ lecture, startAt, playerRef, nextTitle, onProgres
           target="_blank"
           rel="noopener noreferrer"
           onClick={onComplete}
-          className="group relative block aspect-video w-full overflow-hidden bg-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          className="group relative block aspect-video w-full overflow-hidden bg-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
         >
-          <img src={`https://i.ytimg.com/vi/${yt}/hqdefault.jpg`} alt="" className="h-full w-full object-cover opacity-60 transition-opacity group-hover:opacity-50" />
+          <img
+            src={`https://i.ytimg.com/vi/${yt}/hqdefault.jpg`}
+            alt=""
+            className="h-full w-full object-cover opacity-50"
+          />
           <span className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center text-white">
-            <span className="inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 text-sm font-bold text-black">
+            <span className="inline-flex h-11 items-center gap-2 rounded-full bg-brand px-5 text-sm font-semibold text-brand-fg transition-ui group-hover:bg-brand-hover">
               Watch on YouTube <ExternalLink className="size-4" aria-hidden />
             </span>
-            <span className="max-w-sm text-xs text-white/80">The creator only allows this lecture on YouTube. Opening it marks it complete here.</span>
+            <span className="max-w-sm text-sm text-white">
+              This video only plays on YouTube. Opening it marks the lecture as done.
+            </span>
           </span>
         </a>
       );
     }
     return (
-      <div className="flex min-h-[40vh] items-center justify-center p-6">
-        <div className="max-w-md rounded-2xl bg-card/70 p-6 text-center shadow-2xs">
-          <Link2 className="mx-auto size-8 text-primary" aria-hidden />
-          <p className="mt-3 font-bold text-foreground">{lecture.title}</p>
-          {lecture.body && <p className="mt-1 text-sm text-muted-foreground">{lecture.body}</p>}
-          <a href={lecture.videoRef ?? "#"} target="_blank" rel="noopener noreferrer" onClick={onComplete} className="mt-4 inline-flex h-11 items-center gap-1.5 rounded-xl bg-primary px-5 text-sm font-bold text-primary-foreground hover:opacity-90">
-            Open resource <ExternalLink className="size-4" aria-hidden />
-          </a>
-        </div>
+      <div className="flex min-h-[40vh] items-center justify-center p-4">
+        <EmptyState
+          icon={Link2}
+          title={lecture.title}
+          description={lecture.body || "This lecture is a link to another site."}
+          action={
+            <Button asChild>
+              <a
+                href={lecture.videoRef ?? "#"}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={onComplete}
+              >
+                Open link <ExternalLink aria-hidden />
+              </a>
+            </Button>
+          }
+          className="w-full max-w-md rounded-lg border border-border bg-surface"
+        />
       </div>
     );
   }
@@ -157,7 +155,11 @@ export function LectureMedia({ lecture, startAt, playerRef, nextTitle, onProgres
           />
         ) : (
           <iframe
-            src={lecture.videoRef.startsWith("http") ? lecture.videoRef : `https://archive.org/embed/${lecture.videoRef}`}
+            src={
+              lecture.videoRef.startsWith("http")
+                ? lecture.videoRef
+                : `https://archive.org/embed/${lecture.videoRef}`
+            }
             title={lecture.title}
             allow="autoplay; fullscreen"
             allowFullScreen
@@ -165,7 +167,9 @@ export function LectureMedia({ lecture, startAt, playerRef, nextTitle, onProgres
           />
         )
       ) : (
-        <p className="absolute inset-0 flex items-center justify-center text-sm text-white/70">This video is unavailable.</p>
+        <p className="absolute inset-0 flex items-center justify-center p-6 text-center text-sm text-white">
+          This video can't be played. Try the next lecture or check the Resources tab.
+        </p>
       )}
       {ended && nextTitle && <UpNext title={nextTitle} onGo={onNext} onCancel={() => setEnded(false)} />}
     </div>

@@ -226,7 +226,7 @@ export function RichText({
                 </div>
               )}
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none">
-                <span className="p-2 rounded-full bg-black/60 text-white backdrop-blur-md">
+                <span className="p-2 rounded-full bg-black/60 text-white">
                   <ZoomIn className="size-4" />
                 </span>
               </div>
@@ -381,7 +381,7 @@ export function RichText({
         selectedImage &&
         createPortal(
           <div
-            className="fixed inset-0 z-100 bg-black/95 backdrop-blur-md flex flex-col items-center justify-between p-4 select-none animate-in fade-in duration-200"
+            className="fixed inset-0 z-100 bg-black/95 flex flex-col items-center justify-between p-4 select-none animate-in fade-in duration-200"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -504,7 +504,7 @@ function ImageCarousel({ images, onOpenImage, createdAt, collegeName }: ImageCar
         )}
 
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none">
-          <span className="p-2 rounded-full bg-black/60 text-white backdrop-blur-md">
+          <span className="p-2 rounded-full bg-black/60 text-white">
             <ZoomIn className="size-4" />
           </span>
         </div>
@@ -584,13 +584,13 @@ function ImageCarousel({ images, onOpenImage, createdAt, collegeName }: ImageCar
         )}
 
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none">
-          <span className="p-2 rounded-full bg-black/60 text-white backdrop-blur-md">
+          <span className="p-2 rounded-full bg-black/60 text-white">
             <ZoomIn className="size-4" />
           </span>
         </div>
       </div>
 
-      <div className="absolute top-3 right-3 rounded-full bg-black/65 px-2.5 py-0.5 text-[11px] font-bold text-white backdrop-blur-md shadow-xs pointer-events-none">
+      <div className="absolute top-3 right-3 rounded-full bg-black/65 px-2.5 py-0.5 text-[11px] font-bold text-white shadow-xs pointer-events-none">
         {currentIndex + 1}/{images.length}
       </div>
 
@@ -598,7 +598,7 @@ function ImageCarousel({ images, onOpenImage, createdAt, collegeName }: ImageCar
         type="button"
         aria-label="Previous image"
         onClick={prev}
-        className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 hover:bg-black/75 text-white p-1.5 backdrop-blur-md transition-opacity opacity-80 group-hover:opacity-100 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 hover:bg-black/75 text-white p-1.5 transition-opacity opacity-80 group-hover:opacity-100 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <ChevronLeft className="size-4" />
       </button>
@@ -607,12 +607,12 @@ function ImageCarousel({ images, onOpenImage, createdAt, collegeName }: ImageCar
         type="button"
         aria-label="Next image"
         onClick={next}
-        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 hover:bg-black/75 text-white p-1.5 backdrop-blur-md transition-opacity opacity-80 group-hover:opacity-100 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 hover:bg-black/75 text-white p-1.5 transition-opacity opacity-80 group-hover:opacity-100 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <ChevronRight className="size-4" />
       </button>
 
-      <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 p-1 rounded-full bg-black/40 backdrop-blur-xs pointer-events-none">
+      <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 p-1 rounded-full bg-black/40 pointer-events-none">
         {images.map((_, idx) => (
           <span
             key={idx}

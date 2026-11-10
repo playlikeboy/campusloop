@@ -1,9 +1,10 @@
 "use client";
 
-import { Check, Loader2, Plus } from "lucide-react";
+import { Check, Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { notifyAuthRequired } from "@/components/auth/auth-required-overlay";
+import { Button } from "@/components/ui/button";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
@@ -41,9 +42,9 @@ export function JoinCommunityButton({
       setIsMember(res.joined);
       onMembershipChange?.(res.joined);
       if (res.joined) sounds.tap();
-      toast.success(res.joined ? "Joined community" : "Left community");
+      toast.success(res.joined ? "You joined" : "You left");
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to update membership";
+      const message = error instanceof Error ? error.message : "Couldn't update your membership. Try again.";
       if (/not authenticated|unauthorized|login|required/i.test(message)) {
         notifyAuthRequired("join");
       } else {
@@ -57,28 +58,22 @@ export function JoinCommunityButton({
   const label = isMember ? (isHovering ? "Leave" : "Joined") : "Join";
 
   return (
-    <button
+    <Button
+      type="button"
+      size="sm"
+      variant={isMember ? (isHovering ? "danger" : "outline") : "primary"}
       onClick={handleToggle}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
-      disabled={isPending}
+      onFocus={() => setIsHovering(true)}
+      onBlur={() => setIsHovering(false)}
+      loading={isPending}
       aria-pressed={isMember}
-      className={cn(
-        "h-8 px-4 text-xs font-bold rounded-full transition-ui cursor-pointer disabled:opacity-70 disabled:cursor-wait flex items-center justify-center gap-1.5 active:scale-95",
-        isMember
-          ? "border border-border/60 bg-transparent text-foreground hover:border-destructive/50 hover:text-destructive hover:bg-destructive/5"
-          : "bg-foreground text-background hover:opacity-90 shadow-2xs",
-        className
-      )}
+      aria-label={isMember ? "Leave community" : "Join community"}
+      className={cn("shrink-0", className)}
     >
-      {isPending ? (
-        <Loader2 className="size-3 animate-spin" />
-      ) : isMember ? (
-        <Check className="size-3" />
-      ) : (
-        <Plus className="size-3" />
-      )}
-      <span>{label}</span>
-    </button>
+      {!isPending && (isMember ? <Check /> : <Plus />)}
+      {label}
+    </Button>
   );
 }

@@ -1,11 +1,7 @@
-import type { Metadata } from "next";
+import { privateMetadata } from "@/lib/seo";
 import { MerchantAvailabilityClient } from "./merchant-availability-client";
 
-export const metadata: Metadata = {
-  title: "Availability Calendar | Merchant Portal",
-  description: "Manage time slot availability, maintenance schedules, and locked bookings.",
-  robots: { index: false, follow: false },
-};
+export const metadata = privateMetadata("Bike availability");
 
 export default function MerchantAvailabilityPage() {
   return <MerchantAvailabilityClient />;

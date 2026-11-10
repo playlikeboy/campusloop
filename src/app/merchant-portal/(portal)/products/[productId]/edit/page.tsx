@@ -1,11 +1,7 @@
-import type { Metadata } from "next";
+import { privateMetadata } from "@/lib/seo";
 import { EditProductClient } from "./edit-product-client";
 
-export const metadata: Metadata = {
-  title: "Edit Product | Merchant Portal",
-  description: "Update menu item details, pricing, availability, and customizations.",
-  robots: { index: false, follow: false },
-};
+export const metadata = privateMetadata("Edit item");
 
 interface EditProductPageProps {
   params: Promise<{ productId: string }>;

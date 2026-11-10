@@ -40,7 +40,7 @@ export function PostEmbedRenderer({
   disableLinkPreview = false,
 }: PostEmbedRendererProps) {
   const embeds = useMemo(() => {
-    let list = directEmbeds ? directEmbeds : (content ? extractEmbedsFromText(content) : []);
+    let list = directEmbeds ? directEmbeds : content ? extractEmbedsFromText(content) : [];
 
     const contentHasVideo = Boolean(content && hasAttachedVideoContent(content));
     const hasVideoEmbed = list.some(
@@ -116,7 +116,7 @@ export function PostEmbedRenderer({
               ) : null;
 
             case "audio":
-              return <AudioPlayer key={key} src={embed.rawUrl} title="Audio Track" />;
+              return <AudioPlayer key={key} src={embed.rawUrl} title="Audio" />;
 
             case "video":
               return <VideoPlayer key={key} src={embed.rawUrl} />;
@@ -153,7 +153,7 @@ export function PostEmbedRenderer({
                   e.stopPropagation();
                   onDismiss(embed.rawUrl);
                 }}
-                className="absolute right-2 top-4 z-20 flex size-6.5 items-center justify-center rounded-full bg-black/75 text-white backdrop-blur-md transition-ui hover:bg-destructive active:scale-95 shadow-md cursor-pointer"
+                className="absolute right-2 top-4 z-20 flex size-9 items-center justify-center rounded-full bg-black/75 text-white transition-ui hover:bg-destructive active:scale-95 shadow-md cursor-pointer"
                 title="Remove preview"
                 aria-label="Remove preview"
               >

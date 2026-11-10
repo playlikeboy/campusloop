@@ -1,850 +1,179 @@
 "use client";
 
-import {
-  AlertCircle,
-  ArrowLeft,
-  Cake,
-  Camera,
-  Check,
-  Image as ImageIcon,
-  Loader2,
-  Lock,
-  Move,
-  Plus,
-  Save,
-  ShieldCheck,
-  Sparkles,
-  User,
-  VenetianMask,
-  X,
-  Zap,
-} from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { UnsplashImagePicker } from "@/components/common/unsplash-image-picker";
 import { SocialLinksEditor } from "@/components/profile/social-links-editor";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { ImageCropModal } from "@/components/ui/image-crop-modal";
-import { SearchableSelect } from "@/components/ui/searchable-select";
-import { isUsernameBlocking, UsernameStatusHint } from "@/components/ui/username-status";
-import { getBranchOptionsForDegree } from "@/constants";
-import { useProfile } from "@/hooks/use-profile";
+import { Skeleton } from "@/components/ui/skeleton";
+import { isUsernameBlocking } from "@/components/ui/username-status";
 import { useUsernameAvailability } from "@/hooks/use-username-availability";
-import type { SocialLinks } from "@/lib/social-links";
-import { uploadImageToImgBB } from "@/lib/upload";
-import { getAvatarUrl } from "@/lib/utils";
 import { validateDisplayName, validateUsername } from "@/lib/validation";
+import { AboutSection } from "./about-section";
+import { GallerySection } from "./gallery-section";
+import { PhotoSection } from "./photo-section";
+import { useEditProfileForm } from "./use-edit-profile-form";
 
-const INTEREST_SUGGESTIONS = [
-  "Tech & Coding",
-  "Late Night Tea",
-  "Hostel Life",
-  "Exam Prep",
-  "Music & Jamming",
-  "Campus Dating",
-  "Gaming",
-  "Sports",
-  "Photography",
-  "Startups & AI",
-];
+const IMAGE_TYPES = "image/jpeg,image/png,image/webp,image/gif";
+type CropMode = "avatar" | "banner";
 
 export function EditProfileClient() {
-  const router = useRouter();
-  const { profile, isLoading: isProfileLoading, mutate } = useProfile();
-
-  const [displayName, setDisplayName] = useState("");
-  const [username, setUsername] = useState("");
-  const [headline, setHeadline] = useState("");
-  const [gender, setGender] = useState<"MALE" | "FEMALE" | "OTHER">("MALE");
-  const [dob, setDob] = useState("");
-  const [isDobPrivate, setIsDobPrivate] = useState(false);
-  const [course, setCourse] = useState("");
-  const [branch, setBranch] = useState("");
-  const [year, setYear] = useState<number>(1);
-  const [bio, setBio] = useState("");
-  const [avatarUrl, setAvatarUrl] = useState("");
-  const [bannerUrl, setBannerUrl] = useState("");
-  const [anonUsername, setAnonUsername] = useState("");
-  const [photos, setPhotos] = useState<string[]>([]);
-  const [interests, setInterests] = useState<string[]>([]);
-  const [socialLinks, setSocialLinks] = useState<SocialLinks>({ platforms: {}, custom: [] });
-  const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const [isUploadingDatingPhoto, setIsUploadingDatingPhoto] = useState(false);
-
-  // Crop Modal States
-  const [cropModalOpen, setCropModalOpen] = useState(false);
-  const [cropImageUrl, setCropImageUrl] = useState("");
-  const [cropMode, setCropMode] = useState<"avatar" | "banner">("avatar");
-  const [showUnsplashBannerPicker, setShowUnsplashBannerPicker] = useState(false);
-
-  const pfpInputRef = useRef<HTMLInputElement | null>(null);
+  const {
+    values,
+    set,
+    addGalleryPhoto,
+    error,
+    galleryInputRef,
+    isLoading,
+    isSaving,
+    isUploadingPhoto,
+    removeGalleryPhoto,
+    save,
+  } = useEditProfileForm();
+  const avatarInputRef = useRef<HTMLInputElement | null>(null);
   const bannerInputRef = useRef<HTMLInputElement | null>(null);
-  const datingPhotoInputRef = useRef<HTMLInputElement | null>(null);
+  const [crop, setCrop] = useState<{ url: string; mode: CropMode } | null>(null);
+  const [coverPickerOpen, setCoverPickerOpen] = useState(false);
 
-  const nameVal = displayName ? validateDisplayName(displayName) : null;
-  const userVal = username ? validateUsername(username) : null;
-  const usernameStatus = useUsernameAvailability(username);
-  const branchOptions = getBranchOptionsForDegree(course).map((b) => ({
-    value: b.name,
-    label: b.name,
-    icon: b.icon,
-  }));
+  const nameCheck = values.displayName ? validateDisplayName(values.displayName) : null;
+  const userCheck = values.username ? validateUsername(values.username) : null;
+  const usernameStatus = useUsernameAvailability(values.username);
 
-  useEffect(() => {
-    if (profile) {
-      setDisplayName(profile.displayName || "");
-      setUsername(profile.username || "");
-      setHeadline(profile.headline || "");
-      setGender((profile.gender as "MALE" | "FEMALE" | "OTHER") || "MALE");
-      setDob(profile.dob || "");
-      setIsDobPrivate(Boolean(profile.isDobPrivate));
-      setCourse(profile.course || "");
-      setBranch(profile.branch || "");
-      setYear(profile.year || 1);
-      setBio(profile.bio || "");
-      setAvatarUrl(profile.avatarUrl || "");
-      setBannerUrl(profile.bannerUrl || "");
-      setAnonUsername(profile.anonymousUsername || "");
-      setPhotos(profile.photos || []);
-      setInterests(profile.interests || []);
-      const stored = profile.socialLinks;
-      setSocialLinks({
-        platforms: { ...(stored?.platforms ?? {}) },
-        custom: [...(stored?.custom ?? [])],
-      });
-    }
-  }, [profile]);
-
-  function handleToggleInterest(tag: string) {
-    setInterests((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]));
-  }
-
-  function handlePfpFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
+  function readFile(e: React.ChangeEvent<HTMLInputElement>, mode: CropMode) {
     const file = e.target.files?.[0];
+    e.target.value = "";
     if (!file) return;
-
     const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") {
-        setCropImageUrl(reader.result);
-        setCropMode("avatar");
-        setCropModalOpen(true);
-      }
-    };
+    reader.onload = () => typeof reader.result === "string" && setCrop({ url: reader.result, mode });
+    reader.onerror = () => toast.error("Couldn't read that image. Try a JPG or PNG.");
     reader.readAsDataURL(file);
-    if (pfpInputRef.current) pfpInputRef.current.value = "";
   }
 
-  function handleBannerFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") {
-        setCropImageUrl(reader.result);
-        setCropMode("banner");
-        setCropModalOpen(true);
-      }
-    };
-    reader.readAsDataURL(file);
-    if (bannerInputRef.current) bannerInputRef.current.value = "";
+  function cropCurrent(mode: CropMode) {
+    const url = mode === "avatar" ? values.avatarUrl : values.bannerUrl;
+    if (url) setCrop({ url, mode });
+    else (mode === "avatar" ? avatarInputRef : bannerInputRef).current?.click();
   }
 
-  function handleOpenCropForCurrent(mode: "avatar" | "banner") {
-    const targetUrl = mode === "avatar" ? avatarUrl : bannerUrl;
-    if (!targetUrl) {
-      if (mode === "avatar") pfpInputRef.current?.click();
-      else bannerInputRef.current?.click();
-      return;
-    }
-    setCropImageUrl(targetUrl);
-    setCropMode(mode);
-    setCropModalOpen(true);
-  }
-
-  async function handleDatingPhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (photos.length >= 6) {
-      toast.error("Maximum 6 dating photos allowed.");
-      return;
-    }
-
-    const localUrl = URL.createObjectURL(file);
-    // Optimistic update: show photo thumbnail immediately
-    setPhotos((prev) => [...prev, localUrl]);
-    setIsUploadingDatingPhoto(true);
-
-    try {
-      toast.loading("Optimizing & uploading photo...", { id: "dating-photo" });
-      const res = await uploadImageToImgBB(file, (progress) => {
-        if (progress.percent > 0 && progress.percent < 100) {
-          toast.loading(`Uploading photo... ${progress.percent}%`, { id: "dating-photo" });
-        }
-      });
-      const newUrl = res.displayUrl || res.url;
-      setPhotos((prev) => prev.map((u) => (u === localUrl ? newUrl : u)));
-      toast.success("Photo added to dating gallery!", { id: "dating-photo" });
-    } catch (err) {
-      setPhotos((prev) => prev.filter((u) => u !== localUrl));
-      toast.error(err instanceof Error ? err.message : "Upload failed", { id: "dating-photo" });
-    } finally {
-      setIsUploadingDatingPhoto(false);
-      if (datingPhotoInputRef.current) datingPhotoInputRef.current.value = "";
-    }
-  }
-
-  function handleRemoveDatingPhoto(index: number) {
-    setPhotos((prev) => prev.filter((_, i) => i !== index));
-  }
-
-  function handleGenerateDiceBearAvatar() {
-    const seed = username.trim() || displayName.trim() || "student";
-    const generated = `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(seed)}`;
-    setAvatarUrl(generated);
-    toast.success("Generated new Campus avatar!");
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setIsSaving(true);
-    setError(null);
-
-    const nameCheck = validateDisplayName(displayName);
-    if (!nameCheck.isValid) {
-      setError(nameCheck.error || "Please provide a valid display name.");
-      setIsSaving(false);
-      return;
-    }
-
-    const userCheck = validateUsername(username);
-    if (!userCheck.isValid) {
-      setError(userCheck.error || "Please provide a valid username.");
-      setIsSaving(false);
-      return;
-    }
-
-    try {
-      const res = await fetch("/api/profile/me", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          displayName: displayName.trim(),
-          username: username.trim().toLowerCase(),
-          headline: headline.trim(),
-          gender,
-          dob: dob ? dob : null,
-          isDobPrivate,
-          course: course.trim(),
-          branch: branch.trim(),
-          year,
-          bio: bio.trim(),
-          avatarUrl,
-          bannerUrl,
-          photos,
-          interests,
-          socialLinks,
-          anonymousUsername: anonUsername ? anonUsername.trim().toLowerCase().replace(/^@/, "") : null,
-        }),
-      });
-
-      const data = (await res.json()) as { error?: string };
-
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to update profile.");
-      }
-
-      toast.success("Profile & dating photos saved!");
-      await mutate();
-      router.push("/profile");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setIsSaving(false);
-    }
-  }
-
-  if (isProfileLoading) {
+  if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Zap className="size-6 animate-spin text-primary" />
+      <div className="mx-auto max-w-xl space-y-4 px-4 pt-4" aria-busy="true">
+        <Skeleton className="h-48 rounded-lg" />
+        <Skeleton className="h-11 rounded-md" />
+        <Skeleton className="h-11 rounded-md" />
       </div>
     );
   }
 
+  const blocked =
+    isSaving ||
+    isUploadingPhoto ||
+    Boolean(nameCheck && !nameCheck.isValid) ||
+    Boolean(userCheck && !userCheck.isValid) ||
+    isUsernameBlocking(usernameStatus);
+
   return (
-    <div className="max-w-xl mx-auto space-y-6 pb-16 pt-2 px-4 select-none">
-      {/* Image Crop & Resize Modal */}
-      {cropModalOpen && (
-        <ImageCropModal
-          isOpen={cropModalOpen}
-          onClose={() => setCropModalOpen(false)}
-          imageUrl={cropImageUrl}
-          mode={cropMode}
-          onCropComplete={(croppedUrl) => {
-            if (cropMode === "avatar") {
-              setAvatarUrl(croppedUrl);
-            } else {
-              setBannerUrl(croppedUrl);
-            }
-          }}
-        />
-      )}
-
-      {/* Hidden PFP File Input */}
+    <div className="mx-auto max-w-xl px-4 pt-2 pb-28">
       <input
-        ref={pfpInputRef}
+        ref={avatarInputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp,image/gif"
+        accept={IMAGE_TYPES}
         className="hidden"
-        onChange={handlePfpFileSelected}
+        onChange={(e) => readFile(e, "avatar")}
       />
-
-      {/* Hidden Banner File Input */}
       <input
         ref={bannerInputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp,image/gif"
+        accept={IMAGE_TYPES}
         className="hidden"
-        onChange={handleBannerFileSelected}
+        onChange={(e) => readFile(e, "banner")}
       />
-
-      {/* Hidden Dating Photo File Input */}
       <input
-        ref={datingPhotoInputRef}
+        ref={galleryInputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp,image/gif"
+        accept={IMAGE_TYPES}
         className="hidden"
-        onChange={handleDatingPhotoUpload}
+        onChange={addGalleryPhoto}
       />
 
-      {/* Header Bar */}
-      <div className="flex items-center justify-between border-b border-border/40 pb-3">
-        <Link
-          href="/profile"
-          className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-        >
-          <ArrowLeft className="size-4" /> Back to Profile
-        </Link>
-        <h2 className="text-sm font-bold text-foreground">Edit Profile & Dating Photos</h2>
-      </div>
+      <header className="mb-4 flex items-center gap-2">
+        <Button asChild variant="ghost" size="icon" aria-label="Back to profile">
+          <Link href="/profile">
+            <ArrowLeft aria-hidden="true" />
+          </Link>
+        </Button>
+        <h1 className="text-2xl text-fg">Edit profile</h1>
+      </header>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* ─── Cover Banner & Avatar Section ─── */}
-        <div className="rounded-3xl border border-border/80 bg-card overflow-hidden shadow-xs">
-          {/* Banner Preview */}
-          <div className="relative h-36 w-full bg-brand-subtle">
-            {bannerUrl ? (
-              <img src={bannerUrl} alt="Cover Banner" className="w-full h-full object-cover" />
-            ) : (
-              <div className="absolute inset-0 bg-muted/30 backdrop-blur-xs" />
-            )}
-
-            <div className="absolute top-3 right-3 flex items-center gap-1.5 sm:gap-2">
-              <button
-                type="button"
-                onClick={() => setShowUnsplashBannerPicker(true)}
-                className="py-1.5 px-2.5 sm:px-3 rounded-xl bg-black/60 hover:bg-black/80 text-white text-xs font-bold flex items-center gap-1.5 backdrop-blur-sm transition-colors cursor-pointer shadow-md"
-                title="Choose Cover from Unsplash"
-              >
-                <Sparkles className="size-3.5 text-primary" />
-                <span>Unsplash</span>
-              </button>
-
-              {bannerUrl && (
-                <button
-                  type="button"
-                  onClick={() => handleOpenCropForCurrent("banner")}
-                  className="py-1.5 px-2.5 sm:px-3 rounded-xl bg-black/60 hover:bg-black/80 text-white text-xs font-bold flex items-center gap-1.5 backdrop-blur-sm transition-colors cursor-pointer shadow-md"
-                  title="Reposition / Crop Banner"
-                >
-                  <Move className="size-3.5" />
-                  <span className="hidden sm:inline">Reposition</span>
-                </button>
-              )}
-
-              <button
-                type="button"
-                onClick={() => bannerInputRef.current?.click()}
-                className="py-1.5 px-2.5 sm:px-3 rounded-xl bg-black/70 hover:bg-black/85 text-white text-xs font-bold flex items-center gap-1.5 backdrop-blur-sm transition-colors cursor-pointer shadow-md"
-              >
-                <Camera className="size-3.5" />
-                <span>{bannerUrl ? "Upload" : "Upload Banner"}</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Avatar Row */}
-          <div className="p-5 flex flex-col sm:flex-row items-center gap-4 -mt-14">
-            <div className="relative group shrink-0">
-              <Avatar className="size-24 border-4 border-card shadow-xl">
-                <AvatarImage src={avatarUrl || getAvatarUrl(null, username || "user")} />
-                <AvatarFallback className="text-2xl font-bold bg-primary/10 text-primary">
-                  {displayName ? displayName[0].toUpperCase() : "U"}
-                </AvatarFallback>
-              </Avatar>
-
-              {avatarUrl && (
-                <button
-                  type="button"
-                  onClick={() => handleOpenCropForCurrent("avatar")}
-                  className="absolute bottom-0 right-0 size-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md hover:scale-110 transition-transform cursor-pointer"
-                  title="Resize & Crop Avatar"
-                >
-                  <Move className="size-3.5" />
-                </button>
-              )}
-            </div>
-
-            <div className="space-y-2 pt-2 sm:pt-4 flex-1">
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-xs font-bold text-foreground">Profile Avatar</h3>
-                  {avatarUrl && !avatarUrl.includes("dicebear.com") ? (
-                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-success-subtle text-success border border-success inline-flex items-center gap-1">
-                      <Camera className="size-3" /> Real Photo Verified (+50 LP)
-                    </span>
-                  ) : (
-                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-warning-subtle text-warning border border-warning inline-flex items-center gap-1">
-                      <Sparkles className="size-3" /> Upload real photo for 3x boost
-                    </span>
-                  )}
-                </div>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
-                  {avatarUrl && !avatarUrl.includes("dicebear.com")
-                    ? "Your verified photo is active on Campus Match, Study Pods & feeds."
-                    : "Profiles with authentic campus photos receive 3x more friend connections & dating matches."}
-                </p>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-2 pt-1">
-                <button
-                  type="button"
-                  onClick={() => pfpInputRef.current?.click()}
-                  className="py-1.5 px-3.5 rounded-xl bg-primary text-primary-foreground text-xs font-black hover:opacity-90 active:scale-95 transition-[opacity,transform] cursor-pointer flex items-center gap-1.5 shadow-2xs"
-                >
-                  <Camera className="size-3.5 stroke-[2.5]" />
-                  <span>
-                    {avatarUrl && !avatarUrl.includes("dicebear.com")
-                      ? "Change Real Photo"
-                      : "Upload Real Photo (+50 LP)"}
-                  </span>
-                </button>
-
-                {avatarUrl && (
-                  <button
-                    type="button"
-                    onClick={() => handleOpenCropForCurrent("avatar")}
-                    className="py-1.5 px-3 rounded-xl border border-border bg-card text-foreground text-xs font-bold hover:bg-muted transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
-                  >
-                    <Move className="size-3.5 text-primary" />
-                    <span>Resize & Crop</span>
-                  </button>
-                )}
-
-                <button
-                  type="button"
-                  onClick={handleGenerateDiceBearAvatar}
-                  className="py-1.5 px-2.5 rounded-xl border border-border/50 text-muted-foreground hover:text-foreground text-[11px] font-semibold hover:bg-muted/40 transition-[opacity,transform] cursor-pointer flex items-center gap-1 opacity-70 hover:opacity-100"
-                  title="Use cartoon illustration (reduces match reach)"
-                >
-                  <Zap className="size-3" /> Cartoon Illustration
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ─── Campus Dating Photo Gallery Section (Up to 6 Photos) ─── */}
-        <div className="space-y-3 rounded-2xl border border-border/60 bg-background p-5 shadow-xs">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                <ImageIcon className="size-3.5 text-danger" /> Dating Photo Gallery
-              </h3>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
-                Upload up to 6 pictures to showcase on your Campus Dating swipe card.
-              </p>
-            </div>
-            <span className="text-[10px] font-bold text-muted-foreground bg-muted px-2 py-0.5 rounded-full border border-border">
-              {photos.length}/6
-            </span>
-          </div>
-
-          <div className="grid grid-cols-3 gap-2.5 pt-1">
-            {photos.map((imgUrl, i) => (
-              <div
-                key={i}
-                className="relative aspect-square rounded-2xl overflow-hidden border border-border/80 shadow-xs group bg-muted/40"
-              >
-                <img src={imgUrl} alt={`Dating photo ${i + 1}`} className="w-full h-full object-cover" />
-                <button
-                  type="button"
-                  onClick={() => handleRemoveDatingPhoto(i)}
-                  className="absolute top-1.5 right-1.5 size-6 rounded-full bg-black/75 text-white flex items-center justify-center hover:bg-destructive transition-colors cursor-pointer shadow-md"
-                  title="Remove photo"
-                >
-                  <X className="size-3.5" />
-                </button>
-                {i === 0 && (
-                  <span className="absolute bottom-1.5 left-1.5 bg-danger text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow-xs">
-                    Main
-                  </span>
-                )}
-              </div>
-            ))}
-
-            {photos.length < 6 && (
-              <button
-                type="button"
-                disabled={isUploadingDatingPhoto}
-                onClick={() => datingPhotoInputRef.current?.click()}
-                className="aspect-square rounded-2xl border-2 border-dashed border-border hover:border-primary/60 bg-muted/20 hover:bg-muted/40 flex flex-col items-center justify-center gap-1 text-muted-foreground hover:text-primary transition-[opacity,transform] cursor-pointer disabled:opacity-50"
-              >
-                {isUploadingDatingPhoto ? (
-                  <Loader2 className="size-5 animate-spin text-primary" />
-                ) : (
-                  <>
-                    <Plus className="size-5" />
-                    <span className="text-[10px] font-bold">Add Photo</span>
-                  </>
-                )}
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* ─── Basic Details (Display Name & Username) with Validation ─── */}
-        <div className="space-y-4 rounded-2xl border border-border/60 bg-background p-5 shadow-xs">
-          <h3 className="text-xs font-bold text-foreground flex items-center gap-1.5">
-            <User className="size-3.5 text-primary" /> Identity Details
-          </h3>
-
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-muted-foreground">Full / Display Name</label>
-              {nameVal && !nameVal.isValid && (
-                <span className="text-[10px] text-destructive font-semibold flex items-center gap-1">
-                  <AlertCircle className="size-3" /> {nameVal.error}
-                </span>
-              )}
-              {nameVal?.isValid && (
-                <span className="text-[10px] text-success font-semibold flex items-center gap-1">
-                  <Check className="size-3" /> Valid name
-                </span>
-              )}
-            </div>
-            <input
-              type="text"
-              required
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="e.g. Aarav Sharma"
-              className={`w-full rounded-xl border bg-muted/20 px-3.5 py-2 text-xs font-semibold text-foreground outline-none transition-colors ${
-                nameVal && !nameVal.isValid
-                  ? "border-destructive focus:border-destructive"
-                  : "border-border/60 focus:border-primary focus:bg-background"
-              }`}
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between gap-2">
-              <label className="text-xs font-semibold text-muted-foreground">Campus Username (@handle)</label>
-              <UsernameStatusHint status={usernameStatus} />
-            </div>
-            <div className="relative">
-              <span className="absolute left-3.5 top-2 text-xs font-bold text-muted-foreground">@</span>
-              <input
-                type="text"
-                required
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="username"
-                className={`w-full pl-8 pr-3.5 py-2 rounded-xl border bg-muted/20 text-xs font-semibold text-foreground outline-none transition-colors ${
-                  usernameStatus.state === "taken" || usernameStatus.state === "invalid"
-                    ? "border-destructive focus:border-destructive"
-                    : usernameStatus.state === "available"
-                      ? "border-success focus:bg-background"
-                      : "border-border/60 focus:border-primary focus:bg-background"
-                }`}
-              />
-            </div>
-          </div>
-
-          {/* Student Headline / Tagline */}
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-muted-foreground">
-                Profile Headline / Tagline
-              </label>
-              <span className="text-[10px] text-muted-foreground">{headline.length}/100</span>
-            </div>
-            <input
-              type="text"
-              maxLength={100}
-              value={headline}
-              onChange={(e) => setHeadline(e.target.value)}
-              placeholder="e.g. CS Sophomore @ BIT Mesra | Building AI agents & web apps"
-              className="w-full rounded-xl border border-border/60 bg-muted/20 px-3.5 py-2 text-xs font-semibold text-foreground outline-none transition-colors focus:border-primary focus:bg-background"
-            />
-          </div>
-
-          {/* Gender Selector */}
-          <div className="space-y-1.5 pt-1">
-            <label className="text-xs font-semibold text-muted-foreground">Gender Identification</label>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              {(["MALE", "FEMALE", "OTHER"] as const).map((g) => (
-                <button
-                  key={g}
-                  type="button"
-                  onClick={() => setGender(g)}
-                  className={`py-2 rounded-xl text-xs font-semibold border transition-colors cursor-pointer ${
-                    gender === g
-                      ? "border-primary bg-primary/10 text-primary shadow-xs"
-                      : "border-border/60 bg-muted/20 text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {g === "MALE" ? "Male" : g === "FEMALE" ? "Female" : "Other"}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Birthday / Date of Birth */}
-          <div className="space-y-2 pt-2 border-t border-border/40">
-            <div className="flex items-center justify-between">
-              <label
-                htmlFor="edit-dob"
-                className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"
-              >
-                <Cake className="size-3.5 text-danger" /> Birthday / Date of Birth
-              </label>
-              <span className="text-[10px] text-muted-foreground">Used for campus birthday wishes</span>
-            </div>
-            <input
-              id="edit-dob"
-              type="date"
-              value={dob}
-              max={new Date().toISOString().split("T")[0]}
-              onChange={(e) => setDob(e.target.value)}
-              className="w-full rounded-xl border border-border/60 bg-muted/20 px-3.5 py-2 text-xs font-semibold text-foreground outline-none transition-colors focus:border-primary focus:bg-background"
-            />
-            <label className="flex items-center gap-2 pt-1 text-xs text-muted-foreground cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={isDobPrivate}
-                onChange={(e) => setIsDobPrivate(e.target.checked)}
-                className="size-3.5 rounded border-border accent-primary cursor-pointer"
-              />
-              <span className="flex items-center gap-1">
-                <Lock className="size-3 text-muted-foreground" /> Keep birthday private (do not display in
-                campus celebrations)
-              </span>
-            </label>
-          </div>
-        </div>
-
-        {/* ─── Anonymous Posting Persona (Custom Anonymous Username) ─── */}
-        <div className="space-y-4 rounded-2xl border border-primary/20 bg-primary/5 p-5 shadow-xs">
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <h3 className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                <VenetianMask className="size-4 text-primary" /> Anonymous Persona & Custom Username
-              </h3>
-              <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
-                Create a custom anonymous alias for confessions, polls, and anonymous questions. All your
-                anonymous posts will appear under this username instead of a random ID. Your real identity
-                remains 100% cryptographically sealed.
-              </p>
-            </div>
-            <span className="text-xs font-bold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full shrink-0">
-              Encrypted
-            </span>
-          </div>
-
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-muted-foreground">Custom Anonymous Username</label>
-              {anonUsername && (
-                <span className="text-[10px] text-primary font-bold">
-                  Posts appear as: @{anonUsername.toLowerCase().replace(/^@/, "")}
-                </span>
-              )}
-            </div>
-            <div className="relative">
-              <span className="absolute left-3.5 top-2 text-xs font-bold text-muted-foreground inline-flex items-center gap-1">
-                <VenetianMask className="size-3.5" /> @
-              </span>
-              <input
-                type="text"
-                value={anonUsername}
-                onChange={(e) => setAnonUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
-                placeholder="e.g. ghost_student, shadow_coder, campus_ninja"
-                maxLength={24}
-                className="w-full pl-10 pr-3.5 py-2 rounded-xl border border-border/60 bg-background text-xs font-semibold text-foreground outline-none transition-colors focus:border-primary"
-              />
-            </div>
-            <p className="text-[10px] text-muted-foreground">
-              Leave blank to automatically use randomized cryptographic pseudonyms (e.g. anon_9a4f21b7).
-            </p>
-          </div>
-        </div>
-
-        {/* ─── Academic Info with Presets ─── */}
-        <div className="space-y-4 rounded-2xl border border-border/60 bg-background p-5 shadow-xs">
-          <h3 className="text-xs font-bold text-foreground flex items-center gap-1.5">
-            <ShieldCheck className="size-3.5 text-brand" /> Academic & Campus Info
-          </h3>
-
-          <div className="space-y-3">
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">Degree / Course</label>
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-1.5 pb-1">
-                {["B.Tech", "B.Arch", "MCA", "MBA", "MBBS", "BBA", "B.Com", "BCA", "PhD", "M.Tech"].map(
-                  (c) => (
-                    <button
-                      key={c}
-                      type="button"
-                      onClick={() => setCourse(c)}
-                      className={`py-1.5 px-2 rounded-xl text-xs font-bold border transition-colors cursor-pointer truncate ${
-                        course === c
-                          ? "border-primary bg-primary/10 text-primary shadow-xs"
-                          : "border-border/60 bg-muted/20 text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      {c}
-                    </button>
-                  )
-                )}
-              </div>
-              <input
-                type="text"
-                value={course}
-                onChange={(e) => setCourse(e.target.value)}
-                placeholder="Or type custom course (e.g. B.Arch, MCA, PhD Physics)..."
-                className="w-full rounded-xl border border-border/60 bg-muted/20 px-3.5 py-2 text-xs font-semibold text-foreground outline-none focus:border-primary focus:bg-background transition-colors"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">Department / Branch</label>
-              {/*
-                Was a hardcoded 10-chip list whose labels did not match the
-                catalog ("Civil Engineering" vs "Civil & Structural
-                Engineering"), so a chip stored a branch that never resolved to
-                a directory slug. Now driven by the catalog itself.
-              */}
-              <SearchableSelect
-                options={branchOptions}
-                value={branch}
-                onChange={setBranch}
-                placeholder="Select your branch"
-                searchPlaceholder="Search branches..."
-                emptyText="No branch matches. Pick 'Other / Not listed'."
-              />
-              <input
-                type="text"
-                value={branch}
-                onChange={(e) => setBranch(e.target.value)}
-                placeholder="Or type a custom branch/major..."
-                className="w-full rounded-xl border border-border/60 bg-muted/20 px-3.5 py-2 text-xs font-semibold text-foreground outline-none focus:border-primary focus:bg-background transition-colors"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-muted-foreground">Academic Year</label>
-            <select
-              value={year}
-              onChange={(e) => setYear(Number(e.target.value))}
-              className="w-full rounded-xl border border-border/60 bg-muted/20 px-3 py-2 text-xs font-semibold text-foreground outline-none focus:border-primary cursor-pointer"
-            >
-              {[1, 2, 3, 4, 5].map((y) => (
-                <option key={y} value={y}>
-                  Year {y} Student {y === 1 ? "(Fresher)" : y >= 4 ? "(Senior/Final)" : ""}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* ─── Links & Socials (Coding, Socials, Channels, Portfolio) ─── */}
-        <SocialLinksEditor value={socialLinks} onChange={setSocialLinks} />
-
-        {/* ─── Bio & Campus Interests ─── */}
-        <div className="space-y-4 rounded-2xl border border-border/60 bg-background p-5 shadow-xs">
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-muted-foreground">Campus Bio (max 300 chars)</label>
-            <textarea
-              rows={3}
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              placeholder="Share what you study, hostel tea, or what you are looking for on CampusLoop..."
-              className="w-full rounded-xl border border-border/60 bg-muted/20 p-3 text-xs text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:bg-background transition-colors resize-none"
-            />
-          </div>
-
-          <div className="space-y-2 pt-1">
-            <label className="text-xs font-semibold text-muted-foreground">Select Campus Interests</label>
-            <div className="flex flex-wrap gap-1.5">
-              {INTEREST_SUGGESTIONS.map((tag) => {
-                const isSelected = interests.includes(tag);
-                return (
-                  <button
-                    key={tag}
-                    type="button"
-                    onClick={() => handleToggleInterest(tag)}
-                    className={`py-1 px-2.5 rounded-lg text-xs font-semibold border transition-colors cursor-pointer flex items-center gap-1 ${
-                      isSelected
-                        ? "border-primary bg-primary/10 text-primary shadow-xs"
-                        : "border-border/60 bg-muted/20 text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    {isSelected && <Check className="size-3" />}
-                    <span>{tag}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        {error && <p className="text-xs font-semibold text-destructive text-center">{error}</p>}
-
-        {/* Action Button */}
-        <button
-          type="submit"
-          disabled={
-            isSaving ||
-            Boolean(nameVal && !nameVal.isValid) ||
-            Boolean(userVal && !userVal.isValid) ||
-            isUsernameBlocking(usernameStatus) ||
-            isUploadingDatingPhoto
+      <form onSubmit={save} className="space-y-8" noValidate>
+        <PhotoSection
+          avatarUrl={values.avatarUrl}
+          bannerUrl={values.bannerUrl}
+          displayName={values.displayName}
+          username={values.username}
+          onUploadAvatar={() => avatarInputRef.current?.click()}
+          onCropAvatar={() => cropCurrent("avatar")}
+          onCartoonAvatar={() =>
+            set(
+              "avatarUrl",
+              `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(values.username.trim() || values.displayName.trim() || "student")}`
+            )
           }
-          className="w-full py-3 rounded-2xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-[opacity,transform] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 shadow-xs"
-        >
-          <Save className="size-4" />
-          {isSaving ? "Saving changes..." : "Save Profile & Dating Photos"}
-        </button>
+          onUploadBanner={() => bannerInputRef.current?.click()}
+          onCropBanner={() => cropCurrent("banner")}
+          onPickBanner={() => setCoverPickerOpen(true)}
+        />
+
+        <AboutSection
+          values={values}
+          set={set}
+          nameError={nameCheck && !nameCheck.isValid ? nameCheck.error : undefined}
+          usernameStatus={usernameStatus}
+        />
+
+        <div className="border-t border-border pt-6">
+          <GallerySection
+            photos={values.photos}
+            isUploading={isUploadingPhoto}
+            onAdd={() => galleryInputRef.current?.click()}
+            onRemove={removeGalleryPhoto}
+          />
+        </div>
+
+        <div className="border-t border-border pt-6">
+          <SocialLinksEditor value={values.socialLinks} onChange={(v) => set("socialLinks", v)} />
+        </div>
+
+        <div className="sticky bottom-20 z-10 space-y-2 rounded-lg border border-border bg-surface p-3 shadow-sm md:bottom-4">
+          {error && (
+            <p className="text-sm text-danger" role="alert">
+              {error}
+            </p>
+          )}
+          <Button type="submit" className="w-full" loading={isSaving} disabled={blocked}>
+            Save profile
+          </Button>
+        </div>
       </form>
 
-      {/* Unsplash Profile Cover Picker */}
+      {crop && (
+        <ImageCropModal
+          isOpen
+          onClose={() => setCrop(null)}
+          imageUrl={crop.url}
+          mode={crop.mode}
+          onCropComplete={(url) => set(crop.mode === "avatar" ? "avatarUrl" : "bannerUrl", url)}
+        />
+      )}
       <UnsplashImagePicker
-        isOpen={showUnsplashBannerPicker}
-        onClose={() => setShowUnsplashBannerPicker(false)}
-        onSelect={(photo) => {
-          setBannerUrl(photo.url);
-          toast.success(`Selected cover by ${photo.photographerName}`);
-        }}
-        defaultQuery="campus aesthetic"
-        title="Choose Profile Cover from Unsplash"
+        isOpen={coverPickerOpen}
+        onClose={() => setCoverPickerOpen(false)}
+        onSelect={(photo) => set("bannerUrl", photo.url)}
+        defaultQuery="campus"
+        title="Pick a cover photo"
       />
     </div>
   );

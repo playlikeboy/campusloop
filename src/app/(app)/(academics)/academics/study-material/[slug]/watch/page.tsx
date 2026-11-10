@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { AcademicWatchClient } from "@/components/academics/academic-watch-client";
-import { resolveAcademicResource } from "@/lib/academics/slug";
 import { getEffectiveModules } from "@/lib/academics/modules";
+import { resolveAcademicResource } from "@/lib/academics/slug";
+import { privateMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -13,13 +14,7 @@ interface WatchPageProps {
 export async function generateMetadata({ params }: WatchPageProps): Promise<Metadata> {
   const { slug } = await params;
   const resource = await resolveAcademicResource(slug);
-  if (!resource) {
-    return { title: "Course Player" };
-  }
-  return {
-    title: `${resource.title} — Course Player`,
-    robots: { index: false, follow: false },
-  };
+  return privateMetadata(resource ? `Watch: ${resource.title}` : "Watch lectures");
 }
 
 export default async function AcademicWatchPage({ params }: WatchPageProps) {

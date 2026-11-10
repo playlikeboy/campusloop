@@ -38,7 +38,12 @@ export function AppCredentials({
   }
 
   async function remove() {
-    if (!window.confirm("Delete this app? Every student signed in with it is signed out. This cannot be undone.")) return;
+    if (
+      !window.confirm(
+        "Delete this app? Every student signed in with it is signed out. This cannot be undone."
+      )
+    )
+      return;
     setBusy("delete");
     const r = await deleteOauthApp(id);
     if (!r.ok) {
@@ -50,30 +55,62 @@ export function AppCredentials({
   }
 
   return (
-    <section className="space-y-4 rounded-3xl bg-card/60 p-5 shadow-2xs">
-      <h2 className="text-lg font-bold text-foreground">Credentials</h2>
+    <section className="space-y-4 rounded-lg border border-border bg-surface p-5">
+      <h2 className="text-lg text-fg">Keys</h2>
       <CopyField label="Client ID" value={id} />
       {type === "CONFIDENTIAL" ? (
         secret ? (
           <div>
             <CopyField label="New client secret (shown once)" value={secret} secret />
-            <p className="mt-1 text-xs text-muted-foreground">Store it in your server's environment variables now.</p>
+            <p className="mt-1 text-xs text-fg-muted">Store it in your server's environment variables now.</p>
           </div>
         ) : (
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm text-muted-foreground">Client secret ending in <code className="font-mono text-foreground">{secretLast4 ?? "????"}</code></p>
-            <button type="button" onClick={rotate} disabled={busy !== null} className="inline-flex h-10 items-center gap-2 rounded-xl bg-muted/70 px-4 text-sm font-semibold hover:bg-muted disabled:opacity-60 cursor-pointer">
-              {busy === "rotate" ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <KeyRound className="size-4" aria-hidden />} Rotate secret
+            <p className="text-sm text-fg-muted">
+              Client secret ending in <code className="font-mono text-fg">{secretLast4 ?? "????"}</code>
+            </p>
+            <button
+              type="button"
+              onClick={rotate}
+              disabled={busy !== null}
+              className="inline-flex h-11 cursor-pointer items-center gap-2 rounded-full bg-surface-muted px-4 text-sm font-semibold text-fg transition-ui hover:bg-surface-sunken disabled:opacity-60"
+            >
+              {busy === "rotate" ? (
+                <Loader2 className="size-4 animate-spin" aria-hidden />
+              ) : (
+                <KeyRound className="size-4" aria-hidden />
+              )}{" "}
+              Make a new secret
             </button>
           </div>
         )
       ) : (
-        <p className="text-sm text-muted-foreground">Browser and mobile apps have no secret. Always send a PKCE code_challenge.</p>
+        <p className="text-sm text-fg-muted">
+          Browser and mobile apps have no secret. Always send a PKCE code_challenge.
+        </p>
       )}
-      <AgentPromptButtons keys={{ appName, clientId: id, clientSecret: secret, redirectUris, publicClient: type !== "CONFIDENTIAL" }} />
+      <AgentPromptButtons
+        keys={{
+          appName,
+          clientId: id,
+          clientSecret: secret,
+          redirectUris,
+          publicClient: type !== "CONFIDENTIAL",
+        }}
+      />
       {!isFirstParty && (
-        <button type="button" onClick={remove} disabled={busy !== null} className="inline-flex h-10 items-center gap-2 rounded-xl px-3 text-sm font-semibold text-destructive hover:bg-destructive/10 disabled:opacity-60 cursor-pointer">
-          {busy === "delete" ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Trash2 className="size-4" aria-hidden />} Delete app
+        <button
+          type="button"
+          onClick={remove}
+          disabled={busy !== null}
+          className="inline-flex h-11 cursor-pointer items-center gap-2 rounded-full px-3.5 text-sm font-semibold text-danger transition-ui hover:bg-danger-subtle disabled:opacity-60"
+        >
+          {busy === "delete" ? (
+            <Loader2 className="size-4 animate-spin" aria-hidden />
+          ) : (
+            <Trash2 className="size-4" aria-hidden />
+          )}{" "}
+          Delete app
         </button>
       )}
     </section>

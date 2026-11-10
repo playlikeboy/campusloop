@@ -1,25 +1,22 @@
 "use client";
 
-import {
-  ArrowLeft,
-  CheckCircle2,
-  CreditCard,
-  Loader2,
-  ShieldCheck,
-  Store,
-  Truck,
-  Wallet,
-  Zap,
-} from "lucide-react";
+import { CreditCard, ShoppingCart, Store, Truck, Wallet } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { BillSummary } from "@/components/marketplace/bill-summary";
+import { ChoiceCard } from "@/components/marketplace/choice-card";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { fieldClassName, Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { PageHeader } from "@/components/ui/page-header";
 import { useMarketplaceCart } from "@/hooks/use-marketplace-cart";
 import { haptics } from "@/lib/haptics";
-import { getCampusDeliveryLocations, isBitMesraCampus } from "@/lib/marketplace/locations";
+import { getCampusDeliveryLocations } from "@/lib/marketplace/locations";
 import { payWithRazorpay } from "@/lib/payments/razorpay-checkout";
 import { sounds } from "@/lib/sounds";
-import { cn } from "@/lib/utils";
 
 const SAVED_ADDRESS_KEY = "campusloop_saved_delivery_address";
 
@@ -28,13 +25,12 @@ interface CheckoutClientProps {
   collegeName?: string;
 }
 
-export function CheckoutClient({ profileId, collegeName = "Campus Hub" }: CheckoutClientProps) {
+export function CheckoutClient({ profileId, collegeName = "your college" }: CheckoutClientProps) {
   const router = useRouter();
   const { items, merchantGroups, overallSubtotal, clearCart } = useMarketplaceCart();
 
-  const isBitMesra = useMemo(() => isBitMesraCampus(collegeName), [collegeName]);
   const locationGroups = useMemo(() => getCampusDeliveryLocations(collegeName), [collegeName]);
-  const defaultHostel = locationGroups[0]?.locations[0]?.label || "Hostel 11 (Boys)";
+  const defaultHostel = locationGroups[0]?.locations[0]?.label || "";
 
   const [fulfillmentType, setFulfillmentType] = useState<"DELIVERY" | "PICKUP">("DELIVERY");
   const [hostelName, setHostelName] = useState(defaultHostel);
@@ -93,22 +89,22 @@ export function CheckoutClient({ profileId, collegeName = "Campus Hub" }: Checko
     e.preventDefault();
 
     if (fulfillmentType === "DELIVERY" && !roomNumber.trim()) {
-      toast.error("Please enter your room / spot number for delivery");
+      toast.error("Add your room number so the store knows where to deliver.");
       return;
     }
 
     if (fulfillmentType === "DELIVERY" && hostelName.includes("Other") && !otherLocationDetail.trim()) {
-      toast.error("Please specify your campus spot or landmark");
+      toast.error("Tell us the spot or a landmark so the store can find you.");
       return;
     }
 
     if (!phone.trim()) {
-      toast.error("Please enter your contact phone number");
+      toast.error("Add your phone number so the store can call you.");
       return;
     }
 
     if (hasRentalItems && !drivingLicenseNumber.trim()) {
-      toast.error("Please enter your Driving License / Student ID number for rental verification");
+      toast.error("Add your driving licence or student ID number. Rentals need it.");
       return;
     }
 
@@ -117,7 +113,7 @@ export function CheckoutClient({ profileId, collegeName = "Campus Hub" }: Checko
     setIsSubmitting(true);
 
     try {
-      toast.loading("Placing your campus order...", { id: "checkout" });
+      toast.loading("Placing your order...", { id: "checkout" });
 
       const finalHostelName =
         hostelName.includes("Other") && otherLocationDetail.trim()
@@ -156,120 +152,113 @@ export function CheckoutClient({ profileId, collegeName = "Campus Hub" }: Checko
 
       if (!res.ok) {
         const errorData = (await res.json()) as { error?: string };
-        throw new Error(errorData?.error || "Failed to place order");
+        throw new Error(errorData?.error || "Couldn't place your order. Try again.");
       }
 
       const data = (await res.json()) as { primaryOrderId: string; orderIds: string[] };
       clearCart();
 
       if (paymentMethod === "RAZORPAY") {
-        toast.loading("Opening secure payment...", { id: "checkout" });
+        toast.loading("Opening payment...", { id: "checkout" });
         const result = await payWithRazorpay(data.orderIds, { contact: phone.trim() });
         if (result.status === "paid") {
-          toast.success("Payment successful. Order placed!", { id: "checkout" });
+          toast.success("Paid. Your order is placed.", { id: "checkout" });
         } else if (result.status === "dismissed") {
-          toast.info("Payment not completed. You can pay from the order page.", { id: "checkout" });
+          toast.info("Payment not finished. You can pay from the order page.", { id: "checkout" });
         } else {
           toast.error(result.message, { id: "checkout" });
         }
       } else {
-        toast.success("Order Placed Successfully!", { id: "checkout" });
+        toast.success("Order placed.", { id: "checkout" });
       }
       router.push(`/marketplace/order/${data.primaryOrderId}`);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Checkout failed. Please try again.", {
-        id: "checkout",
-      });
+      toast.error(
+        err instanceof Error ? err.message : "Couldn't place your order. Check your internet and try again.",
+        {
+          id: "checkout",
+        }
+      );
       setIsSubmitting(false);
     }
   }
 
+  const isBuilding =
+    hostelName.includes("Building") ||
+    hostelName.includes("PMC") ||
+    hostelName.includes("R&D") ||
+    hostelName.includes("Library");
+  const isOther = hostelName.includes("Other");
+  const rupees = (n: number) => `₹${n.toLocaleString("en-IN")}`;
+
+  if (items.length === 0 && !isSubmitting) {
+    return (
+      <div className="mx-auto max-w-2xl">
+        <PageHeader title="Checkout" backHref="/marketplace/cart" size="md" divider={false} />
+        <EmptyState
+          icon={ShoppingCart}
+          title="Nothing to check out"
+          description="Your cart is empty. Add something from a store first."
+          action={
+            <Link href="/marketplace" className={buttonVariants({ variant: "primary" })}>
+              Browse stores
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
+
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen select-none pb-28">
-      {/* ─── Header ─── */}
-      <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border/30 bg-background/85 px-4 backdrop-blur-sm">
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="flex size-9 items-center justify-center rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-          >
-            <ArrowLeft className="size-4.5" />
-          </button>
-          <div>
-            <h1 className="text-base font-black text-foreground tracking-tight leading-none">Checkout</h1>
-            <p className="text-[11px] text-muted-foreground font-medium mt-0.5">
-              {collegeName} · {merchantGroups.length}{" "}
-              {merchantGroups.length === 1 ? "store order" : "store orders"}
-            </p>
+    <div className="mx-auto max-w-2xl pb-24">
+      <PageHeader
+        title="Checkout"
+        description={`${collegeName} · ${merchantGroups.length} ${merchantGroups.length === 1 ? "order" : "orders"}`}
+        backHref="/marketplace/cart"
+        backLabel="Back to cart"
+        size="md"
+      />
+
+      <form onSubmit={handlePlaceOrder} className="space-y-6 pt-4" noValidate>
+        <fieldset className="space-y-2">
+          <legend className="mb-2 text-base font-semibold text-fg">How do you want it?</legend>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <ChoiceCard
+              selected={fulfillmentType === "DELIVERY"}
+              onSelect={() => setFulfillmentType("DELIVERY")}
+              icon={Truck}
+              title="Deliver to me"
+              hint="To your hostel or building"
+            />
+            <ChoiceCard
+              selected={fulfillmentType === "PICKUP"}
+              onSelect={() => setFulfillmentType("PICKUP")}
+              icon={Store}
+              title="I'll pick it up"
+              hint="Show your order number at the counter"
+            />
           </div>
-        </div>
-      </header>
+        </fieldset>
 
-      <form onSubmit={handlePlaceOrder} className="p-4 space-y-5">
-        {/* 1. Fulfillment Mode Selector */}
-        <div className="rounded-3xl border border-border/40 bg-card p-4 space-y-3 shadow-xs">
-          <label className="text-xs font-bold text-muted-foreground">
-            1. Fulfillment Method
-          </label>
-          <div className="grid grid-cols-2 gap-2.5">
-            <button
-              type="button"
-              onClick={() => {
-                sounds.tap();
-                haptics.light();
-                setFulfillmentType("DELIVERY");
-              }}
-              className={cn(
-                "flex items-center justify-center gap-2 p-3 rounded-2xl border text-xs font-bold transition-colors cursor-pointer",
-                fulfillmentType === "DELIVERY"
-                  ? "bg-foreground text-background border-foreground font-black shadow-xs"
-                  : "bg-muted/40 text-muted-foreground border-border/40 hover:text-foreground"
-              )}
-            >
-              <Truck className="size-4" />
-              <span>Hostel Delivery</span>
-            </button>
+        <fieldset className="space-y-3">
+          <legend className="mb-2 text-base font-semibold text-fg">
+            {fulfillmentType === "DELIVERY" ? "Where should it go?" : "Your contact"}
+          </legend>
 
-            <button
-              type="button"
-              onClick={() => {
-                sounds.tap();
-                haptics.light();
-                setFulfillmentType("PICKUP");
-              }}
-              className={cn(
-                "flex items-center justify-center gap-2 p-3 rounded-2xl border text-xs font-bold transition-colors cursor-pointer",
-                fulfillmentType === "PICKUP"
-                  ? "bg-foreground text-background border-foreground font-black shadow-xs"
-                  : "bg-muted/40 text-muted-foreground border-border/40 hover:text-foreground"
-              )}
-            >
-              <Store className="size-4" />
-              <span>Self Pickup</span>
-            </button>
-          </div>
-        </div>
-
-        {/* 2. Address & Delivery Info */}
-        <div className="rounded-3xl border border-border/40 bg-card p-4 space-y-3 shadow-xs">
-          <label className="text-xs font-bold text-muted-foreground">
-            {fulfillmentType === "DELIVERY" ? "2. Delivery Address" : "2. Pickup Details"}
-          </label>
-
-          {fulfillmentType === "DELIVERY" ? (
-            <div className="space-y-3">
+          {fulfillmentType === "DELIVERY" && (
+            <>
               <div className="space-y-1.5">
-                <span className="text-[11px] font-bold text-muted-foreground">
-                  Select Hostel / Campus Building *
-                </span>
+                <Label htmlFor="checkout-hostel" required>
+                  Hostel or building
+                </Label>
                 <select
+                  id="checkout-hostel"
                   value={hostelName}
                   onChange={(e) => {
                     setHostelName(e.target.value);
                     saveAddressToStorage(e.target.value, roomNumber, phone, otherLocationDetail);
                   }}
-                  className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-bold text-foreground focus:border-foreground outline-none cursor-pointer"
+                  className={`${fieldClassName} h-11 cursor-pointer`}
                 >
                   {locationGroups.map((grp) => (
                     <optgroup key={grp.groupName} label={grp.groupName}>
@@ -283,244 +272,138 @@ export function CheckoutClient({ profileId, collegeName = "Campus Hub" }: Checko
                 </select>
               </div>
 
-              {hostelName.includes("Other") && (
+              {isOther && (
                 <div className="space-y-1.5">
-                  <span className="text-[11px] font-bold text-muted-foreground">
-                    Specify Campus Spot / Landmark *
-                  </span>
-                  <input
-                    type="text"
+                  <Label htmlFor="checkout-spot" required>
+                    Spot or landmark
+                  </Label>
+                  <Input
+                    id="checkout-spot"
                     required
                     value={otherLocationDetail}
                     onChange={(e) => {
                       setOtherLocationDetail(e.target.value);
                       saveAddressToStorage(hostelName, roomNumber, phone, e.target.value);
                     }}
-                    placeholder="e.g. Sports Complex / Tech Park Bench / Gate 2"
-                    className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-bold text-foreground placeholder:text-muted-foreground/60 focus:border-foreground outline-none"
+                    placeholder="Gate 2, sports complex"
                   />
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <span className="text-[11px] font-bold text-muted-foreground">
-                    {hostelName.includes("Building") ||
-                    hostelName.includes("PMC") ||
-                    hostelName.includes("R&D") ||
-                    hostelName.includes("Library")
-                      ? "Floor / Lab / Room No. *"
-                      : "Room / Flat Number *"}
-                  </span>
-                  <input
-                    type="text"
-                    required
-                    value={roomNumber}
-                    onChange={(e) => {
-                      setRoomNumber(e.target.value);
-                      saveAddressToStorage(hostelName, e.target.value, phone, otherLocationDetail);
-                    }}
-                    placeholder="e.g. 204 / 2nd Floor"
-                    className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-bold text-foreground placeholder:text-muted-foreground/60 focus:border-foreground outline-none"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <span className="text-[11px] font-bold text-muted-foreground">Phone Number *</span>
-                  <input
-                    type="tel"
-                    required
-                    value={phone}
-                    onChange={(e) => {
-                      setPhone(e.target.value);
-                      saveAddressToStorage(hostelName, roomNumber, e.target.value, otherLocationDetail);
-                    }}
-                    placeholder="e.g. 9876543210"
-                    className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-bold text-foreground placeholder:text-muted-foreground/60 focus:border-foreground outline-none"
-                  />
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <div className="p-3 rounded-2xl bg-muted/30 border border-border/30 text-xs text-muted-foreground space-y-1">
-                <p className="font-bold text-foreground">Pickup from Store Counter</p>
-                <p className="text-[11px]">
-                  Your order will be prepared in 15–20 minutes. Collect from the store counter by showing your
-                  order number.
-                </p>
-              </div>
-
               <div className="space-y-1.5">
-                <span className="text-[11px] font-bold text-muted-foreground">
-                  Phone Number for Order Alert *
-                </span>
-                <input
-                  type="tel"
+                <Label htmlFor="checkout-room" required>
+                  {isBuilding ? "Floor, lab or room" : "Room number"}
+                </Label>
+                <Input
+                  id="checkout-room"
                   required
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="e.g. 9876543210"
-                  className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-bold text-foreground placeholder:text-muted-foreground/60 focus:border-foreground outline-none"
+                  value={roomNumber}
+                  onChange={(e) => {
+                    setRoomNumber(e.target.value);
+                    saveAddressToStorage(hostelName, e.target.value, phone, otherLocationDetail);
+                  }}
+                  placeholder="204"
+                  autoComplete="address-line2"
                 />
               </div>
-            </div>
+            </>
           )}
 
-          {/* Rental Specific Verification Schema */}
-          {hasRentalItems && (
-            <div className="pt-2 border-t border-border/30 space-y-2">
-              <div className="flex items-center gap-1.5 text-xs font-black text-warning">
-                <ShieldCheck className="size-4" />
-                <span>Vehicle / Gear Rental Requirements</span>
-              </div>
-              <div className="space-y-1.5">
-                <span className="text-[11px] font-bold text-muted-foreground">
-                  Driving License Number / Student ID Number *
-                </span>
-                <input
-                  type="text"
-                  required
-                  value={drivingLicenseNumber}
-                  onChange={(e) => setDrivingLicenseNumber(e.target.value)}
-                  placeholder="e.g. DL-1420110012345 or BIT/2024/042"
-                  className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-bold text-foreground placeholder:text-muted-foreground/60 focus:border-foreground outline-none"
-                />
-              </div>
-            </div>
+          {fulfillmentType === "PICKUP" && (
+            <p className="text-sm text-fg-muted">
+              Your order page shows when it&apos;s ready. Show your order number at the counter.
+            </p>
           )}
 
-          {/* Cooking / Delivery Instructions */}
-          <div className="space-y-1.5 pt-1">
-            <span className="text-[11px] font-bold text-muted-foreground">Special Instructions / Note</span>
-            <input
-              type="text"
-              value={customerNote}
-              onChange={(e) => setCustomerNote(e.target.value)}
-              placeholder="e.g. Extra spicy, call upon reaching hostel gate..."
-              maxLength={120}
-              className="w-full h-10 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 focus:border-foreground outline-none"
+          <div className="space-y-1.5">
+            <Label htmlFor="checkout-phone" required>
+              Phone number
+            </Label>
+            <Input
+              id="checkout-phone"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              required
+              value={phone}
+              onChange={(e) => {
+                setPhone(e.target.value);
+                saveAddressToStorage(hostelName, roomNumber, e.target.value, otherLocationDetail);
+              }}
+              placeholder="98765 43210"
             />
           </div>
-        </div>
 
-        {/* 3. Payment Method */}
-        <div className="rounded-3xl border border-border/40 bg-card p-4 space-y-3 shadow-xs">
-          <label className="text-xs font-bold text-muted-foreground">
-            3. Payment Method
-          </label>
-          <button
-            type="button"
-            onClick={() => {
-              sounds.tap();
-              haptics.light();
-              setPaymentMethod("RAZORPAY");
-            }}
-            aria-pressed={paymentMethod === "RAZORPAY"}
-            className={cn(
-              "flex w-full items-center gap-3 p-3 rounded-2xl border text-left transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-              paymentMethod === "RAZORPAY"
-                ? "bg-foreground text-background border-foreground shadow-xs"
-                : "bg-muted/40 text-foreground border-border/40 hover:bg-muted/60"
-            )}
-          >
-            <Zap className="size-4 shrink-0" />
-            <span className="flex-1">
-              <span className="block text-xs font-black">Pay Online Now</span>
-              <span
-                className={cn(
-                  "block text-[11px] font-medium",
-                  paymentMethod === "RAZORPAY" ? "text-background/80" : "text-muted-foreground"
-                )}
-              >
-                UPI, cards, netbanking · Secured by Razorpay
-              </span>
-            </span>
-            <ShieldCheck className="size-4 shrink-0" />
-          </button>
-          <div className="grid grid-cols-2 gap-2.5">
-            <button
-              type="button"
-              onClick={() => {
-                sounds.tap();
-                haptics.light();
-                setPaymentMethod("COD");
-              }}
-              className={cn(
-                "flex items-center justify-center gap-2 p-3 rounded-2xl border text-xs font-bold transition-colors cursor-pointer",
-                paymentMethod === "COD"
-                  ? "bg-foreground text-background border-foreground font-black shadow-xs"
-                  : "bg-muted/40 text-muted-foreground border-border/40 hover:text-foreground"
-              )}
-            >
-              <Wallet className="size-4" />
-              <span>{fulfillmentType === "DELIVERY" ? "Cash on Delivery" : "Pay on Pickup"}</span>
-            </button>
+          {hasRentalItems && (
+            <div className="space-y-1.5">
+              <Label htmlFor="checkout-licence" required>
+                Driving licence or student ID number
+              </Label>
+              <Input
+                id="checkout-licence"
+                required
+                value={drivingLicenseNumber}
+                onChange={(e) => setDrivingLicenseNumber(e.target.value)}
+                placeholder="DL-1420110012345"
+              />
+              <p className="text-xs text-fg-muted">Rentals need this to hand over the vehicle.</p>
+            </div>
+          )}
 
-            <button
-              type="button"
-              onClick={() => {
-                sounds.tap();
-                haptics.light();
-                setPaymentMethod("UPI");
-              }}
-              className={cn(
-                "flex items-center justify-center gap-2 p-3 rounded-2xl border text-xs font-bold transition-colors cursor-pointer",
-                paymentMethod === "UPI"
-                  ? "bg-foreground text-background border-foreground font-black shadow-xs"
-                  : "bg-muted/40 text-muted-foreground border-border/40 hover:text-foreground"
-              )}
-            >
-              <CreditCard className="size-4" />
-              <span>UPI / QR on Delivery</span>
-            </button>
+          <div className="space-y-1.5">
+            <Label htmlFor="checkout-note">Note for the store (optional)</Label>
+            <Input
+              id="checkout-note"
+              value={customerNote}
+              onChange={(e) => setCustomerNote(e.target.value)}
+              placeholder="Less spicy, call at the gate"
+              maxLength={120}
+            />
           </div>
-        </div>
+        </fieldset>
 
-        {/* 4. Order Summary Card */}
-        <div className="rounded-3xl border border-border/40 bg-card p-4 space-y-2.5 shadow-xs">
-          <h3 className="text-xs font-bold text-muted-foreground">
-            Final Bill Summary
-          </h3>
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>Items Subtotal</span>
-            <span className="text-foreground font-bold">₹{overallSubtotal.toLocaleString("en-IN")}</span>
+        <fieldset className="space-y-2">
+          <legend className="mb-2 text-base font-semibold text-fg">How will you pay?</legend>
+          <div className="grid gap-2">
+            <ChoiceCard
+              selected={paymentMethod === "RAZORPAY"}
+              onSelect={() => setPaymentMethod("RAZORPAY")}
+              icon={CreditCard}
+              title="Pay online now"
+              hint="UPI, card or netbanking, through Razorpay"
+            />
+            <ChoiceCard
+              selected={paymentMethod === "COD"}
+              onSelect={() => setPaymentMethod("COD")}
+              icon={Wallet}
+              title={fulfillmentType === "DELIVERY" ? "Cash on delivery" : "Pay at pickup"}
+            />
+            <ChoiceCard
+              selected={paymentMethod === "UPI"}
+              onSelect={() => setPaymentMethod("UPI")}
+              icon={CreditCard}
+              title={fulfillmentType === "DELIVERY" ? "UPI on delivery" : "UPI at pickup"}
+              hint="Scan the store's QR code"
+            />
           </div>
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>Delivery Fee</span>
-            <span className="text-foreground font-bold">
-              {totalDeliveryFee === 0 ? "FREE" : `₹${totalDeliveryFee.toLocaleString("en-IN")}`}
-            </span>
-          </div>
-          <div className="pt-2 border-t border-border/30 flex items-center justify-between text-sm font-black text-foreground">
-            <span>Total Payable Amount</span>
-            <span className="text-base text-success">₹{grandTotal.toLocaleString("en-IN")}</span>
-          </div>
-        </div>
+        </fieldset>
 
-        {/* 5. Place Order Button */}
-        <div className="pt-2">
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full h-12 rounded-2xl bg-success hover:bg-success text-black font-black text-sm transition-[opacity,transform] flex items-center justify-center gap-2 shadow-lg cursor-pointer disabled:opacity-50"
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="size-4.5 animate-spin" />
-                <span>{paymentMethod === "RAZORPAY" ? "Processing Payment..." : "Confirming Order..."}</span>
-              </>
-            ) : (
-              <>
-                <CheckCircle2 className="size-4.5" />
-                <span>
-                  {paymentMethod === "RAZORPAY" ? "Pay" : "Place Order"} · ₹{grandTotal.toLocaleString("en-IN")}
-                </span>
-              </>
-            )}
-          </button>
-        </div>
+        <BillSummary
+          lines={[
+            { label: "Items", amount: overallSubtotal },
+            { label: "Delivery", amount: totalDeliveryFee, freeWhenZero: true },
+          ]}
+          total={grandTotal}
+        />
+
+        <Button type="submit" size="lg" className="w-full" loading={isSubmitting}>
+          {isSubmitting
+            ? paymentMethod === "RAZORPAY"
+              ? "Opening payment..."
+              : "Placing order..."
+            : `${paymentMethod === "RAZORPAY" ? "Pay" : "Place order"} · ${rupees(grandTotal)}`}
+        </Button>
       </form>
-    </main>
+    </div>
   );
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { findBranchBySlug } from "@/constants";
+import { buildMetadata } from "@/lib/seo";
 import { BranchDirectoryClient } from "./branch-client";
 
 interface BranchPageProps {
@@ -9,60 +10,16 @@ interface BranchPageProps {
 export async function generateMetadata({ params }: BranchPageProps): Promise<Metadata> {
   const { slug } = await params;
   const decoded = decodeURIComponent(slug);
-  const branchInfo = findBranchBySlug(decoded);
-  const title = branchInfo ? `${branchInfo.name} Students Hub` : `${decoded.replace(/-/g, " ")} Students Hub`;
-  const description = `Connect with verified students enrolled in ${title} across Indian college campuses.`;
-  const url = `https://campusloop.space/branch/${decoded}`;
-
-  return {
-    title: `${title}`,
-    description,
-    keywords: [title, "branch directory", "engineering departments", "student networking"],
-    alternates: { canonical: url },
-    openGraph: {
-      title: `${title}`,
-      description,
-      url,
-      siteName: "CampusLoop",
-      locale: "en_IN",
-      type: "website",
-      images: [
-        {
-          url: "https://campusloop.space/og-image.png",
-          width: 1200,
-          height: 630,
-          alt: title,
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: `${title}`,
-      description,
-      images: ["https://campusloop.space/og-image.png"],
-    },
-    robots: { index: true, follow: true },
-  };
+  const branch = findBranchBySlug(decoded)?.name ?? decoded.replace(/-/g, " ");
+  // A list of people, loaded in the browser: useful to students, thin for search engines.
+  return buildMetadata({
+    title: `${branch} students`,
+    description: `Find students studying ${branch} at your college and other colleges on CampusLoop.`,
+    path: `/branch/${slug}`,
+    noindex: true,
+  });
 }
 
-export default async function BranchDirectoryPage({ params }: BranchPageProps) {
-  const { slug } = await params;
-  const decoded = decodeURIComponent(slug);
-  const branchInfo = findBranchBySlug(decoded);
-  const title = branchInfo ? branchInfo.name : decoded.replace(/-/g, " ");
-
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    name: `${title} Student Hub`,
-    url: `https://campusloop.space/branch/${decoded}`,
-    description: `Directory of verified students enrolled in ${title}.`,
-  };
-
-  return (
-    <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <BranchDirectoryClient />
-    </>
-  );
+export default function BranchDirectoryPage() {
+  return <BranchDirectoryClient />;
 }

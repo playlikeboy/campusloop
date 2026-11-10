@@ -1,5 +1,5 @@
-import React from "react";
 import { BadgeCheck } from "lucide-react";
+import React from "react";
 import { cn } from "@/lib/utils";
 
 export interface VerifiedBadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
@@ -9,7 +9,7 @@ export interface VerifiedBadgeProps extends React.HTMLAttributes<HTMLSpanElement
 
 export function VerifiedBadge({
   size = "md",
-  title = "Verified Student (College Email)",
+  title = "Verified student",
   className,
   ...props
 }: VerifiedBadgeProps) {
@@ -28,7 +28,7 @@ export function VerifiedBadge({
       className={cn("inline-flex items-center justify-center shrink-0 select-none", className)}
       {...props}
     >
-      <BadgeCheck className={cn(sizeClasses, "text-brand fill-brand/20")} />
+      <BadgeCheck className={cn(sizeClasses, "fill-verified text-verified-fg")} />
     </span>
   );
 }

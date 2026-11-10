@@ -50,14 +50,14 @@ function generateOutreachEmailHtml({
       <div style="background-color: #f1f5f9; border-radius: 12px; padding: 18px 20px; margin: 24px 0;">
         <p style="font-weight: 600; font-size: 14px; margin: 0 0 10px 0; color: #0f172a;">What students do on CampusLoop:</p>
         <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #475569;">
-          <li style="margin-bottom: 6px;"><strong>Real Campus Feed &amp; Hubs:</strong> Live discussions, placement experiences, and society updates across 1,350+ indexed Indian colleges.</li>
+          <li style="margin-bottom: 6px;"><strong>Real Campus Feed &amp; Hubs:</strong> Live discussions, placement experiences, and society updates across Indian colleges.</li>
           <li style="margin-bottom: 6px;"><strong>Responsible Anonymity:</strong> Honest campus confessions &amp; questions with automated safety protection.</li>
           <li style="margin-bottom: 6px;"><strong>Free Academic Vault:</strong> Share and access past year question papers (PYQs), professor notes, and semester playlists.</li>
           <li><strong>Student Match &amp; Dating:</strong> Connect with fellow verified students on your campus or nearby colleges.</li>
         </ul>
       </div>
 
-      <p>Your institution's campus hub is already indexed on CampusLoop. We'd love to invite you to take a <strong>2-minute test run</strong> of the platform, check out your college feed, and share your unfiltered thoughts.</p>
+      <p>Your institution's campus hub is already indexed on CampusLoop. We'd love to invite you to take a <strong>2-minute test run</strong> of the platform, check out your college feed, and tell us what you think.</p>
 
       <!-- Action Button -->
       <div style="text-align: center; margin: 32px 0;">

@@ -1,8 +1,9 @@
 "use client";
 
-import { Loader2, UserCheck, UserPlus } from "lucide-react";
+import { UserCheck, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -33,7 +34,6 @@ export function FollowButton({
 }: FollowButtonProps) {
   const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
   const [isPending, setIsPending] = useState(false);
-  const [isHovering, setIsHovering] = useState(false);
 
   async function toggleFollow() {
     if (isPending) return;
@@ -59,43 +59,36 @@ export function FollowButton({
     } catch (err) {
       setIsFollowing(!next);
       onChange?.(!next);
+      const who = displayName || `@${username}`;
       toast.error(
-        err instanceof Error
+        err instanceof Error && err.message
           ? err.message
-          : `Could not ${next ? "follow" : "unfollow"} ${displayName || `@${username}`}`
+          : `Couldn't ${next ? "follow" : "unfollow"} ${who}. Check your connection and try again.`
       );
     } finally {
       setIsPending(false);
     }
   }
 
-  const label = isFollowing ? (isHovering ? "Unfollow" : "Following") : "Follow";
-
   return (
-    <button
+    <Button
       type="button"
       onClick={toggleFollow}
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
-      disabled={isPending}
       aria-pressed={isFollowing}
-      className={cn(
-        "inline-flex items-center justify-center gap-1.5 rounded-full font-bold shadow-2xs transition-[opacity,transform] active:scale-95 cursor-pointer disabled:opacity-70 disabled:cursor-wait",
-        size === "sm" ? "h-8 px-3.5 text-xs" : "h-9 px-4 text-xs",
-        isFollowing
-          ? "border border-border/80 bg-transparent text-foreground hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
-          : "bg-primary text-white font-bold hover:opacity-90 shadow-xs",
-        className
-      )}
+      aria-busy={isPending || undefined}
+      variant={isFollowing ? "outline" : "primary"}
+      size={size === "sm" ? "sm" : "md"}
+      className={cn("group/follow", className)}
     >
-      {isPending ? (
-        <Loader2 className="size-3.5 animate-spin" />
-      ) : isFollowing ? (
-        <UserCheck className="size-3.5" />
+      {isFollowing ? <UserCheck aria-hidden="true" /> : <UserPlus aria-hidden="true" />}
+      {isFollowing ? (
+        <>
+          <span className="group-hover/follow:hidden">Following</span>
+          <span className="hidden group-hover/follow:inline">Unfollow</span>
+        </>
       ) : (
-        <UserPlus className="size-3.5" />
+        <span>Follow</span>
       )}
-      <span>{label}</span>
-    </button>
+    </Button>
   );
 }

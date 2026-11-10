@@ -19,63 +19,72 @@ interface IncomingCallModalProps {
   onDecline: () => void;
 }
 
+/** Ringing screen for an incoming call. Uses the night palette, like the call itself. */
 export function IncomingCallModal({ incomingCall, onAccept, onDecline }: IncomingCallModalProps) {
   const { caller, type } = incomingCall;
+  const kind = type === "video" ? "video call" : "voice call";
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 select-none">
-      <div className="bg-black border border-white/10 rounded-3xl p-6 max-w-sm w-full text-center space-y-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex flex-col items-center space-y-3">
+    <div className="dark fixed inset-0 z-(--z-modal) flex items-end justify-center bg-overlay p-3 select-none sm:items-center sm:p-4">
+      <div
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="incoming-call-title"
+        aria-describedby="incoming-call-desc"
+        className="sticker-pop w-full max-w-sm space-y-8 rounded-xl bg-surface-raised p-6 text-center text-fg shadow-lg"
+      >
+        <div className="flex flex-col items-center gap-3">
           <div className="relative">
-            <div className="absolute inset-0 rounded-full border-2 border-primary/40 animate-ping opacity-75" />
-            <Avatar className="size-20 border-2 border-primary shadow-xl">
-              <AvatarImage src={caller.avatarUrl || ""} />
-              <AvatarFallback className="text-xl font-black bg-primary/20 text-primary">
+            <span
+              aria-hidden="true"
+              className="absolute inset-0 rounded-full border-2 border-brand motion-safe:animate-ping"
+            />
+            <Avatar className="size-24">
+              <AvatarImage src={caller.avatarUrl || ""} alt="" />
+              <AvatarFallback className="bg-brand-subtle text-2xl font-bold text-brand-text">
                 {caller.displayName?.slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
           </div>
-
           <div className="space-y-1">
-            <h3 className="text-lg font-black text-white">{caller.displayName}</h3>
-            <p className="text-xs text-muted-foreground">
-              Incoming {type === "video" ? "Video" : "Audio"} Call...
+            <h2 id="incoming-call-title" className="font-display text-2xl font-bold text-fg">
+              {caller.displayName}
+            </h2>
+            <p id="incoming-call-desc" className="text-sm text-fg-muted">
+              Incoming {kind}
             </p>
           </div>
         </div>
 
-        {/* Action Buttons: Decline & Accept */}
-        <div className="flex items-center justify-center gap-6 pt-2">
-          {/* Decline */}
-          <div className="flex flex-col items-center gap-1.5">
+        <div className="flex items-start justify-center gap-12">
+          <div className="flex flex-col items-center gap-2">
             <button
               type="button"
+              autoFocus
               onClick={() => {
                 sounds.pop();
                 onDecline();
               }}
-              className="size-14 rounded-full bg-danger hover:bg-danger text-white flex items-center justify-center shadow-lg transition-transform active:scale-95 cursor-pointer"
-              title="Decline"
+              aria-label={`Decline ${kind}`}
+              className="flex size-16 cursor-pointer items-center justify-center rounded-full bg-danger text-danger-fg transition-ui outline-none hover:bg-danger/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface-raised active:scale-95"
             >
-              <PhoneOff className="size-6" />
+              <PhoneOff className="size-7" />
             </button>
-            <span className="text-[11px] font-bold text-muted-foreground">Decline</span>
+            <span className="text-sm font-medium text-fg-muted">Decline</span>
           </div>
-
-          {/* Accept */}
-          <div className="flex flex-col items-center gap-1.5">
+          <div className="flex flex-col items-center gap-2">
             <button
               type="button"
               onClick={() => {
                 sounds.ting();
                 onAccept();
               }}
-              className="size-14 rounded-full bg-success hover:bg-success text-white flex items-center justify-center shadow-lg transition-transform active:scale-95 cursor-pointer"
-              title="Accept"
+              aria-label={`Answer ${kind}`}
+              className="flex size-16 cursor-pointer items-center justify-center rounded-full bg-brand text-brand-fg transition-ui outline-none hover:bg-brand-hover focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface-raised active:scale-95"
             >
-              {type === "video" ? <Video className="size-6" /> : <Phone className="size-6" />}
+              {type === "video" ? <Video className="size-7" /> : <Phone className="size-7" />}
             </button>
-            <span className="text-[11px] font-bold text-success">Accept</span>
+            <span className="text-sm font-medium text-fg-muted">Answer</span>
           </div>
         </div>
       </div>

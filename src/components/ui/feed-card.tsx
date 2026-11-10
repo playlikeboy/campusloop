@@ -342,7 +342,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
           <div className="flex flex-wrap items-center gap-2">
             <span
               className={cn(
-                "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border",
+                "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border",
                 broadcastPriority === "URGENT" && "bg-danger-subtle text-danger border-danger/30",
                 broadcastPriority === "WARNING" && "bg-warning-subtle text-warning border-warning/30",
                 broadcastPriority === "INFO" && "bg-brand-subtle text-brand-text border-brand-subtle-border",
@@ -380,7 +380,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
             </span>
           </div>
 
-          <span className="text-[10px] font-black uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
+          <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
             Priority Banner
           </span>
         </div>
@@ -388,7 +388,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
       {/* Double Tap Flame Vibe Pop Overlay */}
       <AnimatePresence>
         {showDoubleTapHeart && (
-          <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none bg-reward-subtle/40 backdrop-blur-[1px]">
+          <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none bg-reward-subtle/40-[1px]">
             <motion.div
               initial={{ scale: 0.2, opacity: 0, rotate: -15 }}
               animate={{ scale: [0.2, 1.45, 1.1], opacity: [0, 1, 0.95], rotate: [0, 8, 0] }}
@@ -489,7 +489,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
             <h3
               className={cn(
                 "w-full text-[16px] font-bold tracking-tight leading-snug break-words",
-                isBroadcast ? "text-base sm:text-lg font-black text-foreground" : "text-foreground"
+                isBroadcast ? "text-base sm:text-lg font-bold text-foreground" : "text-foreground"
               )}
             >
               {isBroadcast ? cleanBroadcastTitle : post.title}
@@ -627,9 +627,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
                       <Flame className="size-2.5 fill-reward text-reward" />
                     </div>
                     <span className="font-semibold text-[11px] group-hover:underline">
-                      {effectiveVotesCount === 1
-                        ? "1 Vibe"
-                        : `${effectiveVotesCount} Vibes`}
+                      {effectiveVotesCount === 1 ? "1 vote" : `${effectiveVotesCount} votes`}
                     </span>
                   </div>
                 )}

@@ -4,29 +4,26 @@ export const FEED_SORT_TABS = [
   { id: "confessions", label: "Confessions" },
   { id: "memes", label: "Memes" },
   { id: "latest", label: "Latest" },
-  { id: "random", label: "Random" },
-  { id: "viral", label: "Viral" },
-  { id: "most_discussed", label: "Discussed" },
-  { id: "top_voted", label: "Top" },
-  { id: "spicy", label: "Spicy" },
+  { id: "most_discussed", label: "Most comments" },
+  { id: "top_voted", label: "Most votes" },
 ] as const;
 
 export const FEED_VISIBILITY_OPTIONS = [
-  { id: "all", label: "All" },
-  { id: "anonymous", label: "Anonymous" },
-  { id: "public", label: "Public" },
+  { id: "all", label: "Everyone" },
+  { id: "anonymous", label: "Anonymous only" },
+  { id: "public", label: "Named only" },
 ] as const;
 
 export const FEED_CATEGORY_OPTIONS = [
   { id: "ALL", label: "All" },
   { id: "MEME", label: "Memes" },
-  { id: "CONFESSION", label: "Confess" },
+  { id: "CONFESSION", label: "Confessions" },
   { id: "POLL", label: "Polls" },
 ] as const;
 
 export const FEED_SCOPE_OPTIONS = [
-  { id: "CAMPUS", label: "My College" },
-  { id: "GLOBAL", label: "All Colleges" },
+  { id: "CAMPUS", label: "My college" },
+  { id: "GLOBAL", label: "All colleges" },
 ] as const;
 
 export const MAX_POST_CHARS = 2000;

@@ -1,215 +1,145 @@
 "use client";
 
-import { ArrowRight, Eye, EyeOff, Loader2, Lock, ShieldCheck, Store, User } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { homePathFor, merchantVertical } from "@/components/merchant/merchant-utils";
+import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
+import { Input } from "@/components/ui/input";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
+
+const TEAM_CONTACT = "https://www.instagram.com/campusloop.space/";
 
 export function MerchantLoginClient() {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     if (!username.trim() || !password.trim()) {
-      toast.error("Please enter both username and password");
+      setError("Enter your store username and password.");
       return;
     }
-
-    setIsLoading(true);
+    setError(null);
+    setLoading(true);
     sounds.tap();
     haptics.medium();
-
     try {
       const res = await fetch("/api/merchant/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: username.trim(),
-          password: password.trim(),
-        }),
+        body: JSON.stringify({ username: username.trim(), password: password.trim() }),
       });
-
-      const data = (await res.json()) as { error?: string; merchant?: any };
-
+      const data = (await res.json().catch(() => ({}))) as { error?: string; merchant?: any };
       if (!res.ok) {
-        throw new Error(data.error || "Login failed");
+        throw new Error(
+          res.status === 401
+            ? "That username or password is wrong. Check for typos and try again."
+            : data.error || "Couldn't log you in. Try again."
+        );
       }
-
       sounds.ting();
-      haptics.medium();
-      toast.success(`Welcome back, ${data.merchant?.name || "Merchant"}!`);
-
-      // Redirect according to vertical type
-      const cat = data.merchant?.categorySlug?.toLowerCase();
-      const vtype = data.merchant?.verticalType?.toUpperCase();
-
-      if (cat === "rentals" || vtype === "RENTALS") {
-        router.push("/merchant-portal/bikes");
-      } else if (cat === "essentials" || vtype === "MART" || vtype === "SUPERMARKET") {
-        router.push("/merchant-portal/supermarket");
-      } else {
-        router.push("/merchant-portal");
-      }
+      haptics.success();
+      toast.success(`Welcome back, ${data.merchant?.name || "there"}`);
+      router.push(homePathFor(merchantVertical(data.merchant)));
       router.refresh();
-    } catch (err: any) {
+    } catch (err) {
       sounds.pop();
       haptics.heavy();
-      toast.error(err.message || "Failed to log in");
+      setError(err instanceof Error ? err.message : "Couldn't log you in. Try again.");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   }
 
-  function handleFillDemo(u: string, p: string) {
-    setUsername(u);
-    setPassword(p);
-    sounds.tap();
-    toast.info(`Filled credentials for @${u}`);
-  }
-
   return (
-    <div className="min-h-screen w-full bg-background text-foreground flex flex-col justify-between p-4 sm:p-6 select-none">
-      {/* Top Header */}
-      <header className="max-w-4xl mx-auto w-full flex items-center justify-between py-2">
-        <Link href="/app" className="flex items-center gap-2.5 group">
-          <div className="size-8 rounded-xl bg-foreground text-background flex items-center justify-center font-black text-sm tracking-tighter">
-            CL
-          </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-black tracking-tight text-foreground">CampusLoop</span>
-            <span className="text-[10px] font-bold text-muted-foreground -mt-0.5">Merchant Portal</span>
-          </div>
+    <div className="flex min-h-dvh flex-col bg-bg px-4 py-4 text-fg sm:px-6">
+      <header className="mx-auto flex w-full max-w-4xl items-center justify-between gap-3">
+        <Link href="/" className="flex items-center gap-2">
+          <img src="/logo.png" alt="" className="size-8 object-contain" />
+          <span className="font-display text-base font-bold">CampusLoop</span>
         </Link>
-
-        <Link
-          href="/marketplace"
-          className="text-xs font-bold text-muted-foreground hover:text-foreground transition-colors"
-        >
-          Back to Campus Store
-        </Link>
+        <Button asChild variant="ghost">
+          <Link href="/marketplace">Back to CampusLoop</Link>
+        </Button>
       </header>
 
-      {/* Main Login Card */}
-      <main className="max-w-md mx-auto w-full my-auto py-8">
-        <div className="rounded-3xl bg-card border border-border/80 shadow-2xl p-6 sm:p-8 space-y-6 relative overflow-hidden">
-          {/* Subtle glow accent */}
-          <div className="absolute -top-24 -right-24 size-48 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
-
-          {/* Heading */}
-          <div className="space-y-1.5 text-center sm:text-left">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-[11px] font-black uppercase tracking-wider mb-2">
-              <Store className="size-3.5" />
-              <span>Campus Merchant Console</span>
-            </div>
-            <h1 className="text-2xl font-black tracking-tight text-foreground">
-              Sign in to manage your store
-            </h1>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Accept live orders, update menu items & prices, configure delivery, and print QR codes.
-            </p>
+      <main className="mx-auto my-auto w-full max-w-sm py-10">
+        <div className="space-y-6 rounded-xl border border-border bg-surface p-6 sm:p-8">
+          <div className="space-y-1.5">
+            <h1 className="font-display text-3xl font-extrabold">Log in to your store</h1>
+            <p className="text-sm text-fg-muted">Take orders, update your menu and print your QR poster.</p>
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                <User className="size-3.5 text-muted-foreground" />
-                <span>Merchant Username</span>
-              </label>
+          <form onSubmit={handleLogin} className="space-y-4" noValidate>
+            <FormField label="Store username">
+              <Input
+                autoComplete="username"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="momohouse"
+                aria-invalid={Boolean(error) || undefined}
+              />
+            </FormField>
+            <FormField label="Password">
               <div className="relative">
-                <input
-                  type="text"
-                  required
-                  autoCapitalize="none"
-                  autoCorrect="off"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="e.g. momohouse"
-                  className="w-full h-11 rounded-2xl bg-muted/40 border border-border px-3.5 text-xs font-bold text-foreground outline-none focus:border-foreground transition-colors placeholder:text-muted-foreground/60"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                  <Lock className="size-3.5 text-muted-foreground" />
-                  <span>Password</span>
-                </label>
-                <span className="text-[10px] text-muted-foreground">Provided by Admin</span>
-              </div>
-              <div className="relative flex items-center">
-                <input
+                <Input
                   type={showPassword ? "text" : "password"}
-                  required
+                  autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••••••"
-                  className="w-full h-11 rounded-2xl bg-muted/40 border border-border px-3.5 pr-10 text-xs font-bold text-foreground outline-none focus:border-foreground transition-colors placeholder:text-muted-foreground/60 font-mono"
+                  className="pr-12"
+                  aria-invalid={Boolean(error) || undefined}
                 />
-                <button
+                <Button
                   type="button"
-                  onClick={() => setShowPassword((p) => !p)}
-                  className="absolute right-3 text-muted-foreground hover:text-foreground cursor-pointer"
-                  tabIndex={-1}
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-0 right-0"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  aria-pressed={showPassword}
+                  onClick={() => setShowPassword((v) => !v)}
                 >
-                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                </button>
+                  {showPassword ? <EyeOff /> : <Eye />}
+                </Button>
               </div>
-            </div>
+            </FormField>
 
-            <button
-              type="submit"
-              disabled={isLoading || !username || !password}
-              className="w-full h-11 rounded-2xl bg-foreground text-background text-xs font-black flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.99] transition-ui disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-sm"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="size-4 animate-spin" />
-                  <span>Verifying Credentials...</span>
-                </>
-              ) : (
-                <>
-                  <span>Sign In to Merchant Portal</span>
-                  <ArrowRight className="size-4 stroke-2" />
-                </>
-              )}
-            </button>
+            {error && (
+              <p role="alert" className="rounded-md bg-danger-subtle px-3 py-2 text-sm text-danger">
+                {error}
+              </p>
+            )}
+
+            <Button type="submit" size="lg" className="w-full" loading={loading}>
+              Log in
+            </Button>
           </form>
         </div>
 
-        {/* Security Footer Notice */}
-        <div className="mt-6 text-center space-y-1">
-          <p className="text-[11px] text-muted-foreground flex items-center justify-center gap-1">
-            <ShieldCheck className="size-3.5 text-primary" />
-            <span>Verified Campus Merchant Portal · 256-bit Encrypted Session</span>
-          </p>
-          <p className="text-[10px] text-muted-foreground/80">
-            Need credentials for your campus stall? Request access from the{" "}
-            <a
-              href="https://www.instagram.com/campusloop.space/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:text-foreground"
-            >
-              CampusLoop Admin
-            </a>
-            .
-          </p>
-        </div>
+        <p className="mt-6 text-center text-sm text-fg-muted">
+          Don't have a store login?{" "}
+          <a
+            href={TEAM_CONTACT}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-brand-text underline-offset-4 hover:underline"
+          >
+            Message the CampusLoop team
+          </a>
+        </p>
       </main>
-
-      {/* Footer */}
-      <footer className="max-w-4xl mx-auto w-full text-center py-2 text-[11px] text-muted-foreground">
-        © {new Date().getFullYear()} CampusLoop. All rights reserved.
-      </footer>
     </div>
   );
 }

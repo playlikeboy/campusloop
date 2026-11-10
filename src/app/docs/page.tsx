@@ -1,93 +1,53 @@
 import type { Metadata } from "next";
 import { DocsHubClient } from "@/components/docs/docs-hub-client";
-import { CTABand } from "@/components/marketing/system";
+import { DocsJoinBand } from "@/components/docs/docs-join-band";
 import { MarketingShell } from "@/components/shells/marketing-shell";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { DOCS_FEATURES } from "@/lib/docs-features";
+import { absoluteUrl, breadcrumbJsonLd, buildMetadata, SITE_URL } from "@/lib/seo";
+import { JsonLd } from "@/lib/seo/json-ld-script";
 
-export const metadata: Metadata = {
-  title: "Engineering Docs · CampusLoop",
+export const metadata: Metadata = buildMetadata({
+  title: "How CampusLoop works",
   description:
-    "Twelve engineering essays on how CampusLoop works: anonymous confessions, campus feed ranking, Secret Crush, polls, the student marketplace and verification.",
-  keywords: [
-    "CampusLoop docs",
-    "CampusLoop architecture",
-    "how CampusLoop works",
-    "anonymous confessions explained",
-    "college social network engineering",
-    "BIT Mesra tech stack",
-  ],
-  alternates: { canonical: "https://campusloop.space/docs" },
-  openGraph: {
-    title: "Engineering Docs · CampusLoop",
-    description: "Twelve engineering essays on campus networks, accountable anonymity and verification.",
-    url: "https://campusloop.space/docs",
-    siteName: "CampusLoop",
-    locale: "en_IN",
-    type: "website",
-    images: [
-      {
-        url: "https://campusloop.space/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "CampusLoop architectural documentation",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Engineering Docs · CampusLoop",
-    description: "Twelve engineering essays on campus networks, accountable anonymity and verification.",
-    images: ["https://campusloop.space/og-image.png"],
-  },
-  robots: { index: true, follow: true },
-};
+    "Plain write-ups on how each CampusLoop feature works: the campus feed, anonymous confessions, polls, Campus Match, the marketplace and student verification.",
+  path: "/docs",
+  keywords: ["how CampusLoop works", "CampusLoop docs", "anonymous confessions", "student verification"],
+});
 
 export default async function DocsHubPage() {
   const user = await hexclaveServerApp.getUser();
-  const jsonLd = {
-    "@context": "https://schema.org",
+  const listJsonLd = {
     "@type": "CollectionPage",
-    name: "CampusLoop Architecture & Engineering Documentation",
-    url: "https://campusloop.space/docs",
-    description: "Engineering essays explaining each CampusLoop subsystem.",
-    publisher: { "@type": "Organization", name: "CampusLoop", url: "https://campusloop.space" },
+    name: "How CampusLoop works",
+    url: absoluteUrl("/docs"),
+    publisher: { "@id": `${SITE_URL}/#organization` },
     mainEntity: {
       "@type": "ItemList",
       itemListElement: DOCS_FEATURES.map((f, i) => ({
         "@type": "ListItem",
         position: i + 1,
         name: f.title,
-        url: `https://campusloop.space/docs/${f.slug}`,
+        url: absoluteUrl(`/docs/${f.slug}`),
       })),
     },
   };
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <MarketingShell>
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 sm:px-6 py-12 sm:py-16 space-y-12">
-          <div className="space-y-4 max-w-3xl">
-            <p className="text-sm font-semibold text-brand-text">Engineering docs</p>
-            <h1 className="text-4xl font-bold tracking-tight text-fg sm:text-5xl">How CampusLoop works.</h1>
-            <p className="text-base text-fg-muted leading-relaxed">
-              Engineering essays on campus social networks, accountable anonymity, polling, the marketplace and
-              verification.
+      <JsonLd data={[breadcrumbJsonLd([{ name: "Docs", path: "/docs" }]), listJsonLd]} />
+      <MarketingShell isAuthenticated={Boolean(user)}>
+        <div className="mx-auto w-full max-w-3xl flex-1 space-y-8 px-4 py-10 sm:px-6 sm:py-14">
+          <header className="max-w-2xl space-y-3">
+            <h1 className="text-4xl text-fg sm:text-5xl">How CampusLoop works</h1>
+            <p className="text-lg text-fg-muted">
+              Short write-ups on each feature: what it does, how it keeps you safe, and what we can and can't
+              see.
             </p>
-          </div>
-
+          </header>
           <DocsHubClient features={DOCS_FEATURES} />
-        </main>
-
-        <CTABand
-          title="Read the architecture. Now see it live."
-          lede="Every feature described here is live at campusloop.space."
-          primaryHref={user ? "/feeds" : "/sign-up"}
-          primaryLabel={user ? "Open your feed" : "Join with college email"}
-          secondaryHref="/colleges"
-          secondaryLabel="Find your college"
-        />
+        </div>
+        <DocsJoinBand signedIn={Boolean(user)} />
       </MarketingShell>
     </>
   );

@@ -1,23 +1,13 @@
 "use client";
 
-import {
-  CheckCircle2,
-  Image as ImageIcon,
-  Loader2,
-  MapPin,
-  MessageCircle,
-  Share2,
-  ShieldCheck,
-  Tag,
-  Trash2,
-  X,
-} from "lucide-react";
+import { CheckCircle2, Image as ImageIcon, MapPin, MessageCircle, Share2, Tag, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import type { MarketplaceItem } from "@/db/schema";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -40,10 +30,10 @@ interface MarketplaceCardProps {
 }
 
 const CONDITION_STYLES: Record<string, { label: string; badge: string }> = {
-  BRAND_NEW: { label: "Brand New", badge: "bg-success-subtle text-success border-success" },
-  LIKE_NEW: { label: "Like New", badge: "bg-brand-subtle text-brand-text border-brand" },
-  GOOD: { label: "Good", badge: "bg-warning-subtle text-warning border-warning" },
-  FAIR: { label: "Used / Fair", badge: "bg-muted text-muted-foreground border-border/40" },
+  BRAND_NEW: { label: "New", badge: "bg-surface text-fg border-border" },
+  LIKE_NEW: { label: "Like new", badge: "bg-surface text-fg border-border" },
+  GOOD: { label: "Good", badge: "bg-surface text-fg border-border" },
+  FAIR: { label: "Used", badge: "bg-surface text-fg border-border" },
 };
 
 export function MarketplaceCard({ item, currentUserId, onDeleted, variant = "card" }: MarketplaceCardProps) {
@@ -69,7 +59,7 @@ export function MarketplaceCard({ item, currentUserId, onDeleted, variant = "car
 
   const conditionInfo = CONDITION_STYLES[item.condition] || {
     label: item.condition.replace("_", " "),
-    badge: "bg-muted text-muted-foreground border-border/40",
+    badge: "bg-surface text-fg border-border",
   };
 
   const discountPercent =
@@ -79,7 +69,7 @@ export function MarketplaceCard({ item, currentUserId, onDeleted, variant = "car
 
   async function handleChatSeller() {
     if (isOwner) {
-      toast.info("This is your own listing!");
+      toast.info("This is your listing");
       return;
     }
 
@@ -99,10 +89,10 @@ export function MarketplaceCard({ item, currentUserId, onDeleted, variant = "car
         }),
       });
 
-      if (!res.ok) throw new Error("Failed to start chat session");
+      if (!res.ok) throw new Error("Couldn't open the chat. Try again.");
 
       const data = (await res.json()) as { id: string };
-      toast.success("Chat opened!", { id: "chat-seller" });
+      toast.success("Chat opened", { id: "chat-seller" });
       router.push(`/chat/${data.id}`);
     } catch {
       toast.error("Could not open chat with seller. Please try again.", { id: "chat-seller" });
@@ -128,7 +118,7 @@ export function MarketplaceCard({ item, currentUserId, onDeleted, variant = "car
 
       if (!res.ok) throw new Error();
       setSold(nextSold);
-      toast.success(nextSold ? "Listing marked as SOLD!" : "Listing marked as Available");
+      toast.success(nextSold ? "Marked as sold" : "Marked as available");
     } catch {
       toast.error("Could not update listing status");
     } finally {
@@ -151,7 +141,7 @@ export function MarketplaceCard({ item, currentUserId, onDeleted, variant = "car
       if (onDeleted) onDeleted(item.id);
       else router.refresh();
     } catch {
-      toast.error("Failed to delete listing");
+      toast.error("Couldn't delete the listing. Try again.");
     } finally {
       setIsDeleting(false);
     }
@@ -173,7 +163,7 @@ export function MarketplaceCard({ item, currentUserId, onDeleted, variant = "car
       return;
     }
     navigator.clipboard.writeText(url);
-    toast.success("Listing link copied to clipboard!");
+    toast.success("Link copied");
   }
 
   return (
@@ -201,7 +191,7 @@ export function MarketplaceCard({ item, currentUserId, onDeleted, variant = "car
               <img
                 src={images[0]}
                 alt={item.title}
-                className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                className="size-full object-cover transition-transform duration-300"
                 loading="lazy"
               />
             </button>
@@ -214,13 +204,13 @@ export function MarketplaceCard({ item, currentUserId, onDeleted, variant = "car
           {/* Overlaid Badges */}
           <div className="absolute top-2.5 left-2.5 flex flex-wrap items-center gap-1.5 pointer-events-none">
             {sold ? (
-              <span className="rounded-lg bg-black/80 px-2 py-0.5 text-xs font-bold text-white backdrop-blur-xs shadow-xs">
-                Sold Out
+              <span className="rounded-lg bg-overlay px-2 py-0.5 text-xs font-bold text-white shadow-xs">
+                Sold
               </span>
             ) : (
               <span
                 className={cn(
-                  "rounded-lg px-2 py-0.5 text-[11px] font-bold border backdrop-blur-sm shadow-2xs",
+                  "rounded-lg px-2 py-0.5 text-xs font-bold border shadow-2xs",
                   conditionInfo.badge
                 )}
               >
@@ -230,25 +220,26 @@ export function MarketplaceCard({ item, currentUserId, onDeleted, variant = "car
           </div>
 
           <div className="absolute top-2.5 right-2.5">
-            <button
+            <Button
               type="button"
+              variant="secondary"
+              size="icon"
               onClick={handleShare}
-              className="flex size-8 items-center justify-center rounded-lg bg-background/80 text-muted-foreground backdrop-blur-xs transition hover:bg-background hover:text-foreground shadow-2xs cursor-pointer"
-              title="Share listing"
               aria-label="Share listing"
+              className="bg-surface shadow-xs"
             >
-              <Share2 className="size-3.5" />
-            </button>
+              <Share2 />
+            </Button>
           </div>
 
           {discountPercent ? (
-            <div className="absolute bottom-2.5 left-2.5 rounded-md bg-success px-1.5 py-0.5 text-[10px] font-black text-white shadow-2xs">
-              {discountPercent}% OFF
+            <div className="absolute bottom-2.5 left-2.5 rounded-md bg-success px-1.5 py-0.5 text-xs font-bold text-white shadow-2xs">
+              {discountPercent}% off
             </div>
           ) : null}
 
           {images.length > 1 ? (
-            <div className="absolute bottom-2.5 right-2.5 rounded-md bg-black/70 px-1.5 py-0.5 text-[10px] font-bold text-white backdrop-blur-xs">
+            <div className="absolute bottom-2.5 right-2.5 rounded-md bg-overlay px-1.5 py-0.5 text-xs font-bold text-white">
               +{images.length - 1} photos
             </div>
           ) : null}
@@ -260,7 +251,7 @@ export function MarketplaceCard({ item, currentUserId, onDeleted, variant = "car
             {/* Price & Negotiation Row */}
             <div className="flex items-baseline justify-between gap-2">
               <div className="flex items-baseline gap-2">
-                <span className="text-xl font-black tracking-tight text-foreground">
+                <span className="text-xl font-bold tracking-tight text-foreground">
                   ₹{item.price.toLocaleString("en-IN")}
                 </span>
                 {item.originalPrice && item.originalPrice > item.price ? (
@@ -269,34 +260,30 @@ export function MarketplaceCard({ item, currentUserId, onDeleted, variant = "car
                   </span>
                 ) : null}
               </div>
-              <span className="text-[11px] font-medium text-muted-foreground">
+              <span className="text-xs font-medium text-muted-foreground">
                 {item.isNegotiable ? "Negotiable" : "Fixed"}
               </span>
             </div>
 
             {/* Title */}
-            <h3 className="text-sm font-bold text-foreground line-clamp-1 leading-snug">
-              {item.title}
-            </h3>
+            <h3 className="text-sm font-bold text-foreground line-clamp-1 leading-snug">{item.title}</h3>
 
             {/* Description snippet */}
             {item.description ? (
-              <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                {item.description}
-              </p>
+              <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">{item.description}</p>
             ) : null}
 
             {/* Metadata tags */}
             <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-muted-foreground">
               {item.hostelLocation ? (
                 <span className="inline-flex items-center gap-1 font-medium">
-                  <MapPin className="size-3 text-danger shrink-0" />
+                  <MapPin className="size-3 shrink-0" aria-hidden="true" />
                   <span className="truncate max-w-[140px]">{item.hostelLocation}</span>
                 </span>
               ) : null}
               {item.category ? (
                 <span className="inline-flex items-center gap-1 font-medium">
-                  <Tag className="size-3 text-primary shrink-0" />
+                  <Tag className="size-3 shrink-0" aria-hidden="true" />
                   <span>{item.category}</span>
                 </span>
               ) : null}
@@ -312,23 +299,16 @@ export function MarketplaceCard({ item, currentUserId, onDeleted, variant = "car
               >
                 <Avatar className="size-6 rounded-full border border-border/50 shrink-0">
                   <AvatarImage src={avatar} />
-                  <AvatarFallback className="text-[10px] font-bold">
+                  <AvatarFallback className="text-xs font-bold">
                     {item.seller.displayName[0] || "U"}
                   </AvatarFallback>
                 </Avatar>
                 <span className="text-xs font-semibold text-foreground truncate">
                   {item.seller.displayName}
                 </span>
-                {(item.seller.points || 0) >= 150 ? (
-                  <span title="Verified student seller">
-                    <ShieldCheck className="size-3.5 text-primary shrink-0" />
-                  </span>
-                ) : null}
               </Link>
 
-              <span className="text-[11px] text-muted-foreground shrink-0">
-                {formatTimeAgo(item.createdAt)}
-              </span>
+              <span className="text-xs text-muted-foreground shrink-0">{formatTimeAgo(item.createdAt)}</span>
             </div>
 
             {/* Action Bar */}
@@ -336,42 +316,35 @@ export function MarketplaceCard({ item, currentUserId, onDeleted, variant = "car
               <Button
                 type="button"
                 onClick={handleChatSeller}
-                disabled={isStartingChat || sold}
-                className={cn(
-                  "w-full gap-1.5 font-bold h-9 text-xs",
-                  sold ? "opacity-60" : "bg-success hover:bg-success text-white"
-                )}
+                disabled={sold}
+                loading={isStartingChat}
+                className="w-full"
               >
-                {isStartingChat ? (
-                  <Loader2 className="size-3.5 animate-spin" />
-                ) : (
-                  <MessageCircle className="size-3.5" />
-                )}
-                <span>{sold ? "Item Sold" : "Chat with Seller"}</span>
+                {!isStartingChat && <MessageCircle />}
+                {sold ? "Sold" : "Message seller"}
               </Button>
             ) : (
               <div className="flex items-center gap-2">
                 <Button
                   type="button"
                   variant="outline"
-                  size="sm"
                   onClick={handleToggleSold}
-                  disabled={isUpdatingSold}
-                  className="flex-1 gap-1 text-xs font-semibold h-9"
+                  loading={isUpdatingSold}
+                  className="flex-1"
                 >
-                  <CheckCircle2 className="size-3.5" />
-                  <span>{sold ? "Mark Available" : "Mark as Sold"}</span>
+                  {!isUpdatingSold && <CheckCircle2 />}
+                  {sold ? "Mark available" : "Mark sold"}
                 </Button>
                 <Button
                   type="button"
                   variant="ghost"
-                  size="sm"
+                  size="icon"
                   onClick={handleDeleteListing}
-                  disabled={isDeleting}
-                  className="size-9 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                  loading={isDeleting}
+                  className="text-fg-muted hover:bg-danger-subtle hover:text-danger"
                   aria-label="Delete listing"
                 >
-                  <Trash2 className="size-3.5" />
+                  {!isDeleting && <Trash2 />}
                 </Button>
               </div>
             )}
@@ -379,32 +352,18 @@ export function MarketplaceCard({ item, currentUserId, onDeleted, variant = "car
         </div>
       </article>
 
-      {/* Lightbox Modal */}
-      {activeImageModal ? (
-        <div
-          onClick={() => setActiveImageModal(null)}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in select-none"
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="relative max-w-xl max-h-[85vh] w-full rounded-2xl overflow-hidden shadow-2xl bg-black border border-white/10"
-          >
-            <button
-              type="button"
-              onClick={() => setActiveImageModal(null)}
-              className="absolute top-3 right-3 z-10 size-8 rounded-full bg-black/60 text-white hover:bg-black flex items-center justify-center cursor-pointer"
-              aria-label="Close photo preview"
-            >
-              <X className="size-4.5" />
-            </button>
+      <Dialog open={Boolean(activeImageModal)} onOpenChange={(open) => !open && setActiveImageModal(null)}>
+        <DialogContent className="max-w-xl overflow-hidden bg-surface-sunken p-0 sm:p-0">
+          <DialogTitle className="sr-only">{item.title}</DialogTitle>
+          {activeImageModal ? (
             <img
               src={activeImageModal}
               alt={item.title}
-              className="w-full h-auto max-h-[80vh] object-contain mx-auto"
+              className="mx-auto h-auto max-h-[80vh] w-full object-contain"
             />
-          </div>
-        </div>
-      ) : null}
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { RotateCcw, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
@@ -18,6 +19,21 @@ interface AcademicActiveFiltersProps {
   className?: string;
 }
 
+const TYPE_LABELS: Record<string, string> = {
+  PYQ: "PYQs",
+  NOTES: "Notes",
+  CHEAT_SHEET: "Cheat sheets",
+  LAB_MANUAL: "Lab manuals",
+};
+
+const SORT_LABELS: Record<string, string> = {
+  latest: "Newest",
+  popular: "Most upvoted",
+  downloads: "Most downloaded",
+  trending: "Popular now",
+};
+
+/** Removable chips for every filter in use, plus "Clear all". */
 export function AcademicActiveFilters({
   branch,
   semester,
@@ -30,94 +46,44 @@ export function AcademicActiveFilters({
   onClearAll,
   className,
 }: AcademicActiveFiltersProps) {
-  const activeChips: { label: string; onRemove: () => void; key: string }[] = [];
-
-  if (branch !== "All") {
-    activeChips.push({
-      key: "branch",
-      label: branch,
-      onRemove: onClearBranch,
-    });
-  }
-
-  if (semester !== "all") {
-    activeChips.push({
-      key: "semester",
-      label: `Sem ${semester}`,
-      onRemove: onClearSemester,
-    });
-  }
-
-  if (resourceType !== "all") {
-    const typeLabel =
-      resourceType === "PYQ"
-        ? "PYQs"
-        : resourceType === "NOTES"
-          ? "Notes"
-          : resourceType.replace("_", " ");
-    activeChips.push({
+  const chips: { key: string; label: string; onRemove: () => void }[] = [];
+  if (branch !== "All") chips.push({ key: "branch", label: branch, onRemove: onClearBranch });
+  if (semester !== "all")
+    chips.push({ key: "semester", label: `Sem ${semester}`, onRemove: onClearSemester });
+  if (resourceType !== "all")
+    chips.push({
       key: "type",
-      label: typeLabel,
+      label: TYPE_LABELS[resourceType] ?? resourceType.replace(/_/g, " ").toLowerCase(),
       onRemove: onClearResourceType,
     });
-  }
+  if (sortBy !== "for_you")
+    chips.push({ key: "sort", label: SORT_LABELS[sortBy] ?? sortBy, onRemove: onClearSort });
 
-  if (sortBy !== "for_you") {
-    const sortLabel =
-      sortBy === "latest"
-        ? "Latest"
-        : sortBy === "popular"
-          ? "Most Upvoted"
-          : sortBy === "downloads"
-            ? "Most Downloaded"
-            : sortBy;
-    activeChips.push({
-      key: "sort",
-      label: `Sort: ${sortLabel}`,
-      onRemove: onClearSort,
-    });
-  }
+  if (chips.length === 0) return null;
 
-  if (activeChips.length === 0) return null;
+  const tap = (fn: () => void) => () => {
+    sounds.tap();
+    haptics.light();
+    fn();
+  };
 
   return (
-    <div className={cn("flex items-center gap-1.5 flex-wrap pt-1 select-none", className)}>
-      <span className="text-[11px] font-bold text-muted-foreground mr-1">Active:</span>
-
-      {activeChips.map((chip) => (
-        <span
+    <div className={cn("flex flex-wrap items-center gap-2 pt-2", className)}>
+      {chips.map((chip) => (
+        <Chip
           key={chip.key}
-          className="inline-flex items-center gap-1 pl-2.5 pr-1.5 py-0.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-bold transition-ui animate-in fade-in zoom-in-95 duration-150"
+          size="sm"
+          selected
+          onClick={tap(chip.onRemove)}
+          onRemove={tap(chip.onRemove)}
+          aria-label={`Remove filter: ${chip.label}`}
         >
-          <span>{chip.label}</span>
-          <button
-            type="button"
-            onClick={() => {
-              sounds.tap();
-              haptics.light();
-              chip.onRemove();
-            }}
-            className="size-4 rounded-full hover:bg-primary/20 flex items-center justify-center text-primary cursor-pointer transition-colors"
-            title={`Remove ${chip.label} filter`}
-            aria-label={`Remove ${chip.label} filter`}
-          >
-            <X className="size-3" />
-          </button>
-        </span>
+          {chip.label}
+        </Chip>
       ))}
-
-      <button
-        type="button"
-        onClick={() => {
-          sounds.tap();
-          haptics.light();
-          onClearAll();
-        }}
-        className="inline-flex items-center gap-1 text-[11px] font-bold text-muted-foreground hover:text-foreground cursor-pointer transition-colors ml-1 px-2 py-0.5 rounded-md hover:bg-muted/50"
-      >
-        <RotateCcw className="size-2.5" />
-        <span>Clear all</span>
-      </button>
+      <Button variant="ghost" size="sm" onClick={tap(onClearAll)}>
+        Clear all
+      </Button>
     </div>
   );
 }

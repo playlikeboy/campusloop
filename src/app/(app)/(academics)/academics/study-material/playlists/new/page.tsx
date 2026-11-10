@@ -1,11 +1,7 @@
-import type { Metadata } from "next";
+import { privateMetadata } from "@/lib/seo";
 import { NewPlaylistClient } from "./new-playlist-client";
 
-export const metadata: Metadata = {
-  title: "Create Study Playlist",
-  description:
-    "Assemble and curate custom study playlists of engineering notes, 5-year PYQs, and cheat sheets for your college and semester on CampusLoop.",
-};
+export const metadata = privateMetadata("New study playlist");
 
 export default function NewPlaylistPage() {
   return <NewPlaylistClient />;

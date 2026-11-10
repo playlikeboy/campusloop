@@ -1,109 +1,84 @@
 "use client";
 
-import { DollarSign } from "lucide-react";
+import { IndianRupee } from "lucide-react";
 import useSWR from "swr";
-import { Skeleton } from "@/components/ui/skeleton";
+import { LoadError } from "@/components/merchant/load-error";
+import {
+  MerchantListSkeleton,
+  MerchantPage,
+  MerchantSectionTitle,
+} from "@/components/merchant/merchant-page";
+import { rupees } from "@/components/merchant/merchant-utils";
+import type { MerchantOrder } from "@/components/merchant/orders/order-types";
+import { StatList } from "@/components/merchant/stat-list";
+import { EmptyState } from "@/components/ui/empty-state";
 import { fetcher } from "@/lib/api";
 
+const DONE = new Set(["DELIVERED", "PICKED_UP", "COMPLETED"]);
+
 export function MerchantEarningsClient() {
-  const { data, isLoading } = useSWR<{ orders: any[]; merchant: any }>(
-    "/api/merchant/orders?filter=all",
+  const { data, error, isLoading, mutate } = useSWR<{ orders: MerchantOrder[] }>(
+    "/api/merchant/orders?status=all",
     fetcher
   );
 
-  const orders = data?.orders || [];
-  const completedOrders = orders.filter((o) => o.status === "DELIVERED" || o.status === "COMPLETED");
-
-  const totalGrossSales = completedOrders.reduce((sum, o) => sum + (o.total || 0), 0);
-  const totalDeliveryFees = completedOrders.reduce((sum, o) => sum + (o.deliveryFee || 0), 0);
-  const upiSales = completedOrders
-    .filter((o) => o.paymentMethod === "UPI")
-    .reduce((sum, o) => sum + (o.total || 0), 0);
-  const cashSales = completedOrders
-    .filter((o) => o.paymentMethod === "COD")
-    .reduce((sum, o) => sum + (o.total || 0), 0);
+  const done = (data?.orders || []).filter((o) => DONE.has(o.status));
+  const sum = (list: MerchantOrder[], pick: (o: MerchantOrder) => number) =>
+    list.reduce((s, o) => s + pick(o), 0);
+  // Order totals already include the delivery fee, so it is shown as part of sales, not added again.
+  const total = sum(done, (o) => o.total || 0);
+  const deliveryFees = sum(done, (o) => o.deliveryFee || 0);
+  const upi = sum(
+    done.filter((o) => o.paymentMethod === "UPI"),
+    (o) => o.total || 0
+  );
+  const cash = sum(
+    done.filter((o) => o.paymentMethod === "COD"),
+    (o) => o.total || 0
+  );
 
   return (
-    <main className="max-w-4xl mx-auto p-4 space-y-6 select-none pb-24">
-      <div>
-        <h1 className="text-xl font-bold text-foreground tracking-tight flex items-center gap-2">
-          <DollarSign className="size-5 text-success" />
-          <span>Earnings &amp; Settlements</span>
-        </h1>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          Live revenue statements, completed payouts, and UPI settlement logs
-        </p>
-      </div>
-
-      {/* ─── Revenue Cards Grid ─── */}
+    <MerchantPage title="Earnings" description="Money from orders that are delivered or picked up.">
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-          <Skeleton className="h-28 rounded-3xl" />
-          <Skeleton className="h-28 rounded-3xl" />
-          <Skeleton className="h-28 rounded-3xl" />
-        </div>
+        <MerchantListSkeleton rows={2} />
+      ) : error ? (
+        <LoadError what="your earnings" onRetry={mutate} />
+      ) : done.length === 0 ? (
+        <EmptyState
+          bordered
+          icon={IndianRupee}
+          title="No earnings yet"
+          description="Finished orders add up here."
+        />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-          <div className="p-5 rounded-3xl bg-card border border-border/40 space-y-1 shadow-xs">
-            <p className="text-xs font-bold text-muted-foreground">
-              Total Gross Sales
-            </p>
-            <p className="text-2xl font-bold text-success">₹{totalGrossSales.toLocaleString("en-IN")}</p>
-            <p className="text-[10px] text-muted-foreground font-semibold">
-              {completedOrders.length} completed orders
-            </p>
-          </div>
-
-          <div className="p-5 rounded-3xl bg-card border border-border/40 space-y-1 shadow-xs">
-            <p className="text-xs font-bold text-muted-foreground">
-              UPI Payouts (Direct)
-            </p>
-            <p className="text-2xl font-bold text-foreground">₹{upiSales.toLocaleString("en-IN")}</p>
-            <p className="text-[10px] text-success font-bold">Instant settlement</p>
-          </div>
-
-          <div className="p-5 rounded-3xl bg-card border border-border/40 space-y-1 shadow-xs">
-            <p className="text-xs font-bold text-muted-foreground">
-              Cash on Delivery (Collected)
-            </p>
-            <p className="text-2xl font-bold text-foreground">₹{cashSales.toLocaleString("en-IN")}</p>
-            <p className="text-[10px] text-muted-foreground font-semibold">Self-collected at desk</p>
-          </div>
-        </div>
+        <>
+          <StatList
+            items={[
+              { label: "Total sales", value: rupees(total) },
+              { label: "Finished orders", value: done.length },
+              { label: "Paid by UPI", value: rupees(upi) },
+              { label: "Cash collected", value: rupees(cash) },
+            ]}
+          />
+          <section className="space-y-3">
+            <MerchantSectionTitle>Breakdown</MerchantSectionTitle>
+            <dl className="divide-y divide-border rounded-lg border border-border bg-surface text-sm">
+              <div className="flex justify-between gap-3 px-4 py-3">
+                <dt className="text-fg-muted">Food and items</dt>
+                <dd className="tabular-nums text-fg">{rupees(total - deliveryFees)}</dd>
+              </div>
+              <div className="flex justify-between gap-3 px-4 py-3">
+                <dt className="text-fg-muted">Delivery fees</dt>
+                <dd className="tabular-nums text-fg">{rupees(deliveryFees)}</dd>
+              </div>
+              <div className="flex justify-between gap-3 px-4 py-3 font-semibold">
+                <dt className="text-fg">Total</dt>
+                <dd className="tabular-nums text-fg">{rupees(total)}</dd>
+              </div>
+            </dl>
+          </section>
+        </>
       )}
-
-      {/* ─── Settlement Breakdown ─── */}
-      <div className="rounded-3xl border border-border/40 bg-card p-5 space-y-3.5 shadow-xs">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xs font-bold text-muted-foreground">
-            Settlement Breakdown
-          </h2>
-          <span className="text-[11px] font-bold text-success bg-success-subtle px-2.5 py-0.5 rounded-full border border-success/20">
-            0% Platform Fee (Campus Early Access)
-          </span>
-        </div>
-
-        <div className="space-y-2 text-xs">
-          <div className="flex items-center justify-between text-muted-foreground">
-            <span>Gross Campus Sales</span>
-            <span className="text-foreground font-bold">₹{totalGrossSales.toLocaleString("en-IN")}</span>
-          </div>
-          <div className="flex items-center justify-between text-muted-foreground">
-            <span>CampusLoop Facilitation Fee</span>
-            <span className="text-success font-bold">₹0</span>
-          </div>
-          <div className="flex items-center justify-between text-muted-foreground">
-            <span>Delivery Fees Collected</span>
-            <span className="text-foreground font-bold">₹{totalDeliveryFees.toLocaleString("en-IN")}</span>
-          </div>
-          <div className="pt-2 border-t border-border/30 flex items-center justify-between text-sm font-bold text-foreground">
-            <span>Net Merchant Payout</span>
-            <span className="text-base text-success">
-              ₹{(totalGrossSales + totalDeliveryFees).toLocaleString("en-IN")}
-            </span>
-          </div>
-        </div>
-      </div>
-    </main>
+    </MerchantPage>
   );
 }

@@ -1,20 +1,10 @@
 "use client";
 
-import {
-  Check,
-  ChevronDown,
-  Globe,
-  Hash,
-  Loader2,
-  Lock,
-  Search,
-  Sparkles,
-  X,
-} from "lucide-react";
+import { Check, ChevronDown, Globe, Hash, Info, Loader2, Lock, Search, X } from "lucide-react";
 import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { useCommunities, type Community } from "@/hooks/use-communities";
+import { type Community, useCommunities } from "@/hooks/use-communities";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
@@ -70,7 +60,10 @@ export function CommunityFeedSelector({
   // Clean slug helper
   const getCommunitySlug = (c: Community): string => {
     if (c.slug && c.slug.trim().length > 0) return c.slug.trim();
-    return c.name.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
+    return c.name
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/\s+/g, "-");
   };
 
   // Filtered options based on search query
@@ -87,12 +80,7 @@ export function CommunityFeedSelector({
       const desc = (c.description || "").toLowerCase();
       const category = (c.category || "").toLowerCase();
 
-      return (
-        name.includes(clean) ||
-        slug.includes(clean) ||
-        desc.includes(clean) ||
-        category.includes(clean)
-      );
+      return name.includes(clean) || slug.includes(clean) || desc.includes(clean) || category.includes(clean);
     });
   }, [allKnownCommunities, searchQuery]);
 
@@ -111,9 +99,7 @@ export function CommunityFeedSelector({
     const timer = setTimeout(async () => {
       setIsSearchingAsync(true);
       try {
-        const res = await fetcher<Community[]>(
-          `/api/communities?q=${encodeURIComponent(clean)}&limit=15`
-        );
+        const res = await fetcher<Community[]>(`/api/communities?q=${encodeURIComponent(clean)}&limit=15`);
         if (Array.isArray(res)) {
           setAsyncResults(res);
         }
@@ -240,20 +226,18 @@ export function CommunityFeedSelector({
         aria-expanded={isOpen}
         className={cn(
           "group inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold transition-ui cursor-pointer",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
           disabled && "opacity-50 cursor-not-allowed",
           isMainFeed
-            ? "border border-border/60 bg-muted/50 text-foreground hover:bg-muted hover:border-border"
+            ? "border border-border bg-muted/50 text-foreground hover:bg-muted hover:border-border"
             : "border border-primary/30 bg-primary/10 text-primary hover:bg-primary/15"
         )}
       >
         {isMainFeed ? (
           <>
             <Globe className="size-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
-            <span className="font-semibold">Main Feed</span>
-            <span className="text-[10px] font-medium text-muted-foreground hidden sm:inline">
-              (Public)
-            </span>
+            <span className="font-semibold">Main feed</span>
+            <span className="text-xs font-medium text-muted-foreground hidden sm:inline">(Public)</span>
             <ChevronDown
               className={cn(
                 "size-3 text-muted-foreground transition-transform duration-200",
@@ -264,14 +248,12 @@ export function CommunityFeedSelector({
         ) : (
           <>
             <Hash className="size-3.5 text-primary" />
-            <span className="font-mono tracking-tight font-bold truncate max-w-[150px]">
-              c/{currentSlug}
-            </span>
+            <span className="font-mono tracking-tight font-bold truncate max-w-[150px]">c/{currentSlug}</span>
             <button
               type="button"
               onClick={handleClear}
-              title="Clear to Main Feed"
-              aria-label="Clear to Main Feed"
+              title="Post to the main feed"
+              aria-label="Post to the main feed"
               className="ml-0.5 rounded-full p-0.5 text-primary/70 hover:bg-primary/20 hover:text-primary transition-colors cursor-pointer"
             >
               <X className="size-3" />
@@ -292,18 +274,16 @@ export function CommunityFeedSelector({
           role="listbox"
           className={cn(
             "absolute left-0 top-full mt-2 z-50 w-72 sm:w-80 rounded-2xl overflow-hidden",
-            "border border-border/50 bg-card/95 backdrop-blur-xl",
-            "shadow-xl shadow-black/10 dark:shadow-black/40",
+            "border border-border bg-card",
+            "shadow-lg shadow-black/10 dark:shadow-black/40",
             "animate-in fade-in-0 zoom-in-95 duration-150"
           )}
         >
           {/* Popover Header & Search Bar */}
-          <div className="p-2.5 pb-2 border-b border-border/40 bg-muted/20">
+          <div className="p-2.5 pb-2 border-b border-border bg-muted/20">
             <div className="flex items-center justify-between px-1 mb-2">
-              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                Destination Feed
-              </span>
-              <span className="text-[10px] font-medium text-muted-foreground">
+              <span className="text-xs font-bold text-muted-foreground">Destination Feed</span>
+              <span className="text-xs font-medium text-muted-foreground">
                 {isSearchingAsync ? (
                   <span className="inline-flex items-center gap-1">
                     <Loader2 className="size-2.5 animate-spin" /> Searching...
@@ -324,12 +304,12 @@ export function CommunityFeedSelector({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Search feeds or c/{slug}..."
+                placeholder="Search communities"
                 className={cn(
                   "w-full h-8.5 rounded-xl pl-8.5 pr-8 text-xs font-medium",
-                  "bg-background/80 border border-border/50 text-foreground",
+                  "bg-bg border border-border text-foreground",
                   "placeholder:text-muted-foreground/70",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:border-primary/40",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-primary/40",
                   "transition-ui"
                 )}
               />
@@ -375,9 +355,7 @@ export function CommunityFeedSelector({
               <div
                 className={cn(
                   "size-8 rounded-xl flex items-center justify-center shrink-0 transition-colors",
-                  isMainFeed
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground"
+                  isMainFeed ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
                 )}
               >
                 <Globe className="size-4" />
@@ -385,12 +363,12 @@ export function CommunityFeedSelector({
 
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-bold truncate">Main Campus Feed</span>
-                  <Badge variant="secondary" className="px-1.5 py-0 text-[10px] h-4 font-bold">
+                  <span className="text-xs font-bold truncate">Main feed</span>
+                  <Badge variant="secondary" className="px-1.5 py-0 text-xs h-4 font-bold">
                     Global
                   </Badge>
                 </div>
-                <p className="text-[11px] text-muted-foreground truncate">
+                <p className="text-xs text-muted-foreground truncate">
                   Share across all campus students & timelines
                 </p>
               </div>
@@ -399,8 +377,8 @@ export function CommunityFeedSelector({
             </button>
 
             {/* Separator / Communities Heading */}
-            <div className="flex items-center gap-2 px-2.5 pt-2 pb-1 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-              <span>Campus Sub-Hubs (`c/...`)</span>
+            <div className="flex items-center gap-2 px-2.5 pt-2 pb-1 text-xs font-bold text-muted-foreground">
+              <span>Communities</span>
               <div className="h-px flex-1 bg-border/40" />
             </div>
 
@@ -430,24 +408,20 @@ export function CommunityFeedSelector({
                           : "hover:bg-muted/60 text-foreground"
                     )}
                   >
-                    <Avatar className="size-8 rounded-xl border border-border/40 shrink-0">
+                    <Avatar className="size-8 rounded-xl border border-border shrink-0">
                       {comm.avatarUrl && <AvatarImage src={comm.avatarUrl} alt={comm.name} />}
-                      <AvatarFallback className="rounded-xl text-[11px] font-bold bg-muted text-muted-foreground">
+                      <AvatarFallback className="rounded-xl text-xs font-bold bg-muted text-muted-foreground">
                         {comm.name ? comm.name.slice(0, 2).toUpperCase() : "C"}
                       </AvatarFallback>
                     </Avatar>
 
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-xs font-bold text-foreground truncate">
-                          {comm.name}
-                        </span>
-                        {comm.isPrivate && (
-                          <Lock className="size-2.5 text-muted-foreground shrink-0" />
-                        )}
+                        <span className="text-xs font-bold text-foreground truncate">{comm.name}</span>
+                        {comm.isPrivate && <Lock className="size-2.5 text-muted-foreground shrink-0" />}
                       </div>
 
-                      <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         <span className="font-mono font-semibold text-primary/80">c/{slug}</span>
                         <span>•</span>
                         <span>
@@ -475,7 +449,7 @@ export function CommunityFeedSelector({
                 <p className="text-xs font-bold text-foreground">
                   No community found for &ldquo;{searchQuery}&rdquo;
                 </p>
-                <p className="text-[11px] text-muted-foreground mt-0.5 mb-3">
+                <p className="text-xs text-muted-foreground mt-0.5 mb-3">
                   You can post to the Main Feed or search another sub-hub keyword.
                 </p>
                 <button
@@ -491,10 +465,10 @@ export function CommunityFeedSelector({
           </div>
 
           {/* Popover Footer Info */}
-          <div className="px-3 py-2 border-t border-border/30 bg-muted/15 flex items-center justify-between text-[10px] text-muted-foreground">
+          <div className="px-3 py-2 border-t border-border bg-muted/15 flex items-center justify-between text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
-              <Sparkles className="size-3 text-primary" />
-              <span>Posts in c/ sub-hubs appear in community feeds</span>
+              <Info className="size-3.5" aria-hidden />
+              <span>Posts in a community show up in that community</span>
             </span>
           </div>
         </div>

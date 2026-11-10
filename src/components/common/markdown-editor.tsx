@@ -186,7 +186,7 @@ export function MarkdownEditor({
               type="button"
               onClick={() => setTab(t)}
               className={cn(
-                "flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-black transition-ui",
+                "flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-ui",
                 tab === t
                   ? "bg-background text-foreground shadow-2xs"
                   : "text-muted-foreground hover:text-foreground"
@@ -198,7 +198,7 @@ export function MarkdownEditor({
           ))}
         </div>
 
-        <span className="text-[10px] font-bold text-muted-foreground">
+        <span className="text-xs font-bold text-muted-foreground">
           {wordCount} {wordCount === 1 ? "word" : "words"} · Markdown
         </span>
       </div>
@@ -208,7 +208,7 @@ export function MarkdownEditor({
           {/* Formatting toolbar */}
           <div
             className={cn(
-              "sticky z-20 flex flex-wrap items-center gap-0.5 rounded-2xl border border-border/40 bg-card/95 p-1.5 shadow-sm backdrop-blur-md",
+              "sticky z-20 flex flex-wrap items-center gap-0.5 rounded-lg border border-border bg-surface p-1.5 shadow-xs",
               stickyTopClass
             )}
           >
@@ -238,7 +238,7 @@ export function MarkdownEditor({
               aria-label="Upload image"
               disabled={isUploading}
               onClick={() => fileInputRef.current?.click()}
-              className="flex cursor-pointer items-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-black text-primary transition-colors hover:bg-primary/10 active:scale-95 disabled:opacity-60"
+              className="flex cursor-pointer items-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-bold text-primary transition-colors hover:bg-primary/10 active:scale-95 disabled:opacity-60"
             >
               {isUploading ? <Loader2 className="size-4 animate-spin" /> : <ImageIcon className="size-4" />}
               <span className="hidden sm:inline">{isUploading ? "Uploading" : "Image"}</span>
@@ -270,7 +270,7 @@ export function MarkdownEditor({
             className="w-full resize-y rounded-2xl border border-border/40 bg-muted/20 p-4 font-mono text-[13px] leading-relaxed text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-primary focus:bg-background"
           />
 
-          <p className="px-1 text-[10px] text-muted-foreground">
+          <p className="px-1 text-xs text-muted-foreground">
             Paste or drop a screenshot to upload it inline. ⌘B bold · ⌘I italic.
           </p>
         </>

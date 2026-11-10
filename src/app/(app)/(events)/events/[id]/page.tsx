@@ -2,72 +2,57 @@ import { eq, or } from "drizzle-orm";
 import type { Metadata } from "next";
 import { getDb } from "@/db";
 import { events } from "@/db/schema";
+import { breadcrumbJsonLd, buildMetadata, eventJsonLd } from "@/lib/seo";
+import { JsonLd } from "@/lib/seo/json-ld-script";
 import { EventDetailClient } from "./event-detail-client";
 
 interface EventPageProps {
   params: Promise<{ id: string }>;
 }
 
+async function findEvent(id: string) {
+  const db = getDb();
+  return db.query.events.findFirst({
+    where: or(eq(events.id, id), eq(events.slug, id)),
+    with: { institution: true },
+  });
+}
+
+/** Drafts, unlisted and college-only events stay out of search. */
+function isPublicEvent(event: { status: string | null; visibility: string | null }) {
+  return event.status !== "DRAFT" && (event.visibility ?? "PUBLIC") === "PUBLIC";
+}
+
+function shortDescription(text: string) {
+  const clean = text.replace(/\s+/g, " ").trim();
+  return clean.length > 158 ? `${clean.slice(0, 155).trimEnd()}...` : clean;
+}
+
 export async function generateMetadata({ params }: EventPageProps): Promise<Metadata> {
   try {
     const { id } = await params;
-    const db = getDb();
-
-    const event = await db.query.events.findFirst({
-      where: or(eq(events.id, id), eq(events.slug, id)),
-      with: { institution: true },
-    });
-
-    if (!event) {
-      return { title: "Event" };
-    }
+    const event = await findEvent(id);
+    if (!event) return { title: "Event not found", robots: { index: false, follow: false } };
 
     const key = event.slug || event.id;
-    const canonical = `https://campusloop.space/e/${key}`;
-    const title = `${event.title} | ${event.clubName} — CampusLoop Events`;
-    const description =
-      event.tagline || `${event.title} hosted by ${event.clubName}. Register solo or in teams on CampusLoop.`;
-    const images = event.bannerUrl
-      ? [{ url: event.bannerUrl }]
-      : [{ url: "https://campusloop.space/og-image.png" }];
+    const place = event.institution?.name ? ` at ${event.institution.name}` : "";
+    const description = shortDescription(
+      event.tagline ||
+        event.description ||
+        `${event.title} by ${event.clubName}${place}. See the date, venue and how to register.`
+    );
 
-    return {
-      title,
+    return buildMetadata({
+      title: event.title,
       description,
-      alternates: { canonical },
-      robots: { index: true, follow: true },
-      keywords: [
-        event.title,
-        event.clubName,
-        (event.eventType || "event").toLowerCase(),
-        "college event",
-        "campus hackathon",
-        event.institution?.name || "India",
-      ],
-      openGraph: {
-        type: "website",
-        title: event.title,
-        description: (event.description || description).slice(0, 160),
-        url: canonical,
-        images,
-      },
-      twitter: {
-        card: "summary_large_image",
-        title: event.title,
-        description: (event.description || description).slice(0, 160),
-        images: images.map((i) => i.url),
-      },
-    };
+      path: `/e/${key}`,
+      image: event.bannerUrl?.startsWith("https://") ? event.bannerUrl : undefined,
+      keywords: [event.title, event.clubName, event.institution?.name ?? "college event"].filter(Boolean),
+      noindex: !isPublicEvent(event),
+    });
   } catch {
-    return { title: "CampusLoop Events" };
+    return { title: "Event" };
   }
-}
-
-/** Maps our event mode onto the schema.org attendance vocabulary. */
-function attendanceMode(mode: string) {
-  if (mode === "ONLINE") return "https://schema.org/OnlineEventAttendanceMode";
-  if (mode === "HYBRID") return "https://schema.org/MixedEventAttendanceMode";
-  return "https://schema.org/OfflineEventAttendanceMode";
 }
 
 export default async function EventPage({ params }: EventPageProps) {
@@ -75,64 +60,40 @@ export default async function EventPage({ params }: EventPageProps) {
   let jsonLd = null;
 
   try {
-    const db = getDb();
-    const event = await db.query.events.findFirst({
-      where: or(eq(events.id, id), eq(events.slug, id)),
-      with: { institution: true },
-    });
-
-    if (event) {
-      const startDateIso = event.startDate
-        ? new Date(event.startDate).toISOString()
-        : new Date().toISOString();
-      const endDateIso = event.endDate ? new Date(event.endDate).toISOString() : startDateIso;
-
-      jsonLd = {
-        "@context": "https://schema.org",
-        "@type": "Event",
-        name: event.title,
-        description: (event.description || "").slice(0, 500),
-        image: event.bannerUrl || "https://campusloop.space/og-image.png",
-        startDate: startDateIso,
-        endDate: endDateIso,
-        eventAttendanceMode: attendanceMode(event.mode || "OFFLINE"),
-        eventStatus:
-          event.status === "CANCELLED"
-            ? "https://schema.org/EventCancelled"
-            : "https://schema.org/EventScheduled",
-        url: `https://campusloop.space/e/${event.slug || event.id}`,
-        location:
-          event.mode === "ONLINE"
-            ? {
-                "@type": "VirtualLocation",
-                url: event.meetingUrl || `https://campusloop.space/e/${event.slug || event.id}`,
-              }
-            : {
-                "@type": "Place",
-                name: event.venue || event.institution?.name || "Campus",
-                address: event.institution?.name || "India",
-              },
-        organizer: {
-          "@type": "Organization",
-          name: event.clubName,
-          url: "https://campusloop.space",
-        },
-        offers: {
-          "@type": "Offer",
-          price: event.isPaid ? event.entryFee : "0",
-          priceCurrency: "INR",
-          availability: "https://schema.org/InStock",
-          url: `https://campusloop.space/e/${event.slug || event.id}`,
-        },
-      };
+    const event = await findEvent(id);
+    if (event?.startDate && isPublicEvent(event)) {
+      const path = `/e/${event.slug || event.id}`;
+      const mode = event.mode || "OFFLINE";
+      const venueName = event.venue || event.institution?.name;
+      const fee = Number.parseFloat((event.entryFee ?? "").replace(/[^\d.]/g, ""));
+      jsonLd = [
+        breadcrumbJsonLd([
+          { name: "Events", path: "/events" },
+          { name: event.title, path },
+        ]),
+        eventJsonLd({
+          name: event.title,
+          description: event.description ? event.description.slice(0, 500) : event.tagline,
+          path,
+          startDate: new Date(event.startDate),
+          endDate: event.endDate ? new Date(event.endDate) : null,
+          image: event.bannerUrl?.startsWith("https://") ? event.bannerUrl : null,
+          venue:
+            mode !== "ONLINE" && venueName
+              ? { name: venueName, address: event.institution?.name ?? null }
+              : null,
+          online: mode === "ONLINE" || mode === "HYBRID",
+          organizerName: event.clubName,
+          status: event.status === "CANCELLED" ? "cancelled" : "scheduled",
+          price: event.isPaid ? (Number.isFinite(fee) ? fee : null) : 0,
+        }),
+      ];
     }
   } catch {}
 
   return (
     <>
-      {jsonLd && (
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      )}
+      {jsonLd && <JsonLd data={jsonLd} />}
       <EventDetailClient eventId={id} />
     </>
   );

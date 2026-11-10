@@ -1,14 +1,11 @@
 "use client";
 
-import { ArrowUp, Bookmark, Check, Clock, MessageSquare, Share2, ShieldCheck } from "lucide-react";
+import { Clock } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
-import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ARTICLE_TONE_CLASSES, ARTICLES_CANONICAL_HOST, getCategoryMeta } from "@/constants/articles";
-import { haptics } from "@/lib/haptics";
-import { sounds } from "@/lib/sounds";
-import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { getCategoryMeta } from "@/constants/articles";
+import { ArticleCardActions } from "./article-card-actions";
 
 export interface ArticleCardProps {
   article: {
@@ -47,228 +44,94 @@ export interface ArticleCardProps {
   featured?: boolean;
 }
 
+function formatDate(value?: Date | string | null) {
+  if (!value) return null;
+  return new Date(value).toLocaleDateString("en-IN", { month: "short", day: "numeric" });
+}
+
 export function ArticleCard({ article, featured = false }: ArticleCardProps) {
-  const [upvotes, setUpvotes] = useState(article.upvotesCount || 0);
-  const [userVote, setUserVote] = useState(article.userVote || 0);
-  const [isSaved, setIsSaved] = useState(Boolean(article.isSaved));
-  const [copied, setCopied] = useState(false);
-
   const catMeta = getCategoryMeta(article.category);
-  const authorName = article.author?.displayName || "Student Writer";
-  const authorUsername = article.author?.username || "student";
-  const rawCollege =
+  const authorName = article.author?.displayName || "Student writer";
+  const handle = (article.author?.username || "").replace(/^@/, "");
+  const collegeName =
     article.institution?.name?.split(",")[0] || article.author?.institution?.name?.split(",")[0] || "";
-  const isViewerHub =
-    article.institution?.name?.toLowerCase().includes("viewer hub") ||
-    article.author?.institution?.name?.toLowerCase().includes("viewer hub");
-  const collegeShort = isViewerHub ? "Community" : rawCollege || "Campus";
-  const isVerified = (article.author?.points || 0) >= 150 && !isViewerHub;
+  const isViewerHub = collegeName.toLowerCase().includes("viewer hub");
+  const college = isViewerHub ? "" : collegeName;
+  const date = formatDate(article.publishedAt);
+  const href = `/articles/${article.slug}`;
 
-  const formattedDate = article.publishedAt
-    ? new Date(article.publishedAt).toLocaleDateString("en-IN", {
-        month: "short",
-        day: "numeric",
-      })
-    : "Recent";
+  const byline = (
+    <div className="flex min-w-0 items-center gap-2 text-sm">
+      <Link href={handle ? `/@${handle}` : href} className="group/author flex min-w-0 items-center gap-2">
+        <Avatar className="size-6 shrink-0">
+          <AvatarImage src={article.author?.avatarUrl || ""} alt="" />
+          <AvatarFallback className="bg-surface-muted text-xs font-semibold text-fg">
+            {authorName[0]}
+          </AvatarFallback>
+        </Avatar>
+        <span className="truncate font-semibold text-fg group-hover/author:underline">{authorName}</span>
+      </Link>
+      {college && (
+        <>
+          <span aria-hidden className="text-fg-subtle">
+            ·
+          </span>
+          <span className="truncate text-fg-muted">{college}</span>
+        </>
+      )}
+    </div>
+  );
 
-  async function handleVote(e: React.MouseEvent) {
-    e.preventDefault();
-    e.stopPropagation();
-    sounds.tap();
-    haptics.medium();
+  const meta = (
+    <div className="flex items-center gap-2 text-xs text-fg-muted">
+      <Badge variant="neutral">{catMeta.label}</Badge>
+      <span className="flex items-center gap-1">
+        <Clock aria-hidden className="size-3.5" />
+        {article.readingTimeMinutes || 3} min read
+      </span>
+      {date && <time dateTime={new Date(article.publishedAt as string).toISOString()}>{date}</time>}
+    </div>
+  );
 
-    const prevVote = userVote;
-    const nextVote = prevVote === 1 ? 0 : 1;
-    setUserVote(nextVote);
-    setUpvotes((prev) => prev + (nextVote === 1 ? 1 : -1));
-
-    try {
-      const res = await fetch(`/api/articles/${article.slug}/vote`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ value: nextVote }),
-      });
-      if (!res.ok) throw new Error();
-      const data = (await res.json()) as { upvotesCount?: number };
-      if (typeof data.upvotesCount === "number") {
-        setUpvotes(data.upvotesCount);
-      }
-    } catch {
-      setUserVote(prevVote);
-      setUpvotes((prev) => prev + (prevVote === 1 ? 1 : -1));
-      toast.error("Sign in to upvote articles");
-    }
-  }
-
-  async function handleToggleSave(e: React.MouseEvent) {
-    e.preventDefault();
-    e.stopPropagation();
-    sounds.tap();
-    haptics.light();
-
-    const prevSaved = isSaved;
-    setIsSaved(!prevSaved);
-
-    try {
-      const res = await fetch(`/api/articles/${article.slug}/save`, {
-        method: "POST",
-      });
-      if (!res.ok) throw new Error();
-      const data = (await res.json()) as { isSaved?: boolean; message?: string };
-      setIsSaved(Boolean(data.isSaved));
-      toast.success(data.message || (data.isSaved ? "Saved to reading list" : "Removed"));
-    } catch {
-      setIsSaved(prevSaved);
-      toast.error("Sign in to save articles");
-    }
-  }
-
-  function handleShare(e: React.MouseEvent) {
-    e.preventDefault();
-    e.stopPropagation();
-    const shareUrl = `${ARTICLES_CANONICAL_HOST}/articles/${article.slug}`;
-
-    if (navigator.share) {
-      navigator
-        .share({
-          title: article.title,
-          text: article.excerpt || article.title,
-          url: shareUrl,
-        })
-        .catch(() => {});
-    } else {
-      navigator.clipboard.writeText(shareUrl);
-      setCopied(true);
-      toast.success("Link copied to clipboard");
-      setTimeout(() => setCopied(false), 2000);
-    }
-  }
+  const actions = (
+    <ArticleCardActions
+      slug={article.slug}
+      title={article.title}
+      excerpt={article.excerpt}
+      upvotesCount={article.upvotesCount}
+      userVote={article.userVote}
+      isSaved={article.isSaved}
+      commentsCount={article.commentsCount}
+    />
+  );
 
   if (featured) {
     return (
-      <article className="group relative overflow-hidden rounded-xl border border-border bg-surface transition-colors hover:border-brand-subtle-border">
-        <div className="flex flex-col md:flex-row gap-6 p-6">
-          {/* Featured Cover */}
+      <article className="group overflow-hidden rounded-lg border border-border bg-surface transition-ui hover:border-border-strong">
+        <div className="flex flex-col gap-5 p-4 sm:p-6 md:flex-row">
           {article.coverImageUrl && (
             <Link
-              href={`/articles/${article.slug}`}
-              className="relative block md:w-2/5 aspect-16/10 rounded-xl overflow-hidden bg-muted/30 shrink-0"
+              href={href}
+              tabIndex={-1}
+              aria-hidden
+              className="block aspect-16/10 shrink-0 overflow-hidden rounded-md bg-surface-muted md:w-2/5"
             >
-              <img
-                src={article.coverImageUrl}
-                alt={article.title}
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-              <div className="absolute top-2.5 left-2.5">
-                <span
-                  className={cn(
-                    "px-2 py-0.5 rounded-sm text-xs font-semibold border",
-                    ARTICLE_TONE_CLASSES[catMeta.tone]
-                  )}
-                >
-                  {catMeta.label}
-                </span>
-              </div>
+              <img src={article.coverImageUrl} alt="" loading="lazy" className="size-full object-cover" />
             </Link>
           )}
-
-          {/* Featured Content */}
-          <div className="flex flex-1 flex-col justify-between space-y-4">
-            <div className="space-y-2.5">
-              {/* Author Row */}
-              <div className="flex items-center gap-2 text-xs">
-                <Link href={`/@${authorUsername.replace(/^@/, "")}`} className="flex items-center gap-2 group/author">
-                  <Avatar className="size-6 border border-border/40">
-                    <AvatarImage src={article.author?.avatarUrl || ""} />
-                    <AvatarFallback className="text-[10px] font-bold bg-muted text-foreground">
-                      {authorName[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="font-semibold text-foreground group-hover/author:underline truncate">
-                    {authorName}
-                  </span>
-                  {isVerified && <ShieldCheck className="size-3 text-primary shrink-0" />}
-                </Link>
-                <span className="text-muted-foreground">·</span>
-                <span className="text-muted-foreground truncate">{collegeShort}</span>
-              </div>
-
-              {/* Title & Excerpt */}
-              <Link
-                href={`/articles/${article.slug}`}
-                className="block group-hover:text-primary transition-colors"
-              >
-                <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground line-clamp-2 leading-snug">
+          <div className="flex min-w-0 flex-1 flex-col justify-between gap-4">
+            <div className="space-y-3">
+              {byline}
+              <h2 className="text-2xl leading-tight text-fg text-balance">
+                <Link href={href} className="hover:text-brand-text">
                   {article.title}
-                </h2>
-              </Link>
-
-              {article.excerpt && (
-                <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
-                  {article.excerpt}
-                </p>
-              )}
-            </div>
-
-            {/* Bottom Actions Row */}
-            <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border/20">
-              <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1 font-medium">
-                  <Clock className="size-3.5" />
-                  <span>{article.readingTimeMinutes || 3} min read</span>
-                </span>
-                <span>·</span>
-                <span>{formattedDate}</span>
-              </div>
-
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={handleVote}
-                  aria-label="Upvote article"
-                  className={cn(
-                    "flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-colors cursor-pointer",
-                    userVote === 1
-                      ? "bg-primary/10 text-primary"
-                      : "hover:bg-muted text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  <ArrowUp className="size-3.5" />
-                  <span>{upvotes}</span>
-                </button>
-
-                <Link
-                  href={`/articles/${article.slug}#comments`}
-                  aria-label="View discussion"
-                  className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                >
-                  <MessageSquare className="size-3.5" />
-                  <span>{article.commentsCount ?? 0}</span>
                 </Link>
-
-                <button
-                  type="button"
-                  onClick={handleToggleSave}
-                  aria-label={isSaved ? "Remove from saved" : "Save article"}
-                  className={cn(
-                    "p-1.5 rounded-full transition-colors cursor-pointer",
-                    isSaved
-                      ? "text-primary bg-primary/10"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                  )}
-                >
-                  <Bookmark className={cn("size-3.5", isSaved && "fill-primary")} />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleShare}
-                  aria-label="Share article"
-                  className="p-1.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
-                >
-                  {copied ? <Check className="size-3.5 text-success" /> : <Share2 className="size-3.5" />}
-                </button>
-              </div>
+              </h2>
+              {article.excerpt && <p className="line-clamp-3 text-sm text-fg-muted">{article.excerpt}</p>}
+            </div>
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3">
+              {meta}
+              {actions}
             </div>
           </div>
         </div>
@@ -277,120 +140,29 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
   }
 
   return (
-    <article className="group py-5 first:pt-2 border-b border-border/30 last:border-b-0 transition-colors">
+    <article className="group py-5">
       <div className="flex items-start justify-between gap-4">
-        {/* Left: Article Details */}
-        <div className="flex-1 min-w-0 space-y-2">
-          {/* Author Byline */}
-          <div className="flex items-center gap-2 text-xs">
-            <Link href={`/@${authorUsername.replace(/^@/, "")}`} className="flex items-center gap-1.5 group/author">
-              <Avatar className="size-5.5 border border-border/40 shrink-0">
-                <AvatarImage src={article.author?.avatarUrl || ""} />
-                <AvatarFallback className="text-[9px] font-bold bg-muted text-foreground">
-                  {authorName[0]}
-                </AvatarFallback>
-              </Avatar>
-              <span className="font-semibold text-foreground group-hover/author:underline truncate">
-                {authorName}
-              </span>
-              {isVerified && <ShieldCheck className="size-3 text-primary shrink-0" />}
-            </Link>
-            <span className="text-muted-foreground">·</span>
-            <span className="text-muted-foreground truncate">{collegeShort}</span>
-          </div>
-
-          {/* Title */}
-          <Link
-            href={`/articles/${article.slug}`}
-            className="block group-hover:text-primary transition-colors"
-          >
-            <h3 className="text-base sm:text-lg font-bold tracking-tight text-foreground line-clamp-2 leading-snug">
+        <div className="min-w-0 flex-1 space-y-2">
+          {byline}
+          <h3 className="line-clamp-2 text-lg leading-snug text-fg">
+            <Link href={href} className="hover:text-brand-text">
               {article.title}
-            </h3>
-          </Link>
-
-          {/* Excerpt */}
-          {article.excerpt && (
-            <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-              {article.excerpt}
-            </p>
-          )}
-
-          {/* Card Footer: Metadata + Actions */}
-          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 text-xs text-muted-foreground">
-            <div className="flex items-center gap-2.5">
-              <span
-                className={cn("px-2 py-0.5 rounded-sm text-xs font-semibold border", ARTICLE_TONE_CLASSES[catMeta.tone])}
-              >
-                {catMeta.label}
-              </span>
-              <span>{article.readingTimeMinutes || 3} min read</span>
-              <span>·</span>
-              <span>{formattedDate}</span>
-            </div>
-
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={handleVote}
-                aria-label="Upvote article"
-                className={cn(
-                  "flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold transition-colors cursor-pointer",
-                  userVote === 1
-                    ? "bg-primary/10 text-primary"
-                    : "hover:bg-muted text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <ArrowUp className="size-3.5" />
-                <span>{upvotes}</span>
-              </button>
-
-              <Link
-                href={`/articles/${article.slug}#comments`}
-                aria-label="View comments"
-                className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-              >
-                <MessageSquare className="size-3.5" />
-                <span>{article.commentsCount ?? 0}</span>
-              </Link>
-
-              <button
-                type="button"
-                onClick={handleToggleSave}
-                aria-label={isSaved ? "Remove from saved" : "Save article"}
-                className={cn(
-                  "p-1.5 rounded-md transition-colors cursor-pointer",
-                  isSaved
-                    ? "text-primary bg-primary/10"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                )}
-              >
-                <Bookmark className={cn("size-3.5", isSaved && "fill-primary")} />
-              </button>
-
-              <button
-                type="button"
-                onClick={handleShare}
-                aria-label="Share article"
-                className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
-              >
-                {copied ? <Check className="size-3.5 text-success" /> : <Share2 className="size-3.5" />}
-              </button>
-            </div>
+            </Link>
+          </h3>
+          {article.excerpt && <p className="line-clamp-2 text-sm text-fg-muted">{article.excerpt}</p>}
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+            {meta}
+            {actions}
           </div>
         </div>
-
-        {/* Right: Optional Thumbnail */}
         {article.coverImageUrl && (
           <Link
-            href={`/articles/${article.slug}`}
-            className="hidden sm:block size-24 sm:size-28 rounded-xl overflow-hidden bg-muted/30 shrink-0 border border-border/40"
+            href={href}
+            tabIndex={-1}
+            aria-hidden
+            className="hidden size-24 shrink-0 overflow-hidden rounded-md bg-surface-muted sm:block sm:size-28"
           >
-            <img
-              src={article.coverImageUrl}
-              alt={article.title}
-              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-            />
+            <img src={article.coverImageUrl} alt="" loading="lazy" className="size-full object-cover" />
           </Link>
         )}
       </div>

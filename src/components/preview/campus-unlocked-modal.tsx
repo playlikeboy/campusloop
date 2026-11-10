@@ -1,10 +1,13 @@
 "use client";
 
-import { ArrowRight, CheckCircle2, GraduationCap, Mail, School, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { VerifiedSticker } from "@/components/ui/stickers";
 import { sounds } from "@/lib/sounds";
 
 interface CampusUnlockedModalProps {
@@ -47,7 +50,7 @@ export function CampusUnlockedModal({ isOpen, onClose, onSuccess }: CampusUnlock
         alreadyVerified?: boolean;
         email?: string;
       };
-      if (!res.ok) throw new Error(data.error || "Could not start verification");
+      if (!res.ok) throw new Error(data.error || "Couldn't send the link. Check the email and try again.");
 
       setPendingEmail(data.email || collegeEmail.trim().toLowerCase());
 
@@ -60,7 +63,7 @@ export function CampusUnlockedModal({ isOpen, onClose, onSuccess }: CampusUnlock
       setStage("verify");
       toast.success("Verification link sent");
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Verification failed";
+      const message = err instanceof Error ? err.message : "Something went wrong. Try again.";
       setError(message);
       toast.error(message);
     } finally {
@@ -89,17 +92,17 @@ export function CampusUnlockedModal({ isOpen, onClose, onSuccess }: CampusUnlock
 
       if (!res.ok) {
         if (data.pendingVerification) {
-          setError("Not verified yet — open the link in your inbox, then try again.");
+          setError("Not verified yet. Open the link in your inbox, then try again.");
           return;
         }
-        throw new Error(data.error || "Could not unlock your campus");
+        throw new Error(data.error || "Couldn't verify your email. Try again.");
       }
 
       sounds.pop();
       if (data.journeyStats) setJourneyStats(data.journeyStats);
       onSuccess?.();
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Verification failed";
+      const message = err instanceof Error ? err.message : "Something went wrong. Try again.";
       setError(message);
       toast.error(message);
     } finally {
@@ -110,200 +113,100 @@ export function CampusUnlockedModal({ isOpen, onClose, onSuccess }: CampusUnlock
   function handleEnterCampus() {
     onClose();
     router.refresh();
-    window.location.href = "/app";
+    window.location.href = "/feeds";
   }
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/90 backdrop-blur-sm animate-in fade-in duration-200 select-none">
-      <div className="relative w-full max-w-lg rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-2xl space-y-6 text-center overflow-hidden">
-        {/* Ambient Glow */}
-
-        {/* ─── STAGE 2: CELEBRATION MOMENT ─── */}
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-md">
         {journeyStats ? (
-          <div className="space-y-6 py-4 relative z-10 animate-in zoom-in-95 duration-300">
-            {/* Emblem */}
-            <div className="mx-auto size-20 rounded-3xl bg-brand-subtle border border-brand-subtle-border flex items-center justify-center shadow-lg">
-              <GraduationCap className="size-10 text-primary transition-transform duration-300 ease-out" />
-            </div>
-
-            <div className="space-y-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-success-subtle text-success border border-success">
-                <CheckCircle2 className="size-3.5" /> Verification Complete
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
-                CAMPUS UNLOCKED
-              </h2>
-              <p className="text-sm font-extrabold text-primary">{journeyStats.collegeName}</p>
-            </div>
-
-            {/* Journey Narrative Card */}
-            <div className="rounded-2xl border border-border/80 bg-muted/40 p-5 space-y-2 text-center shadow-xs">
-              <p className="text-xs text-muted-foreground font-medium">
-                You started as an aspirant exploring from the outside.
-              </p>
-              {journeyStats.savedPostsCount > 0 && (
-                <p className="text-xs font-bold text-foreground">
-                  You saved {journeyStats.savedPostsCount}{" "}
-                  {journeyStats.savedPostsCount === 1 ? "post" : "posts"} in your vault.
-                </p>
-              )}
-              <p className="text-sm font-black text-foreground pt-1">Today, you&apos;re officially inside.</p>
-            </div>
-
-            {/* What's Unlocked Grid */}
-            <div className="grid grid-cols-2 gap-2 text-left text-xs text-muted-foreground pt-1">
-              <div className="flex items-center gap-2 p-2 rounded-xl bg-background border border-border/40">
-                <CheckCircle2 className="size-3.5 text-success shrink-0" />
-                <span className="truncate">Student Feed &amp; Posts</span>
-              </div>
-              <div className="flex items-center gap-2 p-2 rounded-xl bg-background border border-border/40">
-                <CheckCircle2 className="size-3.5 text-success shrink-0" />
-                <span className="truncate">Campus Match Deck</span>
-              </div>
-              <div className="flex items-center gap-2 p-2 rounded-xl bg-background border border-border/40">
-                <CheckCircle2 className="size-3.5 text-success shrink-0" />
-                <span className="truncate">Direct Messaging</span>
-              </div>
-              <div className="flex items-center gap-2 p-2 rounded-xl bg-background border border-border/40">
-                <CheckCircle2 className="size-3.5 text-success shrink-0" />
-                <span className="truncate">Saved Vault Kept</span>
-              </div>
-            </div>
-
-            <Button
-              onClick={handleEnterCampus}
-              className="w-full h-12 text-sm font-black rounded-2xl bg-foreground text-background hover:opacity-90 transition-[opacity,transform] gap-2 cursor-pointer shadow-lg"
-            >
-              <span>Enter Your Campus</span>
-              <ArrowRight className="size-4" />
+          <div className="space-y-5 text-center">
+            <VerifiedSticker
+              label="Verified student"
+              college={journeyStats.collegeName}
+              className="sticker-pop"
+            />
+            <DialogHeader className="items-center text-center">
+              <DialogTitle>You're in</DialogTitle>
+              <DialogDescription>
+                You can now post, chat and use Campus Match.
+                {journeyStats.savedPostsCount > 0
+                  ? ` Your ${journeyStats.savedPostsCount} saved ${journeyStats.savedPostsCount === 1 ? "post is" : "posts are"} still here.`
+                  : ""}
+              </DialogDescription>
+            </DialogHeader>
+            <Button onClick={handleEnterCampus} className="w-full">
+              Go to my feed
             </Button>
           </div>
         ) : stage === "verify" ? (
-          /* ─── STAGE 2: WAITING ON THE VERIFICATION LINK ─── */
-          <div className="space-y-5 relative z-10">
-            <button
-              aria-label="Close"
-              type="button"
-              onClick={onClose}
-              className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 absolute -top-2 -right-2 size-8 min-h-11 min-w-11 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-            >
-              <X className="size-4" />
-            </button>
-
-            <div className="mx-auto size-14 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
-              <Mail className="size-7" />
-            </div>
-
-            <div className="space-y-1.5">
-              <h2 className="text-xl font-black tracking-tight text-foreground">Check your inbox</h2>
-              <p className="text-xs text-muted-foreground max-w-xs mx-auto leading-relaxed">
-                We sent a verification link to <strong className="text-foreground">{pendingEmail}</strong>.
-                Open it, then come back here to finish unlocking your campus.
+          <div className="space-y-4">
+            <DialogHeader>
+              <DialogTitle>Check your inbox</DialogTitle>
+              <DialogDescription>
+                We sent a link to <strong className="text-fg">{pendingEmail}</strong>. Open it, then come back
+                and tap the button below.
+              </DialogDescription>
+            </DialogHeader>
+            {error && (
+              <p className="text-sm text-danger" role="alert">
+                {error}
               </p>
-            </div>
-
-            {error && <p className="text-[11px] font-semibold text-destructive">{error}</p>}
-
-            <div className="space-y-2">
-              <Button
-                type="button"
-                onClick={() => handleConfirm()}
-                disabled={isSubmitting}
-                className="w-full h-11 text-xs font-black rounded-2xl bg-foreground text-background hover:opacity-90 transition-opacity gap-2 cursor-pointer shadow-md"
-              >
-                {isSubmitting ? "Checking..." : "I've verified — unlock my campus"}
-                <ArrowRight className="size-3.5" />
+            )}
+            <div className="flex flex-col gap-2">
+              <Button onClick={() => handleConfirm()} loading={isSubmitting}>
+                I opened the link
               </Button>
-
               <Button
-                type="button"
                 variant="ghost"
                 disabled={isSubmitting}
                 onClick={() => {
                   setStage("email");
                   setError(null);
                 }}
-                className="w-full h-9 text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer"
               >
                 Use a different email
               </Button>
             </div>
           </div>
         ) : (
-          /* ─── STAGE 1: EMAIL ENTRY ─── */
-          <div className="space-y-5 relative z-10">
-            <button
-              aria-label="Close"
-              type="button"
-              onClick={onClose}
-              className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 absolute -top-2 -right-2 size-8 min-h-11 min-w-11 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-            >
-              <X className="size-4" />
-            </button>
-
-            <div className="mx-auto size-14 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
-              <School className="size-7" />
-            </div>
-
+          <form onSubmit={handleRequestVerification} className="space-y-4">
+            <DialogHeader>
+              <DialogTitle>Verify your college email</DialogTitle>
+              <DialogDescription>
+                Get the verified badge and Campus Match. Your profile, points and saved posts stay the same.
+              </DialogDescription>
+            </DialogHeader>
             <div className="space-y-1.5">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
-                <GraduationCap className="size-3" /> Upgrade to Student Mode
-              </span>
-              <h2 className="text-xl sm:text-2xl font-black tracking-tight text-foreground">
-                Unlock Your Campus
-              </h2>
-              <p className="text-xs text-muted-foreground max-w-xs mx-auto leading-relaxed">
-                Connect your accredited university email (@bitmesra.ac.in, @iitb.ac.in, etc.) to participate
-                in discussions and matchmaking.
-              </p>
-            </div>
-
-            <form onSubmit={handleRequestVerification} className="space-y-4 text-left">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground">Official College Email</label>
-                <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                  <input
-                    type="email"
-                    required
-                    value={collegeEmail}
-                    onChange={(e) => setCollegeEmail(e.target.value)}
-                    placeholder="student@bitmesra.ac.in"
-                    className="w-full h-11 pl-10 pr-4 rounded-2xl bg-muted/40 border border-border/60 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-foreground transition-colors"
-                  />
-                </div>
-                <p className="text-[10px] text-muted-foreground">
-                  We&apos;ll email a link to confirm you can read this inbox. Your saved posts, profile and
-                  points stay on this same account.
+              <Label htmlFor="college-email">College email</Label>
+              <Input
+                id="college-email"
+                type="email"
+                inputMode="email"
+                autoComplete="email"
+                required
+                value={collegeEmail}
+                onChange={(e) => setCollegeEmail(e.target.value)}
+                placeholder="you@college.ac.in"
+                aria-invalid={error ? true : undefined}
+              />
+              {error && (
+                <p className="text-sm text-danger" role="alert">
+                  {error}
                 </p>
-                {error && <p className="text-[11px] font-semibold text-destructive">{error}</p>}
-              </div>
-
-              <div className="space-y-2 pt-2">
-                <Button
-                  type="submit"
-                  disabled={isSubmitting || !collegeEmail.trim()}
-                  className="w-full h-11 text-xs font-black rounded-2xl bg-foreground text-background hover:opacity-90 transition-opacity gap-2 cursor-pointer shadow-md"
-                >
-                  {isSubmitting ? "Sending link..." : "Send verification link"}
-                  <ArrowRight className="size-3.5" />
-                </Button>
-
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={onClose}
-                  className="w-full h-9 text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer"
-                >
-                  Continue in Preview Mode
-                </Button>
-              </div>
-            </form>
-          </div>
+              )}
+            </div>
+            <div className="flex flex-col gap-2">
+              <Button type="submit" loading={isSubmitting} disabled={isSubmitting || !collegeEmail.trim()}>
+                Send verification link
+              </Button>
+              <Button type="button" variant="ghost" onClick={onClose}>
+                Not now
+              </Button>
+            </div>
+          </form>
         )}
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

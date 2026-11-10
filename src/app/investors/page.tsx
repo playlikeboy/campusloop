@@ -1,37 +1,28 @@
-import { ArrowRight, Check, LineChart } from "lucide-react";
-import type { Metadata } from "next";
 import Link from "next/link";
+import { PageIntro } from "@/components/marketing/page-hero";
 import { CTABand } from "@/components/marketing/system";
 import { MarketingShell } from "@/components/shells/marketing-shell";
-import { GUIDE_CATEGORIES, GUIDES, getGuidesByCategory, INVESTOR_POINTS, PRODUCT_OVERVIEW, SITE_URL } from "@/lib/guide";
+import { buttonVariants } from "@/components/ui/button";
+import { GUIDE_CATEGORIES, getGuidesByCategory, INVESTOR_POINTS, PRODUCT_OVERVIEW } from "@/lib/guide";
+import { breadcrumbJsonLd, buildMetadata } from "@/lib/seo";
+import { JsonLd } from "@/lib/seo/json-ld-script";
 
-export const metadata: Metadata = {
-  title: "Investors · CampusLoop",
+export const metadata = buildMetadata({
+  title: "Investors",
   description:
-    "CampusLoop is a verified student-only network for Indian colleges, built at BIT Mesra. The problem, the product, why it is defensible, how it makes money and how it grows.",
-  alternates: { canonical: `${SITE_URL}/investors` },
-  openGraph: {
-    title: "CampusLoop for Investors",
-    description: PRODUCT_OVERVIEW.oneLiner,
-    url: `${SITE_URL}/investors`,
-    siteName: "CampusLoop",
-    type: "website",
-    locale: "en_IN",
-    images: [{ url: `${SITE_URL}/og-image.png`, width: 1200, height: 630, alt: "CampusLoop for Investors" }],
-  },
-  robots: { index: true, follow: true },
-};
+    "CampusLoop is a student-only app for Indian colleges, started at BIT Mesra. The problem, the product, how it makes money and how it grows.",
+  path: "/investors",
+});
 
-function List({ title, items }: { title: string; items: string[] }) {
+function PointList({ id, title, items }: { id: string; title: string; items: string[] }) {
   return (
-    <section className="rounded-2xl bg-card/60 p-5 shadow-2xs">
-      <h2 className="text-base font-bold text-foreground">{title}</h2>
-      <ul className="mt-3 space-y-2">
-        {items.map((i) => (
-          <li key={i} className="flex gap-2.5 text-sm leading-relaxed text-muted-foreground">
-            <Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
-            {i}
-          </li>
+    <section aria-labelledby={id}>
+      <h2 id={id} className="text-2xl text-fg">
+        {title}
+      </h2>
+      <ul className="mt-3 list-disc space-y-2 pl-5 text-fg-muted marker:text-fg-subtle">
+        {items.map((item) => (
+          <li key={item}>{item}</li>
         ))}
       </ul>
     </section>
@@ -42,72 +33,78 @@ export default function InvestorsPage() {
   const i = INVESTOR_POINTS;
   return (
     <MarketingShell>
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 sm:px-6 py-12 sm:py-16">
-        <header className="max-w-3xl">
-          <p className="flex items-center gap-1.5 text-sm font-semibold text-primary">
-            <LineChart className="size-4" aria-hidden /> For investors
-          </p>
-          <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-5xl sm:leading-[1.08]">{PRODUCT_OVERVIEW.oneLiner}</h1>
-          <p className="mt-4 text-lg leading-relaxed text-muted-foreground">{i.solution}</p>
-          <p className="mt-3 text-sm font-medium text-muted-foreground">Built at BIT Mesra by Shaswat Raj.</p>
-          <div className="mt-6 flex flex-wrap gap-2">
-            <Link href="/pitch" className="inline-flex h-11 items-center gap-1.5 rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground hover:opacity-90">
-              View the pitch deck <ArrowRight className="size-4" aria-hidden />
+      <JsonLd data={breadcrumbJsonLd([{ name: "Investors", path: "/investors" }])} />
+      <div className="mx-auto w-full max-w-3xl px-[var(--gutter)] py-12 sm:py-16">
+        <PageIntro
+          title="CampusLoop for investors"
+          lede={i.solution}
+          meta="Started at BIT Mesra by Shaswat Raj."
+        >
+          <div className="flex flex-wrap gap-3">
+            <Link href="/pitch" className={buttonVariants()}>
+              See the pitch deck
             </Link>
-            <Link href="/guide" className="inline-flex h-11 items-center rounded-full bg-muted/70 px-5 text-sm font-semibold text-foreground hover:bg-muted">
-              Read the product guide
+            <Link href="/contact" className={buttonVariants({ variant: "outline" })}>
+              Talk to the team
             </Link>
           </div>
-        </header>
+        </PageIntro>
 
-        <section aria-labelledby="problem" className="mt-14 max-w-3xl">
-          <h2 id="problem" className="text-2xl font-bold">The problem</h2>
-          <p className="mt-2 leading-relaxed text-muted-foreground">{i.problem}</p>
-          <p className="mt-3 leading-relaxed text-muted-foreground">{PRODUCT_OVERVIEW.why}</p>
-        </section>
+        <div className="mt-14 space-y-12 text-base">
+          <section aria-labelledby="problem">
+            <h2 id="problem" className="text-2xl text-fg">
+              The problem
+            </h2>
+            <p className="mt-3 text-fg-muted">{i.problem}</p>
+            <p className="mt-3 text-fg-muted">{PRODUCT_OVERVIEW.why}</p>
+          </section>
 
-        <div className="mt-10 grid gap-3 md:grid-cols-3">
-          <List title="Why it is defensible" items={i.moats} />
-          <List title="How it makes money" items={i.revenue} />
-          <List title="How it grows" items={i.growth} />
+          <PointList id="moats" title="Why it's hard to copy" items={i.moats} />
+          <PointList id="revenue" title="How it makes money" items={i.revenue} />
+          <PointList id="growth" title="How it grows" items={i.growth} />
+
+          <section aria-labelledby="measure">
+            <h2 id="measure" className="text-2xl text-fg">
+              How we decide
+            </h2>
+            <p className="mt-3 text-fg-muted">{i.measurement}</p>
+            <p className="mt-3 text-sm text-fg-subtle">Built with: {PRODUCT_OVERVIEW.stack}</p>
+          </section>
+
+          <section aria-labelledby="map">
+            <h2 id="map" className="text-2xl text-fg">
+              Every feature, and why it matters
+            </h2>
+            <div className="mt-6 space-y-8">
+              {GUIDE_CATEGORIES.map((c) => (
+                <div key={c.name}>
+                  <h3 className="font-sans text-sm font-semibold text-fg-subtle">{c.name}</h3>
+                  <ul className="mt-2 divide-y divide-border">
+                    {getGuidesByCategory(c.name).map((g) => (
+                      <li key={g.slug}>
+                        <Link
+                          href={`/guide/${g.slug}#value`}
+                          className="block py-3 transition-ui hover:text-brand-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        >
+                          <span className="block font-semibold text-fg">{g.title}</span>
+                          <span className="block text-sm text-fg-muted">{g.investorAngle}</span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </section>
         </div>
-
-        <section aria-labelledby="measure" className="mt-10 max-w-3xl">
-          <h2 id="measure" className="text-2xl font-bold">Measured, not guessed</h2>
-          <p className="mt-2 leading-relaxed text-muted-foreground">{i.measurement}</p>
-          <h3 className="mt-6 text-sm font-semibold">Technology</h3>
-          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{PRODUCT_OVERVIEW.stack}</p>
-        </section>
-
-        <section aria-labelledby="map" className="mt-14">
-          <h2 id="map" className="text-2xl font-bold">The product, feature by feature</h2>
-          <p className="mt-1 text-muted-foreground">{GUIDES.length} features. Each links to how it works and why it matters.</p>
-          <div className="mt-6 grid gap-6 md:grid-cols-2">
-            {GUIDE_CATEGORIES.map((c) => (
-              <div key={c.name}>
-                <h3 className="font-semibold text-foreground">{c.name}</h3>
-                <ul className="mt-2 space-y-1">
-                  {getGuidesByCategory(c.name).map((g) => (
-                    <li key={g.slug}>
-                      <Link href={`/guide/${g.slug}#value`} className="group block rounded-xl px-2 py-1.5 hover:bg-muted/60">
-                        <span className="text-sm font-medium text-foreground">{g.title}</span>
-                        <span className="block text-xs leading-relaxed text-muted-foreground">{g.investorAngle}</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </section>
-      </main>
+      </div>
       <CTABand
-        title="Talk to the team."
-        lede="We would love to show you the product live."
+        title="Want to see it live?"
+        lede="We'll walk you through the product."
         primaryHref="/contact"
         primaryLabel="Contact us"
-        secondaryHref="/pitch"
-        secondaryLabel="Pitch deck"
+        secondaryHref="/demo"
+        secondaryLabel="Try the demo account"
       />
     </MarketingShell>
   );

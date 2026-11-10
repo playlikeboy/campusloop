@@ -1,8 +1,13 @@
 "use client";
 
-import { Check, GraduationCap, X } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { fieldClassName, Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useProfile } from "@/hooks/use-profile";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -35,27 +40,26 @@ const SUGGESTED_COURSES = [
   "Signal Processing",
 ];
 
+const STORAGE_KEY = "campusloop_academic_focus";
+
 interface AcademicCourseModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSaved?: (updated: { branch: string; semester: number; courses: string[]; bio: string }) => void;
 }
 
-export function AcademicCourseModal({
-  isOpen,
-  onClose,
-  onSaved,
-}: AcademicCourseModalProps) {
+/** Lets a student set branch, semester and subjects so the feed shows the right material. */
+export function AcademicCourseModal({ isOpen, onClose, onSaved }: AcademicCourseModalProps) {
   const { profile, mutate: mutateProfile } = useProfile();
 
   const [branch, setBranch] = useState("Computer Science");
   const [semester, setSemester] = useState(5);
   const [courseInput, setCourseInput] = useState("");
   const [courses, setCourses] = useState<string[]>(["DBMS", "DAA"]);
-  const [academicBio, setAcademicBio] = useState("");
+  // The profile bio is sent back unchanged so saving this form never wipes it.
+  const [bio, setBio] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Load initial values from profile or localStorage
   useEffect(() => {
     if (profile) {
       if (profile.branch) setBranch(profile.branch);
@@ -70,37 +74,35 @@ export function AcademicCourseModal({
             .filter(Boolean)
         );
       }
-      if (profile.bio) setAcademicBio(profile.bio);
-    } else if (typeof window !== "undefined") {
-      try {
-        const saved = localStorage.getItem("campusloop_academic_focus");
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (parsed.branch) setBranch(parsed.branch);
-          if (parsed.semester) setSemester(parsed.semester);
-          if (Array.isArray(parsed.courses)) setCourses(parsed.courses);
-          if (parsed.bio) setAcademicBio(parsed.bio);
-        }
-      } catch {}
+      if (profile.bio) setBio(profile.bio);
+      return;
+    }
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return;
+      const parsed = JSON.parse(saved);
+      if (parsed.branch) setBranch(parsed.branch);
+      if (parsed.semester) setSemester(parsed.semester);
+      if (Array.isArray(parsed.courses)) setCourses(parsed.courses);
+      if (parsed.bio) setBio(parsed.bio);
+    } catch {
+      // Storage blocked or bad JSON: keep defaults.
     }
   }, [profile]);
 
-  if (!isOpen) return null;
-
-  function handleAddCourse(tag: string) {
+  function addCourse(tag: string) {
     const trimmed = tag.trim();
-    if (!trimmed) return;
-    if (courses.some((c) => c.toLowerCase() === trimmed.toLowerCase())) return;
+    if (!trimmed || courses.some((c) => c.toLowerCase() === trimmed.toLowerCase())) return;
     sounds.tap();
     haptics.light();
     setCourses([...courses, trimmed]);
     setCourseInput("");
   }
 
-  function handleRemoveCourse(tagToRemove: string) {
+  function removeCourse(tag: string) {
     sounds.tap();
     haptics.light();
-    setCourses(courses.filter((c) => c !== tagToRemove));
+    setCourses(courses.filter((c) => c !== tag));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -109,21 +111,13 @@ export function AcademicCourseModal({
     sounds.tap();
     haptics.medium();
 
-    const updatedData = {
-      branch,
-      semester,
-      courses,
-      bio: academicBio,
-    };
-
-    // 1. Cache to local storage immediately
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.setItem("campusloop_academic_focus", JSON.stringify(updatedData));
-      } catch {}
+    const updated = { branch, semester, courses, bio };
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    } catch {
+      // Storage blocked: still save to the account below.
     }
 
-    // 2. Persist to DB if user has session
     try {
       if (profile?.id) {
         const res = await fetch("/api/profile/me", {
@@ -134,67 +128,44 @@ export function AcademicCourseModal({
             year: Math.ceil(semester / 2),
             course: courses.join(", "),
             interests: courses,
-            bio: academicBio.slice(0, 300),
+            bio: bio.slice(0, 300),
           }),
         });
-
-        if (!res.ok) {
-          throw new Error("Could not update profile on server");
-        }
+        if (!res.ok) throw new Error("save failed");
         await mutateProfile();
+        toast.success("Saved. Your feed now shows these subjects first.");
+      } else {
+        toast.success("Saved on this phone. Sign in to keep it on every device.");
       }
-
-      toast.success("Academic focus saved! Notes & feeds prioritized for your courses.");
       haptics.success();
-      onSaved?.(updatedData);
+      onSaved?.(updated);
       onClose();
     } catch {
-      toast.info("Saved locally. Sign in anytime to sync across all your devices!");
-      onSaved?.(updatedData);
-      onClose();
+      toast.error("Couldn't save to your account. Check your internet and try again.");
     } finally {
       setIsSubmitting(false);
     }
   }
 
-  return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-background/80 backdrop-blur-md select-none animate-in fade-in-50 duration-200"
-    >
-      <div className="relative w-full max-w-lg rounded-2xl border border-border/60 bg-card p-5 sm:p-6 shadow-xl space-y-4 max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between pb-2 border-b border-border/40">
-          <div className="flex items-center gap-2.5">
-            <div className="size-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
-              <GraduationCap className="size-5" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-foreground">My Academic Focus</h2>
-              <p className="text-xs text-muted-foreground">
-                Prioritize notes, PYQs, and feed recommendations for your enrolled courses
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="size-8 rounded-full border border-border/40 hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
-          >
-            <X className="size-4" />
-          </button>
-        </div>
+  const selectClass = cn(fieldClassName, "h-11 cursor-pointer");
 
-        <form onSubmit={handleSubmit} className="space-y-4 pt-1">
-          {/* Branch & Semester Row */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-foreground">Engineering Branch</label>
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-h-[90dvh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>My branch and subjects</DialogTitle>
+          <DialogDescription>We show notes and PYQs for these first.</DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="focus-branch">Branch</Label>
               <select
+                id="focus-branch"
                 value={branch}
                 onChange={(e) => setBranch(e.target.value)}
-                className="w-full h-9 rounded-xl border border-border/50 bg-muted/30 px-3 text-xs font-medium text-foreground outline-none focus:border-primary transition-colors cursor-pointer"
+                className={selectClass}
               >
                 {BRANCH_OPTIONS.map((b) => (
                   <option key={b} value={b}>
@@ -203,13 +174,13 @@ export function AcademicCourseModal({
                 ))}
               </select>
             </div>
-
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-foreground">Current Semester</label>
+            <div className="space-y-1.5">
+              <Label htmlFor="focus-semester">Semester</Label>
               <select
+                id="focus-semester"
                 value={semester}
-                onChange={(e) => setSemester(parseInt(e.target.value, 10))}
-                className="w-full h-9 rounded-xl border border-border/50 bg-muted/30 px-3 text-xs font-medium text-foreground outline-none focus:border-primary transition-colors cursor-pointer"
+                onChange={(e) => setSemester(Number.parseInt(e.target.value, 10))}
+                className={selectClass}
               >
                 {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
                   <option key={s} value={s}>
@@ -220,114 +191,68 @@ export function AcademicCourseModal({
             </div>
           </div>
 
-          {/* Current Enrolled Courses */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-foreground">
-                Enrolled Courses &amp; Subjects
-              </label>
-              <span className="text-[11px] text-muted-foreground">e.g. DBMS, DAA, OS</span>
-            </div>
-
-            {/* Selected Courses Chips */}
-            <div className="flex flex-wrap items-center gap-1.5 min-h-[36px] p-2 rounded-xl border border-border/50 bg-muted/20">
-              {courses.map((c) => (
-                <span
-                  key={c}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-primary/15 text-primary border border-primary/30 shrink-0"
-                >
-                  <span>{c}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveCourse(c)}
-                    className="size-3.5 rounded-full hover:bg-primary/20 flex items-center justify-center transition-colors cursor-pointer"
+            <Label htmlFor="focus-course">Subjects this semester</Label>
+            {courses.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {courses.map((c) => (
+                  <Chip
+                    key={c}
+                    size="sm"
+                    selected
+                    onRemove={() => removeCourse(c)}
+                    onClick={() => removeCourse(c)}
                   >
-                    <X className="size-2.5" />
-                  </button>
-                </span>
-              ))}
-
-              <input
-                type="text"
-                placeholder={courses.length === 0 ? "Type course name (e.g. DBMS) and press Enter" : "Add more..."}
+                    {c}
+                  </Chip>
+                ))}
+              </div>
+            )}
+            <div className="flex gap-2">
+              <Input
+                id="focus-course"
+                placeholder="Type a subject, like DBMS"
                 value={courseInput}
                 onChange={(e) => setCourseInput(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === ",") {
                     e.preventDefault();
-                    handleAddCourse(courseInput);
+                    addCourse(courseInput);
                   }
                 }}
-                className="flex-1 min-w-[120px] bg-transparent text-xs text-foreground placeholder:text-muted-foreground/60 outline-none px-1"
               />
+              <Button
+                type="button"
+                variant="secondary"
+                size="icon"
+                aria-label="Add subject"
+                disabled={!courseInput.trim()}
+                onClick={() => addCourse(courseInput)}
+              >
+                <Plus />
+              </Button>
             </div>
-
-            {/* Quick add suggested courses */}
-            <div className="space-y-1 pt-1">
-              <span className="text-[11px] text-muted-foreground">Suggested quick add:</span>
-              <div className="flex flex-wrap items-center gap-1">
-                {SUGGESTED_COURSES.map((sc) => {
-                  const isAdded = courses.some((c) => c.toLowerCase() === sc.toLowerCase());
-                  return (
-                    <button
-                      key={sc}
-                      type="button"
-                      disabled={isAdded}
-                      onClick={() => handleAddCourse(sc)}
-                      className={cn(
-                        "px-2 py-0.5 rounded-full text-[10px] font-semibold transition-ui cursor-pointer border",
-                        isAdded
-                          ? "opacity-40 border-transparent bg-muted text-muted-foreground cursor-default"
-                          : "border-border/50 bg-card hover:bg-muted text-foreground hover:border-primary"
-                      )}
-                    >
-                      +{sc}
-                    </button>
-                  );
-                })}
-              </div>
+            <div className="flex flex-wrap gap-2 pt-1">
+              {SUGGESTED_COURSES.filter(
+                (sc) => !courses.some((c) => c.toLowerCase() === sc.toLowerCase())
+              ).map((sc) => (
+                <Chip key={sc} size="sm" icon={<Plus />} onClick={() => addCourse(sc)}>
+                  {sc}
+                </Chip>
+              ))}
             </div>
           </div>
 
-          {/* Academic Goal / Focus Description */}
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-foreground">
-              Academic Goal / Description (Helps recommendation engine)
-            </label>
-            <textarea
-              rows={2}
-              maxLength={300}
-              placeholder="e.g. Preparing for 5th semester end-term exams in DBMS and DAA. Need handwritten formulas and solved papers."
-              value={academicBio}
-              onChange={(e) => setAcademicBio(e.target.value)}
-              className="w-full rounded-xl border border-border/50 bg-muted/20 p-2.5 text-xs text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-colors resize-none"
-            />
-            <div className="flex justify-between text-[10px] text-muted-foreground">
-              <span>Used by similarity search to rank relevant study packs</span>
-              <span>{academicBio.length}/300</span>
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex items-center justify-end gap-2 pt-2 border-t border-border/40">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
-            >
+          <div className="flex justify-end gap-2 border-t border-border pt-4">
+            <Button type="button" variant="ghost" onClick={onClose}>
               Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="px-5 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:bg-primary/90 transition-ui cursor-pointer flex items-center gap-1.5 active:scale-95 disabled:opacity-50"
-            >
-              <Check className="size-3.5" />
-              <span>{isSubmitting ? "Saving..." : "Save Academic Focus"}</span>
-            </button>
+            </Button>
+            <Button type="submit" loading={isSubmitting}>
+              Save
+            </Button>
           </div>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

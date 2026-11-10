@@ -1,10 +1,13 @@
 "use client";
 
-import { ArrowLeft, Loader2, Users } from "lucide-react";
+import { ArrowLeft, Users } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import useSWRInfinite from "swr/infinite";
 import { type FollowListItem, FollowListRow } from "@/components/profile/follow-list-row";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Spinner } from "@/components/ui/spinner";
 import { fetcher } from "@/lib/api";
 import type { FollowDirection } from "@/lib/follows";
 import { cn } from "@/lib/utils";
@@ -97,63 +100,52 @@ export function FollowListClient({
     { id: "friends", label: "Friends", count: friendsCount },
   ];
 
+  const emptyTitle =
+    direction === "followers"
+      ? `No followers yet`
+      : direction === "following"
+        ? `@${username} isn't following anyone yet`
+        : "No friends yet";
+  const emptyLine = direction === "friends" ? "Friends are people who follow each other." : undefined;
+
   return (
-    <div className="flex w-full flex-col min-h-screen">
-      <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-xl border-b border-border/30">
-        <div className="flex items-center gap-3 px-4 py-3">
-          <Link
-            href={`/@${username}`}
-            className="flex size-11 sm:size-8 items-center justify-center rounded-full hover:bg-muted transition-colors"
-            aria-label="Back to profile"
-          >
-            <ArrowLeft className="size-4" />
-          </Link>
+    <div className="flex min-h-screen w-full flex-col">
+      <header className="sticky top-0 z-40 border-b border-border bg-bg">
+        <div className="flex items-center gap-2 px-2 py-2">
+          <Button asChild variant="ghost" size="icon" aria-label="Back to profile">
+            <Link href={`/@${username}`}>
+              <ArrowLeft aria-hidden="true" />
+            </Link>
+          </Button>
           <div className="min-w-0">
-            <h1 className="text-base font-black tracking-tight text-foreground truncate">{displayName}</h1>
-            <p className="text-xs font-semibold text-muted-foreground">@{username}</p>
+            <h1 className="truncate text-lg text-fg">{displayName}</h1>
+            <p className="text-sm text-fg-muted">@{username}</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-3">
+        <nav className="grid grid-cols-3" aria-label="Lists">
           {tabs.map((tab) => (
             <Link
               key={tab.id}
               href={`/@${username}/${tab.id}`}
+              aria-current={tab.id === direction ? "page" : undefined}
               className={cn(
-                "py-3 text-center text-xs font-black transition-colors border-b-2",
+                "-mb-px flex h-11 items-center justify-center gap-1 border-b-2 text-sm transition-ui",
                 tab.id === direction
-                  ? "border-primary text-foreground"
-                  : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/40"
+                  ? "border-brand font-semibold text-fg"
+                  : "border-transparent font-medium text-fg-muted hover:text-fg"
               )}
             >
-              {tab.count} {tab.label}
+              <span className="tabular-nums">{tab.count}</span> {tab.label}
             </Link>
           ))}
-        </div>
+        </nav>
       </header>
 
       {users.length === 0 && !isLoadingMore ? (
-        <div className="flex flex-col items-center justify-center gap-3 px-8 py-20 text-center">
-          <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-            <Users className="size-5" />
-          </div>
-          <p className="text-sm font-bold text-foreground">
-            {direction === "followers"
-              ? `No one follows @${username} yet`
-              : direction === "following"
-                ? `@${username} isn't following anyone yet`
-                : `@${username} has no campus friends yet`}
-          </p>
-          <p className="text-xs text-muted-foreground max-w-xs">
-            {direction === "followers"
-              ? "Campus connections show up here as soon as students hit follow."
-              : direction === "following"
-                ? "When they start following students, you'll see them here."
-                : "Friends appear once two students follow each other back."}
-          </p>
-        </div>
+        <EmptyState icon={Users} title={emptyTitle} description={emptyLine} />
       ) : (
-        <ul className="divide-y divide-border/30">
+        <ul className="divide-y divide-border">
           {users.map((user) => (
             <FollowListRow key={user.id} user={user} showFollowButton={isSignedIn} />
           ))}
@@ -161,17 +153,15 @@ export function FollowListClient({
       )}
 
       {isLoadingMore && (
-        <div className="flex items-center justify-center py-6">
-          <Loader2 className="size-5 animate-spin text-muted-foreground" />
+        <div className="flex justify-center py-6">
+          <Spinner size="md" label="Loading more people" className="text-fg-muted" />
         </div>
       )}
 
       {!isReachingEnd && <div ref={setSentinelNode} className="h-1" />}
 
       {isReachingEnd && users.length > 0 && (
-        <p className="py-6 text-center text-[11px] font-semibold text-muted-foreground">
-          That&apos;s everyone · {users.length} shown
-        </p>
+        <p className="py-6 text-center text-sm text-fg-subtle">That's everyone</p>
       )}
     </div>
   );

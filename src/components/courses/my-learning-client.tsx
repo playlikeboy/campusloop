@@ -1,109 +1,184 @@
 "use client";
 
-import { Award, BookOpen, ChevronRight } from "lucide-react";
+import { Award, Bookmark, BookOpen, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMyLearning } from "@/hooks/use-courses";
-import { cn } from "@/lib/utils";
 import { CourseCard } from "./course-card";
 
 type Tab = "learning" | "wishlist" | "certificates";
 
+const browse = (
+  <Button asChild>
+    <Link href="/courses">Browse courses</Link>
+  </Button>
+);
+
+function Grid({ children }: { children: React.ReactNode }) {
+  return <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{children}</ul>;
+}
+
 export function MyLearningClient() {
-  const { data, error, isLoading } = useMyLearning();
+  const { data, error, isLoading, mutate } = useMyLearning();
   const [tab, setTab] = useState<Tab>("learning");
   const learning = data?.learning ?? [];
   const inProgress = learning.filter((l) => !l.completedAt);
   const done = learning.filter((l) => l.completedAt);
+  const wishlist = data?.wishlist ?? [];
+  const certificates = data?.certificates ?? [];
 
   const tabs: { id: Tab; label: string; n: number }[] = [
     { id: "learning", label: "My courses", n: learning.length },
-    { id: "wishlist", label: "Wishlist", n: data?.wishlist.length ?? 0 },
-    { id: "certificates", label: "Certificates", n: data?.certificates.length ?? 0 },
+    { id: "wishlist", label: "Saved", n: wishlist.length },
+    { id: "certificates", label: "Certificates", n: certificates.length },
   ];
 
-  const grid = (items: typeof learning) => (
-    <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+  const progressGrid = (items: typeof learning) => (
+    <Grid>
       {items.map((l) => (
         <li key={l.course.id}>
           <CourseCard
             course={l.course}
             href={`/learn/${l.course.slug}`}
-            progress={l.course.lecturesCount ? Math.min(100, Math.round((l.completedLectures / l.course.lecturesCount) * 100)) : 0}
+            progress={
+              l.course.lecturesCount
+                ? Math.min(100, Math.round((l.completedLectures / l.course.lecturesCount) * 100))
+                : 0
+            }
           />
         </li>
       ))}
-    </ul>
+    </Grid>
   );
+
+  let body: React.ReactNode;
+  if (error) {
+    body = (
+      <EmptyState
+        icon={BookOpen}
+        title="Couldn't load your courses"
+        description="Check your connection and try again."
+        action={<Button onClick={() => mutate()}>Try again</Button>}
+      />
+    );
+  } else if (isLoading) {
+    body = (
+      <Grid>
+        {[0, 1, 2].map((i) => (
+          <li key={i}>
+            <Skeleton className="aspect-[4/3] rounded-lg" />
+          </li>
+        ))}
+      </Grid>
+    );
+  }
 
   return (
     <div className="px-4 pb-16 sm:px-0">
-      <h1 className="text-3xl font-black tracking-tight text-foreground">My learning</h1>
-      <div className="mt-5 flex gap-1 overflow-x-auto no-scrollbar" role="tablist">
-        {tabs.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            role="tab"
-            aria-selected={tab === t.id}
-            onClick={() => setTab(t.id)}
-            className={cn("h-9 shrink-0 rounded-full px-4 text-sm font-semibold cursor-pointer", tab === t.id ? "bg-foreground text-background" : "bg-muted/60 text-muted-foreground hover:text-foreground")}
-          >
-            {t.label} <span className="ml-1 opacity-70">{t.n}</span>
-          </button>
-        ))}
-      </div>
+      <h1 className="text-3xl text-fg">My learning</h1>
+      <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="mt-5 gap-6">
+        <TabsList aria-label="My learning sections" className="no-scrollbar max-w-full overflow-x-auto">
+          {tabs.map((t) => (
+            <TabsTrigger key={t.id} value={t.id} className="min-h-11 flex-none">
+              {t.label}
+              <span className="text-xs tabular-nums text-fg-subtle">{t.n}</span>
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
-      <div className="mt-6">
-        {error ? (
-          <p className="rounded-2xl bg-destructive/10 p-6 text-center text-sm text-destructive">Could not load your courses.</p>
-        ) : isLoading ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{[0, 1, 2].map((i) => <div key={i} className="aspect-[4/3] animate-pulse rounded-2xl bg-muted/60" />)}</div>
-        ) : tab === "learning" ? (
-          learning.length === 0 ? (
-            <Empty icon={BookOpen} title="You haven't started a course yet" body="Pick something from the catalog. Every course is free." />
-          ) : (
-            <div className="space-y-10">
-              {inProgress.length > 0 && <section><h2 className="mb-3 text-lg font-bold">In progress</h2>{grid(inProgress)}</section>}
-              {done.length > 0 && <section><h2 className="mb-3 text-lg font-bold">Completed</h2>{grid(done)}</section>}
-            </div>
-          )
-        ) : tab === "wishlist" ? (
-          (data?.wishlist.length ?? 0) === 0 ? (
-            <Empty icon={BookOpen} title="Your wishlist is empty" body="Save courses from their page to find them here." />
-          ) : (
-            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{data?.wishlist.map((c) => <li key={c.id}><CourseCard course={c} /></li>)}</ul>
-          )
-        ) : (data?.certificates.length ?? 0) === 0 ? (
-          <Empty icon={Award} title="No certificates yet" body="Finish every lecture of a course to earn one." />
-        ) : (
-          <ul className="space-y-2">
-            {data?.certificates.map((c) => (
-              <li key={c.id}>
-                <Link href={`/certificates/${c.id}`} className="flex min-h-16 items-center gap-4 rounded-2xl bg-card/60 px-4 shadow-2xs hover:bg-muted/50">
-                  <span className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary"><Award className="size-5" aria-hidden /></span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate font-semibold text-foreground">{c.courseTitle}</span>
-                    <span className="text-xs text-muted-foreground">Issued {new Date(c.issuedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
-                  </span>
-                  <ChevronRight className="size-4 text-muted-foreground" aria-hidden />
-                </Link>
-              </li>
-            ))}
-          </ul>
+        {body ?? (
+          <>
+            <TabsContent value="learning">
+              {learning.length === 0 ? (
+                <EmptyState
+                  icon={BookOpen}
+                  title="No courses yet"
+                  description="Every course is free. Pick one to start."
+                  action={browse}
+                />
+              ) : (
+                <div className="space-y-10">
+                  {inProgress.length > 0 && (
+                    <section aria-labelledby="in-progress">
+                      <h2 id="in-progress" className="mb-3 text-lg text-fg">
+                        In progress
+                      </h2>
+                      {progressGrid(inProgress)}
+                    </section>
+                  )}
+                  {done.length > 0 && (
+                    <section aria-labelledby="finished">
+                      <h2 id="finished" className="mb-3 text-lg text-fg">
+                        Finished
+                      </h2>
+                      {progressGrid(done)}
+                    </section>
+                  )}
+                </div>
+              )}
+            </TabsContent>
+            <TabsContent value="wishlist">
+              {wishlist.length === 0 ? (
+                <EmptyState
+                  icon={Bookmark}
+                  title="Nothing saved yet"
+                  description="Tap Save on a course to keep it here."
+                  action={browse}
+                />
+              ) : (
+                <Grid>
+                  {wishlist.map((c) => (
+                    <li key={c.id}>
+                      <CourseCard course={c} />
+                    </li>
+                  ))}
+                </Grid>
+              )}
+            </TabsContent>
+            <TabsContent value="certificates">
+              {certificates.length === 0 ? (
+                <EmptyState
+                  icon={Award}
+                  title="No certificates yet"
+                  description="Finish every lecture in a course to get one."
+                  action={browse}
+                />
+              ) : (
+                <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-surface">
+                  {certificates.map((c) => (
+                    <li key={c.id}>
+                      <Link
+                        href={`/certificates/${c.id}`}
+                        className="flex min-h-16 items-center gap-4 px-4 transition-ui hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                      >
+                        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-verified-subtle text-verified-text">
+                          <Award className="size-5" aria-hidden />
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate font-semibold text-fg">{c.courseTitle}</span>
+                          <span className="text-xs text-fg-muted">
+                            Issued{" "}
+                            {new Date(c.issuedAt).toLocaleDateString("en-IN", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </span>
+                        </span>
+                        <ChevronRight className="size-4 text-fg-muted" aria-hidden />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </TabsContent>
+          </>
         )}
-      </div>
-    </div>
-  );
-}
-
-function Empty({ icon: Icon, title, body }: { icon: typeof Award; title: string; body: string }) {
-  return (
-    <div className="rounded-2xl bg-card/60 p-10 text-center shadow-2xs">
-      <Icon className="mx-auto size-8 text-muted-foreground" aria-hidden />
-      <p className="mt-3 font-semibold text-foreground">{title}</p>
-      <p className="mt-1 text-sm text-muted-foreground">{body}</p>
-      <Link href="/courses" className="mt-4 inline-flex h-10 items-center rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground">Browse courses</Link>
+      </Tabs>
     </div>
   );
 }

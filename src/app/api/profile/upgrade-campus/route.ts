@@ -68,7 +68,7 @@ export async function POST(req: Request) {
       pending: true,
       email,
       college: { id: institution.id, name: institution.name, slug: institution.slug },
-      message: `We've sent a verification link to ${email}. Open it, then come back to finish unlocking your campus.`,
+      message: `We've sent a verification link to ${email}. Open it, then come back to finish joining your college.`,
     });
   } catch (error) {
     console.error("POST /api/profile/upgrade-campus error:", error);

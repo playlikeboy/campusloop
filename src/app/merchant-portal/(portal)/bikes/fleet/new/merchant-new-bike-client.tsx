@@ -1,312 +1,208 @@
 "use client";
 
-import { ArrowLeft, Check, ImagePlus, Loader2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
+import { NativeSelect } from "@/components/merchant/merchant-filters";
+import { MerchantPage } from "@/components/merchant/merchant-page";
+import { readError } from "@/components/merchant/merchant-utils";
+import { PhotoPicker } from "@/components/merchant/photo-picker";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FormField } from "@/components/ui/form-field";
+import { Input } from "@/components/ui/input";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { uploadImageToImgBB } from "@/lib/upload";
+
+// Used only when the merchant skips the photo, so the store page never shows a broken image.
+const FALLBACK_BIKE_PHOTO = "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=600&h=400&fit=crop";
 
 export function MerchantNewBikeClient() {
   const router = useRouter();
-
-  const [name, setName] = useState("");
-  const [model, setModel] = useState("");
-  const [registrationNumber, setRegistrationNumber] = useState("");
-  const [dailyPrice, setDailyPrice] = useState("350");
-  const [hourlyPrice, setHourlyPrice] = useState("50");
-  const [securityDeposit, setSecurityDeposit] = useState("1500");
-  const [pickupLocation, setPickupLocation] = useState("Campus Gate 1 Stand");
-  const [fuelType, setFuelType] = useState<"PETROL" | "ELECTRIC">("PETROL");
-  const [mileage, setMileage] = useState("45 kmpl");
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-
-  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    setIsUploadingImage(true);
-    sounds.pop();
-    haptics.light();
-
-    try {
-      toast.loading("Uploading bike photo...", { id: "upload-bike" });
-      const res = await uploadImageToImgBB(files[0]);
-      setImageUrl(res.displayUrl || res.url);
-      toast.success("Photo attached!", { id: "upload-bike" });
-    } catch {
-      toast.error("Failed to upload image", { id: "upload-bike" });
-    } finally {
-      setIsUploadingImage(false);
-    }
-  }
+  const [f, setF] = useState({
+    name: "",
+    model: "",
+    registrationNumber: "",
+    dailyPrice: "",
+    hourlyPrice: "",
+    securityDeposit: "",
+    pickupLocation: "",
+    fuelType: "PETROL" as "PETROL" | "ELECTRIC",
+    mileage: "",
+  });
+  const [photo, setPhoto] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Partial<Record<"name" | "registrationNumber" | "dailyPrice", string>>>(
+    {}
+  );
+  const [saving, setSaving] = useState(false);
+  const set = <K extends keyof typeof f>(k: K, v: (typeof f)[K]) => setF((p) => ({ ...p, [k]: v }));
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-
-    if (!name.trim() || !registrationNumber.trim()) {
-      toast.error("Bike name and registration number are required");
-      return;
-    }
-
-    const numDailyPrice = parseInt(dailyPrice, 10);
-    if (isNaN(numDailyPrice) || numDailyPrice <= 0) {
-      toast.error("Please enter a valid daily rental price");
+    const daily = Number.parseInt(f.dailyPrice, 10);
+    const next = {
+      name: f.name.trim() ? undefined : "Give the bike a name.",
+      registrationNumber: f.registrationNumber.trim() ? undefined : "Add the number plate.",
+      dailyPrice: Number.isNaN(daily) || daily <= 0 ? "Enter the price per day, like 350." : undefined,
+    };
+    setErrors(next);
+    const firstError = next.name || next.registrationNumber || next.dailyPrice;
+    if (firstError) {
+      toast.error(firstError);
       return;
     }
 
     sounds.send();
     haptics.success();
-    setIsSubmitting(true);
-
+    setSaving(true);
     try {
       const res = await fetch("/api/merchant/bikes/fleet", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: name.trim(),
-          model: model.trim() || name.trim(),
-          registrationNumber: registrationNumber.trim().toUpperCase(),
-          dailyPrice: numDailyPrice,
-          hourlyPrice: parseInt(hourlyPrice, 10) || 50,
-          securityDeposit: parseInt(securityDeposit, 10) || 1500,
-          pickupLocation: pickupLocation.trim() || "Campus Gate 1 Stand",
-          fuelType,
-          imageUrl:
-            imageUrl || "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=600&h=400&fit=crop",
-          specs: {
-            mileage: mileage.trim() || "45 kmpl",
-            helmetIncluded: true,
-          },
+          name: f.name.trim(),
+          model: f.model.trim() || f.name.trim(),
+          registrationNumber: f.registrationNumber.trim().toUpperCase(),
+          dailyPrice: daily,
+          hourlyPrice: Number.parseInt(f.hourlyPrice, 10) || 50,
+          securityDeposit: Number.parseInt(f.securityDeposit, 10) || 1500,
+          pickupLocation: f.pickupLocation.trim() || "Campus Gate 1 Stand",
+          fuelType: f.fuelType,
+          imageUrl: photo || FALLBACK_BIKE_PHOTO,
+          specs: { mileage: f.mileage.trim() || undefined, helmetIncluded: true },
           status: "AVAILABLE",
         }),
       });
-
-      if (!res.ok) throw new Error("Failed to add vehicle");
-
-      toast.success("Bike added to fleet!");
+      if (!res.ok) throw new Error(await readError(res, "Couldn't add the bike. Try again."));
+      toast.success(`${f.name.trim()} added`);
       router.push("/merchant-portal/bikes/fleet");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to add bike");
-      setIsSubmitting(false);
+      toast.error(err instanceof Error ? err.message : "Couldn't add the bike. Try again.");
+      setSaving(false);
     }
   }
 
   return (
-    <main className="max-w-2xl mx-auto p-4 space-y-6 select-none pb-24">
-      {/* ─── Header ─── */}
-      <header className="flex h-14 items-center gap-3 border-b border-border/30">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="flex size-9 items-center justify-center rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-        >
-          <ArrowLeft className="size-4.5" />
-        </button>
-        <div>
-          <h1 className="text-base font-black text-foreground tracking-tight leading-none">
-            Add Bike to Fleet
-          </h1>
-          <p className="text-[11px] text-muted-foreground font-medium mt-0.5">
-            Register a scooter, motorcycle, or EV for campus rentals
-          </p>
-        </div>
-      </header>
+    <MerchantPage
+      width="narrow"
+      title="Add a bike"
+      backHref="/merchant-portal/bikes/fleet"
+      backLabel="Back to your bikes"
+    >
+      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+        <Card>
+          <CardHeader>
+            <CardTitle>Photo</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <PhotoPicker photos={photo ? [photo] : []} onChange={(p) => setPhoto(p[0] ?? null)} />
+          </CardContent>
+        </Card>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Photo Upload */}
-        <div className="space-y-2">
-          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            Vehicle Photo
-          </label>
-          <div className="flex items-center gap-3">
-            {imageUrl ? (
-              <div className="relative size-24 rounded-2xl overflow-hidden border border-border bg-muted">
-                <img src={imageUrl} alt="Preview" className="size-full object-cover" />
-                <button
-                  type="button"
-                  onClick={() => setImageUrl(null)}
-                  className="absolute top-1 right-1 size-5 rounded-full bg-black/70 text-white flex items-center justify-center cursor-pointer"
+        <Card>
+          <CardHeader>
+            <CardTitle>Bike</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <FormField label="Name" required error={errors.name}>
+              <Input
+                value={f.name}
+                onChange={(e) => set("name", e.target.value)}
+                placeholder="Activa 6G #3"
+              />
+            </FormField>
+            <div className="grid grid-cols-2 gap-3">
+              <FormField label="Model">
+                <Input
+                  value={f.model}
+                  onChange={(e) => set("model", e.target.value)}
+                  placeholder="Activa 6G"
+                />
+              </FormField>
+              <FormField label="Number plate" required error={errors.registrationNumber}>
+                <Input
+                  value={f.registrationNumber}
+                  onChange={(e) => set("registrationNumber", e.target.value)}
+                  placeholder="JH01AX4822"
+                  autoCapitalize="characters"
+                  className="uppercase"
+                />
+              </FormField>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <FormField label="Fuel">
+                <NativeSelect
+                  value={f.fuelType}
+                  onChange={(e) => set("fuelType", e.target.value as "PETROL" | "ELECTRIC")}
                 >
-                  <X className="size-3" />
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isUploadingImage}
-                className="size-24 rounded-2xl border-2 border-dashed border-border hover:border-foreground/40 bg-muted/20 flex flex-col items-center justify-center text-muted-foreground hover:text-foreground transition-ui cursor-pointer"
-              >
-                {isUploadingImage ? (
-                  <Loader2 className="size-5 animate-spin" />
-                ) : (
-                  <>
-                    <ImagePlus className="size-5 mb-1" />
-                    <span className="text-[10px] font-bold">Add Photo</span>
-                  </>
-                )}
-              </button>
-            )}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleImageUpload}
-            />
-          </div>
-        </div>
+                  <option value="PETROL">Petrol</option>
+                  <option value="ELECTRIC">Electric</option>
+                </NativeSelect>
+              </FormField>
+              <FormField label="Mileage or range">
+                <Input
+                  value={f.mileage}
+                  onChange={(e) => set("mileage", e.target.value)}
+                  placeholder="45 km/l"
+                />
+              </FormField>
+            </div>
+          </CardContent>
+        </Card>
 
-        {/* Basic Vehicle Info */}
-        <div className="rounded-3xl border border-border/40 bg-card p-4 space-y-3 shadow-xs">
-          <h2 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
-            1. Vehicle Details
-          </h2>
-
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-muted-foreground">Bike / Scooter Name *</label>
-            <input
-              type="text"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Honda Activa 6G #03"
-              className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-bold text-foreground focus:border-foreground outline-none"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-bold text-muted-foreground">Model Name</label>
-              <input
-                type="text"
-                value={model}
-                onChange={(e) => setModel(e.target.value)}
-                placeholder="e.g. Activa 6G / Splendor Plus"
-                className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-bold text-foreground outline-none"
+        <Card>
+          <CardHeader>
+            <CardTitle>Price and pickup</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              <FormField label="Per day (₹)" required error={errors.dailyPrice}>
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  value={f.dailyPrice}
+                  onChange={(e) => set("dailyPrice", e.target.value)}
+                  placeholder="350"
+                />
+              </FormField>
+              <FormField label="Per hour (₹)" hint="Empty means ₹50.">
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  value={f.hourlyPrice}
+                  onChange={(e) => set("hourlyPrice", e.target.value)}
+                  placeholder="50"
+                />
+              </FormField>
+              <FormField label="Deposit (₹)" hint="Empty means ₹1,500." className="col-span-2 sm:col-span-1">
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  value={f.securityDeposit}
+                  onChange={(e) => set("securityDeposit", e.target.value)}
+                  placeholder="1500"
+                />
+              </FormField>
+            </div>
+            <FormField label="Pickup spot" hint="Empty means Campus Gate 1 Stand.">
+              <Input
+                value={f.pickupLocation}
+                onChange={(e) => set("pickupLocation", e.target.value)}
+                placeholder="Gate 1 parking"
               />
-            </div>
+            </FormField>
+          </CardContent>
+        </Card>
 
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-bold text-muted-foreground">Registration Plate # *</label>
-              <input
-                type="text"
-                required
-                value={registrationNumber}
-                onChange={(e) => setRegistrationNumber(e.target.value)}
-                placeholder="e.g. JH-01-AX-4822"
-                className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-bold text-foreground outline-none uppercase"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-bold text-muted-foreground">Fuel Type</label>
-              <select
-                value={fuelType}
-                onChange={(e) => setFuelType(e.target.value as any)}
-                className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-bold text-foreground outline-none"
-              >
-                <option value="PETROL">Petrol</option>
-                <option value="ELECTRIC">Electric (EV)</option>
-              </select>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-bold text-muted-foreground">Mileage / Range</label>
-              <input
-                type="text"
-                value={mileage}
-                onChange={(e) => setMileage(e.target.value)}
-                placeholder="e.g. 45 kmpl or 105 km"
-                className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-bold text-foreground outline-none"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Pricing & Pickup Location */}
-        <div className="rounded-3xl border border-border/40 bg-card p-4 space-y-3 shadow-xs">
-          <h2 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
-            2. Rental Pricing &amp; Security Deposit
-          </h2>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-bold text-muted-foreground">Daily Price (₹) *</label>
-              <input
-                type="number"
-                required
-                min="0"
-                value={dailyPrice}
-                onChange={(e) => setDailyPrice(e.target.value)}
-                className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-black text-foreground outline-none"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-bold text-muted-foreground">Hourly Price (₹)</label>
-              <input
-                type="number"
-                min="0"
-                value={hourlyPrice}
-                onChange={(e) => setHourlyPrice(e.target.value)}
-                className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-black text-foreground outline-none"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-bold text-muted-foreground">Deposit (₹)</label>
-              <input
-                type="number"
-                min="0"
-                value={securityDeposit}
-                onChange={(e) => setSecurityDeposit(e.target.value)}
-                className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-black text-foreground outline-none"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-muted-foreground">Pickup Stand Location</label>
-            <input
-              type="text"
-              value={pickupLocation}
-              onChange={(e) => setPickupLocation(e.target.value)}
-              placeholder="e.g. Campus Gate 1 Stand / Hostel 11 Parking"
-              className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-bold text-foreground outline-none"
-            />
-          </div>
-        </div>
-
-        {/* Submit */}
-        <div className="pt-2">
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full h-12 rounded-2xl bg-foreground text-background font-black text-sm hover:opacity-90 active:scale-98 transition-ui flex items-center justify-center gap-2 shadow-lg cursor-pointer disabled:opacity-50"
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="size-4 animate-spin" />
-                <span>Adding Vehicle...</span>
-              </>
-            ) : (
-              <>
-                <Check className="size-4 stroke-3" />
-                <span>Add Bike to Fleet</span>
-              </>
-            )}
-          </button>
+        <div className="sticky bottom-4 z-(--z-raised)">
+          <Button type="submit" size="lg" className="w-full" loading={saving}>
+            Add bike
+          </Button>
         </div>
       </form>
-    </main>
+    </MerchantPage>
   );
 }

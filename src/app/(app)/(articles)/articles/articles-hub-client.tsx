@@ -1,19 +1,18 @@
 "use client";
 
-import { AlertCircle, Globe, Loader2, PenTool, RotateCw, School, Search, Sparkles, X } from "lucide-react";
+import { AlertCircle, BookOpen, Globe, Loader2, PenTool, RotateCw, School } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import useSWR from "swr";
 import { ArticleCard } from "@/components/articles/article-card";
+import { ArticlesHubFilters } from "@/components/articles/articles-hub-filters";
 import { ArticlesRightSidebar } from "@/components/articles/articles-right-sidebar";
-import {
-  ARTICLE_CATEGORY_GROUPS,
-  ARTICLE_CATEGORY_LIST,
-  ARTICLE_FEED_TABS,
-  type ArticleCategoryGroupKey,
-  type ArticleFeedTab,
-} from "@/constants/articles";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { SegmentedControl } from "@/components/ui/segmented-control";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { ArticleCategoryGroupKey, ArticleFeedTab } from "@/constants/articles";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -235,278 +234,135 @@ export function ArticlesHubClient({ initialArticles = [], initialProfile = null 
       : null;
   const listArticles = featuredArticle ? displayArticles.slice(1) : displayArticles;
 
+  const emptyCopy =
+    activeTab === "saved"
+      ? { title: "No saved articles yet", description: "Tap the bookmark on any article to keep it here." }
+      : activeTab === "following"
+        ? {
+            title: "Nothing from people you follow",
+            description: "Follow writers you like and their new articles show up here.",
+          }
+        : debouncedQuery || activeTag || selectedCategory !== "ALL"
+          ? { title: "No articles match", description: "Try another word or clear the filters." }
+          : { title: "No articles yet", description: "Write the first one for your campus." };
+
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6">
-      {/* ─── Top Editorial Title ─── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border/40">
+    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+      <header className="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">Campus Articles</h1>
-          <p className="text-sm text-muted-foreground mt-0.5 font-medium">
-            Ideas, guides &amp; placement roadmaps written by verified students
+          <h1 className="text-3xl text-fg sm:text-4xl">Articles</h1>
+          <p className="mt-1 text-sm text-fg-muted">
+            Placement stories, study guides and campus life, written by students.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           {initialProfile?.institutionId && (
-            <div className="flex items-center rounded-full bg-muted/60 p-1 border border-border/40">
-              <button
-                type="button"
-                onClick={() => handleScopeChange("GLOBAL")}
-                className={cn(
-                  "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-ui cursor-pointer",
-                  scope === "GLOBAL"
-                    ? "bg-background text-foreground shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <Globe className="size-3" />
-                <span>All India</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleScopeChange("CAMPUS")}
-                className={cn(
-                  "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-ui cursor-pointer",
-                  scope === "CAMPUS"
-                    ? "bg-background text-foreground shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <School className="size-3" />
-                <span>My Campus</span>
-              </button>
-            </div>
-          )}
-
-          <button
-            type="button"
-            onClick={handleRefresh}
-            aria-label="Refresh feed"
-            className="flex size-9 items-center justify-center rounded-full border border-border/40 bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
-            title="Refresh feed"
-          >
-            <RotateCw className={cn("size-4", isRefreshing && "animate-spin text-primary")} />
-          </button>
-        </div>
-      </div>
-
-      {/* ─── Main 12-Column Responsive Grid ─── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-6">
-        {/* Left Column (8 cols): Search, Tabs, Categories, Articles */}
-        <div className="lg:col-span-8 space-y-6">
-          {/* Search Input */}
-          <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search articles, authors & topics..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-11 w-full rounded-xl border border-border/50 bg-muted/30 pl-10 pr-10 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:bg-background"
+            <SegmentedControl
+              size="sm"
+              value={scope}
+              onChange={handleScopeChange}
+              options={[
+                { value: "GLOBAL", label: "All colleges", icon: <Globe className="size-3.5" /> },
+                { value: "CAMPUS", label: "My college", icon: <School className="size-3.5" /> },
+              ]}
             />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                aria-label="Clear search"
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground"
-              >
-                <X className="size-4" />
-              </button>
-            )}
-          </div>
-
-          {/* Active Tag Filter Indicator */}
-          {activeTag && (
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-muted-foreground">Showing articles tagged:</span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary font-bold border border-primary/20">
-                <span>#{activeTag}</span>
-                <button
-                  type="button"
-                  onClick={handleClearTag}
-                  aria-label="Remove tag filter"
-                  className="hover:opacity-75 cursor-pointer"
-                >
-                  <X className="size-3" />
-                </button>
-              </span>
-            </div>
           )}
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleRefresh}
+            aria-label="Refresh articles"
+            title="Refresh articles"
+          >
+            <RotateCw className={cn("size-4", isRefreshing && "animate-spin")} />
+          </Button>
+          <Button asChild className="hidden sm:inline-flex">
+            <Link href="/articles/new">
+              <PenTool className="size-4" />
+              Write
+            </Link>
+          </Button>
+        </div>
+      </header>
 
-          {/* Primary Discovery Tabs */}
-          <div className="flex items-center gap-1 border-b border-border/30 overflow-x-auto no-scrollbar scroll-smooth">
-            {ARTICLE_FEED_TABS.map((tab) => {
-              if (tab.authRequired && !initialProfile) return null;
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
+      <div className="grid grid-cols-1 items-start gap-8 pt-6 lg:grid-cols-12">
+        <div className="min-w-0 space-y-6 lg:col-span-8">
+          <ArticlesHubFilters
+            signedIn={Boolean(initialProfile)}
+            activeTab={activeTab}
+            onTabChange={handleTabChange}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            activeTag={activeTag}
+            onClearTag={handleClearTag}
+            selectedGroup={selectedGroup}
+            onGroupChange={(group) => {
+              sounds.tap();
+              haptics.light();
+              setSelectedGroup(group);
+            }}
+            selectedCategory={selectedCategory}
+            onCategoryChange={handleCategoryChange}
+          />
 
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => handleTabChange(tab.id)}
-                  className={cn(
-                    "flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 whitespace-nowrap transition-colors cursor-pointer",
-                    isActive
-                      ? "border-primary text-foreground font-bold"
-                      : "border-transparent text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  <Icon className={cn("size-4", isActive ? "text-primary" : "text-muted-foreground")} />
-                  <span>{tab.label}</span>
-                </button>
-              );
-            })}
-          </div>
- 
-          {/* Category Group Filter Bar */}
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-            {ARTICLE_CATEGORY_GROUPS.map((group) => {
-              const Icon = group.icon;
-              const isGroupActive = selectedGroup === group.id;
-              return (
-                <button
-                  key={group.id}
-                  type="button"
-                  onClick={() => {
-                    sounds.tap();
-                    haptics.light();
-                    setSelectedGroup(group.id);
-                  }}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-ui cursor-pointer border",
-                    isGroupActive
-                      ? "bg-foreground text-background border-foreground shadow-2xs font-bold"
-                      : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground border-border/40"
-                  )}
-                >
-                  <Icon className="size-3" />
-                  <span>{group.label}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Categories Horizontal Scroll Strip */}
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-            <button
-              type="button"
-              onClick={() => handleCategoryChange("ALL")}
-              className={cn(
-                "px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap border transition-ui cursor-pointer",
-                selectedCategory === "ALL"
-                  ? "bg-primary text-primary-foreground border-primary shadow-xs"
-                  : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground border-border/50"
-              )}
-            >
-              All Topics
-            </button>
-
-            {(selectedGroup === "ALL"
-              ? ARTICLE_CATEGORY_LIST
-              : ARTICLE_CATEGORY_LIST.filter((cat) => cat.group === selectedGroup)
-            ).map((cat) => {
-              const isSelected = selectedCategory === cat.key;
-              const Icon = cat.icon;
-
-              return (
-                <button
-                  key={cat.key}
-                  type="button"
-                  onClick={() => handleCategoryChange(cat.key)}
-                  className={cn(
-                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap border transition-ui cursor-pointer",
-                    isSelected
-                      ? "bg-primary text-primary-foreground border-primary shadow-xs"
-                      : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground border-border/50"
-                  )}
-                >
-                  <Icon className="size-3" />
-                  <span>{cat.label}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Articles Stream */}
           {error ? (
-            <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-8 text-center space-y-3">
-              <AlertCircle className="size-8 text-destructive mx-auto" />
-              <p className="text-sm font-semibold text-foreground">Failed to load articles.</p>
-              <button
-                type="button"
-                onClick={handleRefresh}
-                className="px-4 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-opacity cursor-pointer"
-              >
-                Retry
-              </button>
-            </div>
+            <EmptyState
+              icon={AlertCircle}
+              title="Couldn't load articles"
+              description="Check your connection and try again."
+              action={<Button onClick={handleRefresh}>Try again</Button>}
+              bordered
+            />
           ) : isLoading && displayArticles.length === 0 ? (
-            <div className="space-y-4 py-4">
-              <div className="h-40 rounded-xl bg-muted/40 animate-pulse" />
-              <div className="h-28 rounded-xl bg-muted/40 animate-pulse" />
-              <div className="h-28 rounded-xl bg-muted/40 animate-pulse" />
+            <div className="space-y-4 py-2" aria-busy="true" aria-label="Loading articles">
+              <Skeleton className="h-40 rounded-lg" />
+              <Skeleton className="h-28 rounded-lg" />
+              <Skeleton className="h-28 rounded-lg" />
             </div>
           ) : displayArticles.length === 0 ? (
-            <div className="rounded-2xl border border-border/40 bg-card/40 p-12 text-center space-y-3">
-              <Sparkles className="size-8 text-muted-foreground/60 mx-auto" />
-              <h3 className="text-base font-bold text-foreground">No articles found</h3>
-              <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                {activeTab === "saved"
-                  ? "You haven't saved any articles yet. Bookmark articles while reading to find them here."
-                  : activeTab === "following"
-                    ? "You aren't following any authors yet. Explore top campus authors and follow them!"
-                    : "No student articles matched your query. Be the first to share your experience!"}
-              </p>
-              <div className="pt-2">
-                <Link
-                  href="/articles/new"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-opacity"
-                >
-                  <PenTool className="size-3.5" />
-                  <span>Write First Article</span>
-                </Link>
-              </div>
-            </div>
+            <EmptyState
+              icon={BookOpen}
+              title={emptyCopy.title}
+              description={emptyCopy.description}
+              action={
+                <Button asChild>
+                  <Link href="/articles/new">
+                    <PenTool className="size-4" />
+                    Write an article
+                  </Link>
+                </Button>
+              }
+              bordered
+            />
           ) : (
             <div className="space-y-4">
-              {/* Featured Card (Top Trending/Latest on initial view) */}
-              {featuredArticle && (
-                <div className="pb-2">
-                  <ArticleCard article={featuredArticle} featured={true} />
-                </div>
-              )}
+              {featuredArticle && <ArticleCard article={featuredArticle} featured={true} />}
 
-              {/* Standard Article Items */}
-              <div className="divide-y divide-border/25">
+              <div className="divide-y divide-border">
                 {listArticles.map((art) => (
                   <ArticleCard key={art.id} article={art} />
                 ))}
               </div>
 
-              {/* Infinite Scroll Trigger */}
               <div ref={observerTargetRef} className="py-6 text-center">
                 {isLoadingMore && (
-                  <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-                    <Loader2 className="size-4 animate-spin text-primary" />
-                    <span>Loading more reads...</span>
-                  </div>
+                  <p className="flex items-center justify-center gap-2 text-sm text-fg-muted">
+                    <Loader2 className="size-4 animate-spin text-brand-text" />
+                    Loading more
+                  </p>
                 )}
                 {!hasMore && displayArticles.length > 6 && (
-                  <p className="text-xs text-muted-foreground/70">
-                    You&apos;ve reached the end of the publications stream.
-                  </p>
+                  <p className="text-sm text-fg-subtle">That's all for now.</p>
                 )}
               </div>
             </div>
           )}
         </div>
 
-        {/* Right Column (4 cols): Editorial Sidebar */}
-        <div className="lg:col-span-4">
+        <aside className="lg:col-span-4" aria-label="More from articles">
           <ArticlesRightSidebar />
-        </div>
+        </aside>
       </div>
     </div>
   );

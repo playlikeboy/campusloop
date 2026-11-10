@@ -27,9 +27,19 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
       - name: Validate runner syntax
         run: node --check scripts/academics/daily-materials.mjs
+      - name: Check configuration
+        run: |
+          if [ -z "$CAMPUSLOOP_ACADEMICS_MCP_API_KEY" ]; then
+            echo "::error::Configure CAMPUSLOOP_ACADEMICS_MCP_API_KEY in repository Actions secrets."
+            exit 1
+          fi
+          if [ -z "$SERPAPI_API_KEY" ]; then
+            echo "::error::Configure SERPAPI_API_KEY in repository Actions secrets."
+            exit 1
+          fi
       - name: Search, verify, deduplicate, and index materials
         run: node scripts/academics/daily-materials.mjs
       - name: Upload run report

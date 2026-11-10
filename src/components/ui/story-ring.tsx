@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Sparkles } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { StoryAvatarItem } from "@/components/stories/story-avatar-item";
 import { useProfile } from "@/hooks/use-profile";
@@ -142,9 +142,8 @@ export function StoryRing({ users }: StoryRingProps) {
             onClick={handleCreateStory}
             className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-dashed border-border hover:border-brand hover:bg-brand-subtle transition-colors text-fg-muted hover:text-fg cursor-pointer text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
           >
-            <Sparkles className="size-3.5 text-primary shrink-0" />
-            <span className="hidden sm:inline">No other campus vibes right now · Be the first to share!</span>
-            <span className="sm:hidden">Drop today&apos;s campus vibe</span>
+            <Plus className="size-3.5 shrink-0" aria-hidden />
+            <span>Add a story</span>
           </button>
         </div>
       )}

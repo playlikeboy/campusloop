@@ -9,11 +9,10 @@ import {
   Check,
   ChevronDown,
   FileText,
-  Flame,
   Globe,
   HelpCircle,
+  Laugh,
   Loader2,
-  Lock,
   Mic,
   School,
   Smile,
@@ -22,7 +21,6 @@ import {
   VenetianMask,
   Video,
   X,
-  Zap,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -39,6 +37,14 @@ import { PollOptionsEditor } from "@/components/post/poll-options-editor";
 import { PostComposerToolbar } from "@/components/post/post-composer-toolbar";
 import { AnimateImage, AnimateZap } from "@/components/ui/animated-icon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { GifPickerModal } from "@/components/ui/gif-picker-modal";
 import {
   detectMentionTrigger,
@@ -46,6 +52,7 @@ import {
   type TriggerContext,
 } from "@/components/ui/mention-autocomplete";
 import { StickerPickerModal } from "@/components/ui/sticker-picker-modal";
+import { QuestionSticker } from "@/components/ui/stickers";
 import { useCommunities } from "@/hooks/use-communities";
 import type { FeedPost } from "@/hooks/use-feed";
 import { useProfile } from "@/hooks/use-profile";
@@ -63,11 +70,11 @@ export type PostType = "NORMAL" | "MEME" | "CONFESSION" | "POLL" | "QUESTION";
 const MAX_CHARS = 2000;
 
 const POST_TYPES: { id: PostType; label: string; icon: React.ElementType; accent: string }[] = [
-  { id: "NORMAL", label: "Post", icon: Type, accent: "text-primary" },
-  { id: "MEME", label: "Meme", icon: Zap, accent: "text-warning" },
-  { id: "POLL", label: "Poll", icon: BarChart3, accent: "text-brand-text" },
-  { id: "QUESTION", label: "Question", icon: HelpCircle, accent: "text-warning" },
-  { id: "CONFESSION", label: "Confession", icon: Lock, accent: "text-danger" },
+  { id: "NORMAL", label: "Post", icon: Type, accent: "text-fg-muted" },
+  { id: "MEME", label: "Meme", icon: Laugh, accent: "text-fg-muted" },
+  { id: "POLL", label: "Poll", icon: BarChart3, accent: "text-fg-muted" },
+  { id: "QUESTION", label: "Question", icon: HelpCircle, accent: "text-fg-muted" },
+  { id: "CONFESSION", label: "Confession", icon: VenetianMask, accent: "text-fg-muted" },
 ];
 
 // Shown directly in the action bar; everything else lives under "More".
@@ -121,7 +128,6 @@ export function PostComposer({
 
   const [postType, setPostType] = useState<PostType>(initialType ?? "NORMAL");
   const [scope, setScope] = useState<"CAMPUS" | "GLOBAL">(initialScope ?? "GLOBAL");
-  const [showAudienceMenu, setShowAudienceMenu] = useState(false);
   const [selectedCommunityId, setSelectedCommunityId] = useState<string>(initialCommunityId || "NONE");
   const [pollOptions, setPollOptions] = useState<string[]>(["", ""]);
   const [isAnonymous, setIsAnonymous] = useState(false);
@@ -171,10 +177,7 @@ export function PostComposer({
     if (targetC && selectedCommunityId === "NONE" && communities.length > 0) {
       const clean = targetC.replace(/^c\//, "").toLowerCase();
       const match = communities.find(
-        (comm) =>
-          comm.id === clean ||
-          comm.slug?.toLowerCase() === clean ||
-          comm.name.toLowerCase() === clean
+        (comm) => comm.id === clean || comm.slug?.toLowerCase() === clean || comm.name.toLowerCase() === clean
       );
       if (match) {
         setSelectedCommunityId(match.id);
@@ -221,7 +224,7 @@ export function PostComposer({
         try {
           const uploaded = await uploadImageToImgBB(pair.file, (progress) => {
             if (progress.percent > 0 && progress.percent < 100) {
-              toast.loading(`Uploading photo... ${progress.percent}%`, { id: "img-upload" });
+              toast.loading(`Uploading photo… ${progress.percent}%`, { id: "img-upload" });
             }
           });
           const finalUrl = uploaded.displayUrl || uploaded.url;
@@ -242,9 +245,12 @@ export function PostComposer({
         id: "img-upload",
       });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to upload image", {
-        id: "img-upload",
-      });
+      toast.error(
+        err instanceof Error ? err.message : "Couldn't upload the photo. Try again or pick a smaller one.",
+        {
+          id: "img-upload",
+        }
+      );
     } finally {
       setIsUploadingMedia(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -259,7 +265,7 @@ export function PostComposer({
 
     setIsUploadingMedia(true);
     try {
-      toast.loading("Uploading video...", { id: "video-upload" });
+      toast.loading("Uploading video…", { id: "video-upload" });
       for (const file of validVideos) {
         const localPreview = URL.createObjectURL(file);
         const newItem: UploadedVideoItem = {
@@ -273,7 +279,7 @@ export function PostComposer({
         try {
           const res = await uploadMediaFile(file, "video", file.name, (progress) => {
             if (progress.percent > 0 && progress.percent < 100) {
-              toast.loading(`Uploading video... ${progress.percent}%`, { id: "video-upload" });
+              toast.loading(`Uploading video… ${progress.percent}%`, { id: "video-upload" });
             }
           });
           // Attach remote URL for publishing while keeping local preview active
@@ -290,7 +296,7 @@ export function PostComposer({
       haptics.success();
       toast.success("Video attached", { id: "video-upload" });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to upload video", {
+      toast.error(err instanceof Error ? err.message : "Couldn't upload the video. Try a shorter clip.", {
         id: "video-upload",
       });
     } finally {
@@ -304,20 +310,20 @@ export function PostComposer({
 
     setIsUploadingMedia(true);
     try {
-      toast.loading("Uploading document...", { id: "doc-upload" });
+      toast.loading("Uploading file…", { id: "doc-upload" });
       for (const file of files) {
         const res = await uploadMediaFile(file, "document", file.name, (progress) => {
           if (progress.percent > 0 && progress.percent < 100) {
-            toast.loading(`Uploading document... ${progress.percent}%`, { id: "doc-upload" });
+            toast.loading(`Uploading file… ${progress.percent}%`, { id: "doc-upload" });
           }
         });
         setUploadedDocs((prev) => [...prev, { url: res.url, name: file.name, size: file.size }]);
       }
       sounds.pop();
       haptics.success();
-      toast.success("Document attached", { id: "doc-upload" });
+      toast.success("File attached", { id: "doc-upload" });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to upload document", {
+      toast.error(err instanceof Error ? err.message : "Couldn't upload the file. Try again.", {
         id: "doc-upload",
       });
     } finally {
@@ -370,7 +376,7 @@ export function PostComposer({
         // 3. HTML Content / Web Sticker / GIF
         const html = clipboardData.getData("text/html");
         if (html) {
-          const imgRegex = new RegExp("<" + "img[^>]+src=\"([^\">]+)\"", "i");
+          const imgRegex = new RegExp("<" + 'img[^>]+src="([^">]+)"', "i");
           const match = html.match(imgRegex);
           if (match && match[1] && /^https?:\/\//i.test(match[1])) {
             const imgSrc = match[1];
@@ -381,7 +387,7 @@ export function PostComposer({
             ) {
               event.preventDefault();
               setUploadedImages((prev) => [...prev, imgSrc]);
-              toast.success("Sticker / GIF attached!");
+              toast.success("Added");
               return true;
             }
           }
@@ -422,7 +428,7 @@ export function PostComposer({
       setCharCount(textToRestore.length);
       // Only notify if restoring an unposted draft from a prior interrupted session
       if (!initialContent && !searchParamText && sessionDraft) {
-        toast.success("Draft restored from previous session", { id: "draft-restored" });
+        toast.success("We kept your draft", { id: "draft-restored" });
       }
       try {
         sessionStorage.removeItem("campusloop_draft_post");
@@ -491,7 +497,7 @@ export function PostComposer({
     setError(null);
 
     let body = editor?.getText() || "";
-    const anon = allowAnonymous ? (isAnonymous || postType === "CONFESSION") : false;
+    const anon = allowAnonymous ? isAnonymous || postType === "CONFESSION" : false;
 
     // Legacy attachment markers are retained only for database backwards compatibility;
     // renderers must strip them and display real media components.
@@ -586,7 +592,7 @@ export function PostComposer({
     haptics.success();
 
     const toastId = `publish_${tempId}`;
-    toast.loading("Publishing your post...", { id: toastId });
+    toast.loading("Posting…", { id: toastId });
 
     try {
       sessionStorage.removeItem("campusloop_draft_post");
@@ -613,7 +619,7 @@ export function PostComposer({
       .then(async (res) => {
         if (!res.ok) {
           const errData = (await res.json().catch(() => ({}))) as { error?: string };
-          throw new Error(errData?.error || "Failed to publish post");
+          throw new Error(errData?.error || "Couldn't post. Try again.");
         }
         const serverPost = (await res.json()) as { id: string; createdAt?: string | Date };
 
@@ -626,7 +632,7 @@ export function PostComposer({
         onPublishConfirmed?.(tempId, confirmed);
 
         // Only now do we have a real id to link to.
-        toast.success("Post published", {
+        toast.success("Posted", {
           id: toastId,
           description: "+5 LP earned · it's live at the top of your feed",
           action: {
@@ -639,7 +645,10 @@ export function PostComposer({
         console.error("Post publishing error:", err);
         revertOptimisticPost(tempId);
         onPublishConfirmed?.(tempId, null);
-        toast.error(err instanceof Error ? err.message : "Failed to publish post.", { id: toastId });
+        toast.error(
+          err instanceof Error ? err.message : "Couldn't post. Check your internet and try again.",
+          { id: toastId }
+        );
       })
       .finally(() => {
         setIsLoading(false);
@@ -701,33 +710,33 @@ export function PostComposer({
       id: "photo",
       label: "Photo",
       icon: AnimateImage,
-      color: "text-primary hover:bg-primary/10",
+      color: "text-brand-text",
       onClick: openFilePicker,
       disabled: isUploadingMedia,
       loading: isUploadingMedia,
     },
     {
       id: "video",
-      label: "Video Clip",
+      label: "Video",
       icon: Video,
-      color: "text-primary hover:bg-primary/10",
+      color: "text-brand-text",
       onClick: openVideoPicker,
       disabled: isUploadingMedia,
       loading: isUploadingMedia,
     },
     {
       id: "voice",
-      label: "Voice Memo",
+      label: "Voice note",
       icon: Mic,
-      color: "text-primary hover:bg-primary/10",
+      color: "text-brand-text",
       onClick: () => setShowVoiceRecorder(true),
       disabled: isUploadingMedia,
     },
     {
       id: "document",
-      label: "Notes / PDF",
+      label: "PDF or notes",
       icon: FileText,
-      color: "text-primary hover:bg-primary/10",
+      color: "text-brand-text",
       onClick: openDocPicker,
       disabled: isUploadingMedia,
       loading: isUploadingMedia,
@@ -736,14 +745,14 @@ export function PostComposer({
       id: "gif",
       label: "GIF",
       icon: AnimateZap,
-      color: "text-primary hover:bg-primary/10",
+      color: "text-brand-text",
       onClick: () => setShowGifPicker(true),
     },
     {
       id: "sticker",
       label: "Sticker",
       icon: Smile,
-      color: "text-primary hover:bg-primary/10",
+      color: "text-brand-text",
       onClick: () => setShowStickerPicker(true),
     },
     {
@@ -791,7 +800,7 @@ export function PostComposer({
     if (storyImage) params.set("media", storyImage);
 
     const query = params.toString();
-    router.push(query ? "/stories/new?" + query : "/stories/new");
+    router.push(query ? `/stories/new?${query}` : "/stories/new");
   }
 
   function handleContainerPaste(e: React.ClipboardEvent) {
@@ -843,164 +852,140 @@ export function PostComposer({
       <div
         className={cn(
           "flex flex-col bg-background",
-          isModal ? "rounded-3xl overflow-hidden bg-card border border-border/50 shadow-2xl" : "min-h-screen"
+          isModal ? "rounded-xl overflow-hidden bg-surface-raised shadow-lg" : "min-h-screen"
         )}
       >
         {/* ─── Sticky top bar (Twitter / X minimalist style) ─── */}
-        <div className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-border/30 bg-background/85 px-4 py-2.5 backdrop-blur-xl">
+        <div className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-border bg-bg px-4 py-2.5">
           <button
             type="button"
             onClick={() => (onCancel ? onCancel() : router.back())}
-            className="flex size-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground cursor-pointer"
-            aria-label="Cancel"
-            title="Cancel"
+            className="flex size-11 items-center justify-center rounded-full text-fg-muted transition-ui hover:bg-surface-muted hover:text-fg cursor-pointer"
+            aria-label="Cancel and go back"
           >
-            {isModal ? <X className="size-4.5" /> : <ArrowLeft className="size-4.5" />}
+            {isModal ? <X className="size-5" aria-hidden /> : <ArrowLeft className="size-5" aria-hidden />}
           </button>
 
-          <p className="flex-1 text-center text-[15px] font-semibold text-foreground truncate">
+          <h1 className="flex-1 text-center font-sans text-base font-semibold text-fg truncate">
             {lockedCommunityName
               ? `Post to c/${lockedCommunityName}`
               : selectedCommunityObj
-                ? `Post in c/${selectedCommunityObj.slug || selectedCommunityObj.name.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-")}`
+                ? `Post in c/${
+                    selectedCommunityObj.slug ||
+                    selectedCommunityObj.name
+                      .toLowerCase()
+                      .replace(/[^\w\s-]/g, "")
+                      .replace(/\s+/g, "-")
+                  }`
                 : isConfession
-                  ? "Anonymous Confession"
+                  ? "New confession"
                   : postType === "POLL"
-                    ? "Campus Poll"
+                    ? "New poll"
                     : postType === "QUESTION"
-                      ? "Ask Campus"
+                      ? "New question"
                       : postType === "MEME"
-                        ? "Campus Meme"
-                        : "New Post"}
-          </p>
+                        ? "New meme"
+                        : "New post"}
+          </h1>
 
           <div className="flex items-center gap-2">
-            <button
-              type="submit"
-              disabled={!canPost}
-              className={cn(
-                "flex h-9 min-w-[76px] items-center justify-center gap-1.5 rounded-full px-4 text-sm font-semibold transition-opacity cursor-pointer active:scale-95",
-                canPost
-                  ? "bg-foreground text-background hover:opacity-90"
-                  : "bg-foreground text-background opacity-40 cursor-not-allowed"
-              )}
-            >
-              {isLoading ? (
-                <Loader2 className="size-3.5 animate-spin" />
-              ) : (
-                <span>{isConfession ? "Confess" : "Post"}</span>
-              )}
-            </button>
+            <Button type="submit" size="sm" disabled={!canPost} loading={isLoading}>
+              {isConfession ? "Post anonymously" : "Post"}
+            </Button>
           </div>
         </div>
 
         {/* ─── Post type segmented chips ─── */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar px-4 pt-3">
+        <fieldset
+          className="m-0 flex min-w-0 items-center gap-1.5 overflow-x-auto no-scrollbar border-0 px-4 pt-3"
+          aria-label="Post type"
+        >
           {POST_TYPES.filter((t) => allowAnonymous || t.id !== "CONFESSION").map((t) => {
             const active = postType === t.id;
             return (
-              <button
+              <Chip
                 key={t.id}
-                type="button"
+                size="sm"
+                selected={active}
                 onClick={() => selectPostType(t.id)}
-                className={cn(
-                  "inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-[13px] font-medium transition-colors cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
-                  active
-                    ? "bg-foreground text-background"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                )}
+                icon={<t.icon aria-hidden />}
               >
-                <t.icon className="size-3.5" />
                 {t.label}
-              </button>
+              </Chip>
             );
           })}
-        </div>
+        </fieldset>
 
         {/* ─── Identity + audience row (Twitter style) ─── */}
         <div className="flex items-start gap-3 px-4 pt-4">
           <Avatar
             className={cn(
               "size-11 shrink-0 border-2 transition-colors",
-              anonActive ? "border-brand-subtle-border/60 opacity-80 grayscale" : "border-border/50"
+              anonActive ? "border-border grayscale" : "border-border"
             )}
           >
             <AvatarImage src={anonActive ? "" : profile?.avatarUrl || ""} />
             <AvatarFallback className="text-xs font-bold flex items-center justify-center">
-              {anonActive ? <VenetianMask className="size-4 text-brand-text" /> : profile?.displayName?.[0] || "U"}
+              {anonActive ? (
+                <VenetianMask className="size-4 text-fg-muted" aria-hidden />
+              ) : (
+                profile?.displayName?.[0] || "U"
+              )}
             </AvatarFallback>
           </Avatar>
 
           <div className="min-w-0 flex-1 pt-0.5">
-            <p className="truncate text-[15px] font-semibold text-foreground">
+            <p className="truncate text-[15px] font-semibold text-fg">
               {anonActive
                 ? profile?.anonymousUsername
                   ? `@${profile.anonymousUsername}`
-                  : "Anonymous Student"
+                  : "Anonymous"
                 : profile?.displayName || "Student"}
             </p>
 
             <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
               {lockedCommunityName ? (
-                <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-black text-primary">
-                  <Users className="size-3" /> c/{lockedCommunityName}
+                <span className="inline-flex items-center gap-1 rounded-full bg-surface-muted px-2.5 py-1 text-xs font-medium text-fg-muted">
+                  <Users className="size-3.5" aria-hidden /> c/{lockedCommunityName}
                 </span>
               ) : (
                 <>
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => setShowAudienceMenu((s) => !s)}
-                      className="flex h-7 items-center gap-1 rounded-full border border-border/70 px-2.5 text-xs font-medium text-primary transition-colors hover:bg-primary/5 cursor-pointer"
-                    >
-                      {scope === "GLOBAL" ? <Globe className="size-3" /> : <School className="size-3" />}
-                      {scope === "GLOBAL" ? "All Colleges" : "My College"}
-                      <ChevronDown className="size-3 opacity-70" />
-                    </button>
-
-                    {showAudienceMenu && (
-                      <>
-                        <div className="fixed inset-0 z-30" onClick={() => setShowAudienceMenu(false)} />
-                        <div className="absolute left-0 top-8 z-40 w-56 rounded-2xl border border-border bg-card p-1.5 shadow-xl">
-                          {[
-                            {
-                              id: "GLOBAL" as const,
-                              icon: Globe,
-                              label: "All Colleges",
-                              desc: "Every campus across India",
-                            },
-                            {
-                              id: "CAMPUS" as const,
-                              icon: School,
-                              label: "My College",
-                              desc: profile?.institution?.name?.split(",")[0] || "Only your campus",
-                            },
-                          ].map((opt) => (
-                            <button
-                              key={opt.id}
-                              type="button"
-                              onClick={() => {
-                                setScope(opt.id);
-                                setShowAudienceMenu(false);
-                              }}
-                              className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left transition-colors hover:bg-muted cursor-pointer"
-                            >
-                              <opt.icon className="size-4 shrink-0 text-muted-foreground" />
-                              <span className="min-w-0 flex-1">
-                                <span className="block truncate text-xs font-bold text-foreground">
-                                  {opt.label}
-                                </span>
-                                <span className="block truncate text-[10px] text-muted-foreground">
-                                  {opt.desc}
-                                </span>
-                              </span>
-                              {scope === opt.id && <Check className="size-3.5 shrink-0 text-primary" />}
-                            </button>
-                          ))}
-                        </div>
-                      </>
-                    )}
-                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger className="flex h-8 cursor-pointer items-center gap-1 rounded-full bg-brand-subtle px-3 text-xs font-semibold text-brand-text transition-ui hover:bg-brand hover:text-brand-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                      {scope === "GLOBAL" ? (
+                        <Globe className="size-3.5" aria-hidden />
+                      ) : (
+                        <School className="size-3.5" aria-hidden />
+                      )}
+                      {scope === "GLOBAL" ? "All colleges" : "My college"}
+                      <ChevronDown className="size-3.5" aria-hidden />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-60">
+                      {[
+                        {
+                          id: "GLOBAL" as const,
+                          icon: Globe,
+                          label: "All colleges",
+                          desc: "Anyone on CampusLoop",
+                        },
+                        {
+                          id: "CAMPUS" as const,
+                          icon: School,
+                          label: "My college",
+                          desc: profile?.institution?.name?.split(",")[0] || "Only your college",
+                        },
+                      ].map((opt) => (
+                        <DropdownMenuItem key={opt.id} onClick={() => setScope(opt.id)}>
+                          <opt.icon aria-hidden />
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate font-medium">{opt.label}</span>
+                            <span className="block truncate text-xs text-fg-muted">{opt.desc}</span>
+                          </span>
+                          {scope === opt.id && <Check aria-hidden />}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
 
                   <CommunityFeedSelector
                     selectedCommunityId={selectedCommunityId}
@@ -1011,63 +996,70 @@ export function PostComposer({
               )}
 
               {anonActive && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-brand/10 px-2.5 py-1 text-[11px] font-black text-brand-text">
-                  <VenetianMask className="size-3" /> Anonymous
+                <span className="inline-flex items-center gap-1 rounded-full bg-surface-muted px-2.5 py-1 text-xs font-medium text-fg-muted">
+                  <VenetianMask className="size-3.5" aria-hidden /> Anonymous
                 </span>
               )}
             </div>
           </div>
         </div>
 
-        {/* ─── Editor ─── */}
-        <div className="relative flex-1">
-          <MentionSuggestions
-            trigger={mentionTrigger}
-            onSelect={handleSelectSuggestion}
-            onClose={() => setMentionTrigger(null)}
-            className="top-12 left-5"
-          />
-          {charCount === 0 && (
-            <span className="pointer-events-none absolute left-5 top-4 text-[17px] text-muted-foreground/60 select-none">
-              {isConfession
-                ? "Share what's on your mind anonymously. Your identity remains strictly encrypted."
-                : postType === "MEME"
-                  ? "Share campus humor, relatable moments, or college lore..."
-                  : postType === "QUESTION"
-                    ? "Ask your campus anything..."
-                    : postType === "POLL"
-                      ? "Ask a question for students to vote on..."
-                      : `What's happening on campus${firstName ? `, ${firstName}` : ""}?`}
-            </span>
-          )}
-          <EditorContent editor={editor} />
-        </div>
+        {/* ─── Editor in a question box: the violet strip says what you're writing ─── */}
+        <QuestionSticker
+          variant="flat"
+          className="mx-4 mt-4"
+          prompt={
+            isConfession
+              ? "Confess anonymously"
+              : postType === "MEME"
+                ? "Drop a meme"
+                : postType === "QUESTION"
+                  ? "Ask your campus"
+                  : postType === "POLL"
+                    ? "Ask a poll question"
+                    : `What's happening${firstName ? `, ${firstName}` : ""}?`
+          }
+        >
+          <div className="relative -m-4">
+            <MentionSuggestions
+              trigger={mentionTrigger}
+              onSelect={handleSelectSuggestion}
+              onClose={() => setMentionTrigger(null)}
+              className="top-12 left-5"
+            />
+            {charCount === 0 && (
+              <span className="pointer-events-none absolute left-5 top-4 text-[17px] text-fg-subtle select-none">
+                {isConfession
+                  ? "Your name won't be shown."
+                  : postType === "MEME"
+                    ? "Add a caption, then a photo"
+                    : postType === "QUESTION"
+                      ? "Type your question"
+                      : postType === "POLL"
+                        ? "Type the question people vote on"
+                        : "Write something"}
+              </span>
+            )}
+            <EditorContent editor={editor} />
+          </div>
+        </QuestionSticker>
 
-        {/* ─── Suggested Meme Category / Aura tags when MEME is selected ─── */}
+        {/* ─── Suggested tags when MEME is selected ─── */}
         {postType === "MEME" && (
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar px-5 pb-2.5">
-            <span className="text-[11px] font-black text-warning shrink-0">Tags:</span>
-            {[
-              "#AuraMinus",
-              "#AuraPlus",
-              "#ProfLore",
-              "#CanteenSaga",
-              "#ViralTees",
-              "#8AMAttendance",
-              "#HostelChronicles",
-            ].map((tag) => (
-              <button
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar px-4 pt-3 pb-1">
+            <span className="text-xs font-medium text-fg-muted shrink-0">Tags</span>
+            {["#Hostel", "#Canteen", "#Profs", "#Exams", "#Attendance"].map((tag) => (
+              <Chip
                 key={tag}
-                type="button"
+                size="sm"
                 onClick={() => {
                   if (editor) {
                     editor.chain().focus().insertContent(` ${tag} `).run();
                   }
                 }}
-                className="shrink-0 rounded-full border border-warning/30 bg-warning/10 px-2.5 py-0.5 text-[11px] font-black text-warning hover:bg-warning/20 transition-colors cursor-pointer"
               >
                 {tag}
-              </button>
+              </Chip>
             ))}
           </div>
         )}
@@ -1084,7 +1076,7 @@ export function PostComposer({
               <div
                 key={`${imgUrl}-${i}`}
                 className={cn(
-                  "group relative overflow-hidden rounded-2xl border border-border/60 bg-muted",
+                  "group relative overflow-hidden rounded-2xl border border-border bg-muted",
                   uploadedImages.length === 1 ? "max-h-[420px] w-full" : "aspect-square"
                 )}
               >
@@ -1093,7 +1085,7 @@ export function PostComposer({
                 <button
                   type="button"
                   onClick={() => handleRemoveImage(i)}
-                  className="absolute right-1.5 top-1.5 flex size-6 items-center justify-center rounded-full bg-black/65 text-white backdrop-blur-sm transition-colors hover:bg-destructive cursor-pointer"
+                  className="absolute right-1.5 top-1.5 flex size-9 items-center justify-center rounded-full bg-black/65 text-white transition-colors hover:bg-destructive cursor-pointer"
                   aria-label="Remove image"
                 >
                   <X className="size-3" />
@@ -1122,7 +1114,7 @@ export function PostComposer({
                 }
                 setUploadedVideos((prev) => prev.filter((_, i) => i !== idx));
               }}
-              className="absolute top-2 right-6 size-7 rounded-full bg-black/75 text-white flex items-center justify-center hover:bg-destructive transition-colors cursor-pointer shadow-md"
+              className="absolute top-2 right-6 size-9 rounded-full bg-black/75 text-white flex items-center justify-center hover:bg-destructive transition-colors cursor-pointer shadow-md"
               title="Remove video"
               aria-label="Remove video"
             >
@@ -1138,7 +1130,7 @@ export function PostComposer({
             <button
               type="button"
               onClick={() => setUploadedAudios((prev) => prev.filter((_, i) => i !== idx))}
-              className="absolute top-2 right-6 size-7 rounded-full bg-black/75 text-white flex items-center justify-center hover:bg-destructive transition-colors cursor-pointer shadow-md"
+              className="absolute top-2 right-6 size-9 rounded-full bg-black/75 text-white flex items-center justify-center hover:bg-destructive transition-colors cursor-pointer shadow-md"
               title="Remove audio"
               aria-label="Remove audio"
             >
@@ -1154,7 +1146,7 @@ export function PostComposer({
             <button
               type="button"
               onClick={() => setUploadedDocs((prev) => prev.filter((_, i) => i !== idx))}
-              className="absolute top-2 right-6 size-7 rounded-full bg-black/75 text-white flex items-center justify-center hover:bg-destructive transition-colors cursor-pointer shadow-md"
+              className="absolute top-2 right-6 size-9 rounded-full bg-black/75 text-white flex items-center justify-center hover:bg-destructive transition-colors cursor-pointer shadow-md"
               title="Remove document"
               aria-label="Remove document"
             >
@@ -1200,14 +1192,14 @@ export function PostComposer({
         {/* ─── Trending tags ─── */}
         {charCount > 0 && trendingTags.length > 0 && (
           <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar px-4 py-2">
-            <Flame className="size-3.5 shrink-0 text-muted-foreground" aria-label="Trending tags" />
+            <span className="shrink-0 text-xs font-medium text-fg-muted">Trending</span>
             {trendingTags.slice(0, 6).map((item) => (
               <button
                 key={item.tag}
                 type="button"
                 onClick={() => insertTag(item.tag)}
                 title={`${item.category} (${item.formattedCount})`}
-                className="inline-flex h-7 shrink-0 cursor-pointer select-none items-center rounded-full px-2.5 text-[13px] font-medium text-primary transition-colors hover:bg-primary/10 active:scale-95"
+                className="inline-flex h-8 shrink-0 cursor-pointer select-none items-center rounded-full bg-surface-muted px-3 text-xs font-medium text-fg-muted transition-ui hover:bg-surface-sunken hover:text-fg active:scale-95"
               >
                 <span>#</span>
                 <span>{item.tag.replace(/^#/, "")}</span>
@@ -1218,28 +1210,31 @@ export function PostComposer({
 
         {/* ─── Anonymity notice ─── */}
         {anonActive && (
-          <div className="mx-4 mb-2 flex items-center gap-2 rounded-2xl bg-brand/10 px-3 py-2 text-[11px] font-semibold text-brand-text">
-            <VenetianMask className="size-4 shrink-0" />
+          <div className="mx-4 my-2 flex items-center gap-2 rounded-md bg-surface-muted px-3 py-2 text-sm text-fg-muted">
+            <VenetianMask className="size-4 shrink-0" aria-hidden />
             {profile?.anonymousUsername ? (
               <span>
-                Identity sealed — posting as{" "}
-                <strong className="font-black">@{profile.anonymousUsername}</strong>.
+                Posting as <strong className="font-semibold text-fg">@{profile.anonymousUsername}</strong>.
+                Your name stays hidden.
               </span>
             ) : (
-              <span>Identity sealed — posting with an anonymous handle.</span>
+              <span>Posting with a random nickname. Your name stays hidden.</span>
             )}
           </div>
         )}
 
         {error && (
-          <div className="mx-4 mb-2 flex items-center gap-2 rounded-2xl border border-destructive/30 bg-destructive/10 p-3 text-xs font-bold text-destructive">
-            <AlertTriangle className="size-4 shrink-0" />
+          <div
+            role="alert"
+            className="mx-4 my-2 flex items-center gap-2 rounded-md bg-danger-subtle p-3 text-sm font-medium text-danger"
+          >
+            <AlertTriangle className="size-4 shrink-0" aria-hidden />
             <span>{error}</span>
           </div>
         )}
 
         {/* ─── Sticky bottom action bar (Twitter style) ─── */}
-        <div className="sticky bottom-0 z-20 flex items-center justify-between gap-1 border-t border-border/30 bg-background/90 px-3 py-2 backdrop-blur-xl">
+        <div className="sticky bottom-0 z-20 flex items-center justify-between gap-1 border-t border-border bg-bg px-3 py-2">
           <div className="flex items-center gap-0.5">
             {primaryActions.map((action) => (
               <button
@@ -1250,7 +1245,7 @@ export function PostComposer({
                 disabled={action.disabled}
                 onClick={action.onClick}
                 className={cn(
-                  "flex size-9 cursor-pointer items-center justify-center rounded-full transition-transform active:scale-90 disabled:cursor-not-allowed disabled:opacity-40",
+                  "flex size-11 cursor-pointer items-center justify-center rounded-full transition-ui hover:bg-surface-muted active:scale-90 disabled:cursor-not-allowed disabled:opacity-40",
                   action.color
                 )}
               >
@@ -1270,21 +1265,21 @@ export function PostComposer({
                 {remaining <= 200 && (
                   <span
                     className={cn(
-                      "font-mono text-[11px] font-bold tabular-nums",
+                      "text-xs font-semibold tabular-nums",
                       overLimit ? "text-destructive" : "text-muted-foreground"
                     )}
                   >
                     {remaining}
                   </span>
                 )}
-                <svg width="24" height="24" viewBox="0 0 24 24" className="-rotate-90">
+                <svg width="24" height="24" viewBox="0 0 24 24" className="-rotate-90" aria-hidden="true">
                   <circle
                     cx="12"
                     cy="12"
                     r={ringRadius}
                     fill="none"
                     strokeWidth="2.5"
-                    className="stroke-muted"
+                    className="stroke-surface-sunken"
                   />
                   <circle
                     cx="12"
@@ -1297,11 +1292,7 @@ export function PostComposer({
                     strokeDashoffset={ringCircumference * (1 - ringProgress)}
                     className={cn(
                       "transition-colors duration-200",
-                      overLimit
-                        ? "stroke-destructive"
-                        : remaining <= 200
-                          ? "stroke-warning"
-                          : "stroke-primary"
+                      overLimit ? "stroke-destructive" : remaining <= 200 ? "stroke-warning" : "stroke-brand"
                     )}
                   />
                 </svg>

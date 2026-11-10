@@ -3,12 +3,13 @@
 import {
   Building2,
   Check,
+  Coins,
   Copy,
   Link2,
   MessageCircle,
+  MessageSquare,
   MoreHorizontal,
   Send,
-  Sparkles,
   User,
   VenetianMask,
 } from "lucide-react";
@@ -23,6 +24,12 @@ import {
   useIconHandle,
 } from "@/components/ui/animated-icon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   detectMentionTrigger,
   MentionSuggestions,
@@ -106,7 +113,11 @@ export function CommentPermalinkView({
   const handle = isAnon ? comment.pseudonym || "anonymous" : comment.author?.username || "student";
   const avatarUrl = isAnon
     ? ""
-    : getAvatarUrl(comment.author?.avatarUrl, comment.author?.username ?? "student", comment.author?.displayName);
+    : getAvatarUrl(
+        comment.author?.avatarUrl,
+        comment.author?.username ?? "student",
+        comment.author?.displayName
+      );
   const fallback = isAnon ? (
     <VenetianMask className="size-5 text-brand-text" />
   ) : (
@@ -125,12 +136,12 @@ export function CommentPermalinkView({
         await navigator.clipboard.writeText(url);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
-        toast.success("Comment link copied to clipboard");
+        toast.success("Link copied");
       } catch {
-        toast.error("Failed to copy comment link");
+        toast.error("Couldn't copy the link.");
       }
     } else {
-      toast.error("Clipboard not supported");
+      toast.error("Copying isn't supported in this browser.");
     }
   }
 
@@ -157,7 +168,7 @@ export function CommentPermalinkView({
     } catch {
       setLiked(liked);
       setLikesCount(likesCount);
-      toast.error("Failed to update reaction");
+      toast.error("Couldn't react. Try again.");
     }
   }
 
@@ -232,7 +243,7 @@ export function CommentPermalinkView({
       toast.success("Reply posted");
     } catch (err) {
       setReplies(previousReplies);
-      toast.error(err instanceof Error ? err.message : "Failed to submit reply");
+      toast.error(err instanceof Error ? err.message : "Couldn't post your reply. Try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -241,12 +252,12 @@ export function CommentPermalinkView({
   return (
     <div className="space-y-6">
       {/* Highlighted Comment Anchor Card */}
-      <article className="rounded-2xl border-2 border-primary/30 bg-card p-5 sm:p-6 shadow-sm relative overflow-hidden transition-colors">
+      <article className="rounded-lg border border-border-strong bg-surface p-5 sm:p-6 relative overflow-hidden">
         {/* Highlighted Top Banner */}
-        <div className="flex items-center justify-between gap-2 pb-4 mb-4 border-b border-border/40">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
-            <Sparkles className="size-3.5" />
-            <span>Highlighted Comment</span>
+        <div className="flex items-center justify-between gap-2 pb-4 mb-4 border-b border-border">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-surface-muted text-fg-muted">
+            <MessageSquare className="size-3.5" aria-hidden />
+            <span>Comment</span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -254,64 +265,43 @@ export function CommentPermalinkView({
             <button
               type="button"
               onClick={() => handleCopyLink(comment.id)}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer border border-border/30"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer border border-border"
               title="Copy link to comment"
             >
               {copied ? <Check className="size-3 text-success" /> : <Link2 className="size-3" />}
-              <span>{copied ? "Copied" : "Copy Link"}</span>
+              <span>{copied ? "Copied" : "Copy link"}</span>
             </button>
 
             {/* More Menu */}
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setShowMenu((prev) => !prev)}
-                className="size-7 rounded-full hover:bg-muted text-muted-foreground/50 hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
+            <DropdownMenu open={showMenu} onOpenChange={setShowMenu}>
+              <DropdownMenuTrigger
+                className="size-10 rounded-full hover:bg-surface-muted text-fg-subtle hover:text-fg flex items-center justify-center transition-ui cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 aria-label="Comment options"
               >
-                <MoreHorizontal className="size-3.5" />
-              </button>
-
-              {showMenu && (
-                <>
-                  <div className="fixed inset-0 z-20" onClick={() => setShowMenu(false)} />
-                  <div
-                    className="absolute right-0 mt-1 w-44 rounded-xl border border-border/50 bg-popover text-popover-foreground shadow-xl z-30 py-1 animate-in fade-in zoom-in-95"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowMenu(false);
-                        handleCopyLink(comment.id);
-                      }}
-                      className="w-full text-left px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer flex items-center gap-2"
-                    >
-                      <Link2 className="size-3.5 text-brand" />
-                      <span>Copy link</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        setShowMenu(false);
-                        if (typeof navigator !== "undefined" && navigator.clipboard) {
-                          try {
-                            await navigator.clipboard.writeText(comment.body || "");
-                            toast.success("Comment text copied");
-                          } catch {
-                            toast.error("Failed to copy text");
-                          }
-                        }
-                      }}
-                      className="w-full text-left px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer flex items-center gap-2"
-                    >
-                      <Copy className="size-3.5 text-muted-foreground" />
-                      <span>Copy text</span>
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
+                <MoreHorizontal className="size-4" aria-hidden />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => handleCopyLink(comment.id)}>
+                  <Link2 aria-hidden />
+                  Copy link
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={async () => {
+                    if (typeof navigator !== "undefined" && navigator.clipboard) {
+                      try {
+                        await navigator.clipboard.writeText(comment.body || "");
+                        toast.success("Text copied");
+                      } catch {
+                        toast.error("Couldn't copy the text.");
+                      }
+                    }
+                  }}
+                >
+                  <Copy aria-hidden />
+                  Copy text
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
@@ -320,13 +310,13 @@ export function CommentPermalinkView({
           <div className="flex items-start gap-3 min-w-0">
             {!isAnon ? (
               <Link href={`/@${handle}`} className="shrink-0">
-                <Avatar className="size-11 rounded-full border border-border/40 hover:opacity-90 transition-opacity">
+                <Avatar className="size-11 rounded-full border border-border hover:opacity-90 transition-opacity">
                   <AvatarImage src={avatarUrl} />
                   <AvatarFallback className="text-sm font-bold bg-muted">{fallback}</AvatarFallback>
                 </Avatar>
               </Link>
             ) : (
-              <Avatar className="size-11 rounded-full border border-border/40 bg-muted shrink-0">
+              <Avatar className="size-11 rounded-full border border-border bg-muted shrink-0">
                 <AvatarFallback className="text-sm font-bold">{fallback}</AvatarFallback>
               </Avatar>
             )}
@@ -351,7 +341,7 @@ export function CommentPermalinkView({
                 )}
 
                 {isPostAuthor && (
-                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-black text-primary border border-primary/20">
+                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary border border-primary/20">
                     Author
                   </span>
                 )}
@@ -366,16 +356,16 @@ export function CommentPermalinkView({
               {/* Badges: College and Loop Points */}
               <div className="flex items-center gap-2 flex-wrap pt-0.5">
                 {collegeName && (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full border border-border/30">
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full border border-border">
                     <Building2 className="size-3 text-muted-foreground" />
                     <span>{collegeName}</span>
                   </span>
                 )}
 
                 {!isAnon && (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-warning bg-warning/10 px-2 py-0.5 rounded-full border border-warning/20">
-                    <Sparkles className="size-3" />
-                    <span>{loopPoints} LP</span>
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-reward-text bg-reward-subtle px-2 py-0.5 rounded-full tabular-nums">
+                    <Coins className="size-3" aria-hidden />
+                    <span>{loopPoints} points</span>
                   </span>
                 )}
               </div>
@@ -389,7 +379,7 @@ export function CommentPermalinkView({
         </div>
 
         {/* Actions: Vote & Reply */}
-        <div className="flex items-center gap-4 pt-2 border-t border-border/40 select-none">
+        <div className="flex items-center gap-4 pt-2 border-t border-border select-none">
           <button
             type="button"
             onClick={handleToggleLike}
@@ -398,7 +388,7 @@ export function CommentPermalinkView({
               "flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-colors cursor-pointer",
               liked
                 ? "border-danger/30 bg-danger/10 text-danger"
-                : "border-border/40 hover:bg-muted text-muted-foreground hover:text-foreground"
+                : "border-border hover:bg-muted text-muted-foreground hover:text-foreground"
             )}
           >
             <AnimatedIcon
@@ -419,7 +409,7 @@ export function CommentPermalinkView({
               replyTextareaRef.current?.focus();
             }}
             {...replyHandle.handlers}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/40 hover:bg-muted text-muted-foreground hover:text-foreground text-xs font-semibold transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border hover:bg-muted text-muted-foreground hover:text-foreground text-xs font-semibold transition-colors cursor-pointer"
           >
             <AnimatedIcon
               ref={replyHandle.ref}
@@ -433,7 +423,7 @@ export function CommentPermalinkView({
         </div>
 
         {/* Embedded Reply Composer */}
-        <div className="mt-5 pt-4 border-t border-border/40">
+        <div className="mt-5 pt-4 border-t border-border">
           <form onSubmit={handleSubmitReply} className="space-y-2.5">
             <div className="relative">
               <MentionSuggestions
@@ -443,25 +433,25 @@ export function CommentPermalinkView({
                 className="bottom-full mb-2 left-0"
               />
 
-              <div className="rounded-2xl border border-border/60 bg-muted/30 p-3 space-y-2.5 focus-within:border-primary/50 transition-colors">
+              <div className="rounded-2xl border border-border bg-muted/30 p-3 space-y-2.5 focus-within:border-primary/50 transition-colors">
                 <textarea
                   ref={replyTextareaRef}
                   value={replyBody}
                   onChange={handleReplyTextChange}
-                  placeholder={`Reply to @${handle}...`}
+                  placeholder={`Reply to @${handle}…`}
                   rows={2}
                   className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground/60 outline-none resize-none leading-relaxed"
                 />
 
-                <div className="flex items-center justify-between pt-1 border-t border-border/30">
+                <div className="flex items-center justify-between pt-1 border-t border-border">
                   <button
                     type="button"
                     onClick={() => setReplyIsAnon(!replyIsAnon)}
                     className={cn(
-                      "text-[11px] font-bold px-2.5 py-1 rounded-full transition-colors cursor-pointer inline-flex items-center gap-1.5",
+                      "text-xs font-bold px-2.5 py-1 rounded-full transition-colors cursor-pointer inline-flex items-center gap-1.5",
                       replyIsAnon
                         ? "bg-brand/15 text-brand-text border border-brand-subtle-border/30"
-                        : "bg-muted text-muted-foreground border border-border/40"
+                        : "bg-muted text-muted-foreground border border-border"
                     )}
                   >
                     {replyIsAnon ? (
@@ -527,24 +517,22 @@ export function CommentPermalinkView({
               return (
                 <div
                   key={reply.id}
-                  className="rounded-xl border border-border/40 bg-card/50 p-4 shadow-2xs space-y-2 hover:border-border/60 transition-colors"
+                  className="rounded-xl border border-border bg-card p-4 shadow-2xs space-y-2 hover:border-border transition-colors"
                 >
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                       {!replyAnon ? (
                         <Link href={`/@${replyHandle}`}>
-                          <Avatar className="size-7 rounded-full border border-border/40">
+                          <Avatar className="size-7 rounded-full border border-border">
                             <AvatarImage src={replyAvatarUrl} />
-                            <AvatarFallback className="text-[10px] font-bold bg-muted">
+                            <AvatarFallback className="text-xs font-bold bg-muted">
                               {replyFallback}
                             </AvatarFallback>
                           </Avatar>
                         </Link>
                       ) : (
-                        <Avatar className="size-7 rounded-full border border-border/40 bg-muted">
-                          <AvatarFallback className="text-[10px] font-bold">
-                            {replyFallback}
-                          </AvatarFallback>
+                        <Avatar className="size-7 rounded-full border border-border bg-muted">
+                          <AvatarFallback className="text-xs font-bold">{replyFallback}</AvatarFallback>
                         </Avatar>
                       )}
 
@@ -559,9 +547,9 @@ export function CommentPermalinkView({
                         ) : (
                           <span className="font-bold text-foreground truncate">{replyAuthorName}</span>
                         )}
-                        <span className="text-muted-foreground/70 text-[11px]">@{replyHandle}</span>
+                        <span className="text-muted-foreground/70 text-xs">@{replyHandle}</span>
                         <span className="text-muted-foreground/40">·</span>
-                        <span className="text-muted-foreground/70 text-[11px] shrink-0">
+                        <span className="text-muted-foreground/70 text-xs shrink-0">
                           {formatTimeAgo(reply.createdAt)}
                         </span>
                       </div>
@@ -570,8 +558,8 @@ export function CommentPermalinkView({
                     <button
                       type="button"
                       onClick={() => handleCopyLink(reply.id)}
-                      className="size-6 rounded-full hover:bg-muted text-muted-foreground/50 hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
-                      title="Copy link to reply"
+                      className="size-9 rounded-full hover:bg-muted text-muted-foreground/50 hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
+                      aria-label="Copy link to reply"
                     >
                       <Link2 className="size-3" />
                     </button>
@@ -585,9 +573,9 @@ export function CommentPermalinkView({
             })}
           </div>
         ) : (
-          <div className="rounded-xl border border-dashed border-border/60 p-6 text-center text-muted-foreground space-y-1">
-            <p className="text-xs font-semibold">No direct replies yet.</p>
-            <p className="text-[11px] text-muted-foreground/70">
+          <div className="rounded-xl border border-dashed border-border p-6 text-center text-muted-foreground space-y-1">
+            <p className="text-xs font-semibold">No replies yet.</p>
+            <p className="text-xs text-muted-foreground/70">
               Be the first to join the conversation and reply above!
             </p>
           </div>

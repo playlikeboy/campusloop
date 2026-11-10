@@ -1,14 +1,16 @@
 "use client";
 
-import { ArrowRight, Clock, Flame, Search } from "lucide-react";
+import { ChevronRight, Clock, FileSearch, Search } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { DocsFeatureIcon } from "@/components/docs/docs-feature-icon";
+import { Chip } from "@/components/ui/chip";
+import { EmptyState } from "@/components/ui/empty-state";
 import { DOCS_CATEGORIES, type DocsCategory, type DocsFeature } from "@/lib/docs-features";
-import { cn } from "@/lib/utils";
 
 const FILTERS: ("All" | DocsCategory)[] = ["All", ...DOCS_CATEGORIES];
 
+/** Searchable list of the "how it works" write-ups. */
 export function DocsHubClient({ features }: { features: DocsFeature[] }) {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>("All");
@@ -27,134 +29,69 @@ export function DocsHubClient({ features }: { features: DocsFeature[] }) {
     });
   }, [features, query, filter]);
 
-  // Featured essay (first or matching)
-  const featured = features[1]; // Anonymous Confessions or Campus Feed
-
   return (
-    <div className="space-y-10">
-      {/* Search & Filter Bar (Twitter/Grok Minimalist Layout) */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <label className="relative flex-1">
-          <span className="sr-only">Search technical documentation</span>
-          <Search className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground" />
+    <div className="space-y-6">
+      <div className="space-y-3">
+        <div className="relative">
+          <label htmlFor="docs-search" className="sr-only">
+            Search the docs
+          </label>
+          <Search
+            aria-hidden
+            className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-fg-subtle"
+          />
           <input
+            id="docs-search"
+            type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search engineering docs — try “anonymous”, “cryptographic”, or “escrow”..."
-            className="h-11 w-full rounded-xl border border-border bg-surface pr-4 pl-10 text-xs sm:text-sm font-medium outline-none placeholder:text-fg-subtle focus:border-brand transition-colors"
+            placeholder="Search, e.g. confessions, polls, verification"
+            className="h-11 w-full rounded-full border border-border bg-surface pr-4 pl-11 text-sm text-fg outline-none transition-ui placeholder:text-fg-subtle focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-ring"
           />
-        </label>
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+        </div>
+        <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0">
           {FILTERS.map((c) => (
-            <button
-              key={c}
-              type="button"
-              onClick={() => setFilter(c)}
-              className={cn(
-                "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-mono font-bold transition-colors cursor-pointer",
-                filter === c
-                  ? "bg-foreground text-background shadow-xs"
-                  : "border border-border/60 bg-card text-muted-foreground hover:text-foreground hover:bg-muted/40"
-              )}
-            >
+            <Chip key={c} size="sm" selected={filter === c} onClick={() => setFilter(c)}>
               {c}
-            </button>
+            </Chip>
           ))}
         </div>
       </div>
 
-      {/* Featured Viral Essay Banner (if not filtering heavily) */}
-      {!query && filter === "All" && featured && (
-        <Link
-          href={`/docs/${featured.slug}`}
-          className="group relative block overflow-hidden rounded-2xl border border-border/60 bg-card p-6 sm:p-8 transition-colors hover:border-brand-subtle-border"
-        >
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-subtle-border bg-brand-subtle px-3 py-1 font-mono text-xs font-semibold text-brand-text">
-              <Flame className="size-3.5 text-brand-text" />
-              <span>Featured essay</span>
-            </span>
-            <span className="inline-flex items-center gap-1 font-mono text-xs text-muted-foreground">
-              <Clock className="size-3" />
-              <span>{featured.readTime}</span>
-            </span>
-          </div>
-
-          <div className="mt-4 space-y-2">
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-foreground group-hover:text-brand-text transition-colors">
-              {featured.title}: {featured.tagline}
-            </h2>
-            <p className="line-clamp-2 text-xs sm:text-sm leading-relaxed text-muted-foreground font-normal">
-              {featured.hook.split("\n\n")[0]}
-            </p>
-          </div>
-
-          <div className="mt-5 flex items-center justify-between border-t border-border/40 pt-4">
-            <span className="font-mono text-xs font-bold text-brand-text flex items-center gap-1">
-              <span>Read the engineering breakdown</span>
-              <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
-            </span>
-            <span className="font-mono text-[11px] text-fg-muted">
-              CampusLoop Architecture Team
-            </span>
-          </div>
-        </Link>
-      )}
-
-      {/* Grid of Essay Cards */}
       {results.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border/60 p-12 text-center space-y-2">
-          <p className="font-mono text-sm font-bold text-foreground">No documentation found for “{query}”.</p>
-          <p className="text-xs text-muted-foreground">
-            Try searching for keywords like feed, polls, or verification.
-          </p>
-        </div>
+        <EmptyState
+          icon={FileSearch}
+          title="Nothing matches that"
+          description="Try a simpler word like feed, polls or match."
+          bordered
+        />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <ul className="divide-y divide-border border-y border-border">
           {results.map((f) => (
-            <Link
-              key={f.slug}
-              href={`/docs/${f.slug}`}
-              className="group flex flex-col justify-between rounded-2xl border border-border/40 bg-card p-5 sm:p-6 transition-colors hover:border-brand-subtle-border"
-            >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="flex size-8 items-center justify-center rounded-lg bg-brand-subtle text-brand-text">
-                      <DocsFeatureIcon slug={f.slug} />
-                    </span>
-                    <span className="font-mono text-[11px] font-bold text-fg-muted">
-                      {f.category}
-                    </span>
-                  </div>
-                  <span className="font-mono text-[11px] text-muted-foreground flex items-center gap-1">
-                    <Clock className="size-3" />
-                    <span>{f.readTime}</span>
-                  </span>
-                </div>
-
-                <div>
-                  <h3 className="text-base sm:text-lg font-bold text-foreground group-hover:text-brand-text transition-colors leading-snug">
+            <li key={f.slug}>
+              <Link
+                href={`/docs/${f.slug}`}
+                className="group flex items-center gap-4 py-4 transition-ui hover:bg-surface-muted sm:px-2"
+              >
+                <DocsFeatureIcon
+                  slug={f.slug}
+                  className="shrink-0 text-fg-subtle group-hover:text-brand-text"
+                />
+                <span className="min-w-0 flex-1">
+                  <span className="block text-base font-semibold text-fg group-hover:text-brand-text">
                     {f.title}
-                  </h3>
-                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed font-normal">
-                    {f.tagline}
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-5 flex items-center justify-between border-t border-border/40 pt-3">
-                <span className="inline-flex items-center gap-1 font-mono text-xs font-bold text-brand-text">
-                  <span>Read essay</span>
-                  <ArrowRight className="size-3 transition-transform group-hover:translate-x-1" />
+                  </span>
+                  <span className="block text-sm text-fg-muted">{f.tagline}</span>
                 </span>
-                <span className="font-mono text-[10px] text-muted-foreground">
-                  {f.proofPoints.length} Invariants
+                <span className="hidden shrink-0 items-center gap-1 text-xs text-fg-subtle sm:flex">
+                  <Clock aria-hidden className="size-3.5" />
+                  {f.readTime}
                 </span>
-              </div>
-            </Link>
+                <ChevronRight aria-hidden className="size-4 shrink-0 text-fg-subtle" />
+              </Link>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
     </div>
   );

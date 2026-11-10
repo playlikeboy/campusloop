@@ -1,5 +1,5 @@
-import { ChatThreadSkeleton } from "@/components/ui/skeleton-card";
+import { ChatPageSkeleton } from "@/components/chat/chat-skeletons";
 
 export default function ChatThreadLoading() {
-  return <ChatThreadSkeleton />;
+  return <ChatPageSkeleton thread />;
 }

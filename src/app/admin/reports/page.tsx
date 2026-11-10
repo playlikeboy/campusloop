@@ -1,14 +1,14 @@
 import { and, desc, eq } from "drizzle-orm";
 import { ShieldAlert } from "lucide-react";
 import type { Metadata } from "next";
+import { Badge } from "@/components/ui/badge";
 import { posts, reports, userProfiles } from "@/db/schema";
+import { privateMetadata } from "@/lib/seo";
 import { AdminPageHeader } from "../_components/admin-page-header";
 import { resolveAdminSession } from "../_lib/guard";
 import { ReportsTable } from "./reports-table";
 
-export const metadata: Metadata = {
-  title: "Reports & Safety Queue",
-};
+export const metadata: Metadata = privateMetadata("Reports");
 
 export const dynamic = "force-dynamic";
 
@@ -36,15 +36,10 @@ export default async function AdminReportsPage() {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="Content Reports Queue"
-        category="Operations & Safety"
+        title="Reports"
         icon={ShieldAlert}
-        description="Review student complaints, harassment flags, and rule violations reported across college hubs."
-        badge={
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-destructive/10 text-destructive border border-destructive/20">
-            {openReports.length} open
-          </span>
-        }
+        description="Reports from students about posts, comments and people."
+        badge={<Badge variant="danger">{openReports.length} open</Badge>}
       />
 
       <ReportsTable initialReports={openReports} />

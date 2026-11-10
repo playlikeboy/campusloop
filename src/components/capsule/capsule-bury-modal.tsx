@@ -1,12 +1,19 @@
 "use client";
 
-import { FileText, Image as ImageIcon, Loader2, Lock, UserCheck, UserX, Wand2, X } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+import { FileText, Image as ImageIcon, Lightbulb } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { SegmentedControl } from "@/components/ui/segmented-control";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn } from "@/lib/utils";
+
+type EntryType = "LETTER" | "PREDICTION" | "PHOTO";
 
 interface CapsuleBuryModalProps {
   isOpen: boolean;
@@ -16,6 +23,13 @@ interface CapsuleBuryModalProps {
   onEntryBuried?: (entry: any) => void;
 }
 
+const PLACEHOLDERS: Record<EntryType, string> = {
+  LETTER: "A note to future me",
+  PREDICTION: "Who from our batch starts a company first?",
+  PHOTO: "3 AM Maggi before end sems",
+};
+
+/** Add a letter, prediction or photo to a capsule. Others see it only when the capsule opens. */
 export function CapsuleBuryModal({
   isOpen,
   onClose,
@@ -23,20 +37,18 @@ export function CapsuleBuryModal({
   capsuleTitle,
   onEntryBuried,
 }: CapsuleBuryModalProps) {
-  const [entryType, setEntryType] = useState<"LETTER" | "PREDICTION" | "PHOTO">("LETTER");
+  const [entryType, setEntryType] = useState<EntryType>("LETTER");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [mediaUrl, setMediaUrl] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
-  const [pseudonym, setPseudonym] = useState("anonymous_student");
+  const [pseudonym, setPseudonym] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  if (!isOpen) return null;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim() || !content.trim()) {
-      toast.error("Please provide both a title and message");
+      toast.error("Add a title and a message first.");
       return;
     }
 
@@ -60,214 +72,121 @@ export function CapsuleBuryModal({
 
       if (!res.ok) {
         const err = (await res.json().catch(() => ({}))) as { error?: string };
-        throw new Error(err.error || "Failed to bury memory");
+        throw new Error(err.error || "Couldn't save your entry. Try again.");
       }
 
       const { entry } = (await res.json()) as { entry: any };
 
       sounds.archive();
       haptics.success();
-      toast.success("Memory saved to the Time Capsule.");
+      toast.success("Added. It stays hidden until the capsule opens.");
       onEntryBuried?.(entry);
       onClose();
     } catch (err: unknown) {
-      toast.error((err as Error).message || "Failed to bury memory");
+      toast.error((err as Error).message || "Couldn't save your entry. Try again.");
     } finally {
       setIsSubmitting(false);
     }
   }
 
   return (
-    <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs select-none">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-lg rounded-3xl border border-border bg-card p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
-        >
-          {/* Header */}
-          <div className="flex items-start justify-between gap-3">
+    <Dialog open={isOpen} onOpenChange={(open) => !open && !isSubmitting && onClose()}>
+      <DialogContent className="max-h-[90dvh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="line-clamp-2">{capsuleTitle}</DialogTitle>
+          <DialogDescription>
+            Others see this only when the capsule opens. Don't add anything you wouldn't want shared then.
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <SegmentedControl
+            aria-label="Entry type"
+            fullWidth
+            value={entryType}
+            onChange={setEntryType}
+            options={[
+              { value: "LETTER", label: "Letter", icon: <FileText /> },
+              { value: "PREDICTION", label: "Prediction", icon: <Lightbulb /> },
+              { value: "PHOTO", label: "Photo", icon: <ImageIcon /> },
+            ]}
+          />
+
+          <div className="space-y-1.5">
+            <Label htmlFor="capsule-title">Title</Label>
+            <Input
+              id="capsule-title"
+              value={title}
+              maxLength={120}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder={PLACEHOLDERS[entryType]}
+              required
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="capsule-content">Message</Label>
+            <Textarea
+              id="capsule-content"
+              value={content}
+              maxLength={5000}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="What do you hope happens? What will you miss?"
+              rows={4}
+              required
+            />
+          </div>
+
+          {entryType === "PHOTO" && (
+            <div className="space-y-1.5">
+              <Label htmlFor="capsule-photo">Photo link</Label>
+              <Input
+                id="capsule-photo"
+                type="url"
+                value={mediaUrl}
+                onChange={(e) => setMediaUrl(e.target.value)}
+                placeholder="https://"
+              />
+            </div>
+          )}
+
+          <div className="flex items-center justify-between gap-3 rounded-md bg-surface-muted p-3">
             <div>
-              <div className="flex items-center gap-1.5 text-xs font-black text-warning mb-1">
-                <Lock className="size-3.5" />
-                <span>Bury in Time Capsule</span>
-              </div>
-              <h3 className="text-base font-black text-foreground line-clamp-1">{capsuleTitle}</h3>
-              <p className="text-xs text-muted-foreground font-medium">
-                Hidden from other students until the target date. Avoid including details you would not want shared when it opens.
+              <Label htmlFor="capsule-anon">Hide my name</Label>
+              <p className="text-sm text-fg-muted">
+                {isAnonymous ? "A nickname shows instead of your name." : "Your name shows when it opens."}
               </p>
             </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-full p-1.5 text-muted-foreground hover:bg-muted transition-colors cursor-pointer shrink-0"
-            >
-              <X className="size-4" />
-            </button>
+            <Switch
+              id="capsule-anon"
+              checked={isAnonymous}
+              onCheckedChange={(v) => setIsAnonymous(Boolean(v))}
+            />
           </div>
 
-          {/* Type Selector */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            {[
-              { id: "LETTER", label: "Letter to Future", icon: FileText },
-              { id: "PREDICTION", label: "Campus Prediction", icon: Wand2 },
-              { id: "PHOTO", label: "Photo Memory", icon: ImageIcon },
-            ].map((t) => {
-              const Icon = t.icon;
-              const isSelected = entryType === t.id;
-              return (
-                <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => {
-                    sounds.tap();
-                    haptics.light();
-                    setEntryType(t.id as any);
-                  }}
-                  className={cn(
-                    "flex sm:flex-col items-center justify-center gap-2 sm:gap-1.5 p-3 rounded-2xl border text-center transition-colors cursor-pointer",
-                    isSelected
-                      ? "bg-warning/15 border-warning/40 text-foreground ring-1 ring-warning/30"
-                      : "bg-muted/30 border-border/40 text-muted-foreground hover:bg-muted/60"
-                  )}
-                >
-                  <Icon className={cn("size-4", isSelected ? "text-warning" : "")} />
-                  <span className="text-xs font-bold leading-tight">{t.label}</span>
-                </button>
-              );
-            })}
+          {isAnonymous && (
+            <div className="space-y-1.5">
+              <Label htmlFor="capsule-nickname">Nickname</Label>
+              <Input
+                id="capsule-nickname"
+                value={pseudonym}
+                maxLength={30}
+                onChange={(e) => setPseudonym(e.target.value)}
+                placeholder="midnight_coder"
+              />
+            </div>
+          )}
+
+          <div className="flex justify-end gap-2 pt-1">
+            <Button type="button" variant="ghost" onClick={onClose} disabled={isSubmitting}>
+              Cancel
+            </Button>
+            <Button type="submit" loading={isSubmitting}>
+              Add to capsule
+            </Button>
           </div>
-
-          <form onSubmit={handleSubmit} className="space-y-3.5 pt-1">
-            <div>
-              <label className="text-xs font-bold text-foreground block mb-1">Subject / Headline *</label>
-              <input
-                type="text"
-                value={title}
-                maxLength={120}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder={
-                  entryType === "PREDICTION"
-                    ? "e.g. In 2027, who will be the first founder from our batch?"
-                    : entryType === "PHOTO"
-                      ? "e.g. 3 AM Maggi run during End-Sems"
-                      : "e.g. A letter to myself before graduating"
-                }
-                className="w-full rounded-xl border border-border/80 bg-background px-3.5 py-2 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-warning"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="text-xs font-bold text-foreground block mb-1">
-                Your Secret Message / Prediction *
-              </label>
-              <textarea
-                value={content}
-                maxLength={5000}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="Write honestly. What do you hope will happen? What will you miss most? What were you feeling right at this moment in college?"
-                rows={4}
-                className="w-full rounded-xl border border-border/80 bg-background p-3 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-warning resize-none leading-relaxed"
-                required
-              />
-            </div>
-
-            {entryType === "PHOTO" && (
-              <div>
-                <label className="text-xs font-bold text-foreground block mb-1">Photo URL</label>
-                <input
-                  type="url"
-                  value={mediaUrl}
-                  onChange={(e) => setMediaUrl(e.target.value)}
-                  placeholder="https://..."
-                  className="w-full rounded-xl border border-border/80 bg-background px-3.5 py-2 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-warning"
-                />
-              </div>
-            )}
-
-            {/* Anonymous Toggle */}
-            <div className="flex items-center justify-between p-3 rounded-2xl bg-muted/20 border border-border/30">
-              <div className="flex items-center gap-2">
-                {isAnonymous ? (
-                  <UserX className="size-4 text-warning" />
-                ) : (
-                  <UserCheck className="size-4 text-success" />
-                )}
-                <div>
-                  <p className="text-xs font-bold text-foreground">
-                    {isAnonymous ? "Anonymous Pseudonym" : "Verified Identity"}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">
-                    {isAnonymous
-                      ? "Your real name will never be attached when unsealed"
-                      : "Your profile name will appear when the capsule unlocks"}
-                  </p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => {
-                  sounds.tap();
-                  haptics.light();
-                  setIsAnonymous(!isAnonymous);
-                }}
-                className={cn(
-                  "px-3 py-1 rounded-full text-xs font-black transition-colors cursor-pointer",
-                  isAnonymous
-                    ? "bg-warning text-white"
-                    : "bg-muted text-muted-foreground hover:text-foreground"
-                )}
-              >
-                {isAnonymous ? "Anon On" : "Show Name"}
-              </button>
-            </div>
-
-            {isAnonymous && (
-              <div>
-                <label className="text-xs font-bold text-foreground block mb-1">Anonymous Pseudonym</label>
-                <input
-                  type="text"
-                  value={pseudonym}
-                  onChange={(e) => setPseudonym(e.target.value)}
-                  placeholder="e.g. midnight_coder_26"
-                  className="w-full rounded-xl border border-border/80 bg-background px-3.5 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-warning"
-                />
-              </div>
-            )}
-
-            {/* Actions */}
-            <div className="flex items-center justify-end gap-2 pt-2">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 rounded-xl text-xs font-bold text-muted-foreground hover:bg-muted transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="flex items-center gap-1.5 px-5 py-2 rounded-xl bg-warning text-white text-xs font-black hover:bg-warning transition-transform cursor-pointer shadow-xs active:scale-95 disabled:opacity-50"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="size-3.5 animate-spin" />
-                    <span>Saving memory...</span>
-                  </>
-                ) : (
-                  <>
-                    <Lock className="size-3.5" />
-                    <span>Bury in Vault</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
-        </motion.div>
-      </div>
-    </AnimatePresence>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -2,7 +2,7 @@ export interface HashtagTheme {
   tag: string;
   displayName: string;
   category: string;
-  iconName: "UtensilsCrossed" | "Code2" | "Briefcase" | "BookOpen" | "Flame" | "Sparkles" | "Heart" | "Hash";
+  iconName: "UtensilsCrossed" | "Code2" | "Briefcase" | "BookOpen" | "Flame" | "Heart" | "Hash";
   gradient: string;
   accentColor: string;
   tagline: string;
@@ -33,9 +33,8 @@ export function getHashtagTheme(rawTag: string): HashtagTheme {
       iconName: "UtensilsCrossed",
       gradient: "from-warning-subtle to-transparent",
       accentColor: "text-warning",
-      tagline: "Mess ratings, canteen specials, midnight Maggi & campus food spots.",
-      description:
-        "The pulse of campus hunger: real student mess reviews, canteen recommendations, late-night food delivery hacks, and must-try joints around college.",
+      tagline: "Mess food, canteen picks and late-night food spots.",
+      description: "Students rate the mess, share canteen picks and recommend places to eat near campus.",
       prompts: [
         "Rate today's mess menu (out of 10)...",
         "Best item at your campus canteen under ₹50?",
@@ -63,9 +62,9 @@ export function getHashtagTheme(rawTag: string): HashtagTheme {
       iconName: "Code2",
       gradient: "from-success-subtle to-transparent",
       accentColor: "text-success",
-      tagline: "DSA questions, projects, hackathon teams, and developer banter.",
+      tagline: "DSA questions, side projects and hackathon teams.",
       description:
-        "Everything student devs are building: hackathon project showcases, LeetCode grind survival, tech stack debates, and open-source contributions.",
+        "Students share what they are building, ask coding questions, find hackathon teammates and talk about open source.",
       prompts: [
         "What are you building this weekend?",
         "Share your solution for today's daily problem...",
@@ -91,9 +90,9 @@ export function getHashtagTheme(rawTag: string): HashtagTheme {
       iconName: "Briefcase",
       gradient: "from-brand-subtle to-transparent",
       accentColor: "text-brand-text",
-      tagline: "Interview experiences, OA tips, compensation insights & company reviews.",
+      tagline: "Interview experiences, OA tips and company reviews.",
       description:
-        "Verified campus placement intelligence: Online Assessment (OA) walkthroughs, GD strategies, interview questions, and placement season advice from seniors.",
+        "Seniors and classmates share online assessment (OA) rounds, group discussion tips, interview questions and placement advice.",
       prompts: [
         "Share your recent interview experience...",
         "Tips for clearing the Online Assessment round...",
@@ -120,9 +119,9 @@ export function getHashtagTheme(rawTag: string): HashtagTheme {
       iconName: "BookOpen",
       gradient: "from-crush-subtle to-transparent",
       accentColor: "text-crush-text",
-      tagline: "PYQs, one-night study survival, question predictions & syllabus notes.",
+      tagline: "PYQs, notes and exam prep with classmates.",
       description:
-        "The semester clutch hub: previous year questions (PYQs), professor expectations, urgent study material links, and end-semester camaraderie.",
+        "Students share previous year questions (PYQs), notes, study material and tips for upcoming exams.",
       prompts: [
         "Need notes or PYQs for a tough subject?",
         "Drop professor hints for upcoming exams...",
@@ -140,8 +139,8 @@ export function getHashtagTheme(rawTag: string): HashtagTheme {
     iconName: "Hash",
     gradient: "from-primary/20 via-primary/10 to-transparent",
     accentColor: "text-primary",
-    tagline: `Student conversations, experiences, and campus updates on #${clean}.`,
-    description: `Real-time student discussions, stories, and debates tagged #${clean} across Indian engineering and university campuses.`,
+    tagline: `Posts from students tagged #${clean}.`,
+    description: `Posts, questions and stories tagged #${clean} from students at colleges across India.`,
     prompts: [
       `What's happening on your campus with #${clean}?`,
       `Share your take on #${clean}...`,

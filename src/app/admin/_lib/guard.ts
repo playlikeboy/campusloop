@@ -7,8 +7,8 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { type UserProfile, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
-import { isAllowedAdminEmail } from "./session";
 import { timingSafeCompare } from "@/lib/security/timing";
+import { isAllowedAdminEmail } from "./session";
 
 type Db = ReturnType<typeof getDb>;
 

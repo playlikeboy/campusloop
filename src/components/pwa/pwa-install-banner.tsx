@@ -1,14 +1,14 @@
 "use client";
 
-import { Check, PlusSquare, Share, Zap } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+import { Download, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { AnimateDownload, AnimateX } from "@/components/ui/animated-icon";
+import { Button } from "@/components/ui/button";
 import { useUnreadNotificationsCount } from "@/hooks/use-notifications";
 import { trackPWAInstallOutcome } from "@/lib/analytics/ga4";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
+import { PWAInstallSteps } from "./pwa-install-steps";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -31,7 +31,6 @@ export function PWAInstallBanner() {
   const unreadCount = useUnreadNotificationsCount();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(globalDeferredPrompt);
   const [isIOS, setIsIOS] = useState(false);
-  const [isAndroid, setIsAndroid] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
   const [showBanner, setShowBanner] = useState(false);
   const [showIOSModal, setShowIOSModal] = useState(false);
@@ -86,13 +85,15 @@ export function PWAInstallBanner() {
     // Detect device OS
     const userAgent = window.navigator.userAgent.toLowerCase();
     const isIosDevice = /iphone|ipad|ipod/.test(userAgent);
-    const isAndroidDevice = /android/.test(userAgent);
     setIsIOS(isIosDevice);
-    setIsAndroid(isAndroidDevice);
 
     // Check if user dismissed banner recently — 7 day cooldown (30 days after 3+ dismissals)
-    const dismissedAt = localStorage.getItem("cl_pwa_dismissed");
-    const dismissCount = Number(localStorage.getItem("cl_pwa_dismiss_count") || "0");
+    let dismissedAt: string | null = null;
+    let dismissCount = 0;
+    try {
+      dismissedAt = localStorage.getItem("cl_pwa_dismissed");
+      dismissCount = Number(localStorage.getItem("cl_pwa_dismiss_count") || "0");
+    } catch {}
     if (dismissedAt) {
       const daysSinceDismissed = (Date.now() - Number(dismissedAt)) / (1000 * 60 * 60 * 24);
       const cooldownDays = dismissCount >= 3 ? 30 : 7;
@@ -170,206 +171,52 @@ export function PWAInstallBanner() {
     setShowBanner(false);
     setShowIOSModal(false);
     setShowAndroidModal(false);
-    localStorage.setItem("cl_pwa_dismissed", String(Date.now()));
-    const prevCount = Number(localStorage.getItem("cl_pwa_dismiss_count") || "0");
-    localStorage.setItem("cl_pwa_dismiss_count", String(prevCount + 1));
+    try {
+      localStorage.setItem("cl_pwa_dismissed", String(Date.now()));
+      const prevCount = Number(localStorage.getItem("cl_pwa_dismiss_count") || "0");
+      localStorage.setItem("cl_pwa_dismiss_count", String(prevCount + 1));
+    } catch {}
   }
 
   if (isMerchantOrAdmin || isStandalone) return null;
 
   return (
     <>
-      {/* ─── Floating Mobile PWA Install Pill ─── */}
-      <AnimatePresence>
-        {showBanner && (
-          <motion.div
-            initial={{ opacity: 0, y: 50, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 50, scale: 0.95 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed bottom-20 left-4 right-4 z-40 md:hidden max-w-sm mx-auto select-none"
-          >
-            <div className="flex items-center justify-between gap-3 rounded-2xl border border-primary/40 bg-card/95 p-3.5 shadow-2xl backdrop-blur-sm">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="relative size-10 shrink-0 overflow-hidden rounded-xl border border-border shadow-xs">
-                  <img src="/logo.png" alt="CampusLoop App" className="size-full object-cover" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-xs font-black text-foreground flex items-center gap-1 truncate">
-                    <span>Install CampusLoop</span>
-                    <Zap className="size-3 text-warning shrink-0" />
-                  </p>
-                  <p className="text-[10px] text-muted-foreground truncate">
-                    Native WebAPK with 0ms fullscreen & push alerts
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-1.5 shrink-0">
-                <button
-                  type="button"
-                  onClick={handleInstallClick}
-                  className="flex items-center gap-1 rounded-xl bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground shadow-sm hover:bg-primary/90 transition-transform active:scale-95 cursor-pointer"
-                >
-                  <AnimateDownload size={14} />
-                  <span>Install</span>
-                </button>
-
-                <button
-                  aria-label="Dismiss"
-                  type="button"
-                  onClick={handleDismiss}
-                  className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
-                >
-                  <AnimateX size={14} />
-                </button>
-              </div>
+      {showBanner && (
+        <div className="fixed inset-x-4 bottom-[calc(var(--nav-mobile-h)+env(safe-area-inset-bottom)+0.75rem)] z-40 mx-auto max-w-sm md:hidden">
+          <div className="sticker sticker-pop flex items-center gap-3 p-3 [--pop-from:-3deg]">
+            <img src="/logo.png" alt="" className="size-10 shrink-0 rounded-sm" />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold text-fg">Get the CampusLoop app</p>
+              <p className="truncate text-xs text-fg-muted">Opens full screen. Free.</p>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ─── Android Chrome Instructions Modal (Removes 'Tap to copy URL' bar) ─── */}
-      <AnimatePresence>
-        {showAndroidModal && (
-          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/75 backdrop-blur-sm p-4 select-none animate-in fade-in">
-            <motion.div
-              initial={{ opacity: 0, y: 100 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 100 }}
-              className="w-full max-w-sm rounded-3xl border border-border bg-card p-6 shadow-2xl space-y-4"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <img src="/logo.png" alt="CampusLoop" className="size-8 rounded-xl border border-border" />
-                  <div>
-                    <h3 className="text-sm font-black text-foreground">Install CampusLoop WebAPK</h3>
-                    <p className="text-[10px] text-muted-foreground">True native full-screen app</p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowAndroidModal(false)}
-                  className="rounded-full p-1.5 text-muted-foreground hover:bg-muted transition-colors cursor-pointer"
-                >
-                  <AnimateX size={16} />
-                </button>
-              </div>
-
-              <div className="space-y-3 pt-1">
-                <div className="flex items-start gap-3 rounded-2xl border border-border/60 bg-muted/20 p-3">
-                  <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold text-xs">
-                    1
-                  </div>
-                  <p className="text-xs text-foreground font-medium leading-snug">
-                    Tap the <strong>three dots ⋮</strong> in the top-right corner of Google Chrome.
-                  </p>
-                </div>
-
-                <div className="flex items-start gap-3 rounded-2xl border border-border/60 bg-muted/20 p-3">
-                  <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold text-xs">
-                    2
-                  </div>
-                  <p className="text-xs text-foreground font-medium leading-snug">
-                    Select <strong>Install app</strong> (or <strong>Add to Home screen</strong>).
-                  </p>
-                </div>
-
-                <div className="flex items-start gap-3 rounded-2xl border border-success bg-success-subtle p-3">
-                  <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-success-subtle text-success">
-                    <Check className="size-3.5" aria-hidden="true" />
-                  </div>
-                  <p className="text-xs text-success font-semibold leading-snug">
-                    Chrome installs CampusLoop as a standalone WebAPK, removing browser notifications and
-                    unlocking 0ms speeds!
-                  </p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setShowAndroidModal(false);
-                  setShowBanner(false);
-                }}
-                className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:bg-primary/95 transition-colors cursor-pointer"
-              >
-                Understood!
-              </button>
-            </motion.div>
+            <Button size="sm" onClick={handleInstallClick}>
+              <Download className="size-4" aria-hidden="true" />
+              Install
+            </Button>
+            <Button variant="ghost" size="icon-sm" aria-label="Not now" onClick={handleDismiss}>
+              <X className="size-4" />
+            </Button>
           </div>
-        )}
-      </AnimatePresence>
+        </div>
+      )}
 
-      {/* ─── iOS Safari Instructions Modal ─── */}
-      <AnimatePresence>
-        {showIOSModal && (
-          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/75 backdrop-blur-sm p-4 select-none animate-in fade-in">
-            <motion.div
-              initial={{ opacity: 0, y: 100 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 100 }}
-              className="w-full max-w-sm rounded-3xl border border-border bg-card p-6 shadow-2xl space-y-4"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <img src="/logo.png" alt="CampusLoop" className="size-8 rounded-xl border border-border" />
-                  <h3 className="text-sm font-black text-foreground">Install on iPhone / iPad</h3>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowIOSModal(false)}
-                  className="rounded-full p-1.5 text-muted-foreground hover:bg-muted transition-colors cursor-pointer"
-                >
-                  <AnimateX size={16} />
-                </button>
-              </div>
-
-              <div className="space-y-3 pt-2">
-                <div className="flex items-start gap-3 rounded-2xl border border-border/60 bg-muted/20 p-3">
-                  <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold text-xs">
-                    1
-                  </div>
-                  <p className="text-xs text-foreground font-medium leading-snug">
-                    Tap the <strong>Share</strong> button{" "}
-                    <Share className="inline size-3.5 text-primary mx-0.5" /> at the bottom of Safari.
-                  </p>
-                </div>
-
-                <div className="flex items-start gap-3 rounded-2xl border border-border/60 bg-muted/20 p-3">
-                  <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold text-xs">
-                    2
-                  </div>
-                  <p className="text-xs text-foreground font-medium leading-snug">
-                    Scroll down and tap <strong>Add to Home Screen</strong>{" "}
-                    <PlusSquare className="inline size-3.5 text-primary mx-0.5" />.
-                  </p>
-                </div>
-
-                <div className="flex items-start gap-3 rounded-2xl border border-border/60 bg-muted/20 p-3">
-                  <div className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold text-xs">
-                    3
-                  </div>
-                  <p className="text-xs text-foreground font-medium leading-snug">
-                    Tap <strong>Add</strong> in the top right. You&apos;re all set!
-                  </p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setShowIOSModal(false);
-                  setShowBanner(false);
-                }}
-                className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:bg-primary/95 transition-colors cursor-pointer"
-              >
-                Got it!
-              </button>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      <PWAInstallSteps
+        platform="android"
+        open={showAndroidModal}
+        onOpenChange={(open) => {
+          setShowAndroidModal(open);
+          if (!open) setShowBanner(false);
+        }}
+      />
+      <PWAInstallSteps
+        platform="ios"
+        open={showIOSModal}
+        onOpenChange={(open) => {
+          setShowIOSModal(open);
+          if (!open) setShowBanner(false);
+        }}
+      />
     </>
   );
 }

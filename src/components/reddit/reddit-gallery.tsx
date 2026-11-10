@@ -38,7 +38,7 @@ export function RedditGallery({ mediaList, externalPost, className = "", onImage
 
   return (
     <div
-      className={`relative overflow-hidden rounded-2xl border border-border/70 bg-black/5 dark:bg-black/40 max-w-xl no-card-nav select-none group ${className}`}
+      className={`relative overflow-hidden rounded-2xl border border-border bg-black/5 dark:bg-black/40 max-w-xl no-card-nav select-none group ${className}`}
       data-no-nav="true"
       onClick={(e) => {
         if (!isFailed && onImageClick && currentItem) {
@@ -51,7 +51,7 @@ export function RedditGallery({ mediaList, externalPost, className = "", onImage
         {isFailed ? (
           <div className="flex flex-col items-center gap-2 p-6 text-center text-muted-foreground">
             <ImageIcon className="size-8 opacity-40" />
-            <span className="text-xs">Image preview not available</span>
+            <span className="text-xs">No preview for this image</span>
             <a
               href={externalPost.canonicalUrl}
               target="_blank"
@@ -74,7 +74,7 @@ export function RedditGallery({ mediaList, externalPost, className = "", onImage
 
         {/* Counter Badge */}
         {total > 1 && (
-          <div className="absolute top-2.5 right-2.5 px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white text-[11px] font-bold border border-white/10 pointer-events-none">
+          <div className="absolute top-2.5 right-2.5 px-2.5 py-0.5 rounded-full bg-black/60 text-white text-xs font-bold border border-white/10 pointer-events-none">
             {currentIndex + 1} / {total}
           </div>
         )}
@@ -85,7 +85,7 @@ export function RedditGallery({ mediaList, externalPost, className = "", onImage
             <button
               type="button"
               onClick={handlePrev}
-              className="absolute left-2 top-1/2 -translate-y-1/2 size-8 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md text-white flex items-center justify-center transition-transform opacity-0 group-hover:opacity-100 cursor-pointer border border-white/10 shadow-md"
+              className="absolute left-2 top-1/2 -translate-y-1/2 size-10 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition-transform opacity-0 group-hover:opacity-100 cursor-pointer border border-white/10 shadow-md"
               aria-label="Previous image"
             >
               <ChevronLeft className="size-4" />
@@ -93,7 +93,7 @@ export function RedditGallery({ mediaList, externalPost, className = "", onImage
             <button
               type="button"
               onClick={handleNext}
-              className="absolute right-2 top-1/2 -translate-y-1/2 size-8 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md text-white flex items-center justify-center transition-transform opacity-0 group-hover:opacity-100 cursor-pointer border border-white/10 shadow-md"
+              className="absolute right-2 top-1/2 -translate-y-1/2 size-10 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition-transform opacity-0 group-hover:opacity-100 cursor-pointer border border-white/10 shadow-md"
               aria-label="Next image"
             >
               <ChevronRight className="size-4" />
@@ -104,7 +104,7 @@ export function RedditGallery({ mediaList, externalPost, className = "", onImage
 
       {/* Dots pagination */}
       {total > 1 && total <= 10 && (
-        <div className="flex items-center justify-center gap-1.5 py-2 bg-background/60 backdrop-blur-xs border-t border-border/30">
+        <div className="flex items-center justify-center gap-1.5 py-2 bg-bg border-t border-border">
           {mediaList.map((_, idx) => (
             <button
               key={idx}

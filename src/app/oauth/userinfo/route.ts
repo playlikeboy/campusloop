@@ -4,7 +4,11 @@ import { userInfo } from "@/lib/oauth/store";
 
 export const dynamic = "force-dynamic";
 
-const CORS = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "Authorization", "Access-Control-Allow-Methods": "GET, POST, OPTIONS" };
+const CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "Authorization",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+};
 
 export function OPTIONS() {
   return new NextResponse(null, { status: 204, headers: { ...CORS, "Access-Control-Max-Age": "86400" } });

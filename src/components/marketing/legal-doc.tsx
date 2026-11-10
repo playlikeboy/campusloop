@@ -1,25 +1,28 @@
 "use client";
 
+import { ChevronDown, Info } from "lucide-react";
+import type * as React from "react";
 import { useEffect, useState } from "react";
-import { Check, ShieldAlert } from "lucide-react";
-import { haptics } from "@/lib/haptics";
-import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
+
+/**
+ * Building blocks for long read pages (terms, privacy, safety, contact, demo):
+ * a sticky table of contents on desktop, a collapsible one on phones, short
+ * sections with plain headings, and calm lists and tables.
+ */
 
 export interface DocSectionRef {
   id: string;
   label: string;
 }
 
-/** Sticky table of contents that tracks the section currently in view. */
-export function DocToc({ sections }: { sections: DocSectionRef[] }) {
+function useActiveSection(sections: DocSectionRef[]) {
   const [activeId, setActiveId] = useState<string>(sections[0]?.id ?? "");
 
   useEffect(() => {
     const headings = sections
       .map((s) => document.getElementById(s.id))
       .filter((el): el is HTMLElement => Boolean(el));
-
     if (headings.length === 0) return;
 
     const observer = new IntersectionObserver(
@@ -31,126 +34,139 @@ export function DocToc({ sections }: { sections: DocSectionRef[] }) {
       },
       { rootMargin: "-96px 0px -70% 0px", threshold: 0 }
     );
-
-    headings.forEach((el) => observer.observe(el));
+    for (const el of headings) observer.observe(el);
     return () => observer.disconnect();
   }, [sections]);
 
+  return activeId;
+}
+
+/** Sticky table of contents that tracks the section in view. */
+export function DocToc({ sections }: { sections: DocSectionRef[] }) {
+  const activeId = useActiveSection(sections);
+
   return (
-    <nav aria-label="On this page" className="space-y-1.5 p-3 rounded-2xl border border-border/60 bg-card/70 backdrop-blur-md shadow-2xs">
-      <p className="px-2 pb-2 text-[10px] font-black uppercase tracking-[0.16em] text-muted-foreground flex items-center gap-1.5">
-        <span className="size-1.5 rounded-full bg-brand" />
-        <span>Document Index</span>
-      </p>
-      {sections.map((section, idx) => {
-        const isActive = activeId === section.id;
-        return (
-          <a
-            key={section.id}
-            href={`#${section.id}`}
-            onClick={() => {
-              sounds.tap();
-              haptics.light();
-            }}
-            className={cn(
-              "flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-ui cursor-pointer",
-              isActive
-                ? "bg-primary/10 text-primary border border-primary/20 shadow-xs"
-                : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
-            )}
-          >
-            <span className="font-mono text-[10px] text-muted-foreground/60">
-              {String(idx + 1).padStart(2, "0")}
-            </span>
-            <span className="truncate">{section.label}</span>
-          </a>
-        );
-      })}
+    <nav aria-label="On this page">
+      <p className="px-3 pb-2 text-sm font-semibold text-fg">On this page</p>
+      <ul className="space-y-0.5">
+        {sections.map((section) => {
+          const isActive = activeId === section.id;
+          return (
+            <li key={section.id}>
+              <a
+                href={`#${section.id}`}
+                aria-current={isActive ? "location" : undefined}
+                className={cn(
+                  "flex min-h-10 items-center rounded-full px-3 text-sm transition-ui focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  isActive
+                    ? "bg-brand-subtle font-semibold text-brand-text"
+                    : "text-fg-muted hover:bg-surface-muted hover:text-fg"
+                )}
+              >
+                {section.label}
+              </a>
+            </li>
+          );
+        })}
+      </ul>
     </nav>
   );
 }
 
+/** Phone-width table of contents: one tap opens the list of sections. */
+function MobileToc({ sections }: { sections: DocSectionRef[] }) {
+  return (
+    <details className="group mb-8 rounded-lg border border-border bg-surface lg:hidden">
+      <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between px-4 text-sm font-semibold text-fg [&::-webkit-details-marker]:hidden">
+        On this page
+        <ChevronDown
+          className="size-4 text-fg-muted transition-ui group-open:rotate-180"
+          aria-hidden="true"
+        />
+      </summary>
+      <ul className="border-t border-border px-2 py-2">
+        {sections.map((section) => (
+          <li key={section.id}>
+            <a
+              href={`#${section.id}`}
+              className="flex min-h-11 items-center rounded-full px-3 text-sm text-fg-muted hover:bg-surface-muted hover:text-fg"
+            >
+              {section.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </details>
+  );
+}
+
 export function LegalDocHeader({
-  eyebrow,
   title,
   summary,
   meta,
 }: {
-  eyebrow?: string;
   title: string;
   summary?: string;
+  /** Quiet facts shown in one line, e.g. the update date. */
   meta?: string[];
 }) {
   return (
     <header className="pb-8">
-      {eyebrow && (
-        <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-bold text-primary mb-4 shadow-2xs">
-          <span className="size-1.5 rounded-full bg-brand" />
-          <span>{eyebrow}</span>
-        </div>
-      )}
-      <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black leading-tight tracking-tight text-foreground">
-        {title}
-      </h1>
-      {summary && (
-        <p className="mt-4 max-w-2xl text-sm sm:text-base leading-relaxed text-muted-foreground">
-          {summary}
-        </p>
-      )}
-      {meta && meta.length > 0 && (
-        <div className="mt-5 flex flex-wrap items-center gap-2">
-          {meta.map((m) => (
-            <span
-              key={m}
-              className="rounded-full border border-border/70 bg-muted/40 px-3 py-1 text-[11px] font-semibold text-muted-foreground shadow-2xs"
-            >
-              {m}
-            </span>
-          ))}
-        </div>
-      )}
+      <h1 className="text-balance text-4xl text-fg sm:text-5xl">{title}</h1>
+      {summary && <p className="mt-4 max-w-2xl text-pretty text-lg text-fg-muted">{summary}</p>}
+      {meta && meta.length > 0 && <p className="mt-3 text-sm text-fg-subtle">{meta.join(" · ")}</p>}
     </header>
+  );
+}
+
+/** "The short version": three to five plain lines before the full text. */
+export function DocSummary({
+  title = "The short version",
+  items,
+}: {
+  title?: string;
+  items: React.ReactNode[];
+}) {
+  return (
+    <aside aria-label={title} className="mb-10 rounded-lg bg-surface-muted p-5 sm:p-6">
+      <h2 className="text-lg text-fg">{title}</h2>
+      <ul className="mt-3 list-disc space-y-2 pl-5 text-base text-fg marker:text-brand-text">
+        {items.map((item, i) => (
+          <li key={i}>{item}</li>
+        ))}
+      </ul>
+    </aside>
   );
 }
 
 export function DocSection({
   id,
-  number,
   title,
   children,
 }: {
   id: string;
-  number?: number;
   title: string;
   children: React.ReactNode;
 }) {
   return (
     <section
       id={id}
-      className="scroll-mt-32 rounded-3xl border border-border/70 bg-card/75 backdrop-blur-sm p-6 sm:p-8 shadow-xs space-y-4 mb-6 transition-ui hover:border-primary/30"
+      aria-labelledby={`${id}-title`}
+      className="scroll-mt-24 border-t border-border py-8 first-of-type:border-t-0"
     >
-      <div className="flex items-center gap-3 border-b border-border/40 pb-3">
-        {number !== undefined && (
-          <span className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary font-mono text-xs font-black">
-            {String(number).padStart(2, "0")}
-          </span>
-        )}
-        <h2 className="text-lg sm:text-xl font-extrabold tracking-tight text-foreground">
-          {title}
-        </h2>
-      </div>
-      <div className="space-y-4 text-xs sm:text-sm leading-relaxed text-muted-foreground">
-        {children}
-      </div>
+      <h2 id={`${id}-title`} className="text-2xl text-fg">
+        {title}
+      </h2>
+      <div className="mt-4 max-w-[68ch] space-y-4 text-base text-fg-muted">{children}</div>
     </section>
   );
 }
 
-/** Callout aside for notes inside a legal document. */
+/** One callout per section at most. */
 export function DocNote({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-border bg-surface-muted p-4 sm:p-5 flex items-start gap-3 text-sm text-fg leading-relaxed">
-      <ShieldAlert className="size-4.5 text-brand-text shrink-0 mt-0.5" />
+    <div className="flex items-start gap-3 rounded-lg bg-surface-muted p-4 text-base text-fg">
+      <Info className="mt-0.5 size-5 shrink-0 text-brand-text" aria-hidden="true" />
       <div className="flex-1">{children}</div>
     </div>
   );
@@ -158,66 +174,65 @@ export function DocNote({ children }: { children: React.ReactNode }) {
 
 export function DocList({ items }: { items: React.ReactNode[] }) {
   return (
-    <ul className="space-y-2.5">
+    <ul className="list-disc space-y-2 pl-5 marker:text-fg-subtle">
       {items.map((item, i) => (
-        <li key={i} className="flex items-start gap-2.5">
-          <div className="mt-1 flex size-4 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
-            <Check className="size-2.5 stroke-[3]" />
-          </div>
-          <span className="flex-1">{item}</span>
-        </li>
+        <li key={i}>{item}</li>
       ))}
     </ul>
   );
 }
 
-/** Voxel label/value rows for contact desks, data categories, and helplines. */
-export function DocTable({
-  rows,
-}: {
-  rows: { label: string; value: React.ReactNode; note?: string }[];
-}) {
+/** Label / value rows for contact desks, data categories and helplines. */
+export function DocTable({ rows }: { rows: { label: string; value: React.ReactNode; note?: string }[] }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-border/70 bg-background/60 shadow-2xs divide-y divide-border/40">
+    <dl className="divide-y divide-border rounded-lg border border-border bg-surface">
       {rows.map((row) => (
-        <div
-          key={row.label}
-          className="grid gap-1.5 p-4 sm:grid-cols-[minmax(0,14rem)_1fr] sm:gap-6 hover:bg-muted/20 transition-colors"
-        >
-          <dt className="text-xs sm:text-sm font-bold text-foreground flex items-center gap-1.5">
-            <span className="size-1 rounded-full bg-primary" />
-            <span>{row.label}</span>
-          </dt>
+        <div key={row.label} className="grid gap-1 p-4 sm:grid-cols-[minmax(0,13rem)_1fr] sm:gap-6">
+          <dt className="text-sm font-semibold text-fg">{row.label}</dt>
           <dd className="space-y-1">
-            <div className="text-xs sm:text-sm font-semibold text-foreground">{row.value}</div>
-            {row.note && (
-              <p className="text-[11px] sm:text-xs text-muted-foreground leading-normal">
-                {row.note}
-              </p>
-            )}
+            <div className="text-sm text-fg">{row.value}</div>
+            {row.note && <p className="text-sm text-fg-muted">{row.note}</p>}
           </dd>
         </div>
       ))}
-    </div>
+    </dl>
+  );
+}
+
+/** Inline email link used across the read pages. */
+export function MailLink({ email }: { email: string }) {
+  return (
+    <a
+      href={`mailto:${email}`}
+      className="font-medium break-all text-brand-text underline underline-offset-4 hover:no-underline"
+    >
+      {email}
+    </a>
   );
 }
 
 export function DocLayout({
   sections,
+  header,
   children,
 }: {
   sections: DocSectionRef[];
+  /** Page header; the phone table of contents goes right under it. */
+  header?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
-    <div className="mx-auto grid w-full max-w-5xl gap-8 px-4 sm:px-6 lg:grid-cols-[14rem_minmax(0,1fr)]">
+    <div className="mx-auto grid w-full max-w-6xl gap-10 px-[var(--gutter)] py-12 sm:py-16 lg:grid-cols-[13rem_minmax(0,1fr)]">
       <aside className="hidden lg:block">
-        <div className="sticky top-32">
+        <div className="sticky top-24">
           <DocToc sections={sections} />
         </div>
       </aside>
-
-      <article className="min-w-0 pb-20">{children}</article>
+      <article className="min-w-0 pb-12">
+        {header}
+        <MobileToc sections={sections} />
+        {children}
+      </article>
     </div>
   );
 }

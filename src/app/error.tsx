@@ -1,8 +1,10 @@
 "use client";
 
-import { Home, RefreshCw, TriangleAlert } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useEffect } from "react";
+import { StatusScreen } from "@/components/shells/status-screen";
+import { Button } from "@/components/ui/button";
 
 export default function GlobalAppError({
   error,
@@ -16,39 +18,24 @@ export default function GlobalAppError({
   }, [error]);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background px-6 py-16 text-center">
-      <div className="flex size-16 items-center justify-center rounded-3xl bg-destructive/10 text-destructive">
-        <TriangleAlert className="size-8" />
-      </div>
-
-      <div className="space-y-2">
-        <h1 className="text-lg font-black tracking-tight text-foreground">Something broke here</h1>
-        <p className="mx-auto max-w-sm text-sm text-muted-foreground leading-relaxed">
-          This page hit an unexpected error. Trying again usually clears it — nothing you posted has been
-          lost.
-        </p>
-        {error.digest && (
-          <p className="pt-1 font-mono text-[10px] text-muted-foreground/70">Reference: {error.digest}</p>
-        )}
-      </div>
-
-      <div className="flex flex-wrap items-center justify-center gap-2.5">
-        <button
-          type="button"
-          onClick={reset}
-          className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-full bg-primary px-5 text-xs font-black text-primary-foreground shadow-md transition-ui hover:bg-primary/95 active:scale-95"
-        >
-          <RefreshCw className="size-4" />
-          Try again
-        </button>
-        <Link
-          href="/app"
-          className="inline-flex h-10 items-center gap-2 rounded-full border border-border bg-card px-5 text-xs font-black text-foreground transition-ui hover:bg-muted active:scale-95"
-        >
-          <Home className="size-4" />
-          Back to feed
-        </Link>
-      </div>
+    <main className="flex min-h-dvh flex-col bg-bg text-fg">
+      <StatusScreen
+        sticker="Oops"
+        title="Something went wrong"
+        description="This page didn't load. Try again. Nothing you posted was lost."
+        action={
+          <Button size="lg" onClick={reset} className="w-full sm:w-auto">
+            <RefreshCw className="size-4" aria-hidden="true" />
+            Try again
+          </Button>
+        }
+        secondary={
+          <Link href="/feeds" className="font-medium text-brand-text underline-offset-4 hover:underline">
+            Go to your feed
+          </Link>
+        }
+        footnote={error.digest ? `Error code: ${error.digest}` : undefined}
+      />
     </main>
   );
 }

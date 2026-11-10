@@ -1,17 +1,20 @@
 "use client";
 
-import {
-  AlertCircle,
-  Check,
-  ChevronRight,
-  Clock,
-  Loader2,
-  ShieldAlert,
-  Trophy,
-} from "lucide-react";
+import { Check, Trophy } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+
+const MATCH_STATUS: Record<string, { label: string; variant: "verified" | "warning" | "brand" | "neutral" }> =
+  {
+    CONFIRMED: { label: "Done", variant: "verified" },
+    REPORTED: { label: "Waiting to confirm", variant: "warning" },
+    READY: { label: "Ready", variant: "brand" },
+  };
 
 interface Match {
   id: string;
@@ -34,6 +37,24 @@ interface TournamentBracketViewerProps {
   isOrganizer: boolean;
   currentUserId?: string;
   onRefresh: () => void;
+}
+
+function TeamRow({ name, score, won }: { name?: string; score: number; won: boolean }) {
+  return (
+    <div
+      className={cn(
+        "flex items-center justify-between rounded-sm px-3 py-2 text-sm",
+        won
+          ? "bg-verified-subtle font-semibold text-fg"
+          : name
+            ? "bg-surface-muted text-fg"
+            : "bg-surface-muted text-fg-subtle"
+      )}
+    >
+      <span className="max-w-[150px] truncate">{name ?? "To be decided"}</span>
+      <span className="ml-2 font-bold tabular-nums">{score}</span>
+    </div>
+  );
 }
 
 export function TournamentBracketViewer({
@@ -60,9 +81,9 @@ export function TournamentBracketViewer({
   const totalRounds = roundNumbers.length;
 
   function getRoundTitle(round: number, total: number) {
-    if (round === total) return "Championship Final";
-    if (round === total - 1) return "Semifinals";
-    if (round === total - 2) return "Quarterfinals";
+    if (round === total) return "Final";
+    if (round === total - 1) return "Semi-finals";
+    if (round === total - 2) return "Quarter-finals";
     return `Round ${round}`;
   }
 
@@ -72,28 +93,25 @@ export function TournamentBracketViewer({
     const s2 = parseInt(score2, 10);
 
     if (isNaN(s1) || isNaN(s2) || s1 === s2) {
-      toast.error("Please provide valid, non-equal scores (winner required)");
+      toast.error("Enter both scores. They can't be equal, someone has to win.");
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const res = await fetch(
-        `/api/gaming/tournaments/${tournamentSlug}/matches/${matchId}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "REPORT", score1: s1, score2: s2 }),
-        }
-      );
-      const data = (await res.json()) as any;
-      if (!res.ok) throw new Error(data.error || "Failed to report score");
+      const res = await fetch(`/api/gaming/tournaments/${tournamentSlug}/matches/${matchId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "REPORT", score1: s1, score2: s2 }),
+      });
+      const data = (await res.json().catch(() => ({}))) as any;
+      if (!res.ok) throw new Error(data.error || "Couldn't save the score. Try again.");
 
-      toast.success("Match score submitted!");
+      toast.success("Score saved. The other team needs to confirm it.");
       setReportingMatchId(null);
       onRefresh();
-    } catch (err: any) {
-      toast.error(err.message || "Failed to report match score");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't save the score. Try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -103,21 +121,18 @@ export function TournamentBracketViewer({
     if (isSubmitting) return;
     setIsSubmitting(true);
     try {
-      const res = await fetch(
-        `/api/gaming/tournaments/${tournamentSlug}/matches/${matchId}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "CONFIRM" }),
-        }
-      );
-      const data = (await res.json()) as any;
-      if (!res.ok) throw new Error(data.error || "Failed to confirm score");
+      const res = await fetch(`/api/gaming/tournaments/${tournamentSlug}/matches/${matchId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "CONFIRM" }),
+      });
+      const data = (await res.json().catch(() => ({}))) as any;
+      if (!res.ok) throw new Error(data.error || "Couldn't confirm the result. Try again.");
 
-      toast.success("Match confirmed! Winner advanced.");
+      toast.success("Result confirmed. The winner moves on.");
       onRefresh();
-    } catch (err: any) {
-      toast.error(err.message || "Failed to confirm match");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't confirm the result. Try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -125,48 +140,41 @@ export function TournamentBracketViewer({
 
   if (matches.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-border/70 p-8 text-center text-muted-foreground">
-        <Trophy className="mx-auto size-8 text-muted-foreground/50 mb-2" />
-        <p className="text-sm font-bold text-foreground">Bracket not generated yet</p>
-        <p className="text-xs text-muted-foreground mt-1">
-          {isOrganizer
-            ? "When registration ends, generate the single-elimination bracket to launch the tournament."
-            : "The tournament organizer will generate the match bracket once check-ins complete."}
-        </p>
-      </div>
+      <EmptyState
+        bordered
+        size="compact"
+        icon={Trophy}
+        title="No bracket yet"
+        description={
+          isOrganizer
+            ? "When sign-ups are done, make the bracket to start matches."
+            : "The host will make the bracket once sign-ups close."
+        }
+      />
     );
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between pb-1">
-        <h3 className="text-sm font-bold text-foreground flex items-center gap-1.5">
-          <Trophy className="size-4 text-warning" />
-          <span>Tournament Bracket Tree</span>
-        </h3>
-        <span className="text-xs font-semibold text-muted-foreground">
-          {totalRounds} {totalRounds === 1 ? "Round" : "Rounds"}
+    <section className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h3 className="font-display text-lg font-bold text-fg">Bracket</h3>
+        <span className="text-sm tabular-nums text-fg-muted">
+          {totalRounds} {totalRounds === 1 ? "round" : "rounds"}
         </span>
       </div>
 
-      {/* Responsive Horizontal Scroll Bracket Container */}
-      <div className="overflow-x-auto pb-4 pt-1">
-        <div className="flex items-stretch gap-6 min-w-max px-1">
+      <div className="-mx-4 overflow-x-auto px-4 pb-4 sm:mx-0 sm:px-0">
+        <div className="flex min-w-max items-stretch gap-4">
           {roundNumbers.map((round) => {
             const roundMatches = roundsMap.get(round) || [];
-
             return (
-              <div key={round} className="w-64 flex flex-col justify-around gap-4 shrink-0">
-                <div className="text-center pb-2 border-b border-border/40">
-                  <span className="text-xs font-bold text-primary">
-                    {getRoundTitle(round, totalRounds)}
-                  </span>
-                </div>
-
-                <div className="space-y-4 my-auto">
+              <div key={round} className="flex w-64 shrink-0 flex-col gap-3">
+                <p className="border-b border-border pb-2 text-center text-sm font-semibold text-fg">
+                  {getRoundTitle(round, totalRounds)}
+                </p>
+                <div className="my-auto space-y-3">
                   {roundMatches.map((m) => {
-                    const isWinner1 = m.winnerId && m.winnerId === m.entry1Id;
-                    const isWinner2 = m.winnerId && m.winnerId === m.entry2Id;
+                    const reportedBy = (m as Match & { reportedByEntryId?: string }).reportedByEntryId;
                     const canReport =
                       (isOrganizer ||
                         m.entry1?.captainId === currentUserId ||
@@ -175,157 +183,88 @@ export function TournamentBracketViewer({
                     const canConfirm =
                       m.status === "REPORTED" &&
                       (isOrganizer ||
-                        (m.entry1?.captainId === currentUserId &&
-                          m.entry1Id !== (m as any).reportedByEntryId) ||
-                        (m.entry2?.captainId === currentUserId &&
-                          m.entry2Id !== (m as any).reportedByEntryId));
+                        (m.entry1?.captainId === currentUserId && m.entry1Id !== reportedBy) ||
+                        (m.entry2?.captainId === currentUserId && m.entry2Id !== reportedBy));
+                    const status = MATCH_STATUS[m.status] ?? {
+                      label: "Waiting",
+                      variant: "neutral" as const,
+                    };
 
                     return (
-                      <div
-                        key={m.id}
-                        className={cn(
-                          "rounded-xl border p-3 bg-card/80 transition-colors shadow-2xs relative",
-                          m.status === "CONFIRMED"
-                            ? "border-success"
-                            : m.status === "READY"
-                              ? "border-primary/40 ring-1 ring-primary/20"
-                              : "border-border/60"
-                        )}
-                      >
-                        {/* Match Status Chip */}
-                        <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-2">
-                          <span className="font-bold">
-                            Match #{m.matchNumber}
-                          </span>
-                          <span
-                            className={cn(
-                              "px-1.5 py-0.2 rounded font-bold text-xs",
-                              m.status === "CONFIRMED"
-                                ? "bg-success-subtle text-success"
-                                : m.status === "REPORTED"
-                                  ? "bg-warning-subtle text-warning"
-                                  : m.status === "READY"
-                                    ? "bg-brand-subtle text-brand-text"
-                                    : "bg-muted text-muted-foreground"
-                            )}
-                          >
-                            {m.status}
-                          </span>
+                      <div key={m.id} className="space-y-1.5 rounded-md border border-border bg-surface p-3">
+                        <div className="mb-1 flex items-center justify-between text-xs text-fg-muted">
+                          <span>Match {m.matchNumber}</span>
+                          <Badge variant={status.variant}>{status.label}</Badge>
                         </div>
+                        <TeamRow
+                          name={m.entry1?.teamName}
+                          score={m.score1}
+                          won={Boolean(m.winnerId && m.winnerId === m.entry1Id)}
+                        />
+                        <TeamRow
+                          name={m.entry2?.teamName}
+                          score={m.score2}
+                          won={Boolean(m.winnerId && m.winnerId === m.entry2Id)}
+                        />
 
-                        {/* Team 1 */}
-                        <div
-                          className={cn(
-                            "flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-bold transition-colors",
-                            isWinner1
-                              ? "bg-success-subtle text-foreground"
-                              : m.entry1
-                                ? "bg-muted/40 text-foreground/90"
-                                : "bg-muted/15 text-muted-foreground/60 italic"
-                          )}
-                        >
-                          <span className="truncate max-w-[140px]">
-                            {m.entry1 ? m.entry1.teamName : "TBD"}
-                          </span>
-                          <span className="tabular-nums font-black ml-2">{m.score1}</span>
-                        </div>
-
-                        {/* Team 2 */}
-                        <div
-                          className={cn(
-                            "mt-1.5 flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-bold transition-colors",
-                            isWinner2
-                              ? "bg-success-subtle text-foreground"
-                              : m.entry2
-                                ? "bg-muted/40 text-foreground/90"
-                                : "bg-muted/15 text-muted-foreground/60 italic"
-                          )}
-                        >
-                          <span className="truncate max-w-[140px]">
-                            {m.entry2 ? m.entry2.teamName : "TBD"}
-                          </span>
-                          <span className="tabular-nums font-black ml-2">{m.score2}</span>
-                        </div>
-
-                        {/* Interactive Reporting / Confirming Actions */}
-                        {m.entry1 && m.entry2 && (
-                          <div className="mt-2.5 pt-2 border-t border-border/30 flex items-center justify-between gap-2">
-                            {canConfirm && (
-                              <button
-                                type="button"
-                                disabled={isSubmitting}
+                        {m.entry1 && m.entry2 && reportingMatchId !== m.id && (canConfirm || canReport) && (
+                          <div className="flex gap-2 pt-1.5">
+                            {canConfirm ? (
+                              <Button
+                                size="sm"
+                                variant="success"
                                 onClick={() => handleConfirmScore(m.id)}
-                                className="inline-flex items-center gap-1 rounded-md bg-success px-2.5 py-1 text-[11px] font-bold text-white shadow-xs hover:bg-success transition"
+                                loading={isSubmitting}
                               >
-                                <Check className="size-3" />
-                                <span>Confirm Result</span>
-                              </button>
-                            )}
-
-                            {canReport && reportingMatchId !== m.id && !canConfirm && (
-                              <button
-                                type="button"
+                                <Check aria-hidden /> Confirm result
+                              </Button>
+                            ) : (
+                              <Button
+                                size="sm"
+                                variant="outline"
                                 onClick={() => {
                                   setReportingMatchId(m.id);
                                   setScore1(String(m.score1 || 0));
                                   setScore2(String(m.score2 || 0));
                                 }}
-                                className="inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:underline"
                               >
-                                <span>{m.status === "REPORTED" ? "Edit Score" : "Report Score"}</span>
-                              </button>
+                                {m.status === "REPORTED" ? "Change score" : "Add score"}
+                              </Button>
                             )}
                           </div>
                         )}
 
-                        {/* In-place Score Input */}
                         {reportingMatchId === m.id && (
-                          <div className="mt-3 p-2 rounded-lg bg-muted/40 border border-primary/30 space-y-2">
-                            <p className="text-[10px] font-bold text-foreground">
-                              Enter final match score:
-                            </p>
+                          <div className="space-y-2 border-t border-border pt-3">
                             <div className="grid grid-cols-2 gap-2">
-                              <div>
-                                <label className="text-[9px] text-muted-foreground block truncate">
-                                  {m.entry1?.teamName}
-                                </label>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  value={score1}
-                                  onChange={(e) => setScore1(e.target.value)}
-                                  className="h-8 w-full rounded border border-border bg-background px-2 text-xs font-bold"
-                                />
-                              </div>
-                              <div>
-                                <label className="text-[9px] text-muted-foreground block truncate">
-                                  {m.entry2?.teamName}
-                                </label>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  value={score2}
-                                  onChange={(e) => setScore2(e.target.value)}
-                                  className="h-8 w-full rounded border border-border bg-background px-2 text-xs font-bold"
-                                />
-                              </div>
+                              <Input
+                                type="number"
+                                min="0"
+                                inputMode="numeric"
+                                aria-label={`${m.entry1?.teamName ?? "Team 1"} score`}
+                                value={score1}
+                                onChange={(e) => setScore1(e.target.value)}
+                              />
+                              <Input
+                                type="number"
+                                min="0"
+                                inputMode="numeric"
+                                aria-label={`${m.entry2?.teamName ?? "Team 2"} score`}
+                                value={score2}
+                                onChange={(e) => setScore2(e.target.value)}
+                              />
                             </div>
-                            <div className="flex items-center justify-end gap-1.5 pt-1">
-                              <button
-                                type="button"
-                                onClick={() => setReportingMatchId(null)}
-                                className="px-2 py-0.5 text-[10px] font-bold text-muted-foreground hover:text-foreground"
-                              >
+                            <div className="flex justify-end gap-2">
+                              <Button size="sm" variant="ghost" onClick={() => setReportingMatchId(null)}>
                                 Cancel
-                              </button>
-                              <button
-                                type="button"
-                                disabled={isSubmitting}
+                              </Button>
+                              <Button
+                                size="sm"
                                 onClick={() => handleReportScore(m.id)}
-                                className="rounded bg-primary px-2.5 py-1 text-[10px] font-bold text-primary-foreground"
+                                loading={isSubmitting}
                               >
-                                {isSubmitting ? "Submitting..." : "Save Score"}
-                              </button>
+                                Save score
+                              </Button>
                             </div>
                           </div>
                         )}
@@ -338,6 +277,6 @@ export function TournamentBracketViewer({
           })}
         </div>
       </div>
-    </div>
+    </section>
   );
 }

@@ -1,8 +1,9 @@
 "use client";
 
-import { CreditCard, Loader2 } from "lucide-react";
+import { CreditCard } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import { payWithRazorpay } from "@/lib/payments/razorpay-checkout";
 
 /** Shown on an online order that hasn't been paid yet. The store only sees it after payment. */
@@ -13,7 +14,7 @@ export function OrderPayNow({
   onPaid,
 }: {
   orderId: string;
-  total: number;
+  total: number | string;
   phone?: string;
   onPaid: () => void;
 }) {
@@ -24,35 +25,30 @@ export function OrderPayNow({
     try {
       const result = await payWithRazorpay([orderId], { contact: phone });
       if (result.status === "paid") {
-        toast.success("Payment successful. The store has your order.");
+        toast.success("Paid. The store has your order.");
         onPaid();
       } else if (result.status === "failed") {
         toast.error(result.message);
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Payment could not start.");
+      toast.error(
+        err instanceof Error ? err.message : "Couldn't open payment. Check your internet and try again."
+      );
     } finally {
       setBusy(false);
     }
   }
 
   return (
-    <div className="rounded-3xl bg-warning-subtle p-4 space-y-3">
+    <section aria-label="Payment" className="space-y-3 rounded-lg border border-border bg-warning-subtle p-4">
       <div>
-        <p className="text-sm font-black text-foreground">Payment pending</p>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          The store receives this order once payment goes through.
-        </p>
+        <p className="text-sm font-semibold text-fg">Payment pending</p>
+        <p className="mt-0.5 text-sm text-fg-muted">The store gets your order once you pay.</p>
       </div>
-      <button
-        type="button"
-        onClick={handlePay}
-        disabled={busy}
-        className="w-full h-11 rounded-2xl bg-foreground text-background text-sm font-black flex items-center justify-center gap-2 transition-opacity cursor-pointer disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-      >
-        {busy ? <Loader2 className="size-4 animate-spin" /> : <CreditCard className="size-4" />}
-        <span>{busy ? "Opening payment..." : `Pay ₹${total.toLocaleString("en-IN")} now`}</span>
-      </button>
-    </div>
+      <Button type="button" onClick={handlePay} loading={busy} className="w-full">
+        {!busy && <CreditCard className="size-4" />}
+        {busy ? "Opening payment..." : `Pay ₹${Number(total || 0).toLocaleString("en-IN")} now`}
+      </Button>
+    </section>
   );
 }

@@ -64,6 +64,15 @@ const PAIRS: Array<[string, string, number]> = [
   ["--crush-fg", "--crush", 4.5],
   ["--crush-text", "--bg", 4.5],
   ["--crush-text", "--crush-subtle", 4.5],
+  ["--verified-fg", "--verified", 4.5],
+  ["--verified-text", "--bg", 4.5],
+  ["--verified-text", "--verified-subtle", 4.5],
+  ["--sticker-fg", "--sticker-bg", 4.5],
+  ["--sticker-header-fg", "--sticker-header", 4.5],
+  ["--story-field-fg", "--story-field", 4.5],
+  ["--fg", "--poll-fill-chosen", 4.5],
+  ["--fg", "--poll-track", 4.5],
+  ["--brand-text", "--surface-muted", 4.5],
   ["--success-fg", "--success", 4.5],
   ["--success", "--bg", 4.5],
   ["--success", "--success-subtle", 4.5],
@@ -87,7 +96,10 @@ for (const [name, map] of [
     for (const [fg, bg, min] of PAIRS) {
       it(`${fg} on ${bg} ≥ ${min}:1`, () => {
         const ratio = contrast(resolve(map, fg), resolve(map, bg));
-        expect(ratio, `${fg}=${resolve(map, fg)} on ${bg}=${resolve(map, bg)} → ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(min);
+        expect(
+          ratio,
+          `${fg}=${resolve(map, fg)} on ${bg}=${resolve(map, bg)} → ${ratio.toFixed(2)}`
+        ).toBeGreaterThanOrEqual(min);
       });
     }
   });

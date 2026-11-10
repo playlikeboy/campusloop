@@ -1,21 +1,10 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { privateMetadata } from "@/lib/seo";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 import { SupermarketMarketplaceClient } from "./supermarket-client";
 
-export const metadata: Metadata = {
-  title: "Campus Supermarket & Mart | 15-Min Hostel Delivery",
-  description:
-    "Order snacks, midnight munchies, stationery, exam kits, toiletries, and hostel essentials with instant delivery inside your college campus.",
-  alternates: { canonical: "https://campusloop.space/marketplace/supermarket" },
-  openGraph: {
-    title: "Campus Supermarket & Daily Mart",
-    description:
-      "Instant groceries, exam stationery, beverages, and dorm essentials delivered to hostel rooms.",
-    url: "https://campusloop.space/marketplace/supermarket",
-    siteName: "CampusLoop Mart",
-  },
-};
+export const metadata: Metadata = privateMetadata("Mart");
 
 export default async function SupermarketPage() {
   const user = await getCachedAuthUser();

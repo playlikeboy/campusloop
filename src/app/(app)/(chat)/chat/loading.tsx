@@ -1,5 +1,5 @@
-import { ChatSkeleton } from "@/components/ui/skeleton-card";
+import { ChatPageSkeleton } from "@/components/chat/chat-skeletons";
 
 export default function ChatLoading() {
-  return <ChatSkeleton />;
+  return <ChatPageSkeleton />;
 }

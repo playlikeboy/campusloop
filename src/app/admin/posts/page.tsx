@@ -1,15 +1,15 @@
 import { and, count, desc, eq, ilike, type SQL } from "drizzle-orm";
 import { FileText } from "lucide-react";
 import type { Metadata } from "next";
+import { Badge } from "@/components/ui/badge";
 import { posts } from "@/db/schema";
 import { getShowSeededPosts } from "@/lib/platform-config";
+import { privateMetadata } from "@/lib/seo";
 import { AdminPageHeader } from "../_components/admin-page-header";
 import { resolveAdminSession } from "../_lib/guard";
 import { PostsTable } from "./posts-table";
 
-export const metadata: Metadata = {
-  title: "Posts Moderation & Unlist Controls",
-};
+export const metadata: Metadata = privateMetadata("Posts");
 
 export type PostStatusFilter = "ALL" | "PUBLISHED" | "PENDING_REVIEW" | "HIDDEN" | "DELETED";
 export type PostAnonFilter = "all" | "anon" | "public";
@@ -93,15 +93,10 @@ export default async function AdminPostsPage({ searchParams }: PageProps) {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="Post Moderation & Visibility Controls"
-        category="Content & Campus"
+        title="Posts"
         icon={FileText}
-        description="Filter authentic student discussions vs seeded feeds, audit risk indicators, and manage instant timeline publication."
-        badge={
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-muted text-muted-foreground border border-border/40">
-            {totalCount.toLocaleString()} posts
-          </span>
-        }
+        description="Search posts, check risk scores, and unlist or delete posts."
+        badge={<Badge variant="neutral">{totalCount.toLocaleString()} posts</Badge>}
       />
 
       <PostsTable

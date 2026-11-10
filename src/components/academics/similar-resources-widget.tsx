@@ -80,7 +80,7 @@ export function SimilarResourcesWidget({ resourceId, subjectCode }: SimilarResou
             Notes and PYQs matched to this subject and syllabus
           </p>
         </div>
-        <span className="shrink-0 rounded-full bg-muted px-2.5 py-1 text-[10px] font-bold text-muted-foreground border border-border/40">
+        <span className="shrink-0 rounded-full bg-muted px-2.5 py-1 text-xs font-bold text-muted-foreground border border-border/40">
           {similarList.length} results
         </span>
       </div>
@@ -101,22 +101,20 @@ export function SimilarResourcesWidget({ resourceId, subjectCode }: SimilarResou
               <div className="flex items-start gap-3">
                 <Avatar className="size-9 shrink-0 border border-border/50">
                   <AvatarImage src={avatar} />
-                  <AvatarFallback className="text-[10px] font-bold bg-primary/8 text-primary">
+                  <AvatarFallback className="text-xs font-bold bg-primary/8 text-primary">
                     {item.uploader.displayName?.[0] || "U"}
                   </AvatarFallback>
                 </Avatar>
 
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="rounded-md bg-primary/10 px-2 py-1 text-[10px] font-bold text-primary">
+                    <span className="rounded-md bg-primary/10 px-2 py-1 text-xs font-bold text-primary">
                       {matchReason}
                     </span>
-                    <span className="text-[10px] text-muted-foreground/50">·</span>
-                    <span className="text-[10px] font-mono font-bold text-foreground/80">
-                      {item.subjectCode}
-                    </span>
-                    <span className="text-[10px] text-muted-foreground/50">·</span>
-                    <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    <span className="text-xs text-muted-foreground/50">·</span>
+                    <span className="text-xs font-mono font-bold text-foreground/80">{item.subjectCode}</span>
+                    <span className="text-xs text-muted-foreground/50">·</span>
+                    <span className="text-xs font-semibold tracking-wide text-muted-foreground">
                       {resourceLabel}
                     </span>
                   </div>
@@ -125,7 +123,7 @@ export function SimilarResourcesWidget({ resourceId, subjectCode }: SimilarResou
                     {item.title}
                   </h4>
 
-                  <div className="mt-1.5 flex items-center gap-1.5 flex-wrap text-[11px] text-muted-foreground">
+                  <div className="mt-1.5 flex items-center gap-1.5 flex-wrap text-xs text-muted-foreground">
                     <span className="font-semibold text-foreground/80 truncate max-w-[130px]">
                       {item.uploader.displayName}
                     </span>
@@ -135,7 +133,7 @@ export function SimilarResourcesWidget({ resourceId, subjectCode }: SimilarResou
                     <span className="truncate max-w-[140px]">{item.branch}</span>
                   </div>
 
-                  <div className="mt-3 flex items-center gap-2 flex-wrap text-[10px]">
+                  <div className="mt-3 flex items-center gap-2 flex-wrap text-xs">
                     <span className="inline-flex items-center gap-1 rounded-lg bg-muted px-2 py-1 font-semibold text-muted-foreground">
                       <ThumbsUp className="size-3" />
                       {item.upvotesCount} helpful

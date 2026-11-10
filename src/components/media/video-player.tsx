@@ -11,7 +11,6 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
-import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -22,7 +21,17 @@ interface VideoPlayerProps {
   compact?: boolean;
 }
 
-export function VideoPlayer({ src, poster, className, compact = false }: VideoPlayerProps) {
+function formatTime(seconds: number) {
+  if (!seconds || Number.isNaN(seconds) || !Number.isFinite(seconds)) return "0:00";
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+}
+
+const controlButton =
+  "flex size-11 cursor-pointer items-center justify-center rounded-full text-white transition-ui hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white";
+
+export function VideoPlayer({ src, poster, className }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -34,24 +43,17 @@ export function VideoPlayer({ src, poster, className, compact = false }: VideoPl
   const [showControls, setShowControls] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [isPortrait, setIsPortrait] = useState(false);
-  const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  function formatTime(seconds: number) {
-    if (!seconds || Number.isNaN(seconds)) return "0:00";
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
-  }
+  const controlsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const playingRef = useRef(false);
 
   function togglePlay(e?: React.MouseEvent) {
     e?.stopPropagation();
-    if (!videoRef.current) return;
+    const video = videoRef.current;
+    if (!video) return;
     if (isPlaying) {
-      videoRef.current.pause();
-      setIsPlaying(false);
+      video.pause();
     } else {
-      videoRef.current.play().catch(() => {});
-      setIsPlaying(true);
+      video.play().catch(() => setIsPlaying(false));
     }
   }
 
@@ -74,11 +76,9 @@ export function VideoPlayer({ src, poster, className, compact = false }: VideoPl
     e.stopPropagation();
     if (!containerRef.current) return;
     if (!document.fullscreenElement) {
-      containerRef.current.requestFullscreen().catch(() => {});
-      setIsFullscreen(true);
+      containerRef.current.requestFullscreen?.().catch(() => {});
     } else {
       document.exitFullscreen().catch(() => {});
-      setIsFullscreen(false);
     }
   }
 
@@ -87,42 +87,48 @@ export function VideoPlayer({ src, poster, className, compact = false }: VideoPl
     setShowControls(true);
     if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
     controlsTimeoutRef.current = setTimeout(() => {
-      if (isPlaying) setShowControls(false);
+      if (playingRef.current) setShowControls(false);
     }, 2500);
   }
+
+  useEffect(() => {
+    const onFullscreen = () => setIsFullscreen(Boolean(document.fullscreenElement));
+    document.addEventListener("fullscreenchange", onFullscreen);
+    return () => document.removeEventListener("fullscreenchange", onFullscreen);
+  }, []);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
     const onLoadedMetadata = () => {
-      setTotalDuration(video.duration || 0);
+      setTotalDuration(Number.isFinite(video.duration) ? video.duration : 0);
       setIsLoading(false);
       setHasError(false);
       if (video.videoHeight && video.videoWidth && video.videoHeight > video.videoWidth) {
         setIsPortrait(true);
       }
     };
-
     const onError = () => {
       setIsLoading(false);
       setIsPlaying(false);
       setHasError(true);
     };
-
-    const onTimeUpdate = () => {
-      setCurrentTime(video.currentTime);
-    };
-
+    const onTimeUpdate = () => setCurrentTime(video.currentTime);
     const onEnded = () => {
+      playingRef.current = false;
       setIsPlaying(false);
       setShowControls(true);
     };
-
     const onWaiting = () => setIsLoading(true);
     const onPlaying = () => {
+      playingRef.current = true;
       setIsLoading(false);
       setIsPlaying(true);
+    };
+    const onPause = () => {
+      playingRef.current = false;
+      setIsPlaying(false);
     };
 
     video.addEventListener("loadedmetadata", onLoadedMetadata);
@@ -131,6 +137,7 @@ export function VideoPlayer({ src, poster, className, compact = false }: VideoPl
     video.addEventListener("ended", onEnded);
     video.addEventListener("waiting", onWaiting);
     video.addEventListener("playing", onPlaying);
+    video.addEventListener("pause", onPause);
 
     return () => {
       video.removeEventListener("loadedmetadata", onLoadedMetadata);
@@ -139,11 +146,13 @@ export function VideoPlayer({ src, poster, className, compact = false }: VideoPl
       video.removeEventListener("ended", onEnded);
       video.removeEventListener("waiting", onWaiting);
       video.removeEventListener("playing", onPlaying);
+      video.removeEventListener("pause", onPause);
       if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
     };
-  }, [isPlaying]);
+  }, []);
 
   const progressPercent = totalDuration > 0 ? (currentTime / totalDuration) * 100 : 0;
+  const controlsVisible = !hasError && (showControls || !isPlaying);
 
   function retryVideo() {
     if (!videoRef.current) return;
@@ -159,13 +168,12 @@ export function VideoPlayer({ src, poster, className, compact = false }: VideoPl
       onTouchStart={handleUserActivity}
       onClick={(e) => e.stopPropagation()}
       className={cn(
-        "relative rounded-lg overflow-hidden bg-black/95 shadow-sm group select-none no-card-nav max-w-lg",
+        "no-card-nav relative max-w-lg select-none overflow-hidden rounded-lg bg-black",
         isPortrait ? "aspect-[9/16] max-h-[520px]" : "aspect-video max-h-[440px]",
         className
       )}
     >
-      {/* Video Element */}
-      {/* biome-ignore lint/a11y/useMediaCaption: Dynamic user-generated campus video */}
+      {/* biome-ignore lint/a11y/useMediaCaption: user-uploaded video, no caption track available */}
       <video
         ref={videoRef}
         src={src}
@@ -173,37 +181,32 @@ export function VideoPlayer({ src, poster, className, compact = false }: VideoPl
         playsInline
         preload="metadata"
         onClick={togglePlay}
-        className="h-full w-full object-contain cursor-pointer"
+        className="h-full w-full cursor-pointer object-contain"
       />
 
-      {/* Center Play/Pause Floating Circle Overlay */}
       {!hasError && !isPlaying && (
-        <div
+        <button
+          type="button"
           onClick={togglePlay}
-          className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-2xs cursor-pointer transition-opacity"
+          className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/30 focus-visible:outline-none"
+          aria-label="Play video"
         >
-          <motion.div
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className="size-14 rounded-full bg-black/65 text-white border border-white/30 flex items-center justify-center shadow-2xl backdrop-blur-md"
-          >
+          <span className="cl-interactive flex size-14 items-center justify-center rounded-full bg-sticker text-sticker-fg shadow-sticker">
             {isLoading ? (
-              <Loader2 className="size-6 animate-spin" />
+              <Loader2 className="size-6 animate-spin" aria-hidden />
             ) : (
-              <Play className="size-6 fill-white ml-1" />
+              <Play className="ml-1 size-6 fill-current" aria-hidden />
             )}
-          </motion.div>
-        </div>
+          </span>
+        </button>
       )}
 
       {hasError ? (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/70 px-6 text-center text-white backdrop-blur-[2px]">
-          <div className="flex size-11 items-center justify-center rounded-full border border-white/15 bg-white/10">
-            <CircleAlert className="size-5 text-white/90" />
-          </div>
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black px-6 text-center text-white">
+          <CircleAlert className="size-6" aria-hidden />
           <div>
-            <p className="text-sm font-semibold">Video unavailable</p>
-            <p className="mt-1 text-[11px] text-white/65">The media could not be loaded.</p>
+            <p className="text-sm font-semibold">This video won't load</p>
+            <p className="mt-1 text-xs text-white/75">Check your connection and try again.</p>
           </div>
           <button
             type="button"
@@ -211,27 +214,23 @@ export function VideoPlayer({ src, poster, className, compact = false }: VideoPl
               e.stopPropagation();
               retryVideo();
             }}
-            className="inline-flex items-center gap-1.5 rounded-full bg-surface px-3 py-1.5 text-[11px] font-semibold text-black transition-transform active:scale-95"
+            className="cl-interactive inline-flex h-11 items-center gap-1.5 rounded-full bg-sticker px-4 text-sm font-semibold text-sticker-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
           >
-            <RefreshCw className="size-3.5" />
-            Retry
+            <RefreshCw className="size-4" aria-hidden />
+            Try again
           </button>
         </div>
       ) : null}
 
-      {/* Bottom Floating Control Bar */}
       <div
         className={cn(
-          "absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent p-3 pt-6 space-y-2 transition-opacity duration-200",
-          !hasError && (showControls || !isPlaying)
-            ? "opacity-100 pointer-events-auto"
-            : "opacity-0 pointer-events-none"
+          "absolute inset-x-0 bottom-0 space-y-1 bg-black/55 px-2 pt-2 pb-1 transition-ui",
+          controlsVisible ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
         )}
       >
-        {/* Progress Bar Track */}
-        <div className="relative flex items-center h-2 cursor-pointer group/bar">
-          <div className="w-full h-1 bg-white/30 rounded-full overflow-hidden">
-            <div className="h-full bg-primary rounded-full" style={{ width: `${progressPercent}%` }} />
+        <div className="relative flex h-4 items-center px-2">
+          <div className="h-1 w-full overflow-hidden rounded-full bg-white/30">
+            <div className="h-full rounded-full bg-white" style={{ width: `${progressPercent}%` }} />
           </div>
           <input
             type="range"
@@ -240,36 +239,39 @@ export function VideoPlayer({ src, poster, className, compact = false }: VideoPl
             step={0.1}
             value={currentTime}
             onChange={handleSeek}
-            className="absolute inset-0 w-full opacity-0 cursor-pointer"
+            className="absolute inset-0 w-full cursor-pointer opacity-0"
+            aria-label="Seek"
+            aria-valuetext={`${formatTime(currentTime)} of ${formatTime(totalDuration)}`}
           />
         </div>
 
-        {/* Buttons Row */}
-        <div className="flex items-center justify-between text-white text-xs font-semibold">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between text-xs font-medium text-white">
+          <div className="flex items-center">
             <button
               type="button"
               onClick={togglePlay}
-              className="hover:text-primary transition-colors cursor-pointer"
+              className={controlButton}
               aria-label={isPlaying ? "Pause" : "Play"}
             >
               {isPlaying ? (
-                <Pause className="size-4 fill-current" />
+                <Pause className="size-4 fill-current" aria-hidden />
               ) : (
-                <Play className="size-4 fill-current" />
+                <Play className="size-4 fill-current" aria-hidden />
               )}
             </button>
-
             <button
               type="button"
               onClick={toggleMute}
-              className="hover:text-primary transition-colors cursor-pointer"
+              className={controlButton}
               aria-label={isMuted ? "Unmute" : "Mute"}
             >
-              {isMuted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
+              {isMuted ? (
+                <VolumeX className="size-4" aria-hidden />
+              ) : (
+                <Volume2 className="size-4" aria-hidden />
+              )}
             </button>
-
-            <span className="text-[11px] font-mono opacity-85">
+            <span className="pl-1 tabular-nums">
               {formatTime(currentTime)} / {formatTime(totalDuration)}
             </span>
           </div>
@@ -277,10 +279,14 @@ export function VideoPlayer({ src, poster, className, compact = false }: VideoPl
           <button
             type="button"
             onClick={toggleFullscreen}
-            className="hover:text-primary transition-colors cursor-pointer"
-            aria-label="Toggle Fullscreen"
+            className={controlButton}
+            aria-label={isFullscreen ? "Exit full screen" : "Full screen"}
           >
-            {isFullscreen ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
+            {isFullscreen ? (
+              <Minimize2 className="size-4" aria-hidden />
+            ) : (
+              <Maximize2 className="size-4" aria-hidden />
+            )}
           </button>
         </div>
       </div>

@@ -12,21 +12,21 @@ interface CodePenEmbedProps {
 export function CodePenEmbed({ embedUrl, penId, author, rawUrl }: CodePenEmbedProps) {
   return (
     <div
-      className="mt-3 overflow-hidden rounded-2xl border border-border/50 bg-card shadow-xs transition-ui hover:border-border"
+      className="mt-3 overflow-hidden rounded-2xl border border-border bg-card shadow-xs transition-ui hover:border-border"
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="flex items-center justify-between border-b border-border/30 bg-muted/40 px-3.5 py-1.5">
-        <div className="flex items-center gap-1.5 text-xs font-black text-foreground">
+      <div className="flex items-center justify-between border-b border-border bg-muted/40 px-3.5 py-1.5">
+        <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
           <Code2 className="size-3.5 text-primary" />
           <span>CodePen</span>
-          {author && <span className="text-[11px] font-normal text-muted-foreground">by @{author}</span>}
+          {author && <span className="text-xs font-normal text-muted-foreground">by @{author}</span>}
         </div>
         {rawUrl && (
           <a
             href={rawUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1 text-[11px] font-bold text-muted-foreground hover:text-foreground transition-colors"
+            className="flex items-center gap-1 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors"
           >
             <span>Edit on CodePen</span>
             <ExternalLink className="size-3 opacity-70" />

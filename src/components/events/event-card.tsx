@@ -1,10 +1,14 @@
 "use client";
 
-import { BriefcaseBusiness, CalendarDays, Check, Dumbbell, GraduationCap, MessageSquareText, Palette, Rocket, Sparkles, Trophy, Users, Wrench } from "lucide-react";
+import { CalendarDays, Check, MapPin, Trophy, Users } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import { mutate } from "swr";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { EventDateTile } from "./event-date-tile";
 
 export interface EventItem {
   id: string;
@@ -55,37 +59,17 @@ export function isEventClosed(event: EventItem, nowMs = Date.now()) {
   return false;
 }
 
+export function eventModeLabel(mode: string) {
+  if (mode === "ONLINE") return "Online";
+  if (mode === "HYBRID") return "Online + on campus";
+  return "On campus";
+}
 
-function categoryArtwork(eventType: string) {
-  const type = String(eventType || "").toUpperCase();
-  if (["INTERNSHIP", "JOB"].includes(type)) {
-    return { gradient: "bg-brand", kicker: "Career growth", Icon: BriefcaseBusiness };
-  }
-  if (["SCHOLARSHIP", "FELLOWSHIP", "GRANT"].includes(type)) {
-    return { gradient: "bg-brand", kicker: "Fund your future", Icon: GraduationCap };
-  }
-  if (type === "HACKATHON") {
-    return { gradient: "bg-brand", kicker: "Build, ship, win", Icon: Rocket };
-  }
-  if (["COMPETITION", "CONTEST"].includes(type)) {
-    return { gradient: "bg-brand", kicker: "Show what you can do", Icon: Trophy };
-  }
-  if (type === "WORKSHOP") {
-    return { gradient: "bg-brand", kicker: "Learn by doing", Icon: Wrench };
-  }
-  if (type === "SEMINAR") {
-    return { gradient: "bg-brand", kicker: "Ideas and insights", Icon: MessageSquareText };
-  }
-  if (type === "MEETUP") {
-    return { gradient: "bg-brand", kicker: "Meet your people", Icon: Users };
-  }
-  if (["CULTURAL", "FEST"].includes(type)) {
-    return { gradient: "bg-brand", kicker: "Campus culture", Icon: Palette };
-  }
-  if (type === "SPORTS") {
-    return { gradient: "bg-brand", kicker: "Play to win", Icon: Dumbbell };
-  }
-  return { gradient: "bg-brand", kicker: "Your next opportunity", Icon: Sparkles };
+export function eventTypeLabel(type: string) {
+  const t = String(type || "event")
+    .toLowerCase()
+    .replace(/_/g, " ");
+  return t.charAt(0).toUpperCase() + t.slice(1);
 }
 
 function safePosterUrl(value: string | null | undefined): string | null {
@@ -101,161 +85,202 @@ function safePosterUrl(value: string | null | undefined): string | null {
   }
 }
 
-function EventArtwork({ event, variant }: { event: EventItem; variant: "row" | "grid" }) {
-  const [failedPosterUrl, setFailedPosterUrl] = useState<string | null>(null);
+function eventDate(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Date to be announced";
+  return date.toLocaleDateString("en-IN", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    year: date.getFullYear() === new Date().getFullYear() ? undefined : "numeric",
+  });
+}
 
-  const posterUrl = safePosterUrl(event.bannerUrl);
-  const hasPoster = Boolean(posterUrl && failedPosterUrl !== posterUrl);
-  const { gradient, kicker, Icon } = categoryArtwork(event.eventType);
-
+function Poster({ event, className }: { event: EventItem; className?: string }) {
+  const [failed, setFailed] = useState(false);
+  const url = safePosterUrl(event.bannerUrl);
+  if (!url || failed) return null;
   return (
-    <div className={"relative size-full overflow-hidden " + gradient}>
-      {!hasPoster && (
-        <>
-          <div className={"relative flex h-full flex-col justify-between p-4 " + (variant === "row" ? "items-center justify-center p-1.5" : "")}>
-            <span className={"text-xs font-semibold text-brand-fg/80 " + (variant === "row" ? "hidden" : "")}>
-              {kicker}
-            </span>
-            <div className={"flex items-center justify-between gap-3 " + (variant === "row" ? "justify-center" : "")}>
-              <Icon className={"text-white/90 drop-shadow-sm " + (variant === "row" ? "size-7" : "size-12")} strokeWidth={1.5} />
-              {variant === "grid" && <Sparkles className="size-5 text-white/70" strokeWidth={1.5} />}
-            </div>
-            {variant === "grid" && (
-              <h3 className="line-clamp-2 max-w-[92%] text-base font-semibold tracking-tight text-white drop-shadow-sm">
-                {event.title}
-              </h3>
-            )}
-          </div>
-        </>
-      )}
-      {hasPoster && (
-        <img
-          src={posterUrl!}
-          alt={event.title + " poster"}
-          loading="lazy"
-          decoding="async"
-          referrerPolicy="no-referrer"
-          onError={() => setFailedPosterUrl(posterUrl)}
-          className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-        />
-      )}
-      {hasPoster && <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-black/10 via-transparent to-black/5" />}
-    </div>
+    <img
+      src={url}
+      alt=""
+      loading="lazy"
+      decoding="async"
+      referrerPolicy="no-referrer"
+      onError={() => setFailed(true)}
+      className={cn("size-full object-cover", className)}
+    />
   );
 }
 
-function eventDate(value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "Date TBA";
-  return date.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: date.getFullYear() === new Date().getFullYear() ? undefined : "numeric" });
-}
-
-export function EventCard({ event, variant = "row" }: EventCardProps) {
+function useQuickRegister(event: EventItem, closed: boolean) {
   const [isRegistered, setIsRegistered] = useState(Boolean(event.isRegistered));
   const [attendeeCount, setAttendeeCount] = useState(event.attendeeCount || 0);
   const [isMutating, setIsMutating] = useState(false);
-  const href = "/events/" + (event.slug || event.id);
-  const closed = isEventClosed(event);
-  const start = new Date(event.startDate);
-  const now = new Date();
-  const end = new Date(event.endDate);
-  const live = !closed && !Number.isNaN(start.getTime()) && start <= now && now <= end;
-  const restricted = Array.isArray(event.eligibleInstitutionIds) && !event.eligibleInstitutionIds.includes("ALL");
-  const modeLabel = event.mode === "ONLINE" ? "Online" : event.mode === "HYBRID" ? "Hybrid" : "On campus";
 
-  async function handleQuickRegister() {
+  async function register() {
     if (isRegistered || isMutating || closed || event.participationType === "TEAM") return;
     setIsMutating(true);
     try {
-      const response = await fetch("/api/events/" + event.id + "/register", {
+      const response = await fetch(`/api/events/${event.id}/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}),
       });
       const data = (await response.json().catch(() => ({}))) as { error?: string };
-      if (!response.ok) throw new Error(data.error || "Could not register");
+      if (!response.ok)
+        throw new Error(data.error || "Couldn't register you. Check your connection and try again.");
       setIsRegistered(true);
       setAttendeeCount((count) => count + 1);
-      toast.success("You’re registered");
+      toast.success("You're in. Find your pass in My tickets.");
       void mutate((key) => typeof key === "string" && key.startsWith("/api/events"));
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Could not register");
+      toast.error(error instanceof Error ? error.message : "Couldn't register you. Try again.");
     } finally {
       setIsMutating(false);
     }
   }
 
+  return { isRegistered, attendeeCount, isMutating, register };
+}
+
+export function EventCard({ event, variant = "row" }: EventCardProps) {
+  const href = `/events/${event.slug || event.id}`;
+  const closed = isEventClosed(event);
+  const { isRegistered, attendeeCount, isMutating, register } = useQuickRegister(event, closed);
+  const start = new Date(event.startDate);
+  const now = new Date();
+  const end = new Date(event.endDate);
+  const live = !closed && !Number.isNaN(start.getTime()) && start <= now && now <= end;
+  const restricted =
+    Array.isArray(event.eligibleInstitutionIds) && !event.eligibleInstitutionIds.includes("ALL");
+  const place = event.mode === "ONLINE" ? "Online" : event.venue || eventModeLabel(event.mode);
+  const hasPoster = Boolean(safePosterUrl(event.bannerUrl));
+
   const action = closed ? (
-    <span className="inline-flex min-h-10 sm:min-h-8 items-center rounded-full bg-muted px-3 text-xs font-semibold text-muted-foreground">Closed</span>
+    <Badge variant="neutral">Closed</Badge>
   ) : isRegistered ? (
-    <span className="inline-flex min-h-10 sm:min-h-8 items-center gap-1.5 rounded-full bg-success-subtle px-3 text-xs font-semibold text-success">
-      <Check className="size-3.5" /> Joined
-    </span>
+    <Badge variant="verified">
+      <Check aria-hidden /> You're going
+    </Badge>
   ) : event.participationType === "TEAM" ? (
-    <Link href={href} className="inline-flex min-h-10 sm:min-h-8 items-center rounded-full bg-primary px-3.5 text-xs font-semibold text-primary-foreground hover:opacity-90">Team details</Link>
+    <Button asChild size="sm" variant="outline">
+      <Link href={href}>See details</Link>
+    </Button>
   ) : (
-    <button type="button" onClick={() => void handleQuickRegister()} disabled={isMutating} className="inline-flex min-h-10 sm:min-h-8 items-center rounded-full bg-primary px-3.5 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50">
-      {isMutating ? "Joining…" : "RSVP"}
-    </button>
+    <Button size="sm" onClick={() => void register()} loading={isMutating}>
+      Register
+    </Button>
+  );
+
+  const meta = (
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-fg-muted">
+      <span className="inline-flex items-center gap-1.5">
+        <CalendarDays className="size-4" aria-hidden />
+        {eventDate(event.startDate)}
+      </span>
+      <span className="inline-flex min-w-0 items-center gap-1.5">
+        <MapPin className="size-4 shrink-0" aria-hidden />
+        <span className="truncate">{place}</span>
+      </span>
+    </div>
+  );
+
+  const footer = (
+    <div className="flex items-center justify-between gap-3">
+      <span className="inline-flex min-w-0 items-center gap-1.5 text-sm text-fg-muted">
+        <Users className="size-4 shrink-0" aria-hidden />
+        <span className="tabular-nums">{attendeeCount}</span> going
+        <span aria-hidden>·</span>
+        <span className="truncate">{event.entryFee || "Free"}</span>
+      </span>
+      {action}
+    </div>
+  );
+
+  const badges = (
+    <div className="flex flex-wrap items-center gap-1.5">
+      {live && <Badge variant="danger">Live now</Badge>}
+      <Badge variant="neutral">{eventTypeLabel(event.eventType)}</Badge>
+      {restricted && <Badge variant="outline">Selected colleges</Badge>}
+      {event.loopPointsReward > 0 && <Badge variant="reward">+{event.loopPointsReward} points</Badge>}
+    </div>
   );
 
   if (variant === "grid") {
     return (
-      <article className="overflow-hidden rounded-2xl bg-card transition-colors hover:bg-muted/20">
-        <Link href={href} className="group block">
-          <div className="relative aspect-[16/9] overflow-hidden bg-muted/40">
-            <EventArtwork event={event} variant="grid" />
-            <span className="absolute left-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-[10px] font-semibold text-white">{event.eventType.toLowerCase().replace(/_/g, " ")}</span>
-            {live && <span className="absolute right-3 top-3 rounded-full bg-danger px-2.5 py-1 text-[10px] font-bold text-white">Live</span>}
-          </div>
-          <div className="space-y-2.5 p-4">
-            <p className="truncate text-xs text-muted-foreground">{event.clubName}</p>
-            <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-foreground">{event.title}</h3>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-              <span className="inline-flex items-center gap-1.5"><CalendarDays className="size-3.5" />{eventDate(event.startDate)}</span>
-              <span>{modeLabel}</span>
-              {restricted && <span>Campus only</span>}
+      <article className="overflow-hidden rounded-lg border border-border bg-surface">
+        <Link href={href} className="block aspect-[16/9] overflow-hidden bg-surface-muted">
+          {hasPoster ? (
+            <Poster event={event} />
+          ) : (
+            <div className="flex size-full items-center justify-center">
+              <EventDateTile date={event.startDate} size="lg" />
             </div>
-            {(event.prizesDescription || event.entryFee) && (
-              <div className="flex items-center justify-between gap-2 text-xs">
-                <span className="truncate font-medium text-foreground">{event.entryFee || "Free"}</span>
-                {event.prizesDescription && <span className="inline-flex min-w-0 items-center gap-1 truncate font-medium text-warning"><Trophy className="size-3.5 shrink-0" />{event.prizesDescription}</span>}
-              </div>
-            )}
-          </div>
+          )}
         </Link>
-        <div className="flex items-center justify-between gap-3 px-4 pb-4">
-          <span className="text-xs text-muted-foreground">{attendeeCount} joined</span>
-          {action}
+        <div className="space-y-3 p-4">
+          {badges}
+          <div>
+            <Link
+              href={href}
+              className="line-clamp-2 font-display text-lg font-bold leading-snug text-fg hover:text-brand-text"
+            >
+              {event.title}
+            </Link>
+            <p className="mt-0.5 truncate text-sm text-fg-muted">{event.clubName}</p>
+          </div>
+          {meta}
+          {footer}
         </div>
       </article>
     );
   }
 
   return (
-    <article className="flex gap-3 rounded-2xl bg-card p-3 transition-colors hover:bg-muted/20 sm:items-center sm:gap-4 sm:p-3.5">
-      <Link href={href} className="relative size-[76px] shrink-0 overflow-hidden rounded-xl bg-muted/40 sm:size-24">
-        <EventArtwork event={event} variant="row" />
-        {live && <span className="absolute bottom-1.5 left-1.5 rounded-full bg-danger px-1.5 py-0.5 text-[9px] font-bold text-white">LIVE</span>}
+    <article className="flex gap-3 rounded-lg border border-border bg-surface p-3 sm:gap-4 sm:p-4">
+      <Link
+        href={href}
+        aria-hidden
+        tabIndex={-1}
+        className="relative h-20 w-16 shrink-0 overflow-hidden rounded-sm sm:h-24 sm:w-20"
+      >
+        {hasPoster ? (
+          <Poster event={event} />
+        ) : (
+          <EventDateTile date={event.startDate} className="h-full w-full" />
+        )}
       </Link>
-      <div className="min-w-0 flex-1">
-        <div className="mb-1 flex min-w-0 items-center gap-2">
-          <span className="truncate text-[11px] font-medium text-muted-foreground">{event.clubName}</span>
-          {restricted && <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[9px] text-muted-foreground">Campus</span>}
+      <div className="min-w-0 flex-1 space-y-2">
+        {badges}
+        <div>
+          <Link href={href} className="line-clamp-2 font-semibold leading-snug text-fg hover:text-brand-text">
+            {event.title}
+          </Link>
+          <p className="truncate text-sm text-fg-muted">{event.clubName}</p>
         </div>
-        <Link href={href} className="line-clamp-2 text-sm font-semibold leading-snug text-foreground hover:text-primary">{event.title}</Link>
-        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
-          <span className="inline-flex items-center gap-1.5"><CalendarDays className="size-3.5" />{eventDate(event.startDate)}</span>
-          <span>{modeLabel}</span>
-          {event.prizesDescription && <span className="inline-flex max-w-full items-center gap-1 truncate font-medium text-warning"><Trophy className="size-3 shrink-0" /><span className="truncate">{event.prizesDescription}</span></span>}
-        </div>
-        <div className="mt-2.5 flex items-center justify-between gap-2">
-          <span className="inline-flex min-w-0 items-center gap-1.5 truncate text-[11px] text-muted-foreground">
-            <Users className="size-3.5 shrink-0" />{attendeeCount} joined <span aria-hidden>·</span>{event.entryFee || "Free"}
-          </span>
-          {action}
-        </div>
+        {meta}
+        {event.prizesDescription && (
+          <p className="inline-flex max-w-full items-center gap-1.5 text-sm text-fg">
+            <Trophy className="size-4 shrink-0 text-fg-muted" aria-hidden />
+            <span className="truncate">{event.prizesDescription}</span>
+          </p>
+        )}
+        {footer}
       </div>
     </article>
+  );
+}
+
+export function EventCardSkeleton() {
+  return (
+    <div className="flex gap-3 rounded-lg border border-border bg-surface p-3 sm:gap-4 sm:p-4" aria-hidden>
+      <div className="h-20 w-16 shrink-0 animate-pulse rounded-sm bg-surface-muted sm:h-24 sm:w-20" />
+      <div className="flex-1 space-y-2.5">
+        <div className="h-5 w-24 animate-pulse rounded-full bg-surface-muted" />
+        <div className="h-4 w-3/4 animate-pulse rounded-sm bg-surface-muted" />
+        <div className="h-4 w-1/2 animate-pulse rounded-sm bg-surface-muted" />
+      </div>
+    </div>
   );
 }

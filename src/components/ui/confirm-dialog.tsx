@@ -54,13 +54,13 @@ export function ConfirmDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in select-none"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-overlay animate-in fade-in select-none"
       onClick={() => {
         if (!isLoading) onClose();
       }}
     >
       <div
-        className="w-full max-w-md rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-5 sm:p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-150"
+        className="w-full max-w-md rounded-xl bg-surface-raised p-5 sm:p-6 shadow-lg space-y-4 animate-in zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-3">
@@ -74,9 +74,9 @@ export function ConfirmDialog({
               {icons[variant]}
             </div>
             <div>
-              <h3 className="text-sm font-black text-foreground tracking-tight">{title}</h3>
+              <h3 className="font-display text-lg font-bold text-fg">{title}</h3>
               {description && (
-                <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{description}</p>
+                <p className="mt-0.5 text-sm text-fg-muted">{description}</p>
               )}
             </div>
           </div>

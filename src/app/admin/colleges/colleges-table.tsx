@@ -4,7 +4,10 @@ import { ChevronLeft, ChevronRight, Edit3, Globe, PlusIcon, School, Search, Tras
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { fieldClassName } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import { addDomain, deleteCollege, removeDomain } from "./actions";
 import { type CollegeEditData, EditCollegeModal } from "./edit-college-modal";
 
@@ -61,7 +64,7 @@ export function CollegesTable({ initialColleges }: { initialColleges: CollegeRow
     setIsLoading(true);
     try {
       await deleteCollege(deleteCollegeData.id);
-      toast.success("College hub deleted");
+      toast.success("College deleted");
       setDeleteCollegeData(null);
       router.refresh();
     } catch (e) {
@@ -76,7 +79,7 @@ export function CollegesTable({ initialColleges }: { initialColleges: CollegeRow
     setIsLoading(true);
     try {
       await addDomain(institutionId, newDomain.trim().toLowerCase());
-      toast.success(`Domain @${newDomain} added!`);
+      toast.success(`Added @${newDomain}`);
       setNewDomain("");
       setActiveInstId(null);
       router.refresh();
@@ -106,33 +109,34 @@ export function CollegesTable({ initialColleges }: { initialColleges: CollegeRow
     <div className="space-y-4">
       {/* Search Input Bar */}
       <div className="relative">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-fg-muted" />
         <input
+          aria-label="Search colleges"
           type="text"
-          placeholder="Search colleges by name, slug, state, or district..."
+          placeholder="Search by name, slug, state or district"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full h-10 pl-10 pr-4 rounded-xl border border-border bg-card text-xs text-foreground placeholder:text-muted-foreground outline-none focus:border-primary"
+          className={cn(fieldClassName, "w-full pl-10 pr-4 h-11")}
         />
       </div>
 
-      <div className="w-full overflow-x-auto border border-border rounded-2xl bg-card shadow-xs">
-        <table className="w-full min-w-[680px] text-left text-sm text-muted-foreground">
-          <thead className="bg-muted/60 text-[11px] font-bold text-foreground border-b border-border">
+      <div className="w-full overflow-x-auto border border-border rounded-lg bg-surface">
+        <table className="w-full min-w-[680px] text-left text-sm text-fg-muted">
+          <thead className="bg-surface-muted text-xs font-bold text-fg border-b border-border">
             <tr>
-              <th className="px-6 py-3.5">College &amp; Branding</th>
-              <th className="px-6 py-3.5">Location &amp; Rank</th>
-              <th className="px-6 py-3.5">Allowed Domains</th>
+              <th className="px-6 py-3.5">College</th>
+              <th className="px-6 py-3.5">Location</th>
+              <th className="px-6 py-3.5">Email domains</th>
               <th className="px-6 py-3.5 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {paginatedColleges.map((college) => (
-              <tr key={college.id} className="hover:bg-muted/30 transition-colors">
+              <tr key={college.id} className="hover:bg-surface-muted transition-colors">
                 <td className="px-6 py-3.5">
                   <div className="flex items-center gap-3">
                     {/* Logo Thumbnail */}
-                    <div className="size-10 rounded-xl bg-card border border-border shadow-2xs p-1 flex items-center justify-center shrink-0 overflow-hidden">
+                    <div className="size-10 rounded-lg bg-surface border border-border  p-1 flex items-center justify-center shrink-0 overflow-hidden">
                       {college.logoUrl ? (
                         <img
                           src={college.logoUrl}
@@ -140,22 +144,22 @@ export function CollegesTable({ initialColleges }: { initialColleges: CollegeRow
                           className="w-full h-full object-contain"
                         />
                       ) : (
-                        <School className="size-5 text-muted-foreground/60" />
+                        <School className="size-5 text-fg-subtle" />
                       )}
                     </div>
 
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <span className="font-bold text-xs text-foreground">{college.name}</span>
+                        <span className="font-bold text-xs text-fg">{college.name}</span>
                         {college.bannerUrl && (
-                          <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-primary/10 text-primary border border-primary/20">
+                          <span className="text-xs font-bold px-1.5 py-0.5 rounded bg-brand-subtle text-brand-text border border-brand-subtle-border">
                             Banner
                           </span>
                         )}
                       </div>
-                      <div className="text-[11px] text-muted-foreground flex items-center gap-2">
+                      <div className="text-xs text-fg-muted flex items-center gap-2">
                         <span>
-                          slug: <code className="text-foreground">{college.slug}</code>
+                          slug: <code className="text-fg">{college.slug}</code>
                         </span>
                         {college.website && (
                           <a
@@ -166,9 +170,10 @@ export function CollegesTable({ initialColleges }: { initialColleges: CollegeRow
                             }
                             target="_blank"
                             rel="noreferrer"
-                            className="hover:text-primary flex items-center gap-0.5"
+                            aria-label={`${college.name} website`}
+                            className="flex items-center gap-0.5 hover:text-brand-text"
                           >
-                            <Globe className="size-2.5" />
+                            <Globe className="size-3" aria-hidden />
                           </a>
                         )}
                       </div>
@@ -178,14 +183,12 @@ export function CollegesTable({ initialColleges }: { initialColleges: CollegeRow
 
                 <td className="px-6 py-3.5 text-xs">
                   <div>
-                    <span className="font-medium text-foreground">
+                    <span className="font-medium text-fg">
                       {college.district ? `${college.district}, ` : ""}
                       {college.state || college.country}
                     </span>
                     {college.nirfRank && (
-                      <span className="block text-[10px] text-warning font-bold">
-                        NIRF #{college.nirfRank}
-                      </span>
+                      <span className="block text-xs text-warning font-bold">NIRF #{college.nirfRank}</span>
                     )}
                   </div>
                 </td>
@@ -195,12 +198,12 @@ export function CollegesTable({ initialColleges }: { initialColleges: CollegeRow
                     {college.domains?.map((d) => (
                       <span
                         key={d.id}
-                        className="flex items-center gap-1 rounded-lg bg-muted px-2 py-0.5 text-[11px] font-medium text-foreground border border-border/60"
+                        className="flex items-center gap-1 rounded-lg bg-surface-muted px-2 py-0.5 text-xs font-medium text-fg border border-border"
                       >
                         @{d.domain}
                         <button
                           onClick={() => setRemoveDomainId(d.id)}
-                          className="hover:text-destructive ml-0.5 cursor-pointer"
+                          className="hover:text-danger ml-0.5 cursor-pointer"
                           disabled={isLoading}
                         >
                           &times;
@@ -211,22 +214,23 @@ export function CollegesTable({ initialColleges }: { initialColleges: CollegeRow
                     {activeInstId === college.id ? (
                       <div className="flex items-center gap-1.5">
                         <input
+                          aria-label="New email domain"
                           type="text"
                           placeholder="e.g. bitmesra.ac.in"
                           value={newDomain}
                           onChange={(e) => setNewDomain(e.target.value)}
-                          className="rounded-lg border border-input bg-card px-2 py-1 text-xs text-foreground outline-none focus:border-primary"
+                          className={cn(fieldClassName, "h-11")}
                         />
                         <button
                           onClick={() => handleAddDomain(college.id)}
                           disabled={isLoading}
-                          className="text-xs font-bold text-primary cursor-pointer hover:underline"
+                          className="text-xs font-bold text-brand-text cursor-pointer hover:underline"
                         >
                           Save
                         </button>
                         <button
                           onClick={() => setActiveInstId(null)}
-                          className="text-xs text-muted-foreground cursor-pointer"
+                          className="text-xs text-fg-muted cursor-pointer"
                         >
                           Cancel
                         </button>
@@ -234,7 +238,7 @@ export function CollegesTable({ initialColleges }: { initialColleges: CollegeRow
                     ) : (
                       <button
                         onClick={() => setActiveInstId(college.id)}
-                        className="flex items-center gap-1 rounded-lg border border-border px-2 py-0.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer transition-colors"
+                        className={buttonVariants({ variant: "outline", size: "sm" })}
                       >
                         <PlusIcon className="h-3 w-3" /> Add Domain
                       </button>
@@ -246,21 +250,24 @@ export function CollegesTable({ initialColleges }: { initialColleges: CollegeRow
                   <div className="flex items-center justify-end gap-2">
                     <button
                       onClick={() => setEditingCollege(college)}
-                      className="px-2.5 py-1 rounded-lg border border-border bg-card text-xs font-bold text-foreground hover:bg-muted hover:text-primary transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
-                      title="Edit College Details & Media"
+                      className={buttonVariants({ variant: "outline", size: "sm" })}
+                      title="Edit college"
                     >
-                      <Edit3 className="size-3 text-primary" />
+                      <Edit3 className="size-3 text-brand-text" />
                       <span>Edit Media</span>
                     </button>
 
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
                       onClick={() => setDeleteCollegeData({ id: college.id, name: college.name })}
                       disabled={isLoading}
-                      className="size-7 rounded-lg border border-transparent hover:border-destructive/30 hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-colors cursor-pointer"
-                      title="Delete College"
+                      title="Delete college"
+                      aria-label="Delete college"
+                      className="hover:bg-danger-subtle hover:text-danger"
                     >
-                      <Trash2Icon className="h-3.5 w-3.5" />
-                    </button>
+                      <Trash2Icon aria-hidden />
+                    </Button>
                   </div>
                 </td>
               </tr>
@@ -268,8 +275,8 @@ export function CollegesTable({ initialColleges }: { initialColleges: CollegeRow
 
             {filteredColleges.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-6 py-12 text-center text-xs text-muted-foreground">
-                  No colleges found matching your search query.
+                <td colSpan={4} className="px-6 py-12 text-center text-xs text-fg-muted">
+                  No colleges match. Try another search.
                 </td>
               </tr>
             )}
@@ -279,14 +286,13 @@ export function CollegesTable({ initialColleges }: { initialColleges: CollegeRow
 
       {/* Pagination Footer */}
       {filteredColleges.length > 0 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-2 py-1 text-xs text-muted-foreground">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-2 py-1 text-xs text-fg-muted">
           <div>
-            Showing{" "}
-            <span className="font-bold text-foreground">{(validCurrentPage - 1) * PAGE_SIZE + 1}</span> to{" "}
-            <span className="font-bold text-foreground">
+            Showing <span className="font-bold text-fg">{(validCurrentPage - 1) * PAGE_SIZE + 1}</span> to{" "}
+            <span className="font-bold text-fg">
               {Math.min(validCurrentPage * PAGE_SIZE, filteredColleges.length)}
             </span>{" "}
-            of <span className="font-bold text-foreground">{filteredColleges.length}</span> colleges
+            of <span className="font-bold text-fg">{filteredColleges.length}</span> colleges
           </div>
 
           <div className="flex items-center gap-2">
@@ -294,13 +300,13 @@ export function CollegesTable({ initialColleges }: { initialColleges: CollegeRow
               type="button"
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={validCurrentPage <= 1}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border bg-card text-foreground font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-muted cursor-pointer transition-colors"
+              className={buttonVariants({ variant: "outline", size: "sm" })}
             >
               <ChevronLeft className="size-3.5" />
               <span>Previous</span>
             </button>
 
-            <span className="px-2 font-bold text-foreground">
+            <span className="px-2 font-bold text-fg">
               Page {validCurrentPage} of {totalPages}
             </span>
 
@@ -308,7 +314,7 @@ export function CollegesTable({ initialColleges }: { initialColleges: CollegeRow
               type="button"
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={validCurrentPage >= totalPages}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border bg-card text-foreground font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-muted cursor-pointer transition-colors"
+              className={buttonVariants({ variant: "outline", size: "sm" })}
             >
               <span>Next</span>
               <ChevronRight className="size-3.5" />
@@ -331,21 +337,21 @@ export function CollegesTable({ initialColleges }: { initialColleges: CollegeRow
       {/* Delete College Modal */}
       <ConfirmDialog
         isOpen={Boolean(deleteCollegeData)}
-        title="Delete College Hub?"
+        title="Delete this college?"
         description={`Are you sure you want to delete ${deleteCollegeData?.name || "this college"}? This will permanently delete all associated student accounts, posts, and domains.`}
-        confirmText="Delete College"
+        confirmText="Delete college"
         variant="danger"
         isLoading={isLoading}
         onClose={() => setDeleteCollegeData(null)}
         onConfirm={confirmDeleteCollege}
       />
 
-      {/* Remove Domain Modal */}
+      {/* Remove domain Modal */}
       <ConfirmDialog
         isOpen={Boolean(removeDomainId)}
-        title="Remove Allowed Domain?"
-        description="Are you sure you want to remove this verified email domain? New signups with this domain will no longer be allowed."
-        confirmText="Remove Domain"
+        title="Remove this email domain?"
+        description="Students with this email domain won't be able to sign up for this college anymore."
+        confirmText="Remove domain"
         variant="warning"
         isLoading={isLoading}
         onClose={() => setRemoveDomainId(null)}

@@ -1,11 +1,7 @@
-import type { Metadata } from "next";
+import { privateMetadata } from "@/lib/seo";
 import { NewEventClient } from "./new-event-client";
 
-export const metadata: Metadata = {
-  title: "Host a Campus Event or Hackathon",
-  description:
-    "Host hackathons, workshops, cultural fests, and student competitions for your college club or national campus audience.",
-};
+export const metadata = privateMetadata("Host an event");
 
 export default function NewEventPage() {
   return <NewEventClient />;

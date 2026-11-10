@@ -4,18 +4,23 @@ import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 import React, { useMemo } from "react";
 import { PostEmbedRenderer } from "@/components/embeds/post-embed-renderer";
+import { MentionTag } from "@/components/ui/stickers";
 import { extractEmbedsFromText } from "@/lib/embeds";
-import { parseMarketplaceInquiry, ProductMessageCard } from "./product-message-card";
+import { ProductMessageCard, parseMarketplaceInquiry } from "./product-message-card";
 
 interface ChatMessageContentProps {
   content: string;
   isMe: boolean;
 }
 
+const LINK_ME =
+  "inline-flex items-center gap-1 font-medium underline underline-offset-2 text-brand-fg break-all transition-ui";
+const LINK_THEM =
+  "inline-flex items-center gap-1 font-medium underline underline-offset-2 text-brand-text break-all transition-ui";
+
 /**
- * Splits text into tokens: @mentions, URLs, and regular text,
- * using industry-standard boundary detection (preventing credentials like mart@password123 from matching).
- * Mentions render as inline semantic links rather than bulky button pills to maintain sentence flow.
+ * Splits text into @mentions, URLs and plain text. A mention must follow a space or punctuation,
+ * so emails like name@college.edu stay plain text. Mentions render as MentionTag pills.
  */
 function renderFormattedMessage(text: string, isMe: boolean) {
   const tokenRegex = /(https?:\/\/[^\s<>"']+|(?<=^|[\s([{<,;:/])@[a-zA-Z0-9_]{2,32}\b)/gi;
@@ -24,22 +29,17 @@ function renderFormattedMessage(text: string, isMe: boolean) {
   return parts.map((part, index) => {
     if (!part) return null;
 
-    // Handle @username mention - inline semantic styling
+    // @username mention: the story-style mention pill.
     if (part.startsWith("@") && part.length > 1) {
-      const username = part.slice(1);
       return (
-        <Link
+        <MentionTag
           key={index}
-          href={`/@${username}`}
+          username={part.slice(1)}
+          href={`/@${part.slice(1)}`}
+          size="sm"
           onClick={(e) => e.stopPropagation()}
-          className={
-            isMe
-              ? "font-medium text-success-fg hover:text-white underline decoration-success/40 hover:decoration-white transition-colors select-text inline"
-              : "font-medium text-success hover:text-success-fg underline decoration-success/40 hover:decoration-success transition-colors select-text inline"
-          }
-        >
-          {part}
-        </Link>
+          className={isMe ? "bg-brand-fg/20 text-brand-fg hover:bg-brand-fg hover:text-brand" : undefined}
+        />
       );
     }
 
@@ -71,11 +71,7 @@ function renderFormattedMessage(text: string, isMe: boolean) {
             <Link
               href={internalHref}
               onClick={(e) => e.stopPropagation()}
-              className={
-                isMe
-                  ? "inline-flex items-center gap-1 font-medium underline decoration-success/60 hover:decoration-success text-success-fg hover:text-white break-all transition-colors"
-                  : "inline-flex items-center gap-1 font-medium underline decoration-success/60 hover:decoration-success text-success hover:text-success-fg break-all transition-colors"
-              }
+              className={isMe ? LINK_ME : LINK_THEM}
             >
               <span>{cleanUrl}</span>
               <ExternalLink className="size-3 shrink-0 opacity-80" />
@@ -92,11 +88,7 @@ function renderFormattedMessage(text: string, isMe: boolean) {
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className={
-              isMe
-                ? "inline-flex items-center gap-1 font-medium underline decoration-success/60 hover:decoration-success text-success-fg hover:text-white break-all transition-colors"
-                : "inline-flex items-center gap-1 font-medium underline decoration-brand/60 hover:decoration-brand text-brand-text hover:text-brand-text break-all transition-colors"
-            }
+            className={isMe ? LINK_ME : LINK_THEM}
           >
             <span>{cleanUrl}</span>
             <ExternalLink className="size-3 shrink-0 opacity-80" />
@@ -124,18 +116,16 @@ export function ChatMessageContent({ content, isMe }: ChatMessageContentProps) {
   return (
     <div className="space-y-1.5 text-left">
       {/* Formatted body text with left alignment */}
-      <p className="whitespace-pre-wrap break-words text-[13.5px] sm:text-[14px] leading-relaxed text-left">
+      <p className="whitespace-pre-wrap break-words text-left text-base leading-snug select-text">
         {renderFormattedMessage(content, isMe)}
       </p>
 
       {/* Dedicated Marketplace Product Preview Card */}
-      {marketplaceProduct && (
-        <ProductMessageCard product={marketplaceProduct} isMe={isMe} />
-      )}
+      {marketplaceProduct && <ProductMessageCard product={marketplaceProduct} isMe={isMe} />}
 
       {/* Embedded interactive artifacts (Events, Communities, Articles, 9GAG, Music, etc.) - rendered only when present */}
       {mediaEmbeds.length > 0 && (
-        <div className="mt-2 pt-1 border-t border-white/10 dark:border-border/30 text-left">
+        <div className="mt-2 border-t border-border pt-1 text-left">
           <PostEmbedRenderer embeds={mediaEmbeds} limit={2} />
         </div>
       )}

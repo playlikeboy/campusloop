@@ -5,6 +5,7 @@ import {
   BookOpen,
   ExternalLink,
   Flame,
+  Loader2,
   Mic,
   MicOff,
   Radio,
@@ -21,6 +22,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
 import type { AiMode, AiSource } from "@/lib/ai/types";
 import { cn } from "@/lib/utils";
 
@@ -152,7 +154,7 @@ export function CampusAiClient() {
 
   function startVoiceListening() {
     if (!recognitionRef.current) {
-      toast.info("Speech recognition is not supported in this browser. You can type instead!");
+      toast.info("Voice doesn't work in this browser. Type your question instead.");
       return;
     }
     try {
@@ -178,10 +180,10 @@ export function CampusAiClient() {
       });
       const data = (await response.json().catch(() => ({}))) as { success?: boolean; error?: string };
       if (!response.ok || !data.success) throw new Error(data.error || "Feedback could not be saved");
-      toast.success(rating === "helpful" ? "Thanks for the feedback!" : "Feedback recorded.");
+      toast.success("Thanks for the feedback");
     } catch {
       setMessages((prev) => prev.map((m) => (m.id === messageId ? { ...m, feedback: previousRating } : m)));
-      toast.error("Feedback wasn’t saved. Please try again.");
+      toast.error("Couldn't send feedback. Try again.");
     }
   }
 
@@ -197,7 +199,7 @@ export function CampusAiClient() {
     };
     setMessages((prev) => [...prev, userMsg]);
     setLoading(true);
-    setToolStatus("Searching campus knowledge...");
+    setToolStatus("Looking through CampusLoop…");
 
     try {
       const response = await fetch("/api/ai/chat", {
@@ -258,13 +260,10 @@ export function CampusAiClient() {
   return (
     <div className="relative mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-3xl flex-col px-3 py-6 sm:px-6">
       {/* Header Bar */}
-      <div className="mb-6 flex items-center justify-between border-b border-border/40 pb-4">
+      <div className="mb-6 flex items-center justify-between border-b border-border pb-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-black text-muted-foreground">
-            <Zap className="size-3.5 text-primary" />
-            <span>Campus AI</span>
-          </div>
-          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-foreground">Ask your campus.</h1>
+          <h1 className="text-2xl sm:text-3xl">Campus AI</h1>
+          <p className="mt-0.5 text-sm text-fg-muted">Ask about notes, events and what's happening.</p>
         </div>
 
         {/* Live Talking AI trigger button */}
@@ -272,30 +271,25 @@ export function CampusAiClient() {
           type="button"
           onClick={toggleLiveTalking}
           className={cn(
-            "flex items-center gap-2 rounded-full border px-3.5 py-2 text-xs font-black transition-colors cursor-pointer shadow-xs",
-            isLiveTalkingOpen
-              ? "border-primary bg-primary text-primary-foreground animate-pulse"
-              : "border-border/70 bg-card hover:bg-muted text-foreground"
+            "flex min-h-11 items-center gap-2 rounded-full px-4 text-sm font-semibold transition-ui cursor-pointer",
+            isLiveTalkingOpen ? "bg-brand text-brand-fg" : "bg-surface-muted hover:bg-surface-sunken text-fg"
           )}
-          title="Talk to Campus AI"
+          aria-pressed={isLiveTalkingOpen}
         >
-          <Radio className="size-3.5 text-danger animate-pulse" />
-          <span>Live Voice</span>
+          <Radio className="size-4" aria-hidden />
+          <span>{isLiveTalkingOpen ? "Stop talking" : "Talk"}</span>
         </button>
       </div>
 
       {/* Floating Live Talking AI HUD Modal */}
       {isLiveTalkingOpen && (
-        <div className="mb-6 rounded-3xl border border-primary/30 bg-card/95 p-6 shadow-xl backdrop-blur-xl animate-in fade-in zoom-in-95">
+        <div className="mb-6 rounded-lg border border-border bg-surface p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="relative flex size-2.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
                 <span className="relative inline-flex size-2.5 rounded-full bg-primary" />
               </span>
-              <span className="text-xs font-black text-foreground">
-                Live Talking AI
-              </span>
+              <span className="text-xs font-bold text-foreground">Voice chat on</span>
             </div>
 
             <div className="flex items-center gap-2">
@@ -307,8 +301,9 @@ export function CampusAiClient() {
                     window.speechSynthesis.cancel();
                   }
                 }}
-                className="size-11 sm:size-8 shrink-0 rounded-full border border-border/50 bg-muted/60 flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
-                title={voiceVolumeEnabled ? "Mute Speech" : "Unmute Speech"}
+                className="size-11 sm:size-8 shrink-0 rounded-full border border-border bg-muted/60 flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
+                aria-label={voiceVolumeEnabled ? "Mute voice replies" : "Turn on voice replies"}
+                title={voiceVolumeEnabled ? "Mute voice replies" : "Turn on voice replies"}
               >
                 {voiceVolumeEnabled ? <Volume2 className="size-4" /> : <VolumeX className="size-4" />}
               </button>
@@ -316,7 +311,8 @@ export function CampusAiClient() {
               <button
                 type="button"
                 onClick={toggleLiveTalking}
-                className="size-11 sm:size-8 shrink-0 rounded-full border border-border/50 bg-muted/60 flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
+                aria-label="End voice chat"
+                className="size-11 sm:size-8 shrink-0 rounded-full border border-border bg-muted/60 flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
               >
                 <X className="size-4" />
               </button>
@@ -339,7 +335,7 @@ export function CampusAiClient() {
                 className={cn(
                   "size-14 rounded-full flex items-center justify-center text-white transition-colors",
                   isListening
-                    ? "bg-danger animate-pulse"
+                    ? "bg-brand animate-pulse"
                     : isSpeaking
                       ? "bg-primary animate-pulse"
                       : "bg-muted-foreground/30 text-foreground"
@@ -351,11 +347,7 @@ export function CampusAiClient() {
 
             <div className="mt-4 space-y-1">
               <p className="text-sm font-extrabold text-foreground">
-                {isListening
-                  ? "Listening to your campus question..."
-                  : isSpeaking
-                    ? "Campus AI is speaking..."
-                    : "Tap mic to speak"}
+                {isListening ? "Listening…" : isSpeaking ? "Campus AI is speaking..." : "Tap mic to speak"}
               </p>
               <p className="text-xs text-muted-foreground">
                 Ask about mess timings, end-sem papers, campus confessions, or marketplace
@@ -396,40 +388,29 @@ export function CampusAiClient() {
       <div className="flex-1 space-y-4 pb-28">
         {messages.length === 0 ? (
           <div className="py-4 space-y-6">
-            <div className="rounded-3xl border border-border/60 bg-card p-6 shadow-xs">
-              <div className="flex items-center gap-2.5 text-primary mb-2 font-black text-sm">
-                <Zap className="size-4" />
-                <span>Grounded Campus Knowledge</span>
-              </div>
-              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                CampusLoop AI understands your college clubs, course cheat sheets, secondhand listings, and
-                live campus velocity. Answers cite real student discussions with zero fabricated facts.
-              </p>
-            </div>
+            <p className="text-sm text-fg-muted max-w-prose">
+              Answers come from posts, notes and listings on CampusLoop. AI can still get things wrong, so
+              check anything important.
+            </p>
 
-            {/* Quick Prompt Cards */}
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <fieldset className="m-0 flex min-w-0 flex-wrap gap-2 border-0 p-0" aria-label="Try asking">
               {QUICK_ACTIONS.map((item) => {
                 const Icon = item.icon;
                 return (
-                  <button
+                  <Chip
                     key={item.label}
-                    type="button"
+                    icon={<Icon aria-hidden />}
                     onClick={() => {
                       setMode(item.mode);
                       setMessage(item.prompt);
                       void ask(item.prompt, item.mode);
                     }}
-                    className="flex items-center gap-3 rounded-2xl border border-border/60 bg-card p-4 text-left text-xs sm:text-sm font-semibold transition-colors hover:bg-muted/50 cursor-pointer shadow-2xs"
                   >
-                    <div className="size-8 rounded-xl bg-muted flex items-center justify-center shrink-0">
-                      <Icon className="size-4 text-foreground" />
-                    </div>
-                    <span className="truncate text-foreground font-bold">{item.label}</span>
-                  </button>
+                    {item.label}
+                  </Chip>
                 );
               })}
-            </div>
+            </fieldset>
           </div>
         ) : (
           messages.map((m) => (
@@ -439,20 +420,18 @@ export function CampusAiClient() {
             >
               <div
                 className={cn(
-                  "max-w-[88%] rounded-3xl px-4 py-3.5 text-xs sm:text-sm leading-relaxed shadow-xs",
+                  "max-w-[88%] rounded-lg px-4 py-3 text-sm leading-relaxed",
                   m.role === "user"
                     ? "bg-primary text-primary-foreground rounded-tr-xs"
-                    : "bg-card border border-border/60 text-foreground rounded-tl-xs"
+                    : "bg-card border border-border text-foreground rounded-tl-xs"
                 )}
               >
                 <div className="whitespace-pre-wrap">{m.content}</div>
 
                 {/* Source Citations */}
                 {m.sources && m.sources.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-border/40 space-y-1.5">
-                    <div className="text-[10px] font-black text-muted-foreground">
-                      Sources & Discussions
-                    </div>
+                  <div className="mt-3 pt-3 border-t border-border space-y-1.5">
+                    <div className="text-xs font-bold text-muted-foreground">Sources & Discussions</div>
                     <div className="flex flex-wrap gap-1.5">
                       {m.sources.map((s) => {
                         const href =
@@ -470,7 +449,7 @@ export function CampusAiClient() {
                           <Link
                             key={s.id}
                             href={href}
-                            className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-1 rounded-lg bg-muted/60 hover:bg-muted text-foreground border border-border/40 transition-colors"
+                            className="inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-lg bg-muted/60 hover:bg-muted text-foreground border border-border transition-colors"
                           >
                             <span className="truncate max-w-40">{s.title || "Campus Thread"}</span>
                             <ExternalLink className="size-2.5 shrink-0 opacity-70" />
@@ -488,9 +467,9 @@ export function CampusAiClient() {
                       <Link
                         key={i}
                         href={(a.payload?.url as string) || "/app"}
-                        className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                        className="text-xs font-bold px-2.5 py-1 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
                       >
-                        {a.label} →
+                        {a.label}
                       </Link>
                     ))}
                   </div>
@@ -530,9 +509,9 @@ export function CampusAiClient() {
 
         {/* Loading / Searching Status Indicator */}
         {loading && (
-          <div className="flex items-center gap-2 rounded-2xl border border-border/40 bg-card/60 px-4 py-2.5 text-xs text-muted-foreground animate-pulse w-fit">
-            <Zap className="size-3.5 text-primary animate-spin" />
-            <span>{toolStatus || "Analyzing campus discussions..."}</span>
+          <div className="flex items-center gap-2 rounded-full bg-surface-muted px-4 py-2.5 text-sm text-fg-muted w-fit">
+            <Loader2 className="size-4 animate-spin" aria-hidden />
+            <span>{toolStatus || "Thinking…"}</span>
           </div>
         )}
 
@@ -540,9 +519,9 @@ export function CampusAiClient() {
       </div>
 
       {/* Persistent Bottom Input Bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 bg-linear-to-t from-background via-background/95 to-transparent pb-4 pt-6">
+      <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-border bg-bg pb-4 pt-3">
         <div className="mx-auto max-w-3xl px-3 sm:px-6">
-          <div className="flex items-end gap-2 rounded-3xl border border-border/70 bg-card p-2 shadow-xl backdrop-blur-xl">
+          <div className="flex items-end gap-2 rounded-xl border border-border bg-surface p-2">
             <button
               type="button"
               onClick={() => {
@@ -554,12 +533,12 @@ export function CampusAiClient() {
                 }
               }}
               className={cn(
-                "size-10 rounded-full flex items-center justify-center transition-colors cursor-pointer shrink-0",
+                "size-11 rounded-full flex items-center justify-center transition-ui cursor-pointer shrink-0",
                 isListening
-                  ? "bg-danger text-white animate-pulse"
+                  ? "bg-brand text-brand-fg"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
               )}
-              title="Voice Input"
+              aria-label={isListening ? "Stop listening" : "Ask with your voice"}
             >
               <Mic className="size-4.5" />
             </button>
@@ -574,9 +553,9 @@ export function CampusAiClient() {
                   void ask();
                 }
               }}
-              placeholder="Ask CampusLoop anything…"
+              placeholder="Ask a question"
               rows={1}
-              className="min-h-10 flex-1 resize-none bg-transparent px-2 py-2.5 text-xs sm:text-sm outline-none placeholder:text-muted-foreground/70"
+              className="min-h-11 flex-1 resize-none bg-transparent px-2 py-2.5 text-base outline-none placeholder:text-fg-subtle"
             />
 
             <Button

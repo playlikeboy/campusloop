@@ -1,20 +1,10 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { privateMetadata } from "@/lib/seo";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 import { BikeRentalsClient } from "./rentals-client";
 
-export const metadata: Metadata = {
-  title: "Campus Bike & Vehicle Rentals | Hourly & Daily Scooters",
-  description:
-    "Rent verified mountain bicycles, campus gear cycles, and electric scooters with free helmets and zero fuel hassle.",
-  alternates: { canonical: "https://campusloop.space/marketplace/rentals" },
-  openGraph: {
-    title: "Campus Bike Rentals",
-    description: "Rent verified cycles and e-scooters for quick intra-campus transit and city rides.",
-    url: "https://campusloop.space/marketplace/rentals",
-    siteName: "CampusLoop Rentals",
-  },
-};
+export const metadata: Metadata = privateMetadata("Bike rentals");
 
 export default async function RentalsPage() {
   const user = await getCachedAuthUser();

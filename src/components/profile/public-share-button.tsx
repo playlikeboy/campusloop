@@ -3,8 +3,8 @@
 import { Share2 } from "lucide-react";
 import { useState } from "react";
 import { ShareProfileModal } from "@/components/profile/share-profile-modal";
+import { Button } from "@/components/ui/button";
 import { haptics } from "@/lib/haptics";
-import { cn } from "@/lib/utils";
 
 interface PublicShareButtonProps {
   profile: {
@@ -20,32 +20,25 @@ interface PublicShareButtonProps {
   className?: string;
 }
 
-export function PublicShareButton({
-  profile,
-  variant = "pill",
-  className,
-}: PublicShareButtonProps) {
+export function PublicShareButton({ profile, variant = "pill", className }: PublicShareButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <>
-      <button
+      <Button
         type="button"
+        variant={variant === "icon" ? "circleIcon" : "outline"}
+        size={variant === "icon" ? "icon" : "md"}
         onClick={() => {
           haptics.light();
           setIsOpen(true);
         }}
-        className={cn(
-          "flex cursor-pointer items-center justify-center gap-1.5 border border-border/70 bg-card hover:bg-muted text-foreground transition-ui shadow-2xs active:scale-95",
-          variant === "icon" ? "size-9 rounded-full" : "h-9 rounded-full px-4 text-xs font-bold",
-          className
-        )}
-        title="Share Profile"
+        className={className}
         aria-label={`Share @${profile.username}'s profile`}
       >
-        <Share2 className="size-3.5 text-muted-foreground" />
+        <Share2 aria-hidden="true" />
         {variant === "pill" && <span>Share</span>}
-      </button>
+      </Button>
 
       <ShareProfileModal isOpen={isOpen} onClose={() => setIsOpen(false)} profile={profile} />
     </>

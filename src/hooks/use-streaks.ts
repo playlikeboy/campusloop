@@ -51,19 +51,19 @@ export function useStreaks(profileId?: string) {
           sounds.ting();
           haptics.success();
           toast.success(
-            `Streak Extended! ${result.currentStreak} days strong (+${result.pointsEarned} LP)`
+            `Streak is now ${result.currentStreak} days (+${result.pointsEarned} LP)`
           );
 
           if (result.newMilestone) {
             sounds.pop();
-            toast(`Milestone Unlocked: ${result.newMilestone.title}!`, {
-              description: `You reached a ${result.newMilestone.days}-day streak and earned a bonus +${result.newMilestone.points} LP!`,
+            toast(`New milestone: ${result.newMilestone.title}`, {
+              description: `${result.newMilestone.days}-day streak. You got ${result.newMilestone.points} bonus LP.`,
             });
           }
         } else {
           sounds.tap();
           haptics.light();
-          toast.info("Your streak is already safe today. Keep your loop going!");
+          toast.info("Your streak is already safe for today.");
         }
 
         // Revalidate local state

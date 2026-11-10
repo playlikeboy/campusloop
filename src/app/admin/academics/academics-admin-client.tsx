@@ -1,22 +1,15 @@
 "use client";
 
-import {
-  BookOpen,
-  CheckCircle2,
-  Download,
-  ExternalLink,
-  FileText,
-  Search,
-  ShieldAlert,
-  ShieldCheck,
-  Trash2,
-  XCircle,
-} from "lucide-react";
+import { BookOpen, CheckCircle2, ExternalLink, FileText, Search, Trash2, XCircle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
+import { fieldClassName } from "@/components/ui/input";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
+import { AdminStatStrip } from "../_components/admin-stat-strip";
 
 export interface AcademicResourceItem {
   id: string;
@@ -89,7 +82,7 @@ export function AcademicsAdminClient({ initialResources }: AcademicsAdminClientP
       setResources((prev) =>
         prev.map((item) => (item.id === id ? { ...item, isVerified: nextStatus } : item))
       );
-      toast.success(nextStatus ? "Resource verified and badged!" : "Resource unverified");
+      toast.success(nextStatus ? "Marked as verified" : "Verified badge removed");
     } catch (err: any) {
       toast.error(err.message || "Failed to update");
     } finally {
@@ -117,7 +110,7 @@ export function AcademicsAdminClient({ initialResources }: AcademicsAdminClientP
       if (!res.ok) throw new Error(data.error || "Failed to delete");
 
       setResources((prev) => prev.filter((item) => item.id !== id));
-      toast.success("Resource removed from vault");
+      toast.success("Deleted");
     } catch (err: any) {
       toast.error(err.message || "Delete failed");
     } finally {
@@ -127,83 +120,57 @@ export function AcademicsAdminClient({ initialResources }: AcademicsAdminClientP
 
   return (
     <div className="space-y-6">
-      {/* ─── Metric Pills ─── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="p-4 rounded-2xl bg-card border border-border/40 shadow-xs space-y-1">
-          <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
-            <BookOpen className="h-3.5 w-3.5 text-primary" /> Total Vault Items
-          </p>
-          <p className="text-2xl font-bold text-foreground">{totalCount}</p>
-        </div>
-
-        <div className="p-4 rounded-2xl bg-card border border-border/40 shadow-xs space-y-1">
-          <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
-            <ShieldAlert className="h-3.5 w-3.5 text-warning" /> Pending Review
-          </p>
-          <p className="text-2xl font-bold text-foreground">{pendingCount}</p>
-        </div>
-
-        <div className="p-4 rounded-2xl bg-card border border-border/40 shadow-xs space-y-1">
-          <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
-            <ShieldCheck className="h-3.5 w-3.5 text-success" /> Verified Notes
-          </p>
-          <p className="text-2xl font-bold text-foreground">{verifiedCount}</p>
-        </div>
-
-        <div className="p-4 rounded-2xl bg-card border border-border/40 shadow-xs space-y-1">
-          <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
-            <Download className="h-3.5 w-3.5 text-brand-text" /> Vault Downloads
-          </p>
-          <p className="text-2xl font-bold text-foreground">{totalDownloads}</p>
-        </div>
-      </div>
+      <AdminStatStrip
+        items={[
+          { label: "Uploads", value: totalCount },
+          { label: "Waiting for review", value: pendingCount },
+          { label: "Marked official", value: verifiedCount },
+          { label: "Downloads", value: totalDownloads },
+        ]}
+      />
 
       {/* ─── Controls & Search ─── */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-1.5 bg-muted/50 p-1 rounded-2xl shrink-0">
+        <div className="flex items-center gap-1.5 bg-surface-muted p-1 rounded-lg shrink-0">
           {(["ALL", "PENDING", "VERIFIED"] as const).map((tab) => (
-            <button
+            <Chip
+              size="sm"
+              selected={filter === tab}
               key={tab}
-              type="button"
               onClick={() => {
                 sounds.tap();
                 haptics.light();
                 setFilter(tab);
               }}
-              className={cn(
-                "px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer",
-                filter === tab
-                  ? "bg-foreground text-background shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
             >
               {tab === "ALL"
                 ? `All (${totalCount})`
                 : tab === "PENDING"
                   ? `Pending (${pendingCount})`
                   : `Verified (${verifiedCount})`}
-            </button>
+            </Chip>
           ))}
         </div>
 
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-fg-muted" />
           <input
+            aria-label="Search resources"
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by title, subject code, branch..."
-            className="w-full h-10 pl-9 pr-4 rounded-full bg-muted/40 border border-border/50 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-foreground transition-colors"
+            placeholder="Search by title, subject code or branch"
+            className={cn(fieldClassName, "w-full pl-9 pr-4 h-11")}
           />
         </div>
       </div>
 
       {/* ─── Resources List ─── */}
       {filteredResources.length === 0 ? (
-        <div className="py-16 text-center rounded-3xl border border-dashed border-border/50 bg-card/40 space-y-2">
-          <BookOpen className="h-8 w-8 text-muted-foreground/40 mx-auto" />
-          <p className="text-sm font-bold text-foreground">No academic resources found</p>
-          <p className="text-xs text-muted-foreground">
+        <div className="py-16 text-center rounded-lg border border-dashed border-border bg-surface space-y-2">
+          <BookOpen className="h-8 w-8 text-fg-subtle mx-auto" />
+          <p className="text-sm font-bold text-fg">No study material matches</p>
+          <p className="text-xs text-fg-muted">
             {search ? "Try clearing your search query" : "No study materials in this tab"}
           </p>
         </div>
@@ -212,38 +179,36 @@ export function AcademicsAdminClient({ initialResources }: AcademicsAdminClientP
           {filteredResources.map((res) => (
             <div
               key={res.id}
-              className="p-4 rounded-2xl bg-card border border-border/40 shadow-xs flex flex-col justify-between gap-3 hover:border-border/70 transition-colors"
+              className="p-4 rounded-lg bg-surface border border-border flex flex-col justify-between gap-3 hover:border-border transition-colors"
             >
               <div className="space-y-2">
                 <div className="flex items-start justify-between gap-2">
                   <div className="space-y-1 min-w-0">
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-primary/10 text-primary">
+                      <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-brand-subtle text-brand-text">
                         {res.resourceType}
                       </span>
-                      <span className="text-[10px] font-bold text-muted-foreground">
+                      <span className="text-xs font-bold text-fg-muted">
                         {res.subjectCode} · Sem {res.semester}
                       </span>
                       {res.isVerified ? (
-                        <span className="text-[10px] font-bold text-success bg-success-subtle px-2 py-0.5 rounded-full flex items-center gap-1">
-                          <CheckCircle2 className="h-3 w-3" /> VERIFIED
+                        <span className="text-xs font-bold text-success bg-success-subtle px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <CheckCircle2 className="h-3 w-3" /> Official
                         </span>
                       ) : (
-                        <span className="text-[10px] font-bold text-warning bg-warning-subtle px-2 py-0.5 rounded-full">
-                          PENDING
+                        <span className="text-xs font-bold text-warning bg-warning-subtle px-2 py-0.5 rounded-full">
+                          Pending
                         </span>
                       )}
                     </div>
-                    <h4 className="text-sm font-bold text-foreground leading-snug truncate">{res.title}</h4>
-                    <p className="text-xs text-muted-foreground">{res.subjectName}</p>
+                    <h4 className="text-sm font-bold text-fg leading-snug truncate">{res.title}</h4>
+                    <p className="text-xs text-fg-muted">{res.subjectName}</p>
                   </div>
                 </div>
 
-                {res.description && (
-                  <p className="text-xs text-muted-foreground line-clamp-2">{res.description}</p>
-                )}
+                {res.description && <p className="text-xs text-fg-muted line-clamp-2">{res.description}</p>}
 
-                <div className="flex items-center gap-3 text-[11px] text-muted-foreground pt-1">
+                <div className="flex items-center gap-3 text-xs text-fg-muted pt-1">
                   <span>{res.branch}</span>
                   <span>·</span>
                   <span>{res.institutionName || "CampusLoop"}</span>
@@ -253,14 +218,14 @@ export function AcademicsAdminClient({ initialResources }: AcademicsAdminClientP
               </div>
 
               {/* Action Bar */}
-              <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/20">
+              <div className="flex items-center justify-between gap-2 pt-2 border-t border-border">
                 <div className="flex items-center gap-2">
                   {res.fileUrl && (
                     <a
                       href={res.fileUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
+                      className="text-xs font-bold text-brand-text hover:underline flex items-center gap-1"
                     >
                       <FileText className="h-3 w-3" />
                       <span>Direct PDF</span>
@@ -280,39 +245,27 @@ export function AcademicsAdminClient({ initialResources }: AcademicsAdminClientP
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    disabled={processingId === res.id}
+                  <Button
+                    variant={res.isVerified ? "outline" : "primary"}
+                    size="sm"
+                    loading={processingId === res.id}
                     onClick={() => handleToggleVerify(res.id, res.isVerified)}
-                    className={cn(
-                      "px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50",
-                      res.isVerified
-                        ? "bg-muted text-muted-foreground hover:text-foreground"
-                        : "bg-success text-success-fg hover:opacity-90 shadow-xs"
-                    )}
                   >
-                    {res.isVerified ? (
-                      <>
-                        <XCircle className="h-3.5 w-3.5" />
-                        <span>Revoke</span>
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircle2 className="h-3.5 w-3.5" />
-                        <span>Verify</span>
-                      </>
-                    )}
-                  </button>
+                    {res.isVerified ? <XCircle aria-hidden /> : <CheckCircle2 aria-hidden />}
+                    {res.isVerified ? "Remove verified" : "Verify"}
+                  </Button>
 
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
                     disabled={processingId === res.id}
                     onClick={() => handleDelete(res.id)}
-                    className="p-2 rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
-                    title="Delete Resource"
+                    title="Delete"
+                    aria-label="Delete"
+                    className="hover:bg-danger-subtle hover:text-danger"
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
+                    <Trash2 aria-hidden />
+                  </Button>
                 </div>
               </div>
             </div>

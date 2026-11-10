@@ -1,12 +1,11 @@
 import { Zap } from "lucide-react";
 import type { Metadata } from "next";
+import { privateMetadata } from "@/lib/seo";
 import { AdminPageHeader } from "../_components/admin-page-header";
 import { resolveAdminSession } from "../_lib/guard";
 import { ComposioHubClient } from "./composio-hub-client";
 
-export const metadata: Metadata = {
-  title: "Reddit Ingestion Studio & Toolkits",
-};
+export const metadata: Metadata = privateMetadata("Reddit import");
 
 export const dynamic = "force-dynamic";
 
@@ -24,10 +23,9 @@ export default async function AdminComposioPage() {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="Reddit Ingestion Studio & Integrations"
-        category="Ingestion & Toolkits"
+        title="Reddit import"
         icon={Zap}
-        description="Fetch campus discussions from Indian university subreddits, control Cloudflare CDN cache, dispatch safety webhooks, and export records."
+        description="Import posts from Indian college subreddits, clear the CDN cache and export data."
       />
 
       <ComposioHubClient institutions={institutions} />

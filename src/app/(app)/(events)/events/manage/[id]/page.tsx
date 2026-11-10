@@ -1,36 +1,16 @@
-import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
 import { eq, or } from "drizzle-orm";
+import { notFound, redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { events, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { privateMetadata } from "@/lib/seo";
 import { ManageEventClient } from "./manage-event-client";
 
 interface ManageEventPageProps {
   params: Promise<{ id: string }>;
 }
 
-export async function generateMetadata({ params }: ManageEventPageProps): Promise<Metadata> {
-  const { id } = await params;
-  try {
-    const db = getDb();
-    const event = await db.query.events.findFirst({
-      where: or(eq(events.id, id), eq(events.slug, id)),
-    });
-
-    if (!event) {
-      return { title: "Manage Event" };
-    }
-
-    return {
-      title: `Manage: ${event.title}`,
-      description: `Organizer control center for ${event.title}. Manage attendees, broadcast updates, and check-in guests.`,
-      robots: { index: false, follow: false },
-    };
-  } catch {
-    return { title: "Manage Event" };
-  }
-}
+export const metadata = privateMetadata("Manage event");
 
 export default async function ManageEventPage({ params }: ManageEventPageProps) {
   const { id } = await params;
@@ -68,5 +48,7 @@ export default async function ManageEventPage({ params }: ManageEventPageProps) 
     redirect(`/events/${event.slug || event.id}`);
   }
 
-  return <ManageEventClient eventId={event.id} initialSlug={event.slug || event.id} currentProfile={profile} />;
+  return (
+    <ManageEventClient eventId={event.id} initialSlug={event.slug || event.id} currentProfile={profile} />
+  );
 }

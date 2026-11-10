@@ -5,14 +5,13 @@ import { ArticleEditorClient } from "@/app/(app)/(articles)/articles/new/article
 import { getDb } from "@/db";
 import { articles, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { privateMetadata } from "@/lib/seo";
 
 interface ArticleEditPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export const metadata: Metadata = {
-  title: "Edit Article",
-};
+export const metadata: Metadata = privateMetadata("Edit article");
 
 export default async function ArticleEditPage({ params }: ArticleEditPageProps) {
   const { slug } = await params;

@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 const badgeVariants = cva(
   cn(
     "group/badge inline-flex h-5 min-h-[22px] w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-full px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap",
-    "transition-colors outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
+    "transition-ui outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
     "has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 aria-invalid:ring-2 aria-invalid:ring-danger/30",
     "[&>svg]:pointer-events-none [&>svg]:size-3!"
   ),
@@ -16,12 +16,12 @@ const badgeVariants = cva(
       variant: {
         neutral: "bg-surface-muted text-fg-muted [a]:hover:bg-surface-sunken",
         brand: "bg-brand text-brand-fg [a]:hover:bg-brand-hover",
-        success: "bg-success-subtle text-success",
+        success: "bg-verified-subtle text-verified-text",
         warning: "bg-warning-subtle text-warning",
         danger: "bg-danger-subtle text-danger",
-        verified: "bg-brand-subtle text-brand-text",
+        verified: "bg-verified-subtle text-verified-text",
         anonymous: "bg-surface-muted text-fg-muted",
-        example: "bg-reward-subtle text-reward-text",
+        example: "border border-dashed border-border-strong bg-surface text-fg-muted",
         reward: "bg-reward text-reward-fg",
         crush: "bg-crush-subtle text-crush-text",
         outline: "border border-border bg-surface text-fg [a]:hover:bg-surface-muted",

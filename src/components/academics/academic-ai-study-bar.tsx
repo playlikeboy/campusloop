@@ -1,8 +1,9 @@
 "use client";
 
-import { Check, ChevronDown, ChevronUp, Copy, ExternalLink, Sparkles } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, Copy, ExternalLink } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import { buildAcademicStudyPrompt, getChatGptStudyUrl, getClaudeStudyUrl } from "@/lib/academics/ai-prompts";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -75,144 +76,101 @@ export function AcademicAiStudyBar({
     haptics.success();
     navigator.clipboard.writeText(prompt);
     setCopied(true);
-    toast.success("Structured AI study prompt copied to clipboard!");
+    toast.success("Prompt copied. Paste it into your AI app.");
     setTimeout(() => setCopied(false), 2500);
   };
 
   const handleOpenAi = (url: string, agentName: string) => {
     sounds.tap();
     haptics.medium();
-    toast.info(`Opening ${agentName} with verified course prompt...`);
+    toast.info(`Opening ${agentName}…`);
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
   // ─── Compact Pill Layout (Used in lists and cards) ───
   if (compact) {
     return (
-      <div className={cn("flex items-center gap-1.5 flex-wrap", className)}>
-        <button
-          type="button"
-          onClick={() => handleOpenAi(chatGptUrl, "ChatGPT")}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-brand-subtle hover:bg-brand-subtle/80 text-brand-text border border-brand-subtle-border transition-colors cursor-pointer active:scale-95"
-          title="Study this material with ChatGPT"
-        >
+      <div className={cn("flex flex-wrap items-center gap-1.5", className)}>
+        <Button variant="pill" size="sm" onClick={() => handleOpenAi(chatGptUrl, "ChatGPT")}>
           <ChatGptIcon className="size-3.5" />
-          <span>Ask ChatGPT</span>
-          <ExternalLink className="size-2.5 opacity-70" />
-        </button>
-
-        <button
-          type="button"
-          onClick={() => handleOpenAi(claudeUrl, "Claude")}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-brand-subtle hover:bg-brand-subtle/80 text-brand-text border border-brand-subtle-border transition-colors cursor-pointer active:scale-95"
-          title="Study this material with Claude"
-        >
+          ChatGPT
+        </Button>
+        <Button variant="pill" size="sm" onClick={() => handleOpenAi(claudeUrl, "Claude")}>
           <ClaudeIcon className="size-3.5" />
-          <span>Ask Claude</span>
-          <ExternalLink className="size-2.5 opacity-70" />
-        </button>
-
-        <button
-          type="button"
+          Claude
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-sm"
           onClick={handleCopy}
-          className="p-1.5 rounded-full border border-border/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-ui cursor-pointer"
-          title="Copy master study prompt"
+          aria-label={copied ? "Prompt copied" : "Copy study prompt"}
         >
-          {copied ? <Check className="size-3.5 text-success" /> : <Copy className="size-3.5" />}
-        </button>
+          {copied ? (
+            <Check className="size-4" aria-hidden="true" />
+          ) : (
+            <Copy className="size-4" aria-hidden="true" />
+          )}
+        </Button>
       </div>
     );
   }
 
-  // ─── MINIMAL PROFESSIONAL STUDY WITH AI UI ───
   return (
-    <div
-      className={cn(
-        "rounded-2xl border border-border/40 bg-card/40 p-4 sm:p-5 space-y-3.5 select-none",
-        className
-      )}
+    <section
+      className={cn("space-y-3 rounded-lg border border-border bg-surface p-4 sm:p-5", className)}
+      aria-labelledby="study-with-ai-title"
     >
-      {/* Header Row */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="flex size-9 sm:size-10 items-center justify-center rounded-xl bg-muted border border-border/50 text-foreground shrink-0">
-            <Sparkles className="size-4 sm:size-4.5" />
-          </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <h2 className="text-sm sm:text-base font-black text-foreground tracking-tight">
-                Study with AI Agents
-              </h2>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-muted text-muted-foreground border border-border/50">
-                Context-Ready
-              </span>
-            </div>
-            <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
-              Pre-loaded with {subjectCode} syllabus, formula cheat sheets &amp; exam solutions.
-            </p>
-          </div>
-        </div>
+      <div className="space-y-0.5">
+        <h2 id="study-with-ai-title" className="text-base text-fg">
+          Study this with AI
+        </h2>
+        <p className="text-sm text-fg-muted">
+          Opens ChatGPT or Claude with a ready prompt about {subjectCode}.
+        </p>
       </div>
 
-      {/* Action Buttons: Minimal High-Contrast Buttons */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5">
-        <button
-          type="button"
-          onClick={() => handleOpenAi(chatGptUrl, "ChatGPT")}
-          className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-foreground text-background font-bold text-xs sm:text-sm hover:opacity-90 active:scale-98 transition-ui cursor-pointer shadow-xs"
-        >
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <Button variant="outline" onClick={() => handleOpenAi(chatGptUrl, "ChatGPT")}>
           <ChatGptIcon className="size-4 shrink-0" />
-          <span>Study on ChatGPT</span>
-          <ExternalLink className="size-3 opacity-70 shrink-0" />
-        </button>
-
-        <button
-          type="button"
-          onClick={() => handleOpenAi(claudeUrl, "Claude")}
-          className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-muted hover:bg-muted/80 text-foreground border border-border/50 font-bold text-xs sm:text-sm active:scale-98 transition-ui cursor-pointer"
-        >
+          Open in ChatGPT
+          <ExternalLink className="size-3.5 text-fg-subtle" aria-hidden="true" />
+        </Button>
+        <Button variant="outline" onClick={() => handleOpenAi(claudeUrl, "Claude")}>
           <ClaudeIcon className="size-4 shrink-0" />
-          <span>Study on Claude</span>
-          <ExternalLink className="size-3 opacity-70 shrink-0" />
-        </button>
+          Open in Claude
+          <ExternalLink className="size-3.5 text-fg-subtle" aria-hidden="true" />
+        </Button>
       </div>
 
-      {/* Bottom Actions: Prompt Preview & Copy Prompt */}
-      <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/20 text-xs">
-        <button
-          type="button"
+      <div className="flex items-center justify-between gap-2 border-t border-border pt-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          aria-expanded={showPromptPreview}
           onClick={() => setShowPromptPreview(!showPromptPreview)}
-          className="inline-flex items-center gap-1.5 py-1 text-muted-foreground hover:text-foreground font-medium transition-colors cursor-pointer"
         >
-          <span>{showPromptPreview ? "Hide study prompt" : "View study prompt"}</span>
-          {showPromptPreview ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />}
-        </button>
-
-        <button
-          type="button"
-          onClick={handleCopy}
-          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-        >
-          {copied ? (
-            <>
-              <Check className="size-3.5 text-success" />
-              <span className="text-success">Copied</span>
-            </>
+          {showPromptPreview ? "Hide prompt" : "See prompt"}
+          {showPromptPreview ? (
+            <ChevronUp className="size-4" aria-hidden="true" />
           ) : (
-            <>
-              <Copy className="size-3.5" />
-              <span>Copy Prompt</span>
-            </>
+            <ChevronDown className="size-4" aria-hidden="true" />
           )}
-        </button>
+        </Button>
+        <Button variant="ghost" size="sm" onClick={handleCopy}>
+          {copied ? (
+            <Check className="size-4" aria-hidden="true" />
+          ) : (
+            <Copy className="size-4" aria-hidden="true" />
+          )}
+          {copied ? "Copied" : "Copy prompt"}
+        </Button>
       </div>
 
-      {/* Expandable Prompt Preview */}
       {showPromptPreview && (
-        <div className="relative p-3 rounded-xl bg-muted/40 border border-border/40 text-[11px] font-mono text-muted-foreground leading-relaxed max-h-40 overflow-y-auto whitespace-pre-wrap select-all">
+        <pre className="max-h-40 overflow-y-auto rounded-md bg-surface-muted p-3 font-sans text-sm whitespace-pre-wrap text-fg-muted">
           {prompt}
-        </div>
+        </pre>
       )}
-    </div>
+    </section>
   );
 }

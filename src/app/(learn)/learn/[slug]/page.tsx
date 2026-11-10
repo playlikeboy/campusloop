@@ -10,6 +10,7 @@ export default async function ResumePage({ params }: { params: Promise<{ slug: s
   if (!d || d.course.status !== "PUBLISHED" || d.lectures.length === 0) notFound();
   const profile = await currentProfile();
   const v = await getViewerState(d.course.id, profile?.id);
-  const target = v.lastLectureId ?? d.lectures.find((l) => !v.completedIds.includes(l.id))?.id ?? d.lectures[0].id;
+  const target =
+    v.lastLectureId ?? d.lectures.find((l) => !v.completedIds.includes(l.id))?.id ?? d.lectures[0].id;
   redirect(`/learn/${slug}/${target}`);
 }

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { communities, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { privateMetadata } from "@/lib/seo";
 import { isViewerProfile } from "@/lib/viewer";
 import { PostComposer } from "./post-composer";
 
@@ -25,32 +26,17 @@ interface NewPostPageProps {
 
 export async function generateMetadata({ searchParams }: NewPostPageProps): Promise<Metadata> {
   const { type, c, slug, community, feed } = await searchParams;
-  const targetSlug =
-    c || slug || community || (feed?.startsWith("c/") ? feed.slice(2) : feed);
-
+  const targetSlug = c || slug || community || (feed?.startsWith("c/") ? feed.slice(2) : feed);
   if (targetSlug) {
-    const cleanSlug = targetSlug.replace(/^c\//, "").trim();
-    return {
-      title: `Post in c/${cleanSlug}`,
-      description: `Share discussions, confessions, and questions with the c/${cleanSlug} community on CampusLoop.`,
-    };
+    return privateMetadata(`Post in c/${targetSlug.replace(/^c\//, "").trim()}`);
   }
-
-  const requested = (type || "").toUpperCase() as PostTypeParam;
   const typeTitles: Record<string, string> = {
-    CONFESSION: "Anonymous Confession",
-    POLL: "Campus Poll",
-    QUESTION: "Ask Campus",
-    MEME: "Campus Meme",
-    NORMAL: "New Post",
+    CONFESSION: "New confession",
+    POLL: "New poll",
+    QUESTION: "New question",
+    MEME: "New meme",
   };
-
-  const title = typeTitles[requested] || "New Post";
-
-  return {
-    title: `${title}`,
-    description: "Share a confession, start a poll, or ask your campus on CampusLoop.",
-  };
+  return privateMetadata(typeTitles[(type || "").toUpperCase()] || "New post");
 }
 
 export default async function NewPostPage({ searchParams }: NewPostPageProps) {
@@ -76,8 +62,8 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
   const targetCommSlugOrId =
     communityId || c || slug || community || (feed?.startsWith("c/") ? feed.slice(2) : feed);
 
-  let initialCommunityId: string | undefined = undefined;
-  let initialCommunityName: string | undefined = undefined;
+  let initialCommunityId: string | undefined;
+  let initialCommunityName: string | undefined;
 
   if (targetCommSlugOrId && targetCommSlugOrId.trim().length > 0) {
     const cleanTarget = targetCommSlugOrId.replace(/^c\//, "").trim();
@@ -100,11 +86,10 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
     }
   }
 
-  const initialScope =
-    scope?.toUpperCase() === "CAMPUS" ? ("CAMPUS" as const) : ("GLOBAL" as const);
+  const initialScope = scope?.toUpperCase() === "CAMPUS" ? ("CAMPUS" as const) : ("GLOBAL" as const);
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen border-x border-border/30 bg-background pb-12 sm:pb-0">
+    <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen border-x border-border bg-background pb-12 sm:pb-0">
       <PostComposer
         initialType={initialType}
         initialContent={text}

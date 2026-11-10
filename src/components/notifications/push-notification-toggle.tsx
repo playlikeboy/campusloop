@@ -1,162 +1,80 @@
 "use client";
 
-import { BellOff, Loader2 } from "lucide-react";
+import { Bell, BellOff, X } from "lucide-react";
 import { useState } from "react";
-import { AnimateBellRing, AnimateCheck, AnimatedIcon, AnimateSend } from "@/components/ui/animated-icon";
+import { Button } from "@/components/ui/button";
 import { usePushNotifications } from "@/hooks/use-push-notifications";
-import { cn } from "@/lib/utils";
 
 /**
- * Modern Push & Browser Notification opt-in.
- * Supports a high-visibility dismissible "banner" in /app/notifications
- * and an interactive "row" in settings.
+ * Phone / browser notification opt-in.
+ * `banner` sits on top of /notifications; `row` sits in settings.
  */
 export function PushNotificationToggle({ variant = "row" }: { variant?: "row" | "banner" }) {
   const { permission, isSubscribed, isBusy, isSupported, subscribe, sendTestNotification, unsubscribe } =
     usePushNotifications();
-
   const [dismissed, setDismissed] = useState(false);
 
   if (!isSupported || dismissed) return null;
-
   const blocked = permission === "denied";
 
   if (variant === "banner") {
-    // If subscribed, show a sleek pill that allows sending a test ping
-    if (isSubscribed) {
-      return (
-        <div className="mx-4 my-2.5 flex items-center justify-between gap-3 rounded-2xl border border-success/25 bg-success/5 px-4 py-2.5">
-          <div className="flex min-w-0 items-center gap-2.5">
-            <span className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-success/15 text-success">
-              <AnimatedIcon icon={AnimateBellRing} animation="bell" size={14} />
-            </span>
-            <div className="min-w-0">
-              <p className="text-xs font-black text-foreground flex items-center gap-1.5">
-                <span>Browser alerts active</span>
-                <AnimateCheck size={14} className="text-success" />
-              </p>
-              <p className="text-[10px] text-muted-foreground truncate">
-                Instant pings for campus replies, crushes, and chats
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={sendTestNotification}
-            className="flex h-7 shrink-0 items-center gap-1.5 rounded-full border border-success/30 bg-background px-3 text-[11px] font-bold text-foreground hover:bg-muted transition-transform active:scale-95 cursor-pointer shadow-2xs"
-            title="Send test browser notification"
-          >
-            <AnimateSend size={12} className="text-success" />
-            <span>Test Ping</span>
-          </button>
-        </div>
-      );
-    }
-
-    if (blocked) {
-      return (
-        <div className="mx-4 my-2.5 flex items-center justify-between gap-3 rounded-2xl border border-border/60 bg-muted/30 px-4 py-2.5">
-          <div className="flex min-w-0 items-center gap-2.5">
-            <span className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
-              <BellOff className="size-3.5" />
-            </span>
-            <p className="text-xs text-muted-foreground">
-              Notifications blocked by your browser. Unblock in site settings to receive campus alerts.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setDismissed(true)}
-            className="text-xs text-muted-foreground hover:text-foreground cursor-pointer px-2"
-          >
-            Dismiss
-          </button>
-        </div>
-      );
-    }
+    // Already on: nothing to ask for, keep the inbox clean.
+    if (isSubscribed) return null;
 
     return (
-      <div className="mx-4 my-3 flex items-center justify-between gap-3 rounded-2xl border border-primary/30 bg-primary/5 px-4 py-3 shadow-xs">
-        <div className="flex min-w-0 items-center gap-3">
-          <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary">
-            <AnimatedIcon icon={AnimateBellRing} animation="bell" size={18} />
-          </div>
-          <div className="min-w-0">
-            <p className="text-xs font-black text-foreground">Turn on campus alerts</p>
-            <p className="text-[11px] text-muted-foreground">
-              Get notified for new replies, matches, and chats — even when the tab is backgrounded
-            </p>
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={subscribe}
-          disabled={isBusy}
-          className="flex h-8 shrink-0 items-center gap-1.5 rounded-full bg-primary px-4 text-xs font-black text-primary-foreground shadow-sm transition-transform hover:bg-primary/95 active:scale-95 cursor-pointer disabled:opacity-60"
-        >
-          {isBusy ? (
-            <Loader2 className="size-3.5 animate-spin" />
+      <div className="mx-4 my-3 flex items-center gap-3 rounded-lg border border-border bg-surface p-3">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-surface-muted text-fg">
+          {blocked ? (
+            <BellOff aria-hidden="true" className="size-5" />
           ) : (
-            <AnimatedIcon icon={AnimateBellRing} animation="bell" size={14} />
+            <Bell aria-hidden="true" className="size-5" />
           )}
-          <span>Enable</span>
-        </button>
+        </span>
+        <p className="min-w-0 flex-1 text-sm text-fg">
+          {blocked
+            ? "Notifications are blocked. Allow them in your browser's site settings."
+            : "Get a ping for new messages and replies."}
+        </p>
+        {blocked ? (
+          <Button variant="ghost" size="icon" onClick={() => setDismissed(true)} aria-label="Dismiss">
+            <X aria-hidden="true" />
+          </Button>
+        ) : (
+          <Button size="sm" onClick={subscribe} loading={isBusy}>
+            Turn on
+          </Button>
+        )}
       </div>
     );
   }
 
   return (
-    <div className="flex items-center justify-between gap-3 rounded-2xl border border-border/60 bg-card px-4 py-3">
-      <div className="flex min-w-0 items-center gap-3">
-        <div
-          className={cn(
-            "flex size-9 shrink-0 items-center justify-center rounded-xl",
-            isSubscribed ? "bg-success/15 text-success" : "bg-muted text-muted-foreground"
-          )}
-        >
-          {isSubscribed ? (
-            <AnimatedIcon icon={AnimateBellRing} animation="bell" size={18} />
-          ) : (
-            <BellOff className="size-4.5" />
-          )}
-        </div>
-        <div className="min-w-0">
-          <p className="text-xs font-black text-foreground">Push &amp; Browser Notifications</p>
-          <p className="text-[11px] text-muted-foreground">
-            {blocked
-              ? "Blocked in your browser settings — re-allow them there to switch this on"
-              : isSubscribed
-                ? "Active for this device. Tap test ping to verify."
-                : "Off — campus replies, matches, and chats won't alert your screen"}
-          </p>
-        </div>
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="min-w-0">
+        <p className="text-sm font-semibold text-fg">Phone notifications</p>
+        <p className="text-sm text-fg-muted">
+          {blocked
+            ? "Blocked in your browser. Allow them in site settings to turn this on."
+            : isSubscribed
+              ? "On for this device."
+              : "Off. You won't get pings outside the app."}
+        </p>
       </div>
-
       <div className="flex items-center gap-2">
         {isSubscribed && (
-          <button
-            type="button"
-            onClick={sendTestNotification}
-            className="flex h-8 shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-xs font-bold text-foreground hover:bg-muted transition-transform active:scale-95 cursor-pointer"
-          >
-            <AnimateSend size={12} className="text-primary" />
-            <span>Test</span>
-          </button>
+          <Button variant="ghost" size="sm" onClick={sendTestNotification}>
+            Send a test
+          </Button>
         )}
-        <button
-          type="button"
+        <Button
+          size="sm"
+          variant={isSubscribed ? "outline" : "primary"}
           onClick={isSubscribed ? unsubscribe : subscribe}
-          disabled={isBusy || blocked}
-          className={cn(
-            "flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-xs font-black transition-transform active:scale-95 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50",
-            isSubscribed
-              ? "border border-border bg-card text-foreground hover:bg-muted"
-              : "bg-primary text-primary-foreground shadow-2xs hover:bg-primary/95"
-          )}
+          loading={isBusy}
+          disabled={blocked}
         >
-          {isBusy && <Loader2 className="size-3.5 animate-spin" />}
-          {isSubscribed ? "Turn off" : "Enable"}
-        </button>
+          {isSubscribed ? "Turn off" : "Turn on"}
+        </Button>
       </div>
     </div>
   );

@@ -1,13 +1,10 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { privateMetadata } from "@/lib/seo";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 import { CheckoutClient } from "./checkout-client";
 
-export const metadata: Metadata = {
-  title: "Checkout | Campus Marketplace",
-  description: "Complete your campus order with verified hostel delivery or pickup.",
-  robots: { index: false, follow: false },
-};
+export const metadata: Metadata = privateMetadata("Checkout");
 
 export default async function CheckoutPage() {
   const user = await getCachedAuthUser();

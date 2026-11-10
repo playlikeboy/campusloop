@@ -1,8 +1,9 @@
 "use client";
 
-import { ExternalLink, ShoppingBag } from "lucide-react";
+import { ArrowRight, ShoppingBag } from "lucide-react";
 import Link from "next/link";
-import React from "react";
+import { ROUTES } from "@/constants/navigation";
+import { cn } from "@/lib/utils";
 
 export interface ProductInquiryInfo {
   title: string;
@@ -56,44 +57,25 @@ interface ProductMessageCardProps {
 export function ProductMessageCard({ product, isMe }: ProductMessageCardProps) {
   return (
     <div
-      className={
-        isMe
-          ? "my-2 rounded-xl border border-brand-subtle-border bg-surface p-3 text-left space-y-2 select-none"
-          : "my-2 rounded-xl border border-border bg-surface p-3 text-left space-y-2 select-none"
-      }
+      className={cn(
+        "my-1.5 space-y-1.5 rounded-md border bg-surface p-3 text-left text-fg select-none",
+        isMe ? "border-transparent" : "border-border"
+      )}
     >
-      <div className="flex items-center justify-between gap-2 border-b border-border pb-2">
-        <div className="flex items-center gap-1.5 text-[11px] font-semibold text-fg-subtle">
-          <ShoppingBag className="size-3.5 text-brand-text shrink-0" />
-          <span>Marketplace Item</span>
-        </div>
-        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-brand-subtle text-brand-text">
-          {product.isAvailableQuestion ? "Inquiry" : "Listing"}
-        </span>
+      <div className="flex items-center gap-1.5 text-xs font-medium text-fg-muted">
+        <ShoppingBag className="size-3.5 shrink-0 text-brand-text" aria-hidden="true" />
+        <span>{product.isAvailableQuestion ? "Asking about a listing" : "Listing"}</span>
       </div>
-
-      <div className="space-y-1">
-        <h4 className="text-[13px] sm:text-[13.5px] font-semibold text-fg leading-snug line-clamp-2">
-          {product.title}
-        </h4>
-        {product.price && (
-          <div className="text-[13px] font-bold text-fg">
-            {product.price}
-          </div>
-        )}
-      </div>
-
-      <div className="pt-0.5 flex items-center justify-between gap-2 text-[11px]">
-        <span className="text-fg-subtle">Campus Buy & Sell</span>
-        <Link
-          href="/communities?tab=marketplace"
-          onClick={(e) => e.stopPropagation()}
-          className="inline-flex items-center gap-1 font-medium text-brand-text hover:underline transition-colors"
-        >
-          <span>Marketplace</span>
-          <ExternalLink className="size-3" />
-        </Link>
-      </div>
+      <p className="line-clamp-2 text-sm leading-snug font-semibold">{product.title}</p>
+      {product.price && <p className="text-sm font-bold tabular-nums">{product.price}</p>}
+      <Link
+        href={ROUTES.buySell}
+        onClick={(e) => e.stopPropagation()}
+        className="inline-flex min-h-8 items-center gap-1 text-sm font-medium text-brand-text underline-offset-2 hover:underline"
+      >
+        Open Buy and sell
+        <ArrowRight className="size-3.5" aria-hidden="true" />
+      </Link>
     </div>
   );
 }

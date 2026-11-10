@@ -15,7 +15,9 @@ export function ArticleToc({ content }: { content: string }) {
     if (headings.length < 3) return;
     const observer = new IntersectionObserver(
       (entries) => {
-        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
         if (visible[0]) setActive(visible[0].target.id);
       },
       { rootMargin: "-80px 0px -70% 0px" }
@@ -30,17 +32,20 @@ export function ArticleToc({ content }: { content: string }) {
   if (headings.length < 3) return null;
 
   return (
-    <nav aria-label="In this article" className="rounded-2xl bg-card/60 shadow-2xs">
+    <nav aria-label="In this article" className="rounded-lg border border-border bg-surface">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className="flex min-h-11 w-full items-center gap-2 rounded-2xl px-4 text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
+        className="flex min-h-11 w-full cursor-pointer items-center gap-2 rounded-lg px-4 text-sm font-semibold text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <ListTree className="size-4 text-muted-foreground" aria-hidden />
+        <ListTree className="size-4 text-fg-subtle" aria-hidden />
         In this article
-        <span className="text-xs font-normal text-muted-foreground">{headings.length} sections</span>
-        <ChevronDown className={cn("ml-auto size-4 text-muted-foreground transition-transform", open && "rotate-180")} aria-hidden />
+        <span className="text-xs font-normal text-fg-muted tabular-nums">{headings.length} sections</span>
+        <ChevronDown
+          className={cn("ml-auto size-4 text-fg-subtle transition-ui", open && "rotate-180")}
+          aria-hidden
+        />
       </button>
       {open && (
         <ol className="space-y-0.5 px-2 pb-3">
@@ -48,11 +53,12 @@ export function ArticleToc({ content }: { content: string }) {
             <li key={h.id}>
               <a
                 href={`#${h.id}`}
+                aria-current={active === h.id ? "location" : undefined}
                 onClick={() => setOpen(false)}
                 className={cn(
-                  "block rounded-lg px-2 py-1.5 text-sm transition-colors hover:bg-muted/70",
+                  "flex min-h-10 items-center rounded-sm px-2 text-sm transition-ui hover:bg-surface-muted",
                   h.level === 2 && "pl-5",
-                  active === h.id ? "font-semibold text-primary" : "text-muted-foreground hover:text-foreground"
+                  active === h.id ? "font-semibold text-brand-text" : "text-fg-muted hover:text-fg"
                 )}
               >
                 {h.text}

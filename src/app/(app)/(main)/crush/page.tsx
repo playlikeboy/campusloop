@@ -1,11 +1,7 @@
-import type { Metadata } from "next";
+import { privateMetadata } from "@/lib/seo";
 import { CrushClient } from "./crush-client";
 
-export const metadata: Metadata = {
-  title: "Secret Crush Vault",
-  description:
-    "Manage your 5-slot secret crush vault on CampusLoop with 100% intent-hidden campus matchmaking.",
-};
+export const metadata = privateMetadata("Secret Crush");
 
 export default function SecretCrushPage() {
   return <CrushClient />;

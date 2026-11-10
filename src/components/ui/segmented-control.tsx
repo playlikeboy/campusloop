@@ -47,7 +47,7 @@ export function SegmentedControl<T extends string>({
       aria-label={aria["aria-label"]}
       data-slot="segmented-control"
       className={cn(
-        "inline-flex items-center gap-1 rounded-md bg-surface-muted p-1",
+        "inline-flex items-center gap-1 rounded-full bg-surface-muted p-1",
         fullWidth && "flex w-full",
         className
       )}
@@ -58,10 +58,10 @@ export function SegmentedControl<T extends string>({
           value={opt.value}
           disabled={opt.disabled}
           className={cn(
-            "inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-sm font-semibold whitespace-nowrap text-fg-muted select-none",
-            "transition-colors outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
-            "hover:text-fg data-[pressed]:bg-surface data-[pressed]:text-fg data-[pressed]:shadow-xs disabled:pointer-events-none disabled:opacity-50",
-            size === "sm" ? "h-7 px-2.5 text-xs" : "h-9 px-3.5 text-sm",
+            "inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-full font-semibold whitespace-nowrap text-fg-muted select-none",
+            "transition-ui outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
+            "hover:text-fg data-[pressed]:bg-surface data-[pressed]:text-fg data-[pressed]:shadow-sm disabled:pointer-events-none disabled:opacity-50",
+            size === "sm" ? "h-8 px-3 text-xs" : "h-10 px-4 text-sm",
             fullWidth && "flex-1",
             "[&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
           )}

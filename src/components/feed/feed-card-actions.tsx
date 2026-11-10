@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { type AuthRequiredAction, notifyAuthRequired } from "@/components/auth/auth-required-overlay";
 import {
   AnimateBookmark,
   AnimatedIcon,
@@ -12,7 +13,6 @@ import {
   AnimateShare,
   useIconHandle,
 } from "@/components/ui/animated-icon";
-import { notifyAuthRequired, type AuthRequiredAction } from "@/components/auth/auth-required-overlay";
 import type { FeedPost } from "@/hooks/use-feed";
 import { useProfile } from "@/hooks/use-profile";
 import { haptics } from "@/lib/haptics";
@@ -98,13 +98,13 @@ export function FeedCardActions({
       });
       if (!res.ok) throw new Error("Failed to update save status");
       if (nextState) {
-        toast.success("Saved to campus vault");
+        toast.success("Saved");
       } else {
-        toast.info("Removed from saved posts");
+        toast.info("Removed from saved");
       }
     } catch {
       setIsSaved(!nextState);
-      toast.error("Could not update bookmark");
+      toast.error("Couldn't save. Try again.");
     }
   }
 
@@ -124,10 +124,15 @@ export function FeedCardActions({
             onClick={() => requireAuth("like", onVote)}
             {...like.handlers}
             className={cn(
-              "cl-interactive flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-full px-2.5 text-xs cursor-pointer group transition-colors hover:bg-muted/70 active:scale-95",
-              isLiked ? "text-warning" : "text-muted-foreground hover:text-warning"
+              "cl-interactive flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-full px-2.5 text-xs cursor-pointer group transition-colors hover:bg-surface-muted active:scale-95",
+              isLiked ? "text-brand-text" : "text-fg-muted hover:text-brand-text"
             )}
-            aria-label={isLiked ? `${effectiveVotesCount} Vibes, tap to unvibe` : `Vibe post, currently ${effectiveVotesCount} vibes`}
+            aria-pressed={isLiked}
+            aria-label={
+              isLiked
+                ? `Liked, ${effectiveVotesCount} likes. Tap to unlike`
+                : `Like, ${effectiveVotesCount} likes`
+            }
           >
             <motion.div
               animate={
@@ -146,9 +151,7 @@ export function FeedCardActions({
                 playKey={isLiked}
                 iconClassName={cn(
                   "transition-colors",
-                  isLiked
-                    ? "fill-warning text-warning drop-shadow-[0_0_8px_rgba(249,115,22,0.6)]"
-                    : "text-muted-foreground group-hover:text-warning"
+                  isLiked ? "fill-brand text-brand-text" : "text-fg-muted group-hover:text-brand-text"
                 )}
               />
             </motion.div>
@@ -159,7 +162,7 @@ export function FeedCardActions({
                   onOpenLikes?.();
                 }
               }}
-              title={effectiveVotesCount > 0 ? `${effectiveVotesCount} Vibes` : "Vibe"}
+              title={effectiveVotesCount > 0 ? "See who liked this" : "Like"}
               className="tabular-nums text-[13px] font-medium"
             >
               {effectiveVotesCount > 0 ? effectiveVotesCount : ""}
@@ -171,22 +174,38 @@ export function FeedCardActions({
           type="button"
           onClick={() => requireAuth("comment", () => onOpenComments?.())}
           {...reply.handlers}
-          className="cl-interactive flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-full px-2.5 text-xs text-muted-foreground hover:bg-muted/70 hover:text-foreground transition-colors group cursor-pointer active:scale-95"
-          aria-label="Reply"
+          className="cl-interactive flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-full px-2.5 text-xs text-fg-muted hover:bg-surface-muted hover:text-fg transition-ui group cursor-pointer active:scale-95"
+          aria-label={displayCommentsCount ? `Comments, ${displayCommentsCount}` : "Comment"}
         >
-          <AnimatedIcon ref={reply.ref} icon={AnimateMessageCircle} animation="pop" size={16} animateOnHover={false} />
-          <span className="tabular-nums text-[13px] font-medium">{displayCommentsCount ? displayCommentsCount : ""}</span>
+          <AnimatedIcon
+            ref={reply.ref}
+            icon={AnimateMessageCircle}
+            animation="pop"
+            size={16}
+            animateOnHover={false}
+          />
+          <span className="tabular-nums text-[13px] font-medium">
+            {displayCommentsCount ? displayCommentsCount : ""}
+          </span>
         </button>
 
         <button
           type="button"
           onClick={onShare}
           {...share.handlers}
-          className="cl-interactive flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-full px-2.5 text-xs text-muted-foreground hover:bg-muted/70 hover:text-foreground transition-colors group cursor-pointer active:scale-95"
+          className="cl-interactive flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-full px-2.5 text-xs text-fg-muted hover:bg-surface-muted hover:text-fg transition-ui group cursor-pointer active:scale-95"
           aria-label="Share"
         >
-          <AnimatedIcon ref={share.ref} icon={AnimateShare} animation="nudge-up" size={15} animateOnHover={false} />
-          <span className="tabular-nums text-[13px] font-medium">{(post as any)?.sharesCount || (post as any)?.repostsCount || ""}</span>
+          <AnimatedIcon
+            ref={share.ref}
+            icon={AnimateShare}
+            animation="nudge-up"
+            size={15}
+            animateOnHover={false}
+          />
+          <span className="tabular-nums text-[13px] font-medium">
+            {(post as any)?.sharesCount || (post as any)?.repostsCount || ""}
+          </span>
         </button>
       </div>
 
@@ -197,8 +216,10 @@ export function FeedCardActions({
           {...repost.handlers}
           aria-pressed={hasReposted}
           className={cn(
-            "cl-interactive size-11 min-h-[44px] min-w-[44px] rounded-full flex items-center justify-center transition-colors cursor-pointer active:scale-95",
-            hasReposted ? "text-success bg-success/10" : "text-muted-foreground hover:text-success hover:bg-muted/50"
+            "cl-interactive size-11 min-h-[44px] min-w-[44px] rounded-full flex items-center justify-center transition-ui cursor-pointer active:scale-95",
+            hasReposted
+              ? "text-brand-text bg-brand-subtle"
+              : "text-fg-muted hover:text-fg hover:bg-surface-muted"
           )}
           aria-label={hasReposted ? "Reposted" : "Repost"}
         >
@@ -208,8 +229,8 @@ export function FeedCardActions({
             animation="nudge-right"
             size={16}
             animateOnHover={false}
-            className={cn("transition-transform duration-300 ease-out", repostSpin && "rotate-180 scale-115")}
-            iconClassName={cn(hasReposted && "text-success")}
+            className={cn("transition-transform duration-300 ease-out", repostSpin && "rotate-180")}
+            iconClassName={cn(hasReposted && "text-brand-text")}
           />
         </button>
 
@@ -219,10 +240,11 @@ export function FeedCardActions({
           onClick={handleToggleSave}
           {...bookmark.handlers}
           className={cn(
-            "cl-interactive size-11 min-h-[44px] min-w-[44px] rounded-full flex items-center justify-center transition-colors cursor-pointer active:scale-95",
-            isSaved ? "text-warning bg-warning/10" : "text-muted-foreground hover:text-warning hover:bg-muted/50"
+            "cl-interactive size-11 min-h-[44px] min-w-[44px] rounded-full flex items-center justify-center transition-ui cursor-pointer active:scale-95",
+            isSaved ? "text-brand-text bg-brand-subtle" : "text-fg-muted hover:text-fg hover:bg-surface-muted"
           )}
-          aria-label={isSaved ? "Saved in vault" : "Save post"}
+          aria-pressed={isSaved}
+          aria-label={isSaved ? "Saved. Tap to remove" : "Save post"}
         >
           <AnimatedIcon
             ref={bookmark.ref}
@@ -231,10 +253,7 @@ export function FeedCardActions({
             size={16}
             animateOnHover={false}
             playKey={isSaved}
-            iconClassName={cn(
-              "transition-colors",
-              isSaved ? "fill-warning text-warning" : "text-muted-foreground hover:text-warning"
-            )}
+            iconClassName={cn("transition-colors", isSaved ? "fill-brand text-brand-text" : "text-fg-muted")}
           />
         </motion.button>
       </div>

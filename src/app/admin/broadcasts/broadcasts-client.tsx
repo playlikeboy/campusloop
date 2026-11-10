@@ -5,7 +5,6 @@ import {
   Archive,
   ArrowRight,
   Bell,
-  Building2,
   Check,
   CheckCircle2,
   Copy,
@@ -26,11 +25,13 @@ import {
   Smartphone,
   Sparkles,
   Trash2,
-  Users,
 } from "lucide-react";
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { CollegeCombobox } from "@/components/common/college-combobox";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
+import { fieldClassName } from "@/components/ui/input";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
@@ -107,8 +108,8 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
   // Priority Styles Config
   const priorityConfig = {
     INFO: {
-      label: "General Info",
-      badge: "CAMPUS INFO",
+      label: "Info",
+      badge: "Info",
       border: "border-brand/30",
       bg: "bg-brand-subtle",
       text: "text-brand-text",
@@ -116,17 +117,17 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
       icon: Info,
     },
     ANNOUNCEMENT: {
-      label: "Official",
-      badge: "OFFICIAL ANNOUNCEMENT",
-      border: "border-primary/30",
-      bg: "bg-primary/10",
-      text: "text-primary",
-      accent: "bg-primary",
+      label: "Announcement",
+      badge: "Announcement",
+      border: "border-brand-subtle-border",
+      bg: "bg-brand-subtle",
+      text: "text-brand-text",
+      accent: "bg-brand",
       icon: Megaphone,
     },
     WARNING: {
       label: "Advisory",
-      badge: "CAMPUS ADVISORY",
+      badge: "Advisory",
       border: "border-warning/30",
       bg: "bg-warning-subtle",
       text: "text-warning",
@@ -134,8 +135,8 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
       icon: AlertTriangle,
     },
     URGENT: {
-      label: "Urgent Alert",
-      badge: "URGENT NOTICE",
+      label: "Urgent",
+      badge: "Urgent",
       border: "border-danger/30",
       bg: "bg-danger-subtle",
       text: "text-danger",
@@ -149,12 +150,12 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
 
   async function handlePublish() {
     if (!title.trim() || !message.trim()) {
-      toast.error("Please provide both a headline and announcement message.");
+      toast.error("Add a headline and a message first.");
       return;
     }
 
     if (actionLabel.trim() && !actionUrl.trim()) {
-      toast.error("Please provide a destination URL for your Call to Action button.");
+      toast.error("Add a link for the button, or clear the button label.");
       return;
     }
 
@@ -182,7 +183,7 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
       const data = (await res.json()) as any;
       if (!res.ok) throw new Error(data.error || "Failed to publish broadcast");
 
-      toast.success(data.message || "Broadcast published successfully!");
+      toast.success(data.message || "Broadcast published");
 
       if (data.broadcastPost) {
         const newPost: BroadcastItem = {
@@ -228,10 +229,8 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
       const data = (await res.json()) as any;
       if (!res.ok) throw new Error(data.error || "Failed to update broadcast status");
 
-      toast.success(data.message || "Broadcast updated!");
-      setBroadcastsList((prev) =>
-        prev.map((b) => (b.id === item.id ? { ...b, status: nextStatus } : b))
-      );
+      toast.success(data.message || "Broadcast updated");
+      setBroadcastsList((prev) => prev.map((b) => (b.id === item.id ? { ...b, status: nextStatus } : b)));
     } catch (err: any) {
       toast.error(err.message || "Failed to update broadcast");
     } finally {
@@ -267,75 +266,28 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
     const url = `${window.location.origin}/post/${id}`;
     navigator.clipboard.writeText(url);
     sounds.pop();
-    toast.success("Broadcast post URL copied to clipboard!");
+    toast.success("Link copied");
   }
 
   return (
     <div className="space-y-10">
-      {/* ─── Top Stats Bar ─── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="p-4 rounded-2xl bg-card border border-border/40 shadow-2xs">
-          <div className="flex items-center justify-between text-xs text-muted-foreground font-semibold">
-            <span>Indexed Campuses</span>
-            <Building2 className="size-4 text-primary" />
-          </div>
-          <p className="mt-2 text-2xl font-bold text-foreground">1,350+</p>
-          <p className="text-[11px] text-muted-foreground mt-0.5">All-India active college hubs</p>
-        </div>
-
-        <div className="p-4 rounded-2xl bg-card border border-border/40 shadow-2xs">
-          <div className="flex items-center justify-between text-xs text-muted-foreground font-semibold">
-            <span>Total Broadcasts</span>
-            <Radio className="size-4 text-primary" />
-          </div>
-          <p className="mt-2 text-2xl font-bold text-foreground">{broadcastsList.length}</p>
-          <p className="text-[11px] text-muted-foreground mt-0.5">Dispatched timeline alerts</p>
-        </div>
-
-        <div className="p-4 rounded-2xl bg-card border border-border/40 shadow-2xs">
-          <div className="flex items-center justify-between text-xs text-muted-foreground font-semibold">
-            <span>Active Feed Pinned</span>
-            <CheckCircle2 className="size-4 text-success" />
-          </div>
-          <p className="mt-2 text-2xl font-bold text-foreground">
-            {broadcastsList.filter((b) => (b.status || "PUBLISHED") === "PUBLISHED").length}
-          </p>
-          <p className="text-[11px] text-muted-foreground mt-0.5">Live on student feeds</p>
-        </div>
-
-        <div className="p-4 rounded-2xl bg-card border border-border/40 shadow-2xs">
-          <div className="flex items-center justify-between text-xs text-muted-foreground font-semibold">
-            <span>Target Reach</span>
-            <Users className="size-4 text-brand-text" />
-          </div>
-          <p className="mt-2 text-2xl font-bold text-foreground">
-            {scope === "INDIA" ? "Pan-India" : "Campus Wide"}
-          </p>
-          <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
-            {scope === "INDIA" ? "All verified students" : selectedInstitutionName}
-          </p>
-        </div>
-      </div>
-
-      {/* ─── Creator & Live Interactive Simulator Split ─── */}
+      {/* Composer and preview */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Broadcast Studio Composer (7 cols) */}
-        <div className="lg:col-span-7 p-6 rounded-3xl bg-card border border-border/50 shadow-xs space-y-6">
-          <div className="border-b border-border/40 pb-4">
-            <h3 className="text-base font-bold text-foreground flex items-center gap-2">
-              <Megaphone className="h-4 w-4 text-primary" />
-              Campus Broadcast Dispatch Studio
+        {/* Composer */}
+        <div className="lg:col-span-7 p-6 rounded-lg bg-surface border border-border space-y-6">
+          <div className="border-b border-border pb-4">
+            <h3 className="text-base font-bold text-fg flex items-center gap-2">
+              <Megaphone className="h-4 w-4 text-brand-text" />
+              New broadcast
             </h3>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Draft, style, and broadcast high-priority announcements directly to university timelines.
-            </p>
+            <p className="text-xs text-fg-muted mt-0.5">Write a notice and choose who sees it.</p>
           </div>
 
           {/* Scope Selector */}
           <div className="space-y-2">
-            <label className="text-[11px] font-bold text-muted-foreground flex items-center gap-1.5">
-              <Globe className="size-3.5 text-primary" />
-              <span>Broadcast Target Scope</span>
+            <label className="text-xs font-bold text-fg-muted flex items-center gap-1.5">
+              <Globe className="size-3.5 text-brand-text" />
+              <span>Who sees it</span>
             </label>
             <div className="grid grid-cols-2 gap-3">
               <button
@@ -346,21 +298,21 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                   setScope("INDIA");
                 }}
                 className={cn(
-                  "p-3.5 rounded-2xl border text-left transition-colors cursor-pointer space-y-1",
+                  "p-3.5 rounded-lg border text-left transition-colors cursor-pointer space-y-1",
                   scope === "INDIA"
-                    ? "border-primary bg-primary/10 text-primary shadow-xs ring-1 ring-primary/30"
-                    : "border-border/40 bg-muted/20 text-muted-foreground hover:text-foreground hover:bg-muted/40"
+                    ? "border-brand bg-brand-subtle text-brand-text ring-1 ring-ring"
+                    : "border-border bg-surface-muted text-fg-muted hover:text-fg hover:bg-surface-muted"
                 )}
               >
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-xs flex items-center gap-1.5">
                     <Globe className="h-3.5 w-3.5" />
-                    All Campuses (India)
+                    Every college
                   </span>
-                  {scope === "INDIA" && <Check className="size-3.5 text-primary" />}
+                  {scope === "INDIA" && <Check className="size-3.5 text-brand-text" />}
                 </div>
-                <p className="text-[10px] text-muted-foreground leading-normal">
-                  Universal timeline banner visible to students across all 1,350+ institutions
+                <p className="text-xs text-fg-muted leading-normal">
+                  Shown to students at every college on CampusLoop
                 </p>
               </button>
 
@@ -372,22 +324,20 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                   setScope("CAMPUS");
                 }}
                 className={cn(
-                  "p-3.5 rounded-2xl border text-left transition-colors cursor-pointer space-y-1",
+                  "p-3.5 rounded-lg border text-left transition-colors cursor-pointer space-y-1",
                   scope === "CAMPUS"
-                    ? "border-primary bg-primary/10 text-primary shadow-xs ring-1 ring-primary/30"
-                    : "border-border/40 bg-muted/20 text-muted-foreground hover:text-foreground hover:bg-muted/40"
+                    ? "border-brand bg-brand-subtle text-brand-text ring-1 ring-ring"
+                    : "border-border bg-surface-muted text-fg-muted hover:text-fg hover:bg-surface-muted"
                 )}
               >
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-xs flex items-center gap-1.5">
                     <School className="h-3.5 w-3.5" />
-                    Specific College Hub
+                    One college
                   </span>
-                  {scope === "CAMPUS" && <Check className="size-3.5 text-primary" />}
+                  {scope === "CAMPUS" && <Check className="size-3.5 text-brand-text" />}
                 </div>
-                <p className="text-[10px] text-muted-foreground leading-normal">
-                  Targeted strictly to students enrolled in a single university or college hub
-                </p>
+                <p className="text-xs text-fg-muted leading-normal">Only students at the college you pick</p>
               </button>
             </div>
           </div>
@@ -396,11 +346,10 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
           {scope === "CAMPUS" && (
             <div className="space-y-1.5 animate-in fade-in-50 duration-150">
               <div className="flex items-center justify-between">
-                <label className="text-[11px] font-bold text-muted-foreground flex items-center gap-1.5">
-                  <Search className="size-3 text-primary" />
-                  <span>Target University / College Hub (Search all 1,350+)</span>
+                <label className="text-xs font-bold text-fg-muted flex items-center gap-1.5">
+                  <Search className="size-3 text-brand-text" />
+                  <span>College</span>
                 </label>
-                <span className="text-[10px] font-semibold text-primary">Live Database Search</span>
               </div>
               <CollegeCombobox
                 value={selectedInstitutionId}
@@ -410,13 +359,13 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                   setSelectedInstitutionId(id);
                   if (name) setSelectedInstitutionName(name);
                 }}
-                placeholder="Search by college name, city, state, or NIRF rank..."
+                placeholder="Search by college name, city or state"
               />
               {selectedInstitutionName && (
-                <div className="flex items-center gap-2 pt-1 text-[11px] text-muted-foreground">
+                <div className="flex items-center gap-2 pt-1 text-xs text-fg-muted">
                   <CheckCircle2 className="size-3 text-success" />
                   <span>
-                    Selected: <strong className="text-foreground">{selectedInstitutionName}</strong>
+                    Selected: <strong className="text-fg">{selectedInstitutionName}</strong>
                   </span>
                 </div>
               )}
@@ -425,9 +374,9 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
 
           {/* Priority & Style Selector */}
           <div className="space-y-2">
-            <label className="text-[11px] font-bold text-muted-foreground flex items-center gap-1.5">
+            <label className="text-xs font-bold text-fg-muted flex items-center gap-1.5">
               <Sparkles className="size-3.5 text-warning" />
-              <span>Announcement Priority &amp; Style Theme</span>
+              <span>Type</span>
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {(Object.keys(priorityConfig) as Array<keyof typeof priorityConfig>).map((key) => {
@@ -444,10 +393,10 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                       setPriority(key);
                     }}
                     className={cn(
-                      "px-3 py-2.5 rounded-xl text-xs font-bold border transition-colors cursor-pointer flex flex-col items-center gap-1 text-center",
+                      "px-3 py-2.5 rounded-lg text-xs font-bold border transition-colors cursor-pointer flex flex-col items-center gap-1 text-center",
                       isSelected
-                        ? `${conf.bg} ${conf.border} ${conf.text} shadow-xs ring-1 ring-primary/20`
-                        : "border-border/30 bg-muted/20 text-muted-foreground hover:text-foreground hover:bg-muted/40"
+                        ? `${conf.bg} ${conf.border} ${conf.text} ring-1 ring-ring`
+                        : "border-border bg-surface-muted text-fg-muted hover:text-fg hover:bg-surface-muted"
                     )}
                   >
                     <ItemIcon className="size-3.5" />
@@ -460,61 +409,68 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
 
           {/* Headline */}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-muted-foreground">
-              Headline / Announcement Title
+            <label htmlFor="broadcasts-c-headline" className="text-xs font-bold text-fg-muted">
+              Headline
             </label>
             <input
+              id="broadcasts-c-headline"
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. End Semester Exams Schedule Announced (Fall 2026)"
-              className="w-full h-11 px-3.5 rounded-xl bg-muted/30 border border-border/50 text-xs font-bold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:bg-background transition-colors"
+              placeholder="e.g. End-sem exam dates are out"
+              className={cn(fieldClassName, "w-full h-11")}
             />
           </div>
 
           {/* Message Body */}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-muted-foreground">
-              Detailed Announcement Body
+            <label htmlFor="broadcasts-c-message" className="text-xs font-bold text-fg-muted">
+              Message
             </label>
             <textarea
+              id="broadcasts-c-message"
               rows={4}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Write the full announcement body. Markdown links and bullet points are supported..."
-              className="w-full p-3.5 rounded-xl bg-muted/30 border border-border/50 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:bg-background transition-colors resize-none leading-relaxed"
+              placeholder="Write the notice. Links and bullet points work."
+              className={cn(fieldClassName, "w-full resize-none py-2.5")}
             />
           </div>
 
           {/* Call to Action (CTA) Optional */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
             <div className="space-y-1.5">
-              <label className="text-[11px] font-bold text-muted-foreground flex items-center justify-between">
-                <span>Action Button Label</span>
-                <span className="text-[10px] text-muted-foreground font-normal">Optional</span>
+              <label
+                htmlFor="broadcasts-c-button-label-optional-op"
+                className="text-xs font-bold text-fg-muted flex items-center justify-between"
+              >
+                <span>Button label (optional)</span>
+                <span className="text-xs text-fg-muted font-normal">Optional</span>
               </label>
               <input
+                id="broadcasts-c-button-label-optional-op"
                 type="text"
                 value={actionLabel}
                 onChange={(e) => setActionLabel(e.target.value)}
-                placeholder="e.g. View Exam Circular"
-                className="w-full h-10 px-3 rounded-xl bg-muted/30 border border-border/50 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:bg-background transition-colors"
+                placeholder="e.g. See the timetable"
+                className={cn(fieldClassName, "w-full h-11")}
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[11px] font-bold text-muted-foreground flex items-center justify-between">
-                <span>Action Destination URL</span>
-                <span className="text-[10px] text-muted-foreground font-normal">Optional</span>
+              <label className="text-xs font-bold text-fg-muted flex items-center justify-between">
+                <span>Button link</span>
+                <span className="text-xs text-fg-muted font-normal">Optional</span>
               </label>
               <div className="relative">
-                <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-3 text-muted-foreground" />
+                <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-3 text-fg-muted" />
                 <input
+                  aria-label="Button link"
                   type="url"
                   value={actionUrl}
                   onChange={(e) => setActionUrl(e.target.value)}
-                  placeholder="https://... or /colleges/..."
-                  className="w-full h-10 pl-8 pr-3 rounded-xl bg-muted/30 border border-border/50 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:bg-background transition-colors"
+                  placeholder="https://... or /colleges/"
+                  className={cn(fieldClassName, "w-full pl-8 pr-3 h-11")}
                 />
               </div>
             </div>
@@ -522,27 +478,29 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
 
           {/* Optional Banner Image URL */}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-muted-foreground flex items-center justify-between">
+            <label
+              htmlFor="broadcasts-c-image-link-optional-opti"
+              className="text-xs font-bold text-fg-muted flex items-center justify-between"
+            >
               <span className="flex items-center gap-1.5">
-                <ImageIcon className="size-3 text-primary" />
-                Banner Media Image URL
+                <ImageIcon className="size-3 text-brand-text" />
+                Image link (optional)
               </span>
-              <span className="text-[10px] text-muted-foreground font-normal">Optional</span>
+              <span className="text-xs text-fg-muted font-normal">Optional</span>
             </label>
             <input
+              id="broadcasts-c-image-link-optional-opti"
               type="url"
               value={bannerImageUrl}
               onChange={(e) => setBannerImageUrl(e.target.value)}
-              placeholder="https://images.unsplash.com/... or uploaded image URL"
-              className="w-full h-10 px-3 rounded-xl bg-muted/30 border border-border/50 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:bg-background transition-colors"
+              placeholder="https://"
+              className={cn(fieldClassName, "w-full h-11")}
             />
           </div>
 
           {/* Multi-Channel Distribution Options */}
-          <div className="p-4 rounded-2xl bg-muted/20 border border-border/40 space-y-3">
-            <p className="text-[11px] font-bold text-muted-foreground">
-              Delivery Channels
-            </p>
+          <div className="p-4 rounded-lg bg-surface-muted border border-border space-y-3">
+            <p className="text-xs font-bold text-fg-muted">Also</p>
             <div className="space-y-2">
               <label className="flex items-center gap-2.5 cursor-pointer select-none">
                 <input
@@ -551,9 +509,9 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                   onChange={(e) => setSendNotification(e.target.checked)}
                   className="size-4 rounded accent-primary cursor-pointer"
                 />
-                <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
-                  <Bell className="size-3.5 text-primary" />
-                  <span>Send in-app notification alerts to student inboxes</span>
+                <div className="flex items-center gap-2 text-xs font-semibold text-fg">
+                  <Bell className="size-3.5 text-brand-text" />
+                  <span>Send a notification to each student</span>
                 </div>
               </label>
 
@@ -564,9 +522,9 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                   onChange={(e) => setPinToTop(e.target.checked)}
                   className="size-4 rounded accent-primary cursor-pointer"
                 />
-                <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
+                <div className="flex items-center gap-2 text-xs font-semibold text-fg">
                   <Radio className="size-3.5 text-warning" />
-                  <span>Pin to top banner of the target campus feed</span>
+                  <span>Pin to the top of the feed</span>
                 </div>
               </label>
             </div>
@@ -577,81 +535,73 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
             type="button"
             disabled={isPublishing}
             onClick={handlePublish}
-            className="w-full h-12 rounded-2xl bg-foreground text-background text-xs font-bold flex items-center justify-center gap-2 hover:opacity-95 active:scale-[0.99] transition-colors cursor-pointer shadow-md disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className={cn(buttonVariants({ variant: "primary", size: "md" }), "w-full")}
           >
             <Send className={cn("size-4", isPublishing && "animate-spin")} />
-            <span>{isPublishing ? "Dispatching Broadcast to Students..." : "Publish Broadcast Now"}</span>
+            <span>{isPublishing ? "Sending" : "Send broadcast"}</span>
           </button>
         </div>
 
         {/* Live Multi-Surface Interactive Simulator (5 cols) */}
         <div className="lg:col-span-5 space-y-4">
-          <div className="p-5 rounded-3xl bg-card border border-border/50 shadow-xs space-y-4">
+          <div className="p-5 rounded-lg bg-surface border border-border space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-                  <Eye className="h-4 w-4 text-primary" />
-                  Multi-Surface Live Simulator
+                <h3 className="text-sm font-bold text-fg flex items-center gap-2">
+                  <Eye className="h-4 w-4 text-brand-text" />
+                  Preview
                 </h3>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
-                  Real-time preview across student devices
-                </p>
+                <p className="text-xs text-fg-muted mt-0.5">How students will see it</p>
               </div>
 
               {/* Surface Switcher Pills */}
-              <div className="flex items-center gap-1 rounded-xl bg-muted/40 p-1 border border-border/40">
-                <button
-                  type="button"
-                  title="Desktop Feed Preview"
+              <div className="flex items-center gap-1 rounded-lg bg-surface-muted p-1 border border-border">
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  title="Desktop preview"
+                  aria-label="Desktop preview"
+                  aria-pressed={previewSurface === "DESKTOP_FEED"}
                   onClick={() => setPreviewSurface("DESKTOP_FEED")}
-                  className={cn(
-                    "p-1.5 rounded-lg transition-colors cursor-pointer",
-                    previewSurface === "DESKTOP_FEED"
-                      ? "bg-card text-foreground shadow-2xs font-bold"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
+                  className={cn(previewSurface === "DESKTOP_FEED" && "bg-surface text-fg")}
                 >
-                  <Monitor className="size-3.5" />
-                </button>
-                <button
-                  type="button"
-                  title="Mobile Feed Card Preview"
+                  <Monitor aria-hidden />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  title="Phone preview"
+                  aria-label="Phone preview"
+                  aria-pressed={previewSurface === "MOBILE_CARD"}
                   onClick={() => setPreviewSurface("MOBILE_CARD")}
-                  className={cn(
-                    "p-1.5 rounded-lg transition-colors cursor-pointer",
-                    previewSurface === "MOBILE_CARD"
-                      ? "bg-card text-foreground shadow-2xs font-bold"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
+                  className={cn(previewSurface === "MOBILE_CARD" && "bg-surface text-fg")}
                 >
-                  <Smartphone className="size-3.5" />
-                </button>
-                <button
-                  type="button"
-                  title="Push Notification Preview"
+                  <Smartphone aria-hidden />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  title="Notification preview"
+                  aria-label="Notification preview"
+                  aria-pressed={previewSurface === "PUSH_NOTIFICATION"}
                   onClick={() => setPreviewSurface("PUSH_NOTIFICATION")}
-                  className={cn(
-                    "p-1.5 rounded-lg transition-colors cursor-pointer",
-                    previewSurface === "PUSH_NOTIFICATION"
-                      ? "bg-card text-foreground shadow-2xs font-bold"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
+                  className={cn(previewSurface === "PUSH_NOTIFICATION" && "bg-surface text-fg")}
                 >
-                  <Bell className="size-3.5" />
-                </button>
+                  <Bell aria-hidden />
+                </Button>
               </div>
             </div>
 
             {/* ─── Simulator Surface 1: Desktop Feed Banner ─── */}
             {previewSurface === "DESKTOP_FEED" && (
               <div className="space-y-2">
-                <div className="flex items-center justify-between text-[10px] font-bold text-muted-foreground px-1">
-                  <span>DESKTOP FEED TOP PIN</span>
+                <div className="flex items-center justify-between text-xs font-bold text-fg-muted px-1">
+                  <span>Pinned on desktop feed</span>
                   <span>100% Student Visibility</span>
                 </div>
                 <div
                   className={cn(
-                    "p-4 rounded-2xl border transition-colors space-y-3 shadow-xs",
+                    "p-4 rounded-lg border transition-colors space-y-3",
                     activeConfig.border,
                     activeConfig.bg
                   )}
@@ -659,22 +609,22 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                   <div className="flex items-center justify-between gap-2">
                     <span
                       className={cn(
-                        "text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1",
+                        "text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1",
                         activeConfig.text,
-                        "bg-background/80 border border-border/40"
+                        "bg-bg border border-border"
                       )}
                     >
                       <ActiveIcon className="size-2.5" />
                       {activeConfig.badge}
                     </span>
 
-                    <span className="text-[10px] font-semibold text-muted-foreground truncate">
+                    <span className="text-xs font-semibold text-fg-muted truncate">
                       {scope === "CAMPUS" ? selectedInstitutionName : "All India"}
                     </span>
                   </div>
 
                   {bannerImageUrl.trim() && (
-                    <div className="w-full h-32 rounded-xl overflow-hidden bg-muted/40 border border-border/40">
+                    <div className="w-full h-32 rounded-lg overflow-hidden bg-surface-muted border border-border">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={bannerImageUrl}
@@ -687,18 +637,18 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                     </div>
                   )}
 
-                  <h4 className="text-sm font-bold text-foreground leading-snug">
+                  <h4 className="text-sm font-bold text-fg leading-snug">
                     {title.trim() || "End Semester Exams Schedule Announced (Fall 2026)"}
                   </h4>
 
-                  <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                  <p className="text-xs text-fg-muted leading-relaxed whitespace-pre-wrap">
                     {message.trim() ||
                       "The official examination circular has been published by the academic board. Please review the timetable and report any timetable collisions by Friday."}
                   </p>
 
                   {actionLabel.trim() && (
                     <div className="pt-1">
-                      <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-foreground text-background text-xs font-bold shadow-2xs">
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-brand-fg text-xs font-bold ">
                         <span>{actionLabel.trim()}</span>
                         <ArrowRight className="size-3" />
                       </div>
@@ -710,13 +660,13 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
 
             {/* ─── Simulator Surface 2: Mobile Phone Feed Card ─── */}
             {previewSurface === "MOBILE_CARD" && (
-              <div className="mx-auto max-w-[280px] p-3 rounded-xl bg-surface border-4 border-border shadow-2xl space-y-3">
+              <div className="mx-auto max-w-[280px] p-3 rounded-xl bg-surface border-4 border-border shadow-lg space-y-3">
                 {/* Phone Notch */}
                 <div className="w-20 h-3.5 bg-surface-muted rounded-full mx-auto" />
 
                 <div
                   className={cn(
-                    "p-3 rounded-2xl border transition-colors space-y-2 shadow-xs",
+                    "p-3 rounded-lg border transition-colors space-y-2",
                     activeConfig.border,
                     activeConfig.bg
                   )}
@@ -724,21 +674,21 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                   <div className="flex items-center justify-between">
                     <span
                       className={cn(
-                        "text-[9px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-1",
+                        "text-xs font-bold px-1.5 py-0.5 rounded-full flex items-center gap-1",
                         activeConfig.text,
-                        "bg-background/80"
+                        "bg-bg"
                       )}
                     >
                       <ActiveIcon className="size-2" />
                       {activeConfig.label}
                     </span>
-                    <span className="text-[9px] text-muted-foreground truncate max-w-[120px]">
+                    <span className="text-xs text-fg-muted truncate max-w-[120px]">
                       {scope === "CAMPUS" ? selectedInstitutionName.split(",")[0] : "All India"}
                     </span>
                   </div>
 
                   {bannerImageUrl.trim() && (
-                    <div className="w-full h-24 rounded-lg overflow-hidden bg-muted/40">
+                    <div className="w-full h-24 rounded-lg overflow-hidden bg-surface-muted">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={bannerImageUrl}
@@ -748,18 +698,18 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                     </div>
                   )}
 
-                  <h5 className="text-xs font-bold text-foreground leading-snug">
+                  <h5 className="text-xs font-bold text-fg leading-snug">
                     {title.trim() || "Announcement Headline"}
                   </h5>
 
-                  <p className="text-[11px] text-muted-foreground line-clamp-3 leading-relaxed">
+                  <p className="text-xs text-fg-muted line-clamp-3 leading-relaxed">
                     {message.trim() ||
                       "Broadcast content displayed natively in the mobile campus timeline feed."}
                   </p>
 
                   {actionLabel.trim() && (
                     <div className="pt-0.5">
-                      <div className="w-full py-1.5 rounded-lg bg-foreground text-background text-[10px] font-bold text-center flex items-center justify-center gap-1">
+                      <div className="w-full py-1.5 rounded-lg bg-brand text-brand-fg text-xs font-bold text-center flex items-center justify-center gap-1">
                         <span>{actionLabel.trim()}</span>
                         <ArrowRight className="size-2.5" />
                       </div>
@@ -768,7 +718,7 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                 </div>
 
                 {/* Simulated Feed Items below */}
-                <div className="p-2.5 rounded-xl bg-surface border border-border space-y-1 opacity-60">
+                <div className="p-2.5 rounded-lg bg-surface border border-border space-y-1 opacity-60">
                   <div className="h-2 w-20 bg-surface-muted rounded-full" />
                   <div className="h-2 w-32 bg-surface-muted rounded-full" />
                 </div>
@@ -778,24 +728,22 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
             {/* ─── Simulator Surface 3: Push Notification ─── */}
             {previewSurface === "PUSH_NOTIFICATION" && (
               <div className="space-y-2">
-                <div className="flex items-center justify-between text-[10px] font-bold text-muted-foreground px-1">
-                  <span>MOBILE LOCKSCREEN PUSH ALERT</span>
-                  <span>Direct to Handset</span>
+                <div className="flex items-center justify-between text-xs font-bold text-fg-muted px-1">
+                  <span>Phone notification</span>
+                  <span>now</span>
                 </div>
-                <div className="p-3.5 rounded-2xl bg-card border border-border/60 shadow-lg space-y-2">
+                <div className="p-3.5 rounded-lg bg-surface border border-border shadow-lg space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
-                      <div className="size-5 rounded-lg bg-primary/20 flex items-center justify-center">
-                        <Radio className="size-3 text-primary" />
+                      <div className="size-5 rounded-lg bg-brand-subtle flex items-center justify-center">
+                        <Radio className="size-3 text-brand-text" />
                       </div>
-                      <span className="text-[11px] font-bold text-foreground">
-                        CampusLoop
-                      </span>
-                      <span className="text-[10px] text-muted-foreground">· now</span>
+                      <span className="text-xs font-bold text-fg">CampusLoop</span>
+                      <span className="text-xs text-fg-muted">· now</span>
                     </div>
                     <span
                       className={cn(
-                        "text-[9px] font-bold px-1.5 py-0.5 rounded",
+                        "text-xs font-bold px-1.5 py-0.5 rounded",
                         activeConfig.bg,
                         activeConfig.text
                       )}
@@ -804,11 +752,11 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                     </span>
                   </div>
 
-                  <p className="text-xs font-bold text-foreground leading-snug">
+                  <p className="text-xs font-bold text-fg leading-snug">
                     {title.trim() || "Announcement Title"}
                   </p>
 
-                  <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
+                  <p className="text-xs text-fg-muted line-clamp-2 leading-relaxed">
                     {message.trim() || "Tap to view circular details on CampusLoop."}
                   </p>
                 </div>
@@ -818,28 +766,29 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
         </div>
       </div>
 
-      {/* ─── Active Broadcast Management & Telemetry Matrix ─── */}
-      <section className="p-6 rounded-3xl bg-card border border-border/50 shadow-xs space-y-6">
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/40 pb-4">
+      {/* Sent broadcasts */}
+      <section className="p-6 rounded-lg bg-surface border border-border space-y-6">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-4">
           <div>
-            <h3 className="text-base font-bold text-foreground flex items-center gap-2">
-              <Radio className="h-4 w-4 text-primary" />
-              Active Broadcast Telemetry &amp; Archive Log
+            <h3 className="text-base font-bold text-fg flex items-center gap-2">
+              <Radio className="h-4 w-4 text-brand-text" />
+              Sent broadcasts
             </h3>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Monitor impressions, toggle active timeline banners, or retract broadcasts across campus hubs.
+            <p className="text-xs text-fg-muted mt-0.5">
+              Archive a broadcast to take it off the feed, or delete it.
             </p>
           </div>
 
           {/* Quick Search */}
           <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-fg-muted" />
             <input
+              aria-label="Search broadcasts"
               type="text"
-              placeholder="Search dispatched broadcasts..."
+              placeholder="Search broadcasts"
               value={tableSearch}
               onChange={(e) => setTableSearch(e.target.value)}
-              className="w-full h-9 pl-8 pr-3 rounded-xl bg-muted/30 border border-border/50 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-colors"
+              className={cn(fieldClassName, "w-full pl-8 pr-3 h-11")}
             />
           </div>
         </div>
@@ -847,59 +796,33 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
         {/* Filter Pills */}
         <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-1.5">
-            <span className="text-[11px] font-bold text-muted-foreground mr-1">
-              Scope:
-            </span>
+            <span className="text-xs font-bold text-fg-muted mr-1">Scope:</span>
             {(["ALL", "INDIA", "CAMPUS"] as const).map((sc) => (
-              <button
-                key={sc}
-                type="button"
-                onClick={() => setScopeFilter(sc)}
-                className={cn(
-                  "px-2.5 py-1 rounded-lg font-bold text-xs transition-colors cursor-pointer",
-                  scopeFilter === sc
-                    ? "bg-foreground text-background shadow-2xs"
-                    : "bg-muted/30 text-muted-foreground hover:text-foreground"
-                )}
-              >
-                {sc === "ALL" ? "All Scopes" : sc === "INDIA" ? "Pan-India" : "Campus Specific"}
-              </button>
+              <Chip size="sm" selected={scopeFilter === sc} key={sc} onClick={() => setScopeFilter(sc)}>
+                {sc === "ALL" ? "All" : sc === "INDIA" ? "Every college" : "One college"}
+              </Chip>
             ))}
           </div>
 
           <div className="flex items-center gap-1.5">
-            <span className="text-[11px] font-bold text-muted-foreground mr-1">
-              Status:
-            </span>
+            <span className="text-xs font-bold text-fg-muted mr-1">Status:</span>
             {(["ALL", "PUBLISHED", "ARCHIVED"] as const).map((st) => (
-              <button
-                key={st}
-                type="button"
-                onClick={() => setStatusFilter(st)}
-                className={cn(
-                  "px-2.5 py-1 rounded-lg font-bold text-xs transition-colors cursor-pointer",
-                  statusFilter === st
-                    ? "bg-foreground text-background shadow-2xs"
-                    : "bg-muted/30 text-muted-foreground hover:text-foreground"
-                )}
-              >
-                {st === "ALL" ? "All Statuses" : st === "PUBLISHED" ? "Active" : "Archived"}
-              </button>
+              <Chip size="sm" selected={statusFilter === st} key={st} onClick={() => setStatusFilter(st)}>
+                {st === "ALL" ? "All" : st === "PUBLISHED" ? "Active" : "Archived"}
+              </Chip>
             ))}
           </div>
         </div>
 
         {/* Broadcast Table / Cards */}
         {filteredBroadcasts.length === 0 ? (
-          <div className="py-12 text-center rounded-2xl bg-muted/10 border border-border/30 space-y-2">
-            <Megaphone className="size-8 text-muted-foreground/40 mx-auto" />
-            <p className="text-xs font-bold text-foreground">No broadcasts match the selected filters.</p>
-            <p className="text-[11px] text-muted-foreground">
-              Try adjusting your search query or scope filter.
-            </p>
+          <div className="py-12 text-center rounded-lg bg-surface-muted border border-border space-y-2">
+            <Megaphone className="size-8 text-fg-subtle mx-auto" />
+            <p className="text-xs font-bold text-fg">No broadcasts match.</p>
+            <p className="text-xs text-fg-muted">Try another search or filter.</p>
           </div>
         ) : (
-          <div className="divide-y divide-border/30 rounded-2xl border border-border/40 overflow-hidden bg-surface">
+          <div className="divide-y divide-border rounded-lg border border-border overflow-hidden bg-surface">
             {filteredBroadcasts.map((item) => {
               const isArchived = item.status === "ARCHIVED";
               const isRetracting = isRetractingId === item.id;
@@ -909,66 +832,68 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                 <div
                   key={item.id}
                   className={cn(
-                    "p-4 transition-colors hover:bg-muted/20 flex flex-col md:flex-row md:items-center justify-between gap-4",
-                    isArchived && "opacity-60 bg-muted/10"
+                    "p-4 transition-colors hover:bg-surface-muted flex flex-col md:flex-row md:items-center justify-between gap-4",
+                    isArchived && "opacity-60 bg-surface-muted"
                   )}
                 >
                   <div className="space-y-1.5 min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span
                         className={cn(
-                          "px-2 py-0.5 rounded-full text-[10px] font-bold",
+                          "px-2 py-0.5 rounded-full text-xs font-bold",
                           isArchived
-                            ? "bg-muted text-muted-foreground"
+                            ? "bg-surface-muted text-fg-muted"
                             : "bg-success-subtle text-success border border-success/30"
                         )}
                       >
                         {isArchived ? "Archived / Retracted" : "Live Pinned"}
                       </span>
 
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20">
-                        {item.scope === "INDIA" ? "Pan-India" : "Campus Specific"}
+                      <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-brand-subtle text-brand-text border border-brand-subtle-border">
+                        {item.scope === "INDIA" ? "Every college" : "One college"}
                       </span>
 
-                      <span className="text-[11px] font-semibold text-muted-foreground truncate">
+                      <span className="text-xs font-semibold text-fg-muted truncate">
                         {item.institutionName || "All Campuses"}
                       </span>
 
                       {item.createdAt && (
-                        <span className="text-[10px] text-muted-foreground">
+                        <span className="text-xs text-fg-muted">
                           · {new Date(item.createdAt).toLocaleDateString()}
                         </span>
                       )}
                     </div>
 
-                    <h4 className="text-sm font-bold text-foreground truncate">
+                    <h4 className="text-sm font-bold text-fg truncate">
                       {item.title || "Untitled Announcement"}
                     </h4>
 
-                    <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                      {item.body.replace(/\*\*|!\[\]\(.*?\)|👉.*$/g, "").trim()}
+                    <p className="text-xs text-fg-muted line-clamp-2 leading-relaxed">
+                      {item.body.replace(/\*\*|!\[\]\(.*?\)|\u{1F449}.*$/gu, "").trim()}
                     </p>
                   </div>
 
                   {/* Actions Column */}
                   <div className="flex items-center gap-1.5 shrink-0 self-end md:self-center">
-                    <button
-                      type="button"
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
                       onClick={() => handleCopyShareLink(item.id)}
-                      className="p-2 rounded-xl bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                      title="Copy Share Link"
+                      title="Copy link"
+                      aria-label="Copy link"
                     >
-                      <Copy className="size-3.5" />
-                    </button>
+                      <Copy aria-hidden />
+                    </Button>
 
                     <a
                       href={`/post/${item.id}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-2 rounded-xl bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                      title="Open Broadcast Post"
+                      className={buttonVariants({ variant: "ghost", size: "icon-sm" })}
+                      title="Open post"
+                      aria-label="Open post in a new tab"
                     >
-                      <ExternalLink className="size-3.5" />
+                      <ExternalLink aria-hidden />
                     </a>
 
                     <button
@@ -976,7 +901,7 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                       disabled={isRetracting}
                       onClick={() => handleToggleStatus(item)}
                       className={cn(
-                        "px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 border",
+                        "px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 border",
                         isArchived
                           ? "border-success/30 bg-success-subtle text-success hover:bg-success-subtle"
                           : "border-warning/30 bg-warning-subtle text-warning hover:bg-warning-subtle"
@@ -990,15 +915,17 @@ export function BroadcastsClient({ institutions, recentBroadcasts }: BroadcastsC
                       <span>{isArchived ? "Republish" : "Retract"}</span>
                     </button>
 
-                    <button
-                      type="button"
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
                       disabled={isDeleting}
                       onClick={() => handleDelete(item.id)}
-                      className="p-2 rounded-xl bg-danger-subtle hover:bg-danger-subtle text-danger border border-danger/30 transition-colors cursor-pointer"
-                      title="Delete Broadcast"
+                      title="Delete broadcast"
+                      aria-label="Delete broadcast"
+                      className="text-danger hover:bg-danger-subtle"
                     >
-                      <Trash2 className="size-3.5" />
-                    </button>
+                      <Trash2 aria-hidden />
+                    </Button>
                   </div>
                 </div>
               );

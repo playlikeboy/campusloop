@@ -1,22 +1,27 @@
 "use client";
 
-import {
-  Gamepad2,
-  Headphones,
-  Laptop,
-  Loader2,
-  Lock,
-  Plus,
-  Save,
-  Shield,
-  Smartphone,
-  Trash2,
-  Tv,
-  X,
-} from "lucide-react";
+import { Laptop, Plus, Smartphone, Trash2, Tv } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Chip } from "@/components/ui/chip";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { fieldClassName, Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+
+const selectClass = cn(fieldClassName, "h-11");
+
+const PLATFORMS = [
+  { id: "PC", label: "PC", icon: Laptop },
+  { id: "MOBILE", label: "Phone", icon: Smartphone },
+  { id: "PLAYSTATION", label: "PlayStation", icon: Tv },
+  { id: "XBOX", label: "Xbox", icon: Tv },
+];
 
 interface GamerProfileDialogProps {
   open: boolean;
@@ -24,11 +29,7 @@ interface GamerProfileDialogProps {
   onSaved?: () => void;
 }
 
-export function GamerProfileDialog({
-  open,
-  onOpenChange,
-  onSaved,
-}: GamerProfileDialogProps) {
+export function GamerProfileDialog({ open, onOpenChange, onSaved }: GamerProfileDialogProps) {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -69,8 +70,8 @@ export function GamerProfileDialog({
           setGames(p.games || []);
         }
       })
-      .catch((err) => {
-        console.error("Failed to load gamer profile:", err);
+      .catch(() => {
+        toast.error("Couldn't load your gamer card. You can still fill it in.");
       })
       .finally(() => setLoading(false));
   }, [open]);
@@ -85,7 +86,7 @@ export function GamerProfileDialog({
 
   function handleAddGame() {
     if (games.length >= 8) {
-      toast.info("Maximum 8 games can be listed");
+      toast.info("You can add up to 8 games.");
       return;
     }
     setGames([
@@ -130,14 +131,14 @@ export function GamerProfileDialog({
         }),
       });
 
-      const data = (await res.json()) as any;
-      if (!res.ok) throw new Error(data.error || "Failed to save profile");
+      const data = (await res.json().catch(() => ({}))) as any;
+      if (!res.ok) throw new Error(data.error || "Couldn't save your gamer card. Try again.");
 
-      toast.success("Gamer Card updated!");
+      toast.success("Gamer card saved.");
       onSaved?.();
       onOpenChange(false);
-    } catch (err: any) {
-      toast.error(err.message || "Failed to save");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't save your gamer card. Try again.");
     } finally {
       setSaving(false);
     }
@@ -145,265 +146,183 @@ export function GamerProfileDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[88vh] overflow-y-auto rounded-3xl p-6 bg-card border-border">
+      <DialogContent className="max-h-[90dvh] max-w-lg overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-lg font-black tracking-tight text-foreground flex items-center gap-2">
-            <Gamepad2 className="size-5 text-primary" />
-            <span>Customize Your Gamer Card</span>
-          </DialogTitle>
+          <DialogTitle>Your gamer card</DialogTitle>
+          <DialogDescription>This is what other players see when they look for teammates.</DialogDescription>
         </DialogHeader>
 
         {loading ? (
-          <div className="flex h-48 items-center justify-center gap-2 text-sm text-muted-foreground">
-            <Loader2 className="size-4 animate-spin text-primary" />
-            Loading profile...
+          <div className="space-y-3" role="status" aria-label="Loading your gamer card">
+            <Skeleton className="h-14 w-full rounded-md" />
+            <Skeleton className="h-11 w-full rounded-md" />
+            <Skeleton className="h-11 w-full rounded-md" />
           </div>
         ) : (
-          <div className="space-y-4 pt-2">
-            {/* Looking for Team Status Toggle */}
-            <div className="flex items-center justify-between p-3.5 rounded-2xl bg-muted/30 border border-border/50">
-              <div>
-                <p className="text-xs font-bold text-foreground">Looking For Team (LFT)</p>
-                <p className="text-[11px] text-muted-foreground">
-                  Show your card in the campus Teammates directory
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsLookingForTeam(!isLookingForTeam)}
-                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  isLookingForTeam ? "bg-primary" : "bg-muted"
-                }`}
-              >
-                <span
-                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-background shadow ring-0 transition duration-200 ease-in-out ${
-                    isLookingForTeam ? "translate-x-5" : "translate-x-0"
-                  }`}
-                />
-              </button>
-            </div>
+          <div className="space-y-5">
+            <label className="flex cursor-pointer items-center justify-between gap-4 rounded-md border border-border p-4">
+              <span>
+                <span className="block font-semibold text-fg">Looking for a team</span>
+                <span className="block text-sm text-fg-muted">Show me in Find teammates</span>
+              </span>
+              <Switch checked={isLookingForTeam} onCheckedChange={setIsLookingForTeam} />
+            </label>
 
-            {/* Primary Game & Play Style */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs font-bold text-foreground block mb-1">
-                  Primary Game
-                </label>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="g-main">Main game</Label>
                 <select
+                  id="g-main"
                   value={primaryGame}
                   onChange={(e) => setPrimaryGame(e.target.value)}
-                  className="w-full h-10 rounded-xl border border-border bg-background px-3 text-xs font-semibold text-foreground outline-none focus:ring-2 focus:ring-primary/30"
+                  className={selectClass}
                 >
                   <option value="Valorant">Valorant</option>
-                  <option value="BGMI">BGMI / PUBG</option>
+                  <option value="BGMI">BGMI</option>
                   <option value="Chess">Chess</option>
-                  <option value="EA FC">EA FC / FIFA</option>
+                  <option value="EA FC">EA FC</option>
                   <option value="CS2">Counter-Strike 2</option>
                   <option value="Dota 2">Dota 2</option>
                   <option value="Rocket League">Rocket League</option>
-                  <option value="Other">Other Game</option>
+                  <option value="Other">Something else</option>
                 </select>
               </div>
-
-              <div>
-                <label className="text-xs font-bold text-foreground block mb-1">
-                  Play Style
-                </label>
+              <div className="space-y-1.5">
+                <Label htmlFor="g-style">How you play</Label>
                 <select
+                  id="g-style"
                   value={playStyle}
                   onChange={(e) => setPlayStyle(e.target.value)}
-                  className="w-full h-10 rounded-xl border border-border bg-background px-3 text-xs font-semibold text-foreground outline-none focus:ring-2 focus:ring-primary/30"
+                  className={selectClass}
                 >
-                  <option value="BOTH">Competitive & Casual</option>
-                  <option value="COMPETITIVE">Competitive / Scrims</option>
-                  <option value="CASUAL">Casual / Relaxed</option>
+                  <option value="BOTH">Ranked and casual</option>
+                  <option value="COMPETITIVE">Competitive</option>
+                  <option value="CASUAL">Casual</option>
                 </select>
               </div>
-            </div>
-
-            {/* Platforms Selection */}
-            <div>
-              <label className="text-xs font-bold text-foreground block mb-1.5">
-                Platforms You Play On
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  { id: "PC", label: "PC", icon: Laptop },
-                  { id: "MOBILE", label: "Mobile", icon: Smartphone },
-                  { id: "PLAYSTATION", label: "PlayStation", icon: Tv },
-                  { id: "XBOX", label: "Xbox", icon: Tv },
-                ].map(({ id, label, icon: Icon }) => {
-                  const active = platforms.includes(id);
-                  return (
-                    <button
-                      key={id}
-                      type="button"
-                      onClick={() => handleTogglePlatform(id)}
-                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition ${
-                        active
-                          ? "bg-primary/10 text-primary border-primary/30"
-                          : "bg-muted/30 text-muted-foreground border-border/50 hover:bg-muted/60"
-                      }`}
-                    >
-                      <Icon className="size-3.5" />
-                      <span>{label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Availability & Voice Preference */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs font-bold text-foreground block mb-1">
-                  Best Play Times
-                </label>
+              <div className="space-y-1.5">
+                <Label htmlFor="g-time">When you play</Label>
                 <select
+                  id="g-time"
                   value={preferredAvailability}
                   onChange={(e) => setPreferredAvailability(e.target.value)}
-                  className="w-full h-10 rounded-xl border border-border bg-background px-3 text-xs font-semibold text-foreground outline-none focus:ring-2 focus:ring-primary/30"
+                  className={selectClass}
                 >
-                  <option value="EVENING">Evenings (6 PM - 10 PM)</option>
-                  <option value="LATE_NIGHT">Late Night (10 PM+)</option>
-                  <option value="WEEKENDS">Weekends Only</option>
-                  <option value="FLEXIBLE">Flexible Times</option>
+                  <option value="EVENING">Evenings (6 to 10 pm)</option>
+                  <option value="LATE_NIGHT">Late night (after 10 pm)</option>
+                  <option value="WEEKENDS">Weekends</option>
+                  <option value="FLEXIBLE">Any time</option>
                 </select>
               </div>
-
-              <div>
-                <label className="text-xs font-bold text-foreground block mb-1">
-                  Voice Comms
-                </label>
+              <div className="space-y-1.5">
+                <Label htmlFor="g-voice">Voice chat</Label>
                 <select
+                  id="g-voice"
                   value={voicePreference}
                   onChange={(e) => setVoicePreference(e.target.value)}
-                  className="w-full h-10 rounded-xl border border-border bg-background px-3 text-xs font-semibold text-foreground outline-none focus:ring-2 focus:ring-primary/30"
+                  className={selectClass}
                 >
-                  <option value="DISCORD">Discord Voice</option>
-                  <option value="IN_GAME">In-game Comms Only</option>
-                  <option value="LISTEN_ONLY">Listen Only (No Mic)</option>
-                  <option value="NO_VOICE">No Voice (Text Comms)</option>
+                  <option value="DISCORD">Discord</option>
+                  <option value="IN_GAME">In-game voice</option>
+                  <option value="LISTEN_ONLY">I listen, no mic</option>
+                  <option value="NO_VOICE">Text only</option>
                 </select>
               </div>
             </div>
 
-            {/* Bio / Play Note */}
-            <div>
-              <label className="text-xs font-bold text-foreground block mb-1">
-                Gamer Bio & Preferred Agents / Roles
-              </label>
-              <textarea
+            <fieldset className="space-y-2">
+              <legend className="mb-1 text-sm font-semibold text-fg">Where you play</legend>
+              <div className="flex flex-wrap gap-2">
+                {PLATFORMS.map(({ id, label, icon: Icon }) => (
+                  <Chip
+                    key={id}
+                    selected={platforms.includes(id)}
+                    onClick={() => handleTogglePlatform(id)}
+                    icon={<Icon />}
+                  >
+                    {label}
+                  </Chip>
+                ))}
+              </div>
+            </fieldset>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="g-bio">About you (optional)</Label>
+              <Textarea
+                id="g-bio"
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                placeholder="e.g. Sova / Fade main on Ascent. Looking for regular 5-stack for inter-college cups."
+                placeholder="e.g. Sova main. Want a regular 5-stack for weekend games."
                 rows={2}
-                className="w-full rounded-xl border border-border bg-background p-2.5 text-xs text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
 
-            {/* In-Game Handles List */}
-            <div className="space-y-2 pt-1">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-bold text-foreground">
-                  In-Game Tags & Ranks
-                </label>
-                <button
-                  type="button"
-                  onClick={handleAddGame}
-                  className="inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:underline"
-                >
-                  <Plus className="size-3" />
-                  <span>Add Game Handle</span>
-                </button>
+            <fieldset className="space-y-3">
+              <div className="flex items-center justify-between gap-2">
+                <legend className="text-sm font-semibold text-fg">Game IDs and ranks</legend>
+                <Button type="button" variant="secondary" size="sm" onClick={handleAddGame}>
+                  <Plus aria-hidden /> Add game
+                </Button>
               </div>
-
               {games.length === 0 ? (
-                <p className="text-[11px] text-muted-foreground italic">
-                  No specific game handles added yet. Click &quot;Add Game Handle&quot; to list your Riot ID, Chess username, etc.
+                <p className="text-sm text-fg-muted">
+                  Add your Riot ID, BGMI ID or chess username so people can find you.
                 </p>
               ) : (
-                <div className="space-y-2">
-                  {games.map((g, idx) => (
-                    <div
-                      key={idx}
-                      className="p-2.5 rounded-xl border border-border/60 bg-muted/20 space-y-2"
-                    >
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="text"
-                          value={g.gameName}
-                          onChange={(e) => handleGameChange(idx, "gameName", e.target.value)}
-                          placeholder="Game"
-                          className="h-8 w-28 rounded-lg border border-border bg-background px-2 text-xs font-semibold"
-                        />
-                        <input
-                          type="text"
-                          value={g.gamerTag}
-                          onChange={(e) => handleGameChange(idx, "gamerTag", e.target.value)}
-                          placeholder="Riot/Gamer ID #tag"
-                          className="h-8 flex-1 rounded-lg border border-border bg-background px-2 text-xs font-semibold"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveGame(idx)}
-                          className="size-7 rounded-lg text-muted-foreground hover:text-danger flex items-center justify-center transition"
-                        >
-                          <Trash2 className="size-3.5" />
-                        </button>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2">
-                        <input
-                          type="text"
-                          value={g.rankTier || ""}
-                          onChange={(e) => handleGameChange(idx, "rankTier", e.target.value)}
-                          placeholder="Rank (e.g. Diamond 2)"
-                          className="h-8 rounded-lg border border-border bg-background px-2 text-xs"
-                        />
-                        <input
-                          type="text"
-                          value={g.role || ""}
-                          onChange={(e) => handleGameChange(idx, "role", e.target.value)}
-                          placeholder="Role (e.g. Controller)"
-                          className="h-8 rounded-lg border border-border bg-background px-2 text-xs"
-                        />
-                      </div>
+                games.map((g, idx) => (
+                  <div key={idx} className="space-y-2 border-t border-border pt-3 first-of-type:border-t-0">
+                    <div className="flex items-center gap-2">
+                      <Input
+                        aria-label={`Game ${idx + 1} name`}
+                        value={g.gameName}
+                        onChange={(e) => handleGameChange(idx, "gameName", e.target.value)}
+                        placeholder="Game"
+                        className="w-32"
+                      />
+                      <Input
+                        aria-label={`Game ${idx + 1} player ID`}
+                        value={g.gamerTag}
+                        onChange={(e) => handleGameChange(idx, "gamerTag", e.target.value)}
+                        placeholder="Player ID, e.g. name#tag"
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleRemoveGame(idx)}
+                        aria-label={`Remove game ${idx + 1}`}
+                      >
+                        <Trash2 />
+                      </Button>
                     </div>
-                  ))}
-                </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input
+                        aria-label={`Game ${idx + 1} rank`}
+                        value={g.rankTier || ""}
+                        onChange={(e) => handleGameChange(idx, "rankTier", e.target.value)}
+                        placeholder="Rank, e.g. Diamond 2"
+                      />
+                      <Input
+                        aria-label={`Game ${idx + 1} role`}
+                        value={g.role || ""}
+                        onChange={(e) => handleGameChange(idx, "role", e.target.value)}
+                        placeholder="Role, e.g. Controller"
+                      />
+                    </div>
+                  </div>
+                ))
               )}
-            </div>
+            </fieldset>
 
-            {/* Public Handle Privacy Option */}
-            <div className="flex items-center justify-between pt-1">
-              <label className="text-[11px] text-muted-foreground flex items-center gap-1.5 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={isHandlePublic}
-                  onChange={(e) => setIsHandlePublic(e.target.checked)}
-                  className="rounded border-border text-primary focus:ring-primary"
-                />
-                <span>Display in-game tags publicly to fellow campus students</span>
-              </label>
-            </div>
+            <label className="flex cursor-pointer items-center gap-3 text-sm text-fg">
+              <Checkbox checked={isHandlePublic} onCheckedChange={(v) => setIsHandlePublic(Boolean(v))} />
+              Show my game IDs to other students
+            </label>
 
-            {/* Save Button */}
-            <div className="pt-2">
-              <button
-                type="button"
-                disabled={saving}
-                onClick={handleSave}
-                className="w-full inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-primary text-xs font-bold text-primary-foreground shadow-sm hover:bg-primary/90 transition active:scale-98 disabled:opacity-50"
-              >
-                {saving ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <Save className="size-4" />
-                )}
-                <span>Save Gamer Card</span>
-              </button>
-            </div>
+            <Button onClick={handleSave} loading={saving} className="w-full">
+              Save gamer card
+            </Button>
           </div>
         )}
       </DialogContent>

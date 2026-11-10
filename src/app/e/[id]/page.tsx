@@ -3,48 +3,49 @@ import type { Metadata } from "next";
 import EventDetailPage from "@/app/(app)/(events)/events/[id]/page";
 import { getDb } from "@/db";
 import { events } from "@/db/schema";
+import { buildMetadata } from "@/lib/seo";
 
 interface EventShortLinkProps {
   params: Promise<{ id: string }>;
 }
 
+function shortDescription(text: string | null | undefined, fallback: string) {
+  const clean = (text ?? "").replace(/\s+/g, " ").trim();
+  if (!clean) return fallback;
+  return clean.length > 160 ? `${clean.slice(0, 157).trimEnd()}…` : clean;
+}
+
 export async function generateMetadata({ params }: EventShortLinkProps): Promise<Metadata> {
   const { id } = await params;
-  const db = getDb();
-  const event = await db.query.events.findFirst({
-    where: or(eq(events.id, id), eq(events.slug, id)),
-    with: { institution: true },
-  });
 
-  if (!event) {
-    return { title: "Event" };
+  try {
+    const event = await getDb().query.events.findFirst({
+      where: or(eq(events.id, id), eq(events.slug, id)),
+      with: { institution: true },
+    });
+
+    if (event) {
+      const where = event.institution?.name ? ` at ${event.institution.name.split(",")[0]}` : "";
+      return buildMetadata({
+        title: event.title,
+        description: shortDescription(
+          event.description,
+          `${event.title}${where}. See the date, venue and how to join.`
+        ),
+        path: `/e/${id}`,
+        image: event.bannerUrl ?? undefined,
+      });
+    }
+  } catch {
+    // Fall through to the generic event metadata below.
   }
 
-  // The root layout's title template already appends "".
-  const title = event.title;
-  const description = event.description.slice(0, 160);
-  const url = `https://campusloop.space/e/${id}`;
-
-  return {
-    title,
-    description,
-    alternates: { canonical: url },
-    robots: { index: true, follow: true },
-    openGraph: {
-      title,
-      description,
-      url,
-      images: event.bannerUrl
-        ? [{ url: event.bannerUrl }]
-        : [{ url: "https://campusloop.space/og-image.png" }],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: event.bannerUrl ? [event.bannerUrl] : ["https://campusloop.space/og-image.png"],
-    },
-  };
+  return buildMetadata({
+    title: "Event",
+    description: "See the date, venue and how to join this college event on CampusLoop.",
+    path: `/e/${id}`,
+    noindex: true,
+  });
 }
 
 /**

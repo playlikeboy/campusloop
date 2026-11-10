@@ -50,7 +50,7 @@ export function ArticleEmbed({ slug }: ArticleEmbedProps) {
 
   if (isLoading) {
     return (
-      <div className="mt-2.5 p-3 rounded-2xl border border-border/40 bg-card/60 animate-pulse flex items-center gap-3">
+      <div className="mt-2.5 p-3 rounded-2xl border border-border bg-card animate-pulse flex items-center gap-3">
         <div className="size-12 rounded-xl bg-muted/60" />
         <div className="space-y-1.5 flex-1">
           <div className="h-3.5 bg-muted/60 rounded-md w-3/4" />
@@ -94,7 +94,7 @@ export function ArticleEmbed({ slug }: ArticleEmbedProps) {
       // Revert optimistic
       setVoted(!nextVote);
       setUpvotesCount((prev) => (prev !== null ? prev : article.upvotesCount));
-      toast.error("Failed to update vote");
+      toast.error("Couldn't save your vote. Try again.");
     } finally {
       setIsVoting(false);
     }
@@ -106,18 +106,18 @@ export function ArticleEmbed({ slug }: ArticleEmbedProps) {
     <Link
       href={`/articles/${article.slug}`}
       onClick={(e) => e.stopPropagation()}
-      className="mt-2.5 block overflow-hidden rounded-2xl border border-border/40 bg-card hover:bg-muted/15 transition-colors shadow-xs group"
+      className="mt-2.5 block overflow-hidden rounded-2xl border border-border bg-card hover:bg-muted/15 transition-colors shadow-xs group"
     >
       {article.coverImageUrl && (
         <div className="relative aspect-24/10 w-full overflow-hidden bg-muted/30">
           <img
             src={article.coverImageUrl}
             alt={article.title}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-103"
+            className="h-full w-full object-cover transition-transform duration-300"
             loading="lazy"
           />
           <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
-            <span className="rounded-md bg-black/75 px-2 py-0.5 text-[10px] font-black uppercase text-white backdrop-blur-md flex items-center gap-1">
+            <span className="rounded-md bg-black/75 px-2 py-0.5 text-xs font-semibold text-white flex items-center gap-1">
               <BookOpen className="size-3 text-brand-text" />
               {article.category.replace(/_/g, " ")}
             </span>
@@ -128,36 +128,34 @@ export function ArticleEmbed({ slug }: ArticleEmbedProps) {
       <div className="p-3.5 space-y-2">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5 min-w-0">
-            <Avatar className="size-5 shrink-0 border border-border/40">
+            <Avatar className="size-5 shrink-0 border border-border">
               <AvatarImage src={authorAvatar} alt={article.author.displayName} />
-              <AvatarFallback className="text-[10px] font-bold">
-                {article.author.displayName[0]}
-              </AvatarFallback>
+              <AvatarFallback className="text-xs font-bold">{article.author.displayName[0]}</AvatarFallback>
             </Avatar>
-            <span className="text-[11px] font-bold text-foreground/80 truncate">
+            <span className="text-xs font-bold text-foreground/80 truncate">
               {article.author.displayName}
             </span>
-            <span className="text-[10px] text-muted-foreground truncate">@{article.author.username}</span>
+            <span className="text-xs text-muted-foreground truncate">@{article.author.username}</span>
           </div>
 
-          <div className="flex items-center gap-1 text-[11px] font-bold text-muted-foreground shrink-0">
+          <div className="flex items-center gap-1 text-xs font-bold text-muted-foreground shrink-0">
             <Clock className="size-3 text-muted-foreground" />
             <span>{article.readingTimeMinutes} min read</span>
           </div>
         </div>
 
         <div>
-          <h4 className="font-black text-sm text-foreground group-hover:underline line-clamp-1">
+          <h4 className="font-bold text-sm text-foreground group-hover:underline line-clamp-1">
             {article.title}
           </h4>
           {(article.subtitle || article.excerpt) && (
-            <p className="text-[11px] text-muted-foreground line-clamp-2 mt-0.5 font-medium leading-relaxed">
+            <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5 font-medium leading-relaxed">
               {article.subtitle || article.excerpt}
             </p>
           )}
         </div>
 
-        <div className="flex items-center justify-between gap-3 pt-1.5 border-t border-border/30">
+        <div className="flex items-center justify-between gap-3 pt-1.5 border-t border-border">
           <Button
             size="sm"
             variant="ghost"
@@ -173,8 +171,8 @@ export function ArticleEmbed({ slug }: ArticleEmbedProps) {
             <span>{currentVotes}</span>
           </Button>
 
-          <span className="inline-flex items-center gap-1 text-xs font-black text-primary group-hover:translate-x-0.5 transition-transform">
-            <span>Read Article</span>
+          <span className="inline-flex items-center gap-1 text-xs font-bold text-primary group-hover:translate-x-0.5 transition-transform">
+            <span>Read article</span>
             <ArrowRight className="size-3.5" />
           </span>
         </div>

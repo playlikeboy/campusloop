@@ -7,7 +7,7 @@ export const DEMO_CREDENTIALS = {
   email: "demo@campusloop.space",
   password: "CampusLoop@2026!",
   username: "demo_tester",
-  displayName: "CampusLoop Demo 🚀",
+  displayName: "CampusLoop Demo",
   officialName: "CampusLoop Public Demo Student",
   institutionSlug: "bitmesra",
   institutionName: "Birla Institute of Technology, Mesra",

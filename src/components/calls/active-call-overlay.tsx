@@ -1,13 +1,16 @@
 "use client";
 
-import { Camera, CameraOff, Mic, MicOff, PhoneOff, RefreshCw, ShieldAlert, ShieldCheck } from "lucide-react";
+import { CameraOff, ShieldAlert } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { CallEngine, type CallState } from "@/lib/calls/call-engine";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn } from "@/lib/utils";
+import { CallControls } from "./call-controls";
 
 interface ActiveCallOverlayProps {
   callId: string;
@@ -23,6 +26,25 @@ interface ActiveCallOverlayProps {
   onCallEnded: () => void;
 }
 
+const STATE_LABEL: Record<CallState, string> = {
+  IDLE: "Starting…",
+  CALLING: "Calling…",
+  RINGING: "Ringing…",
+  ACCEPTED: "Connecting…",
+  CONNECTING: "Connecting…",
+  CONNECTED: "",
+  RECONNECTING: "Reconnecting…",
+  ENDED: "Call ended",
+  FAILED: "Call failed",
+};
+
+function formatSeconds(secs: number) {
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+}
+
+/** Full-screen call in the night palette: remote video (or avatar), self view, timer, controls. */
 export function ActiveCallOverlay({
   callId,
   isCaller,
@@ -32,140 +54,115 @@ export function ActiveCallOverlay({
   onCallEnded,
 }: ActiveCallOverlayProps) {
   const [callState, setCallState] = useState<CallState>("CONNECTING");
-  const [isMicMuted, setIsMicMuted] = useState(false);
-  const [isCameraOff, setIsCameraOff] = useState(type === "audio");
-  const [callDuration, setCallDuration] = useState(0);
-  const [showReportModal, setShowReportModal] = useState(false);
+  const [micMuted, setMicMuted] = useState(false);
+  const [cameraOff, setCameraOff] = useState(type === "audio");
+  const [duration, setDuration] = useState(0);
+  const [safetyOpen, setSafetyOpen] = useState(false);
 
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
   const engineRef = useRef<CallEngine | null>(null);
-
-  // Call duration counter
+  // The parent re-renders while it polls; keep the latest callback without restarting the call.
+  const onEndedRef = useRef(onCallEnded);
   useEffect(() => {
-    let interval: any;
-    if (callState === "CONNECTED") {
-      interval = setInterval(() => {
-        setCallDuration((prev) => prev + 1);
-      }, 1000);
-    }
+    onEndedRef.current = onCallEnded;
+  }, [onCallEnded]);
+
+  useEffect(() => {
+    if (callState !== "CONNECTED") return;
+    const interval = setInterval(() => setDuration((d) => d + 1), 1000);
     return () => clearInterval(interval);
   }, [callState]);
 
-  function formatSeconds(secs: number) {
-    const m = Math.floor(secs / 60);
-    const s = secs % 60;
-    return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
-  }
-
-  // Initialize CallEngine & PeerJS
   useEffect(() => {
+    let pollTimer: ReturnType<typeof setInterval> | null = null;
     const engine = new CallEngine({
       onStateChange: (state, err) => {
         setCallState(state);
         if (err) toast.error(err);
       },
       onLocalStream: (stream) => {
-        if (localVideoRef.current) {
-          localVideoRef.current.srcObject = stream;
-        }
+        if (localVideoRef.current) localVideoRef.current.srcObject = stream;
       },
       onRemoteStream: (stream) => {
-        if (remoteVideoRef.current) {
-          remoteVideoRef.current.srcObject = stream;
-        }
+        if (remoteVideoRef.current) remoteVideoRef.current.srcObject = stream;
       },
       onClose: () => {
         sounds.pop();
         toast.info("Call ended");
-        onCallEnded();
+        onEndedRef.current();
       },
     });
-
     engineRef.current = engine;
+    const media = { video: type === "video", audio: true };
 
     async function start() {
       try {
         const myPeerId = await engine.initPeer();
-
         if (isCaller) {
-          // Poll for acceptance if remotePeerId isn't immediately known
-          const targetPeerId = remotePeerId;
-          if (!targetPeerId) {
-            const checkInterval = setInterval(async () => {
-              const res = await fetch(`/api/calls/${callId}`);
-              const data = (await res.json()) as any;
-              if (data?.call?.status === "ACCEPTED" && data?.call?.receiverPeerId) {
-                clearInterval(checkInterval);
-                engine.callPeer(data.call.receiverPeerId, {
-                  video: type === "video",
-                  audio: true,
-                });
-              } else if (data?.call?.status === "DECLINED" || data?.call?.status === "ENDED") {
-                clearInterval(checkInterval);
-                toast.info("Call declined or ended.");
-                onCallEnded();
-              }
-            }, 1800);
-          } else {
-            engine.callPeer(targetPeerId, {
-              video: type === "video",
-              audio: true,
-            });
+          if (remotePeerId) {
+            engine.callPeer(remotePeerId, media);
+            return;
           }
+          // Wait for the other person to answer.
+          pollTimer = setInterval(async () => {
+            try {
+              const res = await fetch(`/api/calls/${callId}`);
+              const data = (await res.json()) as { call?: { status?: string; receiverPeerId?: string } };
+              if (data?.call?.status === "ACCEPTED" && data.call.receiverPeerId) {
+                if (pollTimer) clearInterval(pollTimer);
+                engine.callPeer(data.call.receiverPeerId, media);
+              } else if (data?.call?.status === "DECLINED" || data?.call?.status === "ENDED") {
+                if (pollTimer) clearInterval(pollTimer);
+                toast.info(`${partner.displayName} didn't pick up`);
+                onEndedRef.current();
+              }
+            } catch {
+              // Keep waiting; the next poll retries.
+            }
+          }, 1800);
         } else {
-          // Receiver answers call
           await fetch(`/api/calls/${callId}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ action: "ACCEPT", receiverPeerId: myPeerId }),
           });
-
-          await engine.answerIncomingCall({
-            video: type === "video",
-            audio: true,
-          });
+          await engine.answerIncomingCall(media);
         }
-      } catch (err: any) {
-        console.error("Failed to start call:", err);
-        toast.error(`Could not connect media: ${err?.message || "Check permissions"}`);
+      } catch {
+        toast.error("Couldn't start the call. Allow microphone and camera access, then try again.");
       }
     }
 
-    start();
-
+    void start();
     return () => {
+      if (pollTimer) clearInterval(pollTimer);
       engine.destroy();
     };
-  }, [callId, isCaller, type, remotePeerId, onCallEnded]);
+  }, [callId, isCaller, type, remotePeerId, partner.displayName]);
 
-  function handleToggleMic() {
+  function toggleMic() {
     if (!engineRef.current) return;
-    const enabled = engineRef.current.toggleMicrophone();
-    setIsMicMuted(!enabled);
+    setMicMuted(!engineRef.current.toggleMicrophone());
     sounds.tap();
     haptics.light();
   }
 
-  function handleToggleCamera() {
+  function toggleCamera() {
     if (!engineRef.current) return;
-    const enabled = engineRef.current.toggleCamera();
-    setIsCameraOff(!enabled);
+    setCameraOff(!engineRef.current.toggleCamera());
     sounds.tap();
     haptics.light();
   }
 
-  async function handleSwitchCamera() {
+  async function switchCamera() {
     if (!engineRef.current) return;
     sounds.tap();
     haptics.medium();
-    const success = await engineRef.current.switchCamera();
-    if (success) {
-      toast.info("Camera flipped");
-    }
+    await engineRef.current.switchCamera();
   }
 
-  async function handleEndCall() {
+  async function endCall() {
     sounds.pop();
     haptics.medium();
     try {
@@ -174,146 +171,119 @@ export function ActiveCallOverlay({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "END" }),
       });
-    } catch {}
-
-    if (engineRef.current) {
-      engineRef.current.destroy();
+    } catch {
+      // Ending locally is enough; the server times the call out.
     }
-    onCallEnded();
+    engineRef.current?.destroy();
+    onEndedRef.current();
   }
 
+  const status = callState === "CONNECTED" ? formatSeconds(duration) : STATE_LABEL[callState];
+  const initials = partner.displayName?.slice(0, 2).toUpperCase() || "CL";
+
   return (
-    <div className="fixed inset-0 z-50 bg-black flex flex-col justify-between select-none overflow-hidden h-[100dvh] w-full">
-      {/* Remote Video Stream (Full Background) */}
-      <div className="absolute inset-0 z-0 flex items-center justify-center bg-black">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${type === "video" ? "Video" : "Voice"} call with ${partner.displayName}`}
+      className="dark fixed inset-0 z-(--z-modal) flex h-dvh w-full flex-col justify-between overflow-hidden bg-bg text-fg select-none"
+    >
+      <div className="absolute inset-0 flex items-center justify-center">
         {type === "video" ? (
-          // biome-ignore lint/a11y/useMediaCaption: WebRTC live video stream
-          <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-full object-cover" />
+          // biome-ignore lint/a11y/useMediaCaption: live WebRTC stream
+          <video ref={remoteVideoRef} autoPlay playsInline className="size-full object-cover" />
         ) : (
-          <div className="flex flex-col items-center gap-4 text-center p-6">
-            <Avatar className="size-24 sm:size-32 border-4 border-primary/30 shadow-2xl animate-pulse">
-              <AvatarImage src={partner.avatarUrl || ""} />
-              <AvatarFallback className="text-3xl font-black bg-primary/20 text-primary">
-                {partner.displayName?.slice(0, 2).toUpperCase() || "CL"}
+          <div className="flex flex-col items-center gap-4 p-6 text-center">
+            <Avatar className="size-32">
+              <AvatarImage src={partner.avatarUrl || ""} alt="" />
+              <AvatarFallback className="bg-brand-subtle text-4xl font-bold text-brand-text">
+                {initials}
               </AvatarFallback>
             </Avatar>
-            <div className="space-y-1">
-              <h2 className="text-xl font-black text-white">{partner.displayName}</h2>
-              <p className="text-xs text-muted-foreground">Audio Call · Encrypted P2P</p>
-              <p className="text-sm font-black text-success font-mono pt-1">
-                {callState === "CONNECTED" ? formatSeconds(callDuration) : callState}
-              </p>
-            </div>
+            <h2 className="font-display text-3xl font-bold">{partner.displayName}</h2>
+            <p className="text-lg text-fg-muted tabular-nums" aria-live="polite">
+              {status}
+            </p>
           </div>
         )}
 
-        {/* Local Video Stream Floating Picture-in-Picture (Top Right) */}
         {type === "video" && (
-          <div className="absolute top-16 right-4 sm:top-6 sm:right-6 z-20 w-28 sm:w-36 aspect-3/4 rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl bg-black">
+          <div className="absolute top-20 right-4 z-20 aspect-3/4 w-28 overflow-hidden rounded-lg border border-border bg-surface shadow-lg sm:top-6 sm:right-6 sm:w-36">
             <video
               ref={localVideoRef}
               autoPlay
               playsInline
               muted
-              className="w-full h-full object-cover scale-x-[-1]"
+              className="size-full scale-x-[-1] object-cover"
             />
-            {isCameraOff && (
-              <div className="absolute inset-0 bg-black flex items-center justify-center text-white/60">
-                <CameraOff className="size-6" />
+            {cameraOff && (
+              <div className="absolute inset-0 flex items-center justify-center bg-surface text-fg-muted">
+                <CameraOff className="size-6" aria-label="Your camera is off" />
               </div>
             )}
           </div>
         )}
       </div>
 
-      {/* Top Header Information Overlay */}
-      <header className="relative z-20 flex items-center justify-between p-4 pt-[max(1rem,env(safe-area-inset-top))] bg-gradient-to-b from-black/80 to-transparent">
-        <div className="flex items-center gap-3">
-          <Avatar className="size-10 border border-white/20">
-            <AvatarImage src={partner.avatarUrl || ""} />
-            <AvatarFallback className="text-xs font-black bg-primary/20 text-primary">
-              {partner.displayName?.slice(0, 2).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <h3 className="text-sm font-black text-white leading-tight">{partner.displayName}</h3>
-              <ShieldCheck className="size-3.5 text-brand-text" />
+      <header className="relative z-20 flex items-center justify-between p-4 pt-[max(1rem,env(safe-area-inset-top))]">
+        {type === "video" ? (
+          <div className="flex items-center gap-3 rounded-full bg-surface py-1.5 pr-4 pl-1.5 shadow-lg">
+            <Avatar className="size-9">
+              <AvatarImage src={partner.avatarUrl || ""} alt="" />
+              <AvatarFallback className="bg-brand-subtle text-xs font-bold text-brand-text">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="text-sm leading-tight font-semibold">{partner.displayName}</p>
+              <p className="text-xs text-fg-muted tabular-nums" aria-live="polite">
+                {status}
+              </p>
             </div>
-            <p className="text-[11px] text-white/70 font-mono">
-              {callState === "CONNECTED" ? formatSeconds(callDuration) : `${callState.toLowerCase()}...`}
-            </p>
           </div>
-        </div>
-
+        ) : (
+          <span />
+        )}
         <button
           type="button"
-          onClick={() => setShowReportModal(true)}
-          className="size-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/80 transition-colors cursor-pointer"
-          title="Safety options"
+          onClick={() => setSafetyOpen(true)}
+          aria-label="Safety options"
+          className="flex size-11 cursor-pointer items-center justify-center rounded-full bg-surface text-fg shadow-lg transition-ui outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <ShieldAlert className="size-4.5" />
+          <ShieldAlert className="size-5" />
         </button>
       </header>
 
-      {/* Bottom Floating Pill Controls Bar */}
-      <div className="relative z-20 pb-[max(1.5rem,env(safe-area-inset-bottom))] px-4 flex justify-center">
-        <div className="bg-black/90 backdrop-blur-sm border border-white/15 px-5 py-3 rounded-full flex items-center gap-3 sm:gap-5 shadow-2xl">
-          {/* Mute Mic */}
-          <button
-            type="button"
-            onClick={handleToggleMic}
-            className={cn(
-              "size-12 rounded-full flex items-center justify-center transition-transform active:scale-95 cursor-pointer",
-              isMicMuted ? "bg-danger text-white" : "bg-white/15 hover:bg-white/25 text-white"
-            )}
-            title={isMicMuted ? "Unmute microphone" : "Mute microphone"}
-            aria-label="Mute microphone"
-          >
-            {isMicMuted ? <MicOff className="size-5" /> : <Mic className="size-5" />}
-          </button>
-
-          {/* Toggle Camera (for video calls) */}
-          {type === "video" && (
-            <>
-              <button
-                type="button"
-                onClick={handleToggleCamera}
-                className={cn(
-                  "size-12 rounded-full flex items-center justify-center transition-transform active:scale-95 cursor-pointer",
-                  isCameraOff ? "bg-danger text-white" : "bg-white/15 hover:bg-white/25 text-white"
-                )}
-                title={isCameraOff ? "Turn camera on" : "Turn camera off"}
-                aria-label="Toggle camera"
-              >
-                {isCameraOff ? <CameraOff className="size-5" /> : <Camera className="size-5" />}
-              </button>
-
-              {/* Flip Camera */}
-              <button
-                type="button"
-                onClick={handleSwitchCamera}
-                className="size-12 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-transform active:scale-95 cursor-pointer"
-                title="Switch camera"
-                aria-label="Switch camera"
-              >
-                <RefreshCw className="size-5" />
-              </button>
-            </>
-          )}
-
-          {/* End Call Button */}
-          <button
-            type="button"
-            onClick={handleEndCall}
-            className="size-14 rounded-full bg-danger hover:bg-danger text-white flex items-center justify-center shadow-lg transition-transform active:scale-90 cursor-pointer"
-            title="End call"
-            aria-label="End call"
-          >
-            <PhoneOff className="size-6" />
-          </button>
-        </div>
+      <div className="relative z-20 flex justify-center px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+        <CallControls
+          isVideo={type === "video"}
+          micMuted={micMuted}
+          cameraOff={cameraOff}
+          onToggleMic={toggleMic}
+          onToggleCamera={toggleCamera}
+          onSwitchCamera={() => void switchCamera()}
+          onEnd={() => void endCall()}
+        />
       </div>
+
+      <Dialog open={safetyOpen} onOpenChange={setSafetyOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Feel unsafe?</DialogTitle>
+            <DialogDescription>
+              End the call now. Then tell us what happened so we can look into it.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-2">
+            <Button variant="danger" onClick={() => void endCall()}>
+              End call
+            </Button>
+            <Button variant="secondary" asChild>
+              <Link href="/safety">Report a problem</Link>
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

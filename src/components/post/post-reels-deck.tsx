@@ -425,13 +425,10 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
       onTouchEnd={handleTouchEnd}
       className="relative w-full h-full min-h-0 flex flex-col overflow-hidden bg-background"
     >
-      {/* ─── Ambient Glow in Background ─── */}
-      <div className="pointer-events-none absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] h-[340px] sm:w-[480px] sm:h-[480px] bg-brand/10 blur-[140px] rounded-full -z-10" />
-
       {/* ─── Top Header & Subheader Tabs ─── */}
-      <header className="shrink-0 z-30 px-4 pt-2 pb-1 bg-gradient-to-b from-background/95 via-background/85 to-transparent backdrop-blur-md">
+      <header className="shrink-0 z-30 px-4 pt-2 pb-1 bg-bg">
         {/* Subheader Filter Tabs */}
-        <div className="flex items-center justify-between gap-2 mt-2 border-b border-border/20 pb-1">
+        <div className="flex items-center justify-between gap-2 mt-2 border-b border-border pb-1">
           <div className="flex items-center gap-3 min-w-0">
             <Link
               href="/feeds"
@@ -458,7 +455,7 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
                   className={cn(
                     "relative pb-1.5 transition-colors cursor-pointer whitespace-nowrap",
                     activeTab === tab.id
-                      ? "text-foreground font-black"
+                      ? "text-foreground font-bold"
                       : "text-muted-foreground hover:text-foreground font-semibold"
                   )}
                 >

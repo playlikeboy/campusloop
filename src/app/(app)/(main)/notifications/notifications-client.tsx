@@ -1,376 +1,141 @@
 "use client";
 
-import {
-  AtSign,
-  Bell,
-  Compass,
-  Eraser,
-  Gamepad2,
-  Heart,
-  Lock,
-  MessageCircle,
-  MoreHorizontal,
-  ShieldCheck,
-  Ticket,
-  Trash2,
-  Trophy,
-  UserPlus,
-  Zap,
-} from "lucide-react";
+import { Bell, CheckCheck, Eraser, MoreHorizontal, RotateCw, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { PushNotificationToggle } from "@/components/notifications/push-notification-toggle";
-import {
-  AnimateCheckCheck,
-  AnimatedIcon,
-  AnimateHeart,
-  AnimateMessageCircle,
-  AnimateRepeat2,
-  AnimateSend,
-  AnimateUsers,
-  AnimateZap,
-} from "@/components/ui/animated-icon";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
 import { type NotificationItem, type NotificationTab, useNotifications } from "@/hooks/use-notifications";
-import { useScrollIsolation } from "@/hooks/use-scroll-isolation";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn, formatTimeAgo, getAvatarUrl } from "@/lib/utils";
+import { NotificationRow } from "./notification-row";
 
 interface NotificationsClientProps {
   initialNotifications: NotificationItem[];
   initialUnreadCount: number;
 }
 
+const TABS: { id: NotificationTab; label: string; empty: string }[] = [
+  { id: "all", label: "All", empty: "You're all caught up" },
+  { id: "messages", label: "Messages", empty: "No new messages" },
+  { id: "posts", label: "Following", empty: "No new posts from people you follow" },
+  { id: "mentions", label: "Mentions", empty: "No mentions yet" },
+  { id: "replies", label: "Replies", empty: "No replies yet" },
+  { id: "reactions", label: "Likes", empty: "No likes yet" },
+  { id: "crushes", label: "Match", empty: "No matches or crushes yet" },
+];
+
 export function NotificationsClient({ initialNotifications, initialUnreadCount }: NotificationsClientProps) {
-  const router = useRouter();
   const [activeTab, setActiveTab] = useState<NotificationTab>("all");
-  const [showActionsMenu, setShowActionsMenu] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [pendingClear, setPendingClear] = useState<"all" | "read" | null>(null);
-  const scrollRef = useScrollIsolation<HTMLElement>();
   const [isClearing, setIsClearing] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
-  // Dismiss the overflow menu on any outside click.
   useEffect(() => {
-    if (!showActionsMenu) return;
-    function onPointerDown(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setShowActionsMenu(false);
-      }
+    if (!menuOpen) return;
+    function close(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
     }
-    document.addEventListener("mousedown", onPointerDown);
-    return () => document.removeEventListener("mousedown", onPointerDown);
-  }, [showActionsMenu]);
+    function esc(e: KeyboardEvent) {
+      if (e.key === "Escape") setMenuOpen(false);
+    }
+    document.addEventListener("mousedown", close);
+    document.addEventListener("keydown", esc);
+    return () => {
+      document.removeEventListener("mousedown", close);
+      document.removeEventListener("keydown", esc);
+    };
+  }, [menuOpen]);
 
-  const { notifications, unreadCount, isLoading, markAllAsRead, markAsRead, clearAll } =
+  const { notifications, unreadCount, isLoading, error, mutate, markAllAsRead, markAsRead, clearAll } =
     useNotifications(activeTab);
+  const list = notifications.length > 0 ? notifications : activeTab === "all" ? initialNotifications : [];
+  const unread = unreadCount ?? initialUnreadCount;
+  const tab = TABS.find((t) => t.id === activeTab) ?? TABS[0];
 
-  const displayList =
-    notifications.length > 0 ? notifications : activeTab === "all" ? initialNotifications : [];
-
-  const effectiveUnread = unreadCount ?? initialUnreadCount;
-
-  // Notification Icon, Action Text & Badges
-  function getNotificationMeta(n: NotificationItem) {
-    switch (n.type) {
-      case "LIKE":
-        return {
-          icon: <AnimateHeart size={14} className="text-danger fill-danger" />,
-          badgeBg: "bg-danger/15 border-danger/30 text-danger",
-          actionText: "liked your post",
-          href: n.referenceId ? `/post/${n.referenceId}` : "/feeds",
-          actionLabel: "View post",
-        };
-      case "STORY_LIKE":
-        return {
-          icon: <AnimateHeart size={14} className="text-danger fill-danger" />,
-          badgeBg: "bg-danger/15 border-danger/30 text-danger",
-          actionText: "liked your campus story vibe",
-          href: n.referenceId ? `/story/${n.referenceId}` : "/feeds",
-          actionLabel: "View vibe",
-        };
-      case "COMMENT":
-        return {
-          icon: <AnimateMessageCircle size={14} className="text-brand" />,
-          badgeBg: "bg-brand/15 border-brand/30 text-brand",
-          actionText: "replied to your discussion",
-          href: n.referenceId ? `/post/${n.referenceId}` : "/feeds",
-          actionLabel: "Reply",
-        };
-      case "ARTICLE_COMMENT":
-        return {
-          icon: <AnimateMessageCircle size={14} className="text-brand" />,
-          badgeBg: "bg-brand/15 border-brand/30 text-brand",
-          actionText: "commented on your article",
-          href: n.referenceId ? `/articles/${n.referenceId}` : "/articles",
-          actionLabel: "View article",
-        };
-      case "REPLY":
-        return {
-          icon: <AnimateMessageCircle size={14} className="text-brand" />,
-          badgeBg: "bg-brand/15 border-brand/30 text-brand",
-          actionText: "replied to your comment",
-          href: n.referenceId ? `/post/${n.referenceId}` : "/feeds",
-          actionLabel: "Reply",
-        };
-      case "STORY_REPLY":
-        return {
-          icon: <AnimateMessageCircle size={14} className="text-brand" />,
-          badgeBg: "bg-brand/15 border-brand/30 text-brand",
-          actionText: "replied to your campus vibe",
-          href: n.referenceId ? `/story/${n.referenceId}` : "/feeds",
-          actionLabel: "View vibe",
-        };
-      case "MENTION":
-        return {
-          icon: <AtSign className="size-3.5 text-brand-text stroke-2" />,
-          badgeBg: "bg-brand/15 border-brand-subtle-border/30 text-brand-text",
-          actionText: "mentioned you in a campus post",
-          href: n.referenceId ? `/post/${n.referenceId}` : "/feeds",
-          actionLabel: "View thread",
-        };
-      case "REPOST":
-        return {
-          icon: <AnimateRepeat2 size={14} className="text-success" />,
-          badgeBg: "bg-success/15 border-success/30 text-success",
-          actionText: "reposted your post to the campus feed",
-          href: n.referenceId ? `/post/${n.referenceId}` : "/feeds",
-          actionLabel: "View",
-        };
-      case "MATCH":
-        return {
-          icon: <Zap className="size-3.5 text-brand-text fill-brand-text" />,
-          badgeBg: "bg-brand/15 border-brand-subtle-border/30 text-brand-text",
-          actionText: "matched with you on Campus Dating!",
-          href: n.referenceId ? `/chat/${n.referenceId}` : "/chat",
-          actionLabel: "Send message",
-        };
-      case "CRUSH_ALERT":
-        return {
-          icon: <Lock className="size-3.5 text-brand-text" />,
-          badgeBg: "bg-brand/15 border-brand-subtle-border/30 text-brand-text",
-          actionText: "secretly added you to their Campus Crush vault",
-          href: "/crush",
-          actionLabel: "View vault",
-        };
-      case "FOLLOW":
-        return {
-          icon: <UserPlus className="size-3.5 text-primary stroke-2" />,
-          badgeBg: "bg-primary/15 border-primary/30 text-primary",
-          actionText: "started following you",
-          href: n.referenceId ? `/@${n.referenceId}` : "/feeds",
-          actionLabel: "View profile",
-        };
-      case "FRIEND":
-        return {
-          icon: <AnimateUsers size={14} className="text-success" />,
-          badgeBg: "bg-success/15 border-success/30 text-success",
-          actionText: "followed you back — you're campus friends now",
-          href: n.referenceId ? `/@${n.referenceId}` : "/feeds",
-          actionLabel: "View profile",
-        };
-      case "MILESTONE":
-        return {
-          icon: <Trophy className="size-3.5 text-reward-text" />,
-          badgeBg: "bg-reward-subtle border-reward/30 text-reward-text",
-          actionText: "unlocked a new Loop Points Clout Milestone!",
-          href: "/profile",
-          actionLabel: "View clout",
-        };
-      case "MESSAGE":
-        return {
-          icon: <AnimateSend size={14} className="text-brand-text" />,
-          badgeBg: "bg-brand/15 border-brand-subtle-border/30 text-brand-text",
-          actionText: "sent you a message",
-          href: n.referenceId ? `/chat/${n.referenceId}` : "/chat",
-          actionLabel: "Reply",
-        };
-      case "NEW_POST":
-        return {
-          icon: <AnimateZap size={14} className="text-brand-text" />,
-          badgeBg: "bg-brand/15 border-brand-subtle-border/30 text-brand-text",
-          actionText: "posted something new",
-          href: n.referenceId ? `/post/${n.referenceId}` : "/feeds",
-          actionLabel: "View post",
-        };
-      case "EVENT_REGISTRATION":
-        return {
-          icon: <Ticket className="size-3.5 text-brand-text stroke-2" />,
-          badgeBg: "bg-brand/15 border-brand-subtle-border/30 text-brand-text",
-          actionText: "— your spot is confirmed",
-          href: n.referenceId ? `/events/${n.referenceId}` : "/events",
-          actionLabel: "View event",
-        };
-      case "GAMING_LOBBY_JOIN":
-        return {
-          icon: <Gamepad2 className="size-3.5 text-brand-text stroke-2" />,
-          badgeBg: "bg-brand/15 border-brand-subtle-border/30 text-brand-text",
-          actionText: "joined your gaming squad lobby",
-          href: n.referenceId ? `/gaming?id=${n.referenceId}` : "/gaming",
-          actionLabel: "View lobby",
-        };
-      case "GAMING_LOBBY_FULL":
-        return {
-          icon: <Gamepad2 className="size-3.5 text-success stroke-2" />,
-          badgeBg: "bg-success/15 border-success/30 text-success",
-          actionText: "— your squad lobby is full! Time to play",
-          href: n.referenceId ? `/gaming?id=${n.referenceId}` : "/gaming",
-          actionLabel: "Launch match",
-        };
-      case "GAMING_MATCH_READY":
-        return {
-          icon: <Trophy className="size-3.5 text-reward-text stroke-2" />,
-          badgeBg: "bg-reward-subtle border-reward/30 text-reward-text",
-          actionText: "— tournament bracket match is ready",
-          href: n.referenceId ? `/gaming/tournaments/${n.referenceId}` : "/gaming",
-          actionLabel: "View match",
-        };
-      case "TOURNAMENT_UPDATE":
-        return {
-          icon: <Trophy className="size-3.5 text-brand-text stroke-2" />,
-          badgeBg: "bg-brand/15 border-brand-subtle-border/30 text-brand-text",
-          actionText: "tournament status updated",
-          href: n.referenceId ? `/gaming/tournaments/${n.referenceId}` : "/gaming",
-          actionLabel: "View tournament",
-        };
-      default:
-        return {
-          icon: <Zap className="size-3.5 text-primary" />,
-          badgeBg: "bg-primary/15 border-primary/30 text-primary",
-          actionText: "interacted with you",
-          href: "/feeds",
-          actionLabel: "View",
-        };
-    }
-  }
-
-  function handleItemClick(n: NotificationItem, href: string) {
-    sounds.tap();
+  function open(n: NotificationItem) {
     haptics.light();
-    if (!n.isRead) {
-      markAsRead(n.id);
-    }
-    router.push(href);
+    if (!n.isRead) markAsRead(n.id);
   }
 
-  function handleMarkAllAsRead() {
-    sounds.ting();
-    haptics.success();
-    markAllAsRead();
-  }
-
-  async function handleClear(scope: "all" | "read") {
+  async function clear(scope: "all" | "read") {
     setIsClearing(true);
-    haptics.heavy();
-
     const ok = await clearAll(scope);
-
     setIsClearing(false);
     setPendingClear(null);
-    setShowActionsMenu(false);
-
+    setMenuOpen(false);
     if (ok) {
       sounds.archive();
-      toast.success(scope === "all" ? "Notifications cleared" : "Read notifications cleared");
+      toast.success(scope === "all" ? "Notifications deleted" : "Read notifications cleared");
     } else {
-      haptics.error();
-      toast.error("Could not clear notifications. Please try again.");
+      toast.error("Couldn't clear notifications. Try again.");
     }
   }
 
-  const tabs: { id: NotificationTab; label: string }[] = [
-    { id: "all", label: "All" },
-    { id: "messages", label: "Messages" },
-    { id: "posts", label: "Following" },
-    { id: "mentions", label: "Mentions" },
-    { id: "replies", label: "Replies" },
-    { id: "reactions", label: "Reactions" },
-    { id: "crushes", label: "Crushes & Matches" },
-    { id: "verified", label: "Verified" },
-  ];
-
   return (
-    <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pt-0 pb-2 sm:pt-0 sm:pb-4 sm:-mt-6 lg:mt-0">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* ─── Main Notifications Feed Column (8 cols on lg) ─── */}
-        <main className="lg:col-span-8 flex flex-col min-h-screen pb-28 bg-card/30 rounded-2xl border border-border/25 overflow-hidden shadow-2xs">
-          {/* ─── Sticky Header ─── */}
-          <header className="sticky top-12 lg:top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/30">
-        <div className="flex items-center justify-between px-4 py-3.5">
-          <div className="flex items-center gap-2.5">
-            <h1 className="text-lg font-black tracking-tight text-foreground">Notifications</h1>
-            {effectiveUnread > 0 && (
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-black bg-primary text-primary-foreground shadow-xs">
-                {effectiveUnread}
-              </span>
-            )}
+    <div className="mx-auto w-full max-w-2xl pb-28">
+      <header className="sticky top-14 z-20 border-b border-border bg-bg lg:top-0">
+        <div className="flex items-center justify-between gap-2 px-4 pt-3 pb-2">
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl text-fg">Notifications</h1>
+            {unread > 0 && <Badge variant="brand">{unread} new</Badge>}
           </div>
-
           <div className="flex items-center gap-1">
-            {effectiveUnread > 0 && (
-              <button
-                type="button"
-                onClick={handleMarkAllAsRead}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-transform cursor-pointer shadow-2xs active:scale-95"
-                title="Mark all notifications as read"
+            {unread > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  haptics.success();
+                  markAllAsRead();
+                }}
               >
-                <AnimatedIcon
-                  icon={AnimateCheckCheck}
-                  animation="nudge-right"
-                  size={14}
-                  iconClassName="text-primary"
-                />
-                <span className="hidden sm:inline">Mark all as read</span>
-              </button>
+                <CheckCheck aria-hidden="true" />
+                <span className="hidden sm:inline">Mark all read</span>
+                <span className="sr-only sm:hidden">Mark all as read</span>
+              </Button>
             )}
-
-            {displayList.length > 0 && (
+            {list.length > 0 && (
               <div className="relative" ref={menuRef}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    haptics.light();
-                    setShowActionsMenu((v) => !v);
-                  }}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setMenuOpen((v) => !v)}
                   aria-haspopup="menu"
-                  aria-expanded={showActionsMenu}
-                  aria-label="More notification actions"
-                  className="flex size-9 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-transform cursor-pointer active:scale-95"
+                  aria-expanded={menuOpen}
+                  aria-label="More actions"
                 >
-                  <MoreHorizontal className="size-4" />
-                </button>
-
-                {showActionsMenu && (
+                  <MoreHorizontal aria-hidden="true" />
+                </Button>
+                {menuOpen && (
                   <div
                     role="menu"
-                    className="absolute right-0 top-11 z-50 w-56 overflow-hidden rounded-2xl border border-border/60 bg-card shadow-xl animate-in fade-in slide-in-from-top-1"
+                    className="absolute top-12 right-0 z-30 w-60 overflow-hidden rounded-md border border-border bg-surface-raised py-1 shadow-lg"
                   >
                     <button
                       type="button"
                       role="menuitem"
                       onClick={() => setPendingClear("read")}
-                      className="flex w-full items-center gap-2.5 px-3.5 py-3 text-left text-xs font-bold text-foreground transition-colors hover:bg-muted/60 cursor-pointer"
+                      className="flex min-h-11 w-full cursor-pointer items-center gap-2.5 px-4 text-left text-sm text-fg hover:bg-surface-muted"
                     >
-                      <Eraser className="size-4 text-muted-foreground" />
-                      <span>Clear read notifications</span>
+                      <Eraser aria-hidden="true" className="size-4" />
+                      Clear read ones
                     </button>
-
-                    <div className="h-px bg-border/50" />
-
                     <button
                       type="button"
                       role="menuitem"
                       onClick={() => setPendingClear("all")}
-                      className="flex w-full items-center gap-2.5 px-3.5 py-3 text-left text-xs font-bold text-destructive transition-colors hover:bg-destructive/10 cursor-pointer"
+                      className="flex min-h-11 w-full cursor-pointer items-center gap-2.5 px-4 text-left text-sm text-danger hover:bg-danger-subtle"
                     >
-                      <Trash2 className="size-4" />
-                      <span>
-                        {activeTab === "all" ? "Delete all notifications" : "Delete all in this tab"}
-                      </span>
+                      <Trash2 aria-hidden="true" className="size-4" />
+                      {activeTab === "all" ? "Delete all" : "Delete all in this tab"}
                     </button>
                   </div>
                 )}
@@ -378,298 +143,80 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
             )}
           </div>
         </div>
-
-        {/* ─── Filter Pills Bar (Twitter/Linear Style) ─── */}
-        <div className="flex items-center gap-1.5 px-4 pb-2.5 overflow-x-auto scrollbar-none">
-          {tabs.map((tab) => {
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => {
-                  sounds.tap();
-                  haptics.light();
-                  setActiveTab(tab.id);
-                }}
-                className={cn(
-                  "px-3.5 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer shrink-0",
-                  isActive
-                    ? "bg-foreground text-background font-black shadow-xs"
-                    : "bg-muted/40 hover:bg-muted/80 text-muted-foreground hover:text-foreground border border-border/40"
-                )}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
+        <fieldset className="no-scrollbar flex min-w-0 gap-2 overflow-x-auto px-4 pb-3">
+          <legend className="sr-only">Filter notifications</legend>
+          {TABS.map((t) => (
+            <Chip
+              key={t.id}
+              size="sm"
+              selected={activeTab === t.id}
+              onSelectedChange={() => setActiveTab(t.id)}
+              className="shrink-0"
+            >
+              {t.label}
+            </Chip>
+          ))}
+        </fieldset>
       </header>
 
       <PushNotificationToggle variant="banner" />
 
-      {/* ─── Notification Items Feed ─── */}
-      <div className="divide-y divide-border/20">
-        {displayList.map((n) => {
-          const meta = getNotificationMeta(n);
-          const isVerified = Boolean((n.actor?.points || 0) >= 150 || n.actor?.role === "ADMIN");
-          const actorAvatar = getAvatarUrl(n.actor?.avatarUrl, n.actor?.username || "student");
-          const campusName = n.actor?.institution?.name?.split(",")[0] || null;
-
-          return (
-            <div
-              key={n.id}
-              onClick={() => handleItemClick(n, meta.href)}
-              className={cn(
-                "group flex items-start gap-3.5 px-4 py-3.5 hover:bg-muted/[0.22] transition-colors relative cursor-pointer",
-                !n.isRead && "bg-primary/[0.035]"
-              )}
-            >
-              {/* Unread Indicator Pill on Left Edge */}
-              {!n.isRead && <span className="absolute left-0 top-3 bottom-3 w-1 bg-primary rounded-r-full" />}
-
-              {/* Left Column: Avatar with Action Badge */}
-              <div className="relative shrink-0 pt-0.5">
-                <Link href={`/@${n.actor?.username || "student"}`} onClick={(e) => e.stopPropagation()}>
-                  <Avatar className="size-10 rounded-full border border-border/50 hover:opacity-90 transition-opacity">
-                    <AvatarImage src={actorAvatar || ""} />
-                    <AvatarFallback className="text-xs font-bold bg-muted text-foreground">
-                      {n.actor?.displayName?.[0] || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                </Link>
-
-                {/* Sub-badge over corner */}
-                <div
-                  className={cn(
-                    "absolute -bottom-1 -right-1 size-5 rounded-full border border-card flex items-center justify-center shadow-xs",
-                    meta.badgeBg
-                  )}
-                >
-                  {meta.icon}
-                </div>
+      {list.length > 0 ? (
+        <ul className="divide-y divide-border">
+          {list.map((n) => (
+            <NotificationRow key={n.id} n={n} onOpen={open} />
+          ))}
+        </ul>
+      ) : isLoading ? (
+        <ul aria-busy="true" aria-label="Loading notifications" className="divide-y divide-border">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <li key={i} className="flex items-start gap-3 px-4 py-3">
+              <Skeleton className="size-11 shrink-0 rounded-full" />
+              <div className="flex-1 space-y-2 pt-1">
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-3 w-1/4" />
               </div>
-
-              {/* Center Column: Text & Content Preview */}
-              <div className="flex-1 min-w-0 space-y-1.5 pt-0.5">
-                <div className="flex items-center gap-1.5 text-xs flex-wrap leading-tight">
-                  <Link
-                    href={`/@${n.actor?.username || "student"}`}
-                    onClick={(e) => e.stopPropagation()}
-                    className="font-bold text-foreground hover:underline truncate"
-                  >
-                    {n.actor?.displayName || "A Student"}
-                  </Link>
-
-                  {isVerified && <ShieldCheck className="size-3.5 text-brand shrink-0" />}
-
-                  <span className="text-muted-foreground font-medium">@{n.actor?.username || "student"}</span>
-
-                  {campusName && (
-                    <>
-                      <span className="text-muted-foreground/40 text-[10px]">·</span>
-                      <span className="text-[10px] font-semibold text-muted-foreground/80 truncate max-w-[120px]">
-                        {campusName}
-                      </span>
-                    </>
-                  )}
-
-                  <span className="text-muted-foreground/40 text-[10px]">·</span>
-
-                  <span className="text-[11px] text-muted-foreground/70 shrink-0 font-medium">
-                    {formatTimeAgo(n.createdAt)}
-                  </span>
-                </div>
-
-                {/* Action Descriptor */}
-                <p className="text-[13px] text-foreground/90 font-medium leading-snug">{meta.actionText}</p>
-
-                {/* Quoted Snippet Box */}
-                {n.previewText && (
-                  <div className="rounded-2xl border border-border/40 bg-muted/20 hover:bg-muted/35 p-3 text-xs text-foreground/80 leading-relaxed transition-colors break-words font-normal">
-                    <span className="text-muted-foreground font-semibold">"</span>
-                    {n.previewText}
-                    <span className="text-muted-foreground font-semibold">"</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Right Column: Actions (Mark Read & Navigate) */}
-              <div className="flex flex-col items-end justify-between shrink-0 pl-1 pt-0.5 self-stretch">
-                {!n.isRead ? (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      sounds.pop();
-                      haptics.medium();
-                      markAsRead(n.id);
-                    }}
-                    className="size-6 rounded-full hover:bg-muted flex items-center justify-center text-primary hover:text-foreground transition-colors cursor-pointer"
-                    title="Mark as read"
-                  >
-                    <span className="size-2 rounded-full bg-primary inline-block" />
-                  </button>
-                ) : (
-                  <div className="size-6" />
-                )}
-
-                <span className="text-[11px] font-bold text-muted-foreground group-hover:text-primary transition-colors flex items-center gap-0.5 mt-auto">
-                  {meta.actionLabel} &rarr;
-                </span>
-              </div>
-            </div>
-          );
-        })}
-
-        {/* ─── Empty State ─── */}
-        {!isLoading && displayList.length === 0 && (
-          <div className="py-24 px-6 text-center max-w-sm mx-auto space-y-4">
-            <div className="size-16 rounded-3xl bg-muted/50 border border-border/40 flex items-center justify-center mx-auto text-muted-foreground">
-              {activeTab === "mentions" ? (
-                <AtSign className="size-8 text-brand-text" />
-              ) : activeTab === "replies" ? (
-                <MessageCircle className="size-8 text-brand-text" />
-              ) : activeTab === "reactions" ? (
-                <Heart className="size-8 text-danger" />
-              ) : activeTab === "crushes" ? (
-                <Lock className="size-8 text-brand-text" />
-              ) : (
-                <Bell className="size-8 text-primary" />
-              )}
-            </div>
-
-            <div className="space-y-1.5">
-              <h2 className="text-base font-black text-foreground">
-                {activeTab === "all"
-                  ? "All caught up!"
-                  : activeTab === "mentions"
-                    ? "No mentions yet"
-                    : activeTab === "replies"
-                      ? "No replies yet"
-                      : activeTab === "reactions"
-                        ? "No reactions yet"
-                        : activeTab === "crushes"
-                          ? "No crushes or matches yet"
-                          : "No verified notifications"}
-              </h2>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                {activeTab === "all"
-                  ? "When students like your posts, tag you in discussions, or match with you on campus, you will see it here."
-                  : activeTab === "mentions"
-                    ? "When fellow campus classmates tag your @handle in threads or confessions, you will find them here."
-                    : activeTab === "replies"
-                      ? "Replies to your campus questions and discussion threads will show up here."
-                      : activeTab === "reactions"
-                        ? "Upvotes, hearts, reposts, and story reactions will be recorded here."
-                        : activeTab === "crushes"
-                          ? "Crush alerts and match connections from Campus Match will be securely delivered here."
-                          : "Notifications from verified students and college leaders with 150+ LP will appear here."}
-              </p>
-            </div>
-
-            <div className="pt-2">
-              <Link
-                href="/feeds"
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-transform shadow-xs cursor-pointer active:scale-95"
-              >
-                <Compass className="size-3.5" />
-                <span>Explore Campus Feed</span>
-              </Link>
-            </div>
-          </div>
-        )}
-      </div>
-        </main>
-
-        {/* ─── Desktop Context & Settings Rail (4 cols on lg, sticky) ─── */}
-        <aside
-          ref={scrollRef}
-          className="hidden lg:flex flex-col gap-4 lg:col-span-4 sticky top-4 h-[calc(100vh-2rem)] max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain no-scrollbar pr-1 pb-16 select-none"
-        >
-          {/* Push Notifications Card */}
-          <div className="rounded-2xl border border-border/30 bg-card/60 p-4 space-y-3">
-            <div className="flex items-center gap-2 text-primary">
-              <Bell className="size-4" />
-              <h3 className="text-sm font-bold text-foreground">Push Notifications</h3>
-            </div>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Never miss campus replies, confession interactions, study invites, or match alerts even when your browser is closed.
-            </p>
-            <PushNotificationToggle variant="row" />
-          </div>
-
-          {/* Quick Actions Card */}
-          <div className="rounded-2xl border border-border/30 bg-card/60 p-4 space-y-3">
-            <h3 className="text-xs font-bold text-muted-foreground">Notification Actions</h3>
-            <div className="flex flex-col gap-2">
-              <button
-                type="button"
-                onClick={handleMarkAllAsRead}
-                disabled={effectiveUnread === 0}
-                className={cn(
-                  "flex items-center justify-between p-2.5 rounded-xl border text-xs font-bold transition-colors",
-                  effectiveUnread > 0
-                    ? "border-primary/40 bg-primary/10 text-primary hover:bg-primary/15 cursor-pointer shadow-2xs"
-                    : "border-border/30 text-muted-foreground/60 cursor-not-allowed opacity-60"
-                )}
-              >
-                <div className="flex items-center gap-2">
-                  <AnimatedIcon icon={AnimateCheckCheck} animation="nudge-right" size={15} />
-                  <span>Mark all as read</span>
-                </div>
-                {effectiveUnread > 0 && (
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-primary text-primary-foreground">
-                    {effectiveUnread}
-                  </span>
-                )}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setPendingClear("read")}
-                disabled={displayList.length === 0}
-                className="flex items-center gap-2 p-2.5 rounded-xl border border-border/40 hover:bg-muted/40 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-              >
-                <Eraser className="size-3.5" />
-                <span>Clear read notifications</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Student Privacy & Safety */}
-          <div className="rounded-2xl border border-border/30 bg-card/60 p-4 space-y-2.5 text-xs text-muted-foreground">
-            <div className="flex items-center gap-2 text-foreground font-bold text-xs">
-              <ShieldCheck className="size-4 text-success" />
-              <span>Campus Security</span>
-            </div>
-            <p className="text-[11px] leading-relaxed">
-              Your notifications stream is private and encrypted. Notifications from anonymous confessions protect author privacy while keeping you informed.
-            </p>
-          </div>
-        </aside>
-      </div>
+            </li>
+          ))}
+        </ul>
+      ) : error ? (
+        <EmptyState
+          icon={RotateCw}
+          title="Couldn't load notifications"
+          description="Check your internet and try again."
+          action={
+            <Button variant="outline" onClick={() => void mutate()}>
+              Try again
+            </Button>
+          }
+        />
+      ) : (
+        <EmptyState
+          icon={Bell}
+          title={tab.empty}
+          description="Likes, replies and follows show up here."
+          action={
+            <Button asChild variant="outline">
+              <Link href="/feeds">Go to your feed</Link>
+            </Button>
+          }
+        />
+      )}
 
       <ConfirmDialog
         isOpen={pendingClear !== null}
         variant="danger"
         isLoading={isClearing}
-        title={
-          pendingClear === "read"
-            ? "Clear read notifications?"
-            : activeTab === "all"
-              ? "Delete all notifications?"
-              : "Delete all in this tab?"
-        }
+        title={pendingClear === "read" ? "Clear read notifications?" : "Delete all notifications?"}
         description={
           pendingClear === "read"
-            ? "Notifications you have already read will be permanently removed. Unread ones stay put."
+            ? "Read notifications are removed. Unread ones stay."
             : activeTab === "all"
-              ? "This permanently removes every notification in your inbox. This cannot be undone."
-              : "This permanently removes every notification in the current filter. This cannot be undone."
+              ? "Every notification is removed. You can't undo this."
+              : "Every notification in this tab is removed. You can't undo this."
         }
-        confirmText={pendingClear === "read" ? "Clear read" : "Delete all"}
-        onConfirm={() => handleClear(pendingClear ?? "all")}
+        confirmText={pendingClear === "read" ? "Clear" : "Delete all"}
+        onConfirm={() => clear(pendingClear ?? "all")}
         onClose={() => {
           if (!isClearing) setPendingClear(null);
         }}

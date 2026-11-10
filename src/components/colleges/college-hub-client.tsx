@@ -1,25 +1,16 @@
 "use client";
 
-import {
-  ArrowUpDown,
-  BookOpen,
-  Compass,
-  Hash,
-  Loader2,
-  Lock,
-  Plus,
-  Search,
-} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { FeedCard } from "@/components/ui/feed-card";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { FeedPost } from "@/hooks/use-feed";
 import type { InstitutionEmailFormat } from "@/lib/student-email-domains";
-import { cn } from "@/lib/utils";
-import { CollegeAcademicsView, type CollegeAcademicResourceItem } from "./college-academics-view";
+import { type CollegeAcademicResourceItem, CollegeAcademicsView } from "./college-academics-view";
 import { CollegeClubsView } from "./college-clubs-view";
-import { CollegeHeroHeader, type AllowedDomainItem } from "./college-hero-header";
+import { CollegeFeedPanel } from "./college-feed-panel";
+import { type AllowedDomainItem, CollegeHeroHeader } from "./college-hero-header";
 import { CollegeLeaderboardPodium } from "./college-leaderboard-podium";
 import { CollegeRealityScorecard } from "./college-reality-scorecard";
 
@@ -35,13 +26,12 @@ interface StudentItem {
   headline?: string | null;
 }
 
-interface CompetitorCollege {
+interface NearbyCollege {
   id: string;
   name: string;
   slug: string;
   district?: string | null;
   state?: string | null;
-  points: number;
   studentsCount: number;
 }
 
@@ -67,16 +57,14 @@ interface CollegeHubClientProps {
   initialPosts: FeedPost[];
   academics?: CollegeAcademicResourceItem[];
   students: StudentItem[];
-  relatedColleges: CompetitorCollege[];
-  collectivePoints: number;
+  relatedColleges: NearbyCollege[];
   currentUserId?: string;
   isEnrolledHere: boolean;
   trendingTags: string[];
 }
 
 type TabType = "feed" | "academics" | "students" | "clubs" | "info";
-type PostCategoryFilter = "ALL" | "CONFESSION" | "QUESTION" | "POLL" | "EVENT" | "NORMAL";
-type PostSortOrder = "LATEST" | "TOP_VOTED" | "MOST_DISCUSSED";
+const PAGE_SIZE = 20;
 
 export function CollegeHubClient({
   college,
@@ -85,49 +73,37 @@ export function CollegeHubClient({
   initialPosts,
   academics = [],
   students,
-  collectivePoints,
+  relatedColleges,
   currentUserId,
   isEnrolledHere,
   trendingTags,
 }: CollegeHubClientProps) {
   const router = useRouter();
-
-  // Tab & Filters State
   const [activeTab, setActiveTab] = useState<TabType>("feed");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState<PostCategoryFilter>("ALL");
-  const [sortOrder, setSortOrder] = useState<PostSortOrder>("LATEST");
 
-  // Infinite Scroll State for Posts
   const [posts, setPosts] = useState<FeedPost[]>(initialPosts);
   const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(initialPosts.length >= 20);
+  const [hasMore, setHasMore] = useState(initialPosts.length >= PAGE_SIZE);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [sentinelNode, setSentinelNode] = useState<HTMLDivElement | null>(null);
 
   useEffect(() => {
     setPosts(initialPosts);
-    setHasMore(initialPosts.length >= 20);
+    setHasMore(initialPosts.length >= PAGE_SIZE);
   }, [initialPosts]);
 
   const loadMorePosts = useCallback(async () => {
     if (isLoadingMore || !hasMore) return;
     setIsLoadingMore(true);
     const nextPage = page + 1;
-
     try {
-      const res = await fetch(`/api/feed?institutionId=${college.id}&page=${nextPage}&limit=20`);
+      const res = await fetch(`/api/feed?institutionId=${college.id}&page=${nextPage}&limit=${PAGE_SIZE}`);
       if (!res.ok) throw new Error("Failed to fetch more posts");
       const newPosts = (await res.json()) as FeedPost[];
-
-      if (newPosts.length === 0 || newPosts.length < 20) {
-        setHasMore(false);
-      }
-
+      if (newPosts.length < PAGE_SIZE) setHasMore(false);
       setPosts((prev) => {
         const existingIds = new Set(prev.map((p) => p.id));
-        const filtered = newPosts.filter((p) => !existingIds.has(p.id));
-        return [...prev, ...filtered];
+        return [...prev, ...newPosts.filter((p) => !existingIds.has(p.id))];
       });
       setPage(nextPage);
     } catch {
@@ -144,366 +120,121 @@ export function CollegeHubClient({
 
   useEffect(() => {
     if (!sentinelNode || !hasMore || activeTab !== "feed") return;
-
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMore && !isLoadingMore) {
-          loadMorePostsRef.current();
-        }
+        if (entries[0].isIntersecting && hasMore && !isLoadingMore) loadMorePostsRef.current();
       },
       { threshold: 0.2, rootMargin: "250px" }
     );
-
     observer.observe(sentinelNode);
     return () => observer.disconnect();
   }, [sentinelNode, hasMore, isLoadingMore, activeTab]);
-
-  // Filtered and Sorted Posts
-  const filteredPosts = useMemo(() => {
-    let result = [...posts];
-
-    // Search query filter
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(
-        (p) =>
-          p.body.toLowerCase().includes(q) ||
-          p.author?.displayName?.toLowerCase().includes(q) ||
-          p.author?.username?.toLowerCase().includes(q)
-      );
-    }
-
-    // Category Filter
-    if (categoryFilter !== "ALL") {
-      result = result.filter((p) => p.type === categoryFilter);
-    }
-
-    // Sort order
-    if (sortOrder === "TOP_VOTED") {
-      result.sort((a, b) => b.votesCount - a.votesCount);
-    } else if (sortOrder === "MOST_DISCUSSED") {
-      result.sort((a, b) => b.commentsCount - a.commentsCount);
-    } else {
-      result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    }
-
-    return result;
-  }, [posts, searchQuery, categoryFilter, sortOrder]);
 
   function handleAskSenior() {
     router.push(`/post/new?tag=AskSeniors&college=${college.slug}`);
   }
 
   const shortName = college.name.split(",")[0];
+  const nearby = relatedColleges.slice(0, 5);
 
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-col min-h-screen pb-24 px-3 sm:px-4 pt-3 gap-5">
-      {/* ─── Clean College Header ─── */}
+    <main className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-4 px-4 pt-3 pb-24">
       <CollegeHeroHeader
         college={college}
         allowedDomains={allowedDomains}
         studentCount={students.length}
         postsCount={posts.length}
         academicsCount={academics.length}
-        collectivePoints={collectivePoints}
-        stateRank={1}
         isEnrolledHere={isEnrolledHere}
+        isSignedIn={Boolean(currentUserId)}
         onAskSeniorClick={handleAskSenior}
-        onViewAcademicsClick={() => setActiveTab("academics")}
       />
 
-      {/* ─── Clean Navigation Underline / Pill Tabs ─── */}
-      <div className="sticky top-12 lg:top-0 z-20 -mx-3 sm:-mx-4 px-3 sm:px-4 py-2 bg-background/85 backdrop-blur-xl border-b border-border/20">
-        <div role="tablist" aria-label="College sections" className="flex items-center gap-2 overflow-x-auto scrollbar-none">
-          {/* Tab 1: Campus Feed */}
-          <button
-            type="button"
-            onClick={() => setActiveTab("feed")}
-            aria-pressed={activeTab === "feed"}
-            className={cn(
-              "min-h-10 px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-ui cursor-pointer flex items-center gap-1.5 shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
-              activeTab === "feed"
-                ? "bg-foreground text-background font-black"
-                : "bg-card text-muted-foreground hover:text-foreground hover:bg-muted/50"
-            )}
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabType)} className="gap-4">
+        <div className="sticky top-12 z-20 -mx-4 bg-bg px-4 lg:top-0">
+          <TabsList
+            variant="line"
+            aria-label="College sections"
+            className="no-scrollbar w-full overflow-x-auto"
           >
-            <span>Feed</span>
-            <span
-              className={cn(
-                "text-[10px] px-1.5 py-0.2 rounded-full",
-                activeTab === "feed" ? "bg-background/20 text-background" : "bg-muted text-muted-foreground"
-              )}
-            >
-              {posts.length}
-            </span>
-          </button>
-
-          {/* Tab 2: Academics Vault */}
-          <button
-            type="button"
-            onClick={() => setActiveTab("academics")}
-            aria-pressed={activeTab === "academics"}
-            className={cn(
-              "min-h-10 px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-ui cursor-pointer flex items-center gap-1.5 shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
-              activeTab === "academics"
-                ? "bg-foreground text-background font-black"
-                : "bg-card text-muted-foreground hover:text-foreground hover:bg-muted/50"
-            )}
-          >
-            <BookOpen className="size-3.5" />
-            <span>Notes &amp; PYQs</span>
-            {academics.length > 0 && (
-              <span
-                className={cn(
-                  "text-[10px] px-1.5 py-0.2 rounded-full",
-                  activeTab === "academics"
-                    ? "bg-background/20 text-background"
-                    : "bg-muted text-muted-foreground"
-                )}
-              >
-                {academics.length}
-              </span>
-            )}
-          </button>
-
-          {/* Tab 3: Students & Leaderboard */}
-          <button
-            type="button"
-            onClick={() => setActiveTab("students")}
-            aria-pressed={activeTab === "students"}
-            className={cn(
-              "min-h-10 px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-ui cursor-pointer flex items-center gap-1.5 shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
-              activeTab === "students"
-                ? "bg-foreground text-background font-black"
-                : "bg-card text-muted-foreground hover:text-foreground hover:bg-muted/50"
-            )}
-          >
-            <span>Students ({students.length})</span>
-          </button>
-
-          {/* Tab 4: Societies & Clubs */}
-          <button
-            type="button"
-            onClick={() => setActiveTab("clubs")}
-            aria-pressed={activeTab === "clubs"}
-            className={cn(
-              "min-h-10 px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-ui cursor-pointer flex items-center gap-1.5 shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
-              activeTab === "clubs"
-                ? "bg-foreground text-background font-black"
-                : "bg-card text-muted-foreground hover:text-foreground hover:bg-muted/50"
-            )}
-          >
-            <span>Clubs &amp; Societies</span>
-          </button>
-
-          {/* Tab 5: Campus Info & Verification */}
-          <button
-            type="button"
-            onClick={() => setActiveTab("info")}
-            aria-pressed={activeTab === "info"}
-            className={cn(
-              "min-h-10 px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-ui cursor-pointer flex items-center gap-1.5 shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
-              activeTab === "info"
-                ? "bg-foreground text-background font-black"
-                : "bg-card text-muted-foreground hover:text-foreground hover:bg-muted/50"
-            )}
-          >
-            <span>Campus Info &amp; Verification</span>
-          </button>
+            <TabsTrigger value="feed">Posts</TabsTrigger>
+            <TabsTrigger value="academics">Notes</TabsTrigger>
+            <TabsTrigger value="students">Students</TabsTrigger>
+            <TabsTrigger value="clubs">Clubs</TabsTrigger>
+            <TabsTrigger value="info">About</TabsTrigger>
+          </TabsList>
         </div>
-      </div>
 
-      {/* ─── TAB 1: CAMPUS FEED ─── */}
-      {activeTab === "feed" && (
-        <div className="space-y-4 animate-in fade-in">
-          {/* Universal In-College Search & Filter Bar */}
-          <div className="space-y-2.5">
-            <div className="relative w-full">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder={`Search discussions, confessions & polls in ${shortName}...`}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-11 pl-10 pr-12 rounded-full border border-border/50 bg-card text-sm font-medium text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/15 transition-ui shadow-2xs"
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-1.5 top-1/2 -translate-y-1/2 inline-flex min-h-9 items-center justify-center rounded-full px-2 text-xs font-bold text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer"
-                >
-                  Clear
-                </button>
-              )}
-            </div>
+        <TabsContent value="feed">
+          <CollegeFeedPanel
+            posts={posts}
+            collegeSlug={college.slug}
+            shortName={shortName}
+            trendingTags={trendingTags}
+            currentUserId={currentUserId}
+            hasMore={hasMore}
+            isLoadingMore={isLoadingMore}
+            sentinelRef={setSentinelNode}
+          />
+        </TabsContent>
+        <TabsContent value="academics">
+          <CollegeAcademicsView collegeName={college.name} collegeSlug={college.slug} resources={academics} />
+        </TabsContent>
+        <TabsContent value="students">
+          <CollegeLeaderboardPodium students={students} collegeName={college.name} />
+        </TabsContent>
+        <TabsContent value="clubs">
+          <CollegeClubsView collegeName={college.name} />
+        </TabsContent>
+        <TabsContent value="info">
+          <CollegeRealityScorecard
+            collegeName={college.name}
+            collegeSlug={college.slug}
+            allowedDomains={allowedDomains}
+            studentCount={students.length}
+            nirfRank={college.nirfRank}
+            description={college.description}
+            emailFormat={emailFormatInfo}
+            onAskSeniorClick={currentUserId ? handleAskSenior : undefined}
+          />
+        </TabsContent>
+      </Tabs>
 
-            {/* Category Filter Pills & Sort */}
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <div role="group" aria-label="Filter campus posts by type" className="flex min-w-0 items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-                <button type="button" onClick={() => setCategoryFilter("ALL")} aria-pressed={categoryFilter === "ALL"} className={cn("min-h-10 shrink-0 px-3 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-ui cursor-pointer shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50", categoryFilter === "ALL" ? "bg-foreground text-background font-black" : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground")}>
-                  All ({posts.length})
-                </button>
-                <button type="button" onClick={() => setCategoryFilter("CONFESSION")} aria-pressed={categoryFilter === "CONFESSION"} className={cn("min-h-10 shrink-0 px-3 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-ui cursor-pointer shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50", categoryFilter === "CONFESSION" ? "bg-foreground text-background font-black" : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground")}>
-                  Confessions
-                </button>
-                <button type="button" onClick={() => setCategoryFilter("QUESTION")} aria-pressed={categoryFilter === "QUESTION"} className={cn("min-h-10 shrink-0 px-3 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-ui cursor-pointer shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50", categoryFilter === "QUESTION" ? "bg-foreground text-background font-black" : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground")}>
-                  Questions
-                </button>
-                <button type="button" onClick={() => setCategoryFilter("POLL")} aria-pressed={categoryFilter === "POLL"} className={cn("min-h-10 shrink-0 px-3 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-ui cursor-pointer shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50", categoryFilter === "POLL" ? "bg-foreground text-background font-black" : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground")}>
-                  Polls
-                </button>
-                <button type="button" onClick={() => setCategoryFilter("EVENT")} aria-pressed={categoryFilter === "EVENT"} className={cn("min-h-10 shrink-0 px-3 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-ui cursor-pointer shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50", categoryFilter === "EVENT" ? "bg-foreground text-background font-black" : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground")}>
-                  Events
-                </button>
-              </div>
-
-              <div className="flex justify-end sm:shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setSortOrder(sortOrder === "LATEST" ? "TOP_VOTED" : sortOrder === "TOP_VOTED" ? "MOST_DISCUSSED" : "LATEST")}
-                  aria-label={`Sort posts: ${sortOrder === "LATEST" ? "Latest" : sortOrder === "TOP_VOTED" ? "Top Voted" : "Most Discussed"}`}
-                  className="inline-flex min-h-10 items-center gap-1 rounded-full border border-border/80 bg-card px-3 text-xs font-bold text-foreground shadow-2xs transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-                >
-                  <ArrowUpDown className="size-3.5 text-primary" />
-                  <span>{sortOrder === "LATEST" ? "Latest" : sortOrder === "TOP_VOTED" ? "Top Voted" : "Most Discussed"}</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Trending Hashtags in this college */}
-          {trendingTags.length > 0 && (
-            <div className="rounded-3xl bg-card p-3.5 space-y-2 shadow-2xs border border-border/40">
-              <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-                <Hash className="size-3 text-primary" /> Trending in {shortName}
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {trendingTags.map((tag) => (
-                  <Link key={tag} href={`/hashtag/${tag}`}>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-muted/40 px-3 py-1 text-xs font-bold text-foreground hover:text-primary transition-colors cursor-pointer">
-                      #{tag}
-                    </span>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Quick Post Prompt Bar */}
-          <div className="rounded-3xl bg-card p-4 flex flex-col items-stretch justify-between gap-3 shadow-2xs border border-border/40 sm:flex-row sm:items-center">
-            <p className="text-xs font-bold text-foreground">
-              Have something on your mind about {shortName}?
-            </p>
-            <div className="flex flex-wrap items-center gap-2">
-              <Link
-                href={`/post/new?college=${college.slug}&tag=AskSeniors`}
-                className="inline-flex min-h-10 items-center justify-center rounded-full border border-border/70 bg-card px-3.5 text-xs font-bold text-foreground transition-colors hover:bg-muted"
-              >
-                Ask Seniors
-              </Link>
-              <Link
-                href={`/post/new?college=${college.slug}`}
-                className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full bg-primary px-4 text-xs font-bold text-primary-foreground shadow-xs transition-ui hover:bg-primary/95 cursor-pointer shrink-0"
-              >
-                <Plus className="size-3.5" />
-                <span>New Post</span>
-              </Link>
-            </div>
-          </div>
-
-          {/* Posts Stream */}
-          <div className="flex flex-col gap-3.5">
-            {filteredPosts.map((post) => (
-              <FeedCard key={post.id} post={post} currentUserId={currentUserId} />
-            ))}
-
-            {filteredPosts.length === 0 && (
-              <div className="text-center py-16 rounded-3xl bg-card text-muted-foreground text-xs font-semibold space-y-3 shadow-2xs border border-border/40">
-                <Compass className="size-8 mx-auto text-muted-foreground/40" />
-                <p className="font-bold text-foreground">No posts found matching your filter.</p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearchQuery("");
-                    setCategoryFilter("ALL");
-                  }}
-                  className="px-4 py-2 rounded-full bg-primary/10 text-primary font-bold hover:bg-primary/20 transition-colors cursor-pointer"
-                >
-                  Clear Filters
-                </button>
-              </div>
-            )}
-
-            {/* Infinite Scroll Sentinel */}
-            {hasMore && (
-              <div ref={setSentinelNode} className="py-6 flex items-center justify-center">
-                {isLoadingMore && (
-                  <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-                    <Loader2 className="size-4 animate-spin text-primary" />
-                    <span>Loading more campus threads...</span>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ─── TAB 2: ACADEMICS & STUDY VAULT ─── */}
-      {activeTab === "academics" && (
-        <CollegeAcademicsView
-          collegeName={college.name}
-          collegeSlug={college.slug}
-          resources={academics}
-        />
-      )}
-
-      {/* ─── TAB 3: STUDENTS & LEADERBOARD ─── */}
-      {activeTab === "students" && (
-        <CollegeLeaderboardPodium students={students} collegeName={college.name} />
-      )}
-
-      {/* ─── TAB 4: SOCIETIES & CLUBS ─── */}
-      {activeTab === "clubs" && <CollegeClubsView collegeName={college.name} />}
-
-      {/* ─── TAB 5: CAMPUS INFO & VERIFICATION ─── */}
-      {activeTab === "info" && (
-        <CollegeRealityScorecard
-          collegeName={college.name}
-          collegeSlug={college.slug}
-          allowedDomains={allowedDomains}
-          studentCount={students.length}
-          nirfRank={college.nirfRank}
-          description={college.description}
-          emailFormat={emailFormatInfo}
-          onAskSeniorClick={handleAskSenior}
-        />
-      )}
-
-      {/* ─── Guest Onboarding Invitation if Not Signed In ─── */}
       {!currentUserId && (
-        <div className="rounded-3xl bg-card p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-2xs border border-border/40">
-          <div className="space-y-1 text-center sm:text-left">
-            <h4 className="text-sm font-black text-foreground flex items-center justify-center sm:justify-start gap-1.5">
-              <Lock className="size-4 text-primary" /> Are you a student at {shortName}?
-            </h4>
-            <p className="text-xs text-muted-foreground">
-              Sign up with your college email (
-              {allowedDomains.length > 0
-                ? allowedDomains.map((d) => `@${d.domain}`).join(", ")
-                : "your university email"}
-              ) to unlock verified student badges, campus leaderboards, and direct messaging.
+        <section className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+          <div>
+            <h2 className="text-lg font-bold text-fg">Study at {shortName}?</h2>
+            <p className="text-sm text-fg-muted">
+              Join with your college email
+              {allowedDomains[0] ? ` (@${allowedDomains[0].domain})` : ""} to post, vote and chat.
             </p>
           </div>
+          <Button asChild className="shrink-0">
+            <Link
+              href={`/sign-up?college=${college.slug}${allowedDomains[0] ? `&domain=${allowedDomains[0].domain}` : ""}`}
+            >
+              Join with college email
+            </Link>
+          </Button>
+        </section>
+      )}
 
-          <Link
-            href={`/sign-up?college=${college.slug}${allowedDomains[0] ? `&domain=${allowedDomains[0].domain}` : ""}`}
-            className="px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-ui cursor-pointer shadow-md shrink-0"
-          >
-            Join {shortName} Hub
-          </Link>
-        </div>
+      {nearby.length > 0 && (
+        <nav aria-label={`More colleges in ${college.state ?? "this state"}`} className="space-y-2 pt-2">
+          <h2 className="text-base font-bold text-fg">More colleges in {college.state}</h2>
+          <ul className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
+            {nearby.map((c) => (
+              <li key={c.id}>
+                <Link
+                  href={`/college/${c.slug || c.id}`}
+                  className="text-fg-muted underline-offset-4 transition-ui hover:text-fg hover:underline"
+                >
+                  {c.name.split(",")[0]}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
       )}
     </main>
   );

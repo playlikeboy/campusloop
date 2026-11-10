@@ -1,21 +1,11 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { LivingHubClient } from "./living-hub-client";
+import { privateMetadata } from "@/lib/seo";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
+import { LivingHubClient } from "./living-hub-client";
 
-export const metadata: Metadata = {
-  title: "Living & Utilities | Campus Services",
-  description:
-    "Everything you need around campus: student marketplace, verified PGs and flatmates, lost and found recovery, cab pooling, and campus atlas.",
-  alternates: { canonical: "https://campusloop.space/living" },
-  openGraph: {
-    title: "Living & Utilities | Campus Services",
-    description:
-      "Buy and sell second-hand gear, find verified housing, recover lost items, pool station rides, and explore campus.",
-    url: "https://campusloop.space/living",
-    siteName: "CampusLoop Living",
-  },
-};
+// Signed-in only: visitors are sent to sign-in, so search engines can't read it.
+export const metadata: Metadata = privateMetadata("Campus living");
 
 export default async function LivingPage() {
   const user = await getCachedAuthUser();

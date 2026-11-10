@@ -10,54 +10,41 @@ interface StreakBadgeProps {
   href?: string;
 }
 
+/** Small streak count chip. Mint once today is done, neutral otherwise. */
 export function StreakBadge({ className, href = "/streaks" }: StreakBadgeProps) {
   const { streak, isLoading } = useStreaks();
+  const base =
+    "inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-sm font-semibold tabular-nums select-none";
 
   if (isLoading || !streak) {
     return (
-      <div
-        className={cn(
-          "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl border border-border/30 bg-muted/20 text-xs font-bold text-muted-foreground animate-pulse",
-          className
-        )}
-      >
-        <Flame className="size-3.5 text-muted-foreground/50" />
-        <span className="h-3 w-4 rounded bg-muted/60" />
-      </div>
+      <span className={cn(base, "bg-surface-muted text-fg-subtle", className)} aria-hidden="true">
+        <Flame className="size-4" />
+        <span className="h-3 w-4 rounded-xs bg-surface-sunken" />
+      </span>
     );
   }
 
   const { currentStreak, isSafeToday } = streak;
-  const displayStreak = Math.max(1, currentStreak);
+  const label = `${currentStreak}-day streak${isSafeToday ? ", safe today" : ""}`;
 
   return (
     <Link
       href={href}
-      title={
-        isSafeToday
-          ? `${displayStreak}-day streak (Safe today)`
-          : `${displayStreak}-day streak (Action needed today)`
-      }
+      title={label}
+      aria-label={label}
       className={cn(
-        "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl border text-xs font-bold transition-transform cursor-pointer active:scale-95 select-none",
+        base,
+        "transition-ui active:scale-95",
         isSafeToday
-          ? "border-success/25 bg-success/10 text-success"
-          : "border-reward/30 bg-reward/10 text-reward-text hover:bg-reward/15",
+          ? "bg-verified-subtle text-verified-text"
+          : "bg-surface-muted text-fg hover:bg-surface-sunken",
         className
       )}
     >
-      <Flame
-        className={cn(
-          "size-3.5 stroke-[2.2]",
-          isSafeToday
-            ? "fill-success/30 text-success"
-            : "fill-reward/30 text-reward-text animate-pulse"
-        )}
-      />
-      <span>{displayStreak}</span>
-      <span className="hidden sm:inline font-semibold text-[11px] opacity-80">
-        {displayStreak === 1 ? "day" : "days"}
-      </span>
+      <Flame aria-hidden="true" className="size-4" />
+      <span>{currentStreak}</span>
+      <span className="hidden font-medium sm:inline">{currentStreak === 1 ? "day" : "days"}</span>
     </Link>
   );
 }

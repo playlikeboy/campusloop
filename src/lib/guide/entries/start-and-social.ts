@@ -6,7 +6,8 @@ export const START_AND_SOCIAL: GuideEntry[] = [
   {
     slug: "getting-started",
     title: "Getting started",
-    summary: "Join CampusLoop with your college email, finish a short onboarding, and land in your campus feed.",
+    summary:
+      "Join CampusLoop with your college email, finish a short onboarding, and land in your campus feed.",
     category: "Start here",
     audiences: ["Students", "Investors"],
     routes: [
@@ -29,9 +30,19 @@ export const START_AND_SOCIAL: GuideEntry[] = [
       "You land on /feeds. Use the bottom bar on mobile (Home, Colleges, Post, Chat, Dating) or the sidebar on desktop.",
     ],
     useCases: [
-      { who: "First-year student", scenario: "Joins in week one to find seniors, hostel tips and the right club groups without hunting for WhatsApp links." },
-      { who: "Final-year student", scenario: "Uses it for placement prep notes, batch memories and the time capsule before graduation." },
-      { who: "Student whose college isn't listed", scenario: "Requests a hub at /college-request; the team reviews and opens it." },
+      {
+        who: "First-year student",
+        scenario:
+          "Joins in week one to find seniors, hostel tips and the right club groups without hunting for WhatsApp links.",
+      },
+      {
+        who: "Final-year student",
+        scenario: "Uses it for placement prep notes, batch memories and the time capsule before graduation.",
+      },
+      {
+        who: "Student whose college isn't listed",
+        scenario: "Requests a hub at /college-request; the team reviews and opens it.",
+      },
     ],
     tips: [
       "Branch and department subdomains (e.g. @cse.iitism.ac.in, @kgpian.iitkgp.ac.in, @smail.iitm.ac.in) are automatically recognized for student verification.",
@@ -42,10 +53,16 @@ export const START_AND_SOCIAL: GuideEntry[] = [
       "Your college email is used only for verification and account recovery. It is never shown to other students.",
     ],
     investorAngle:
-      "Email-domain verification is the core moat: it creates a closed, trusted graph per campus that open networks cannot copy, and it makes every downstream feature (dating, commerce, anonymity) safe enough to use.",
+      "College email verification is hard to copy: only real students get in, which makes Campus Match, buying and selling, and anonymous posts safe enough to use.",
     faq: [
-      { q: "Do I need a college email?", a: "Yes, for the verified tick and full access. Any other email opens Campus Preview, which has near-full access but no verified tick." },
-      { q: "Is it free?", a: "Yes. CampusLoop is free for students. Some marketplace orders are paid to the store." },
+      {
+        q: "Do I need a college email?",
+        a: "Yes, for the verified tick and full access. Any other email opens Campus Preview, which has near-full access but no verified tick.",
+      },
+      {
+        q: "Is it free?",
+        a: "Yes. CampusLoop is free for students. Some marketplace orders are paid to the store.",
+      },
     ],
     related: ["aspirant-viewer-mode", "campus-feed", "colleges-directory", "verification-and-safety"],
     keywords: ["sign up", "college email verification", "onboarding", "student network India"],
@@ -55,7 +72,8 @@ export const START_AND_SOCIAL: GuideEntry[] = [
   {
     slug: "aspirant-viewer-mode",
     title: "Campus Preview for prospective students",
-    summary: "Join with any email to see real campus life before choosing a college, without the verified tick.",
+    summary:
+      "Join with any email to see real campus life before choosing a college, without the verified tick.",
     category: "Start here",
     audiences: ["Aspirants", "Investors"],
     routes: [{ path: "/aspirants", label: "Aspirants" }],
@@ -73,7 +91,10 @@ export const START_AND_SOCIAL: GuideEntry[] = [
       "When you get your college email, verify it and the same account gets the verified tick and full access.",
     ],
     useCases: [
-      { who: "Prospective student", scenario: "Reads hostel and branch-change threads at three NITs before counselling." },
+      {
+        who: "Prospective student",
+        scenario: "Reads hostel and branch-change threads at three NITs before counselling.",
+      },
       { who: "Parent", scenario: "Checks campus safety discussions and mess reviews." },
     ],
     privacy: [
@@ -82,9 +103,14 @@ export const START_AND_SOCIAL: GuideEntry[] = [
     ],
     investorAngle:
       "Campus Preview is a top-of-funnel acquisition channel: prospective students form the habit before enrolling, then convert to verified users on day one of college.",
-    faq: [{ q: "Can students see that I viewed their post?", a: "No. Viewing a post is not shown to its author." }],
+    faq: [
+      {
+        q: "Can students see that I viewed their post?",
+        a: "No. Viewing a post is not shown to its author.",
+      },
+    ],
     related: ["getting-started", "colleges-directory", "campus-feed"],
-    keywords: ["prospective students", "college reviews", "campus preview", "viewer mode"],
+    keywords: ["prospective students", "college reviews", "campus preview"],
     updated: "2026-11-05",
   },
   {
@@ -113,9 +139,18 @@ export const START_AND_SOCIAL: GuideEntry[] = [
       "Tap a hashtag or college name to dive deeper.",
     ],
     useCases: [
-      { who: "Student", scenario: "Checks Trending on campus each morning for exam date changes and fest news." },
-      { who: "Club lead", scenario: "Posts a recruitment announcement that ranks well because people comment on it." },
-      { who: "Curious student", scenario: "Switches to Global to see what other IITs are saying about placements." },
+      {
+        who: "Student",
+        scenario: "Checks Trending on campus each morning for exam date changes and fest news.",
+      },
+      {
+        who: "Club lead",
+        scenario: "Posts a recruitment announcement that ranks well because people comment on it.",
+      },
+      {
+        who: "Curious student",
+        scenario: "Switches to Global to see what other IITs are saying about placements.",
+      },
     ],
     tips: [
       "Posts you scroll past quickly teach For You what to show less of; posts you reply to teach it what to show more of.",
@@ -125,8 +160,14 @@ export const START_AND_SOCIAL: GuideEntry[] = [
     investorAngle:
       "The feed is the daily habit loop that drives retention. Personalised ranking, per-campus network effects and a 50/50 ranking experiment give measurable engagement levers.",
     faq: [
-      { q: "Why do I see posts from other colleges?", a: "You are on Global scope, or a nearby campus post ranked highly. Switch to Campus to see only your college." },
-      { q: "How does For You decide?", a: "See the Personalised ranking guide. In short: recency, engagement, your campus, who you follow and engage with, what you skip, and nearby campuses." },
+      {
+        q: "Why do I see posts from other colleges?",
+        a: "You are on Global scope, or a nearby campus post ranked highly. Switch to Campus to see only your college.",
+      },
+      {
+        q: "How does For You decide?",
+        a: "See the Personalised ranking guide. In short: recency, engagement, your campus, who you follow and engage with, what you skip, and nearby campuses.",
+      },
     ],
     related: ["posting", "confessions", "personalized-ranking", "hashtags-and-trending"],
     keywords: ["campus feed", "college timeline", "for you", "trending posts"],
@@ -136,7 +177,8 @@ export const START_AND_SOCIAL: GuideEntry[] = [
   {
     slug: "posting",
     title: "Creating posts",
-    summary: "Write text posts, polls, questions, confessions and memes, with photos, links and music embeds.",
+    summary:
+      "Write text posts, polls, questions, confessions and memes, with photos, links and music embeds.",
     category: "Social",
     audiences: ["Students", "Clubs"],
     routes: [
@@ -168,7 +210,12 @@ export const START_AND_SOCIAL: GuideEntry[] = [
     ],
     investorAngle:
       "Rich formats (polls, embeds, anonymity) raise posting rates, and posting is the leading indicator of a healthy campus network.",
-    faq: [{ q: "Can I repost or quote?", a: "Yes. Use the repost button on any post to repost it or add your own comment as a quote." }],
+    faq: [
+      {
+        q: "Can I repost or quote?",
+        a: "Yes. Use the repost button on any post to repost it or add your own comment as a quote.",
+      },
+    ],
     related: ["campus-feed", "confessions", "comments-and-reactions", "privacy-and-anonymity"],
     keywords: ["create post", "poll", "anonymous post", "music embed"],
     essaySlug: "polls-and-questions",
@@ -195,7 +242,10 @@ export const START_AND_SOCIAL: GuideEntry[] = [
       "Report anything harmful; moderators review quickly.",
     ],
     useCases: [
-      { who: "Student", scenario: "Confesses a crush on someone in the library without revealing who they are." },
+      {
+        who: "Student",
+        scenario: "Confesses a crush on someone in the library without revealing who they are.",
+      },
       { who: "Student", scenario: "Shares anonymous feedback about a professor's grading." },
     ],
     privacy: [
@@ -203,7 +253,12 @@ export const START_AND_SOCIAL: GuideEntry[] = [
     ],
     investorAngle:
       "Anonymous confessions are historically the highest-engagement campus format. CampusLoop offers it with verification and moderation, which pages run on Instagram cannot.",
-    faq: [{ q: "Can the admin see who I am?", a: "Not by default. A sealed reveal exists only for serious safety reports, and it is logged." }],
+    faq: [
+      {
+        q: "Can the admin see who I am?",
+        a: "Not by default. A sealed reveal exists only for serious safety reports, and it is logged.",
+      },
+    ],
     related: ["posting", "privacy-and-anonymity", "verification-and-safety"],
     keywords: ["college confessions", "anonymous confessions India"],
     essaySlug: "anonymous-confessions",
@@ -219,7 +274,8 @@ export const START_AND_SOCIAL: GuideEntry[] = [
       { path: "/post/[id]", label: "Post page" },
       { path: "/saved", label: "Saved posts" },
     ],
-    purpose: "Conversation is the point of a campus network. These tools turn posts into discussions and help good content rise.",
+    purpose:
+      "Conversation is the point of a campus network. These tools turn posts into discussions and help good content rise.",
     whyUse: [
       "Upvotes help useful posts reach more students.",
       "Threaded replies keep discussions readable.",
@@ -232,11 +288,20 @@ export const START_AND_SOCIAL: GuideEntry[] = [
       "Tap save to keep it in /saved.",
     ],
     useCases: [
-      { who: "Student", scenario: "Saves a senior's internship guide and finds it again in /saved before applying." },
+      {
+        who: "Student",
+        scenario: "Saves a senior's internship guide and finds it again in /saved before applying.",
+      },
       { who: "Student", scenario: "Quotes a fest announcement to invite friends." },
     ],
-    investorAngle: "Replies are weighted far above likes in ranking, which rewards real conversation over passive scrolling.",
-    faq: [{ q: "Do downvotes hide posts?", a: "No. They lower ranking in sorted views; Latest still shows everything." }],
+    investorAngle:
+      "Replies are weighted far above likes in ranking, which rewards real conversation over passive scrolling.",
+    faq: [
+      {
+        q: "Do downvotes hide posts?",
+        a: "No. They lower ranking in sorted views; Latest still shows everything.",
+      },
+    ],
     related: ["campus-feed", "posting", "saved-posts"],
     keywords: ["comments", "upvote", "repost", "save post"],
     updated: U,
@@ -251,15 +316,25 @@ export const START_AND_SOCIAL: GuideEntry[] = [
       { path: "/hashtag/[tag]", label: "Hashtag page" },
       { path: "/explore", label: "Explore" },
     ],
-    purpose: "Hashtags give scattered posts a shared address, so a fest, an exam or a hostel issue can be followed in one place.",
-    whyUse: ["See everything about #TechFest or #placements in one list.", "Spot what your campus is talking about right now."],
+    purpose:
+      "Hashtags give scattered posts a shared address, so a fest, an exam or a hostel issue can be followed in one place.",
+    whyUse: [
+      "See everything about #TechFest or #placements in one list.",
+      "Spot what your campus is talking about right now.",
+    ],
     howToUse: [
       "Add #tags in your post text.",
       "Tap any hashtag to open its page.",
       "Check trending hashtags in Explore or the sidebar.",
     ],
-    useCases: [{ who: "Fest team", scenario: "Asks everyone to use #Pantheon2026 so all fest posts collect on one page." }],
-    investorAngle: "Trending topics surface what each campus cares about, a signal for content, events and future partnerships.",
+    useCases: [
+      {
+        who: "Fest team",
+        scenario: "Asks everyone to use #Pantheon2026 so all fest posts collect on one page.",
+      },
+    ],
+    investorAngle:
+      "Trending topics surface what each campus cares about, a signal for content, events and future partnerships.",
     faq: [{ q: "Are hashtags case sensitive?", a: "No. #TechFest and #techfest go to the same place." }],
     related: ["campus-feed", "search-and-explore"],
     keywords: ["hashtags", "trending", "college topics"],
@@ -267,7 +342,7 @@ export const START_AND_SOCIAL: GuideEntry[] = [
   },
   {
     slug: "stories",
-    title: "Stories (Vibes)",
+    title: "Stories",
     summary: "24-hour photo and text stories from people you follow, shown in a tray at the top of the feed.",
     category: "Social",
     audiences: ["Students"],
@@ -276,7 +351,10 @@ export const START_AND_SOCIAL: GuideEntry[] = [
       { path: "/story/[id]", label: "Story viewer" },
     ],
     purpose: "Share in-the-moment campus life that does not need to stay on your profile forever.",
-    whyUse: ["Quick, casual sharing that disappears after a day.", "See your closest friends' updates first."],
+    whyUse: [
+      "Quick, casual sharing that disappears after a day.",
+      "See your closest friends' updates first.",
+    ],
     howToUse: [
       "Tap Add story at the start of the story tray.",
       "Upload a photo or write text on a colour background, then share.",
@@ -284,8 +362,14 @@ export const START_AND_SOCIAL: GuideEntry[] = [
     ],
     useCases: [{ who: "Student", scenario: "Posts the sunset from the hostel roof during exam week." }],
     privacy: ["Stories are shown to you and people who follow you. Blocked users never see them."],
-    investorAngle: "Stories add a lightweight daily reason to open the app, and closeness-ranked trays strengthen the friend graph.",
-    faq: [{ q: "How is the tray ordered?", a: "Unwatched first, then by closeness: mutual follows, people you interact with most, and freshness." }],
+    investorAngle:
+      "Stories add a lightweight daily reason to open the app, and closeness-ranked trays strengthen the friend graph.",
+    faq: [
+      {
+        q: "How is the tray ordered?",
+        a: "Unwatched first, then by closeness: mutual follows, people you interact with most, and freshness.",
+      },
+    ],
     related: ["profiles-and-follows", "campus-feed"],
     keywords: ["stories", "campus vibes", "24 hour stories"],
     essaySlug: "stories-vibes",
@@ -298,12 +382,28 @@ export const START_AND_SOCIAL: GuideEntry[] = [
     category: "Social",
     audiences: ["Students"],
     routes: [{ path: "/reels", label: "Reels" }],
-    purpose: "Give video and visual content a format built for it, instead of squeezing it into the text feed.",
-    whyUse: ["Swipe through campus videos and memes quickly.", "Find the funniest content from across India."],
-    howToUse: ["Open /reels.", "Swipe up for the next one; tap to pause.", "Like, comment or share as on any post."],
-    useCases: [{ who: "Student", scenario: "Watches fest highlight clips from other colleges between classes." }],
-    investorAngle: "Short video is the most time-intensive format in social apps and a natural future ad and sponsorship surface.",
-    faq: [{ q: "How are reels ranked?", a: "By watch behaviour (full watches, loops, skips), engagement and freshness." }],
+    purpose:
+      "Give video and visual content a format built for it, instead of squeezing it into the text feed.",
+    whyUse: [
+      "Swipe through campus videos and memes quickly.",
+      "Find the funniest content from across India.",
+    ],
+    howToUse: [
+      "Open /reels.",
+      "Swipe up for the next one; tap to pause.",
+      "Like, comment or share as on any post.",
+    ],
+    useCases: [
+      { who: "Student", scenario: "Watches fest highlight clips from other colleges between classes." },
+    ],
+    investorAngle:
+      "Short video is the most time-intensive format in social apps and a natural future ad and sponsorship surface.",
+    faq: [
+      {
+        q: "How are reels ranked?",
+        a: "By watch behaviour (full watches, loops, skips), engagement and freshness.",
+      },
+    ],
     related: ["campus-feed", "posting"],
     keywords: ["reels", "campus videos"],
     updated: U,
@@ -311,22 +411,25 @@ export const START_AND_SOCIAL: GuideEntry[] = [
   {
     slug: "search-and-explore",
     title: "Search and Explore",
-    summary: "Find posts, people, colleges, notes, communities and events from one search, or browse Explore.",
+    summary:
+      "Find posts, people, colleges, notes, communities and events from one search, or browse Explore.",
     category: "Social",
     audiences: ["Students"],
-    routes: [
-      { path: "/explore", label: "Explore" },
-      { path: "/search", label: "Search" },
+    routes: [{ path: "/explore", label: "Explore and search" }],
+    purpose:
+      "Make everything on CampusLoop findable, so knowledge does not disappear the way it does in chat apps.",
+    whyUse: [
+      "One search across posts, people, notes and more.",
+      "Explore surfaces trending posts, featured campuses and suggested people.",
     ],
-    purpose: "Make everything on CampusLoop findable, so knowledge does not disappear the way it does in chat apps.",
-    whyUse: ["One search across posts, people, notes and more.", "Explore surfaces trending posts, featured campuses and suggested people."],
     howToUse: [
       "Press Ctrl or Cmd + K on desktop, or tap the search icon on mobile.",
       "Type a name, topic, subject code or college.",
       "Open Explore for trending posts, campuses and people to follow.",
     ],
     useCases: [{ who: "Student", scenario: "Searches 'CS301 PYQ' and lands directly on the notes page." }],
-    investorAngle: "Search turns accumulated campus content into lasting value, increasing the network's worth with every post.",
+    investorAngle:
+      "Search turns accumulated campus content into lasting value, increasing the network's worth with every post.",
     faq: [{ q: "Does search include anonymous posts?", a: "Yes, but it never reveals who wrote them." }],
     related: ["hashtags-and-trending", "academic-vault", "profiles-and-follows"],
     keywords: ["search", "explore", "find students"],
@@ -354,10 +457,21 @@ export const START_AND_SOCIAL: GuideEntry[] = [
       "Visit someone's profile and tap Follow.",
       "See suggested people in the feed and Explore. Reasons like 'N Mutuals' or 'Within 5 km' explain why.",
     ],
-    useCases: [{ who: "Student", scenario: "Adds LinkedIn and GitHub links so recruiters among alumni can find them." }],
+    useCases: [
+      {
+        who: "Student",
+        scenario: "Adds LinkedIn and GitHub links so recruiters among alumni can find them.",
+      },
+    ],
     privacy: ["Your email, date of birth (if private) and exact location are never shown on your profile."],
-    investorAngle: "The follow graph powers ranking, stories and suggestions; graph density per campus is a core health metric.",
-    faq: [{ q: "How are people suggested?", a: "Friends of friends, people you already engage with, shared interests, same campus or branch, and nearby students." }],
+    investorAngle:
+      "The follow graph powers ranking, stories and suggestions; graph density per campus is a core health metric.",
+    faq: [
+      {
+        q: "How are people suggested?",
+        a: "Friends of friends, people you already engage with, shared interests, same campus or branch, and nearby students.",
+      },
+    ],
     related: ["stories", "personalized-ranking", "settings"],
     keywords: ["student profile", "follow", "friends"],
     updated: U,

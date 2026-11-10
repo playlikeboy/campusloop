@@ -1,13 +1,19 @@
 "use client";
 
 import { Building2, School } from "lucide-react";
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { type ComboboxOption, SearchableCombobox } from "@/components/ui/searchable-combobox";
 
 interface CollegeComboboxProps {
   value: string;
   onChange: (institutionId: string, institutionName?: string) => void;
-  initialInstitutions?: Array<{ id: string; name: string; state?: string | null; district?: string | null; nirfRank?: number | null }>;
+  initialInstitutions?: Array<{
+    id: string;
+    name: string;
+    state?: string | null;
+    district?: string | null;
+    nirfRank?: number | null;
+  }>;
   initialInstitutionName?: string;
   placeholder?: string;
   className?: string;
@@ -72,7 +78,7 @@ export function CollegeCombobox({
     });
   }, [initialInstitutions, value, initialInstitutionName]);
 
-  // Async search handler for all 1,350+ institutions
+  // Async search handler for every institution in the directory
   const handleSearchAsync = useCallback(async (query: string): Promise<ComboboxOption[]> => {
     try {
       const res = await fetch(`/api/colleges?q=${encodeURIComponent(query)}&limit=25`);

@@ -1,13 +1,13 @@
 import { ShieldAlert } from "lucide-react";
 import type { Metadata } from "next";
+import { Badge } from "@/components/ui/badge";
+import { privateMetadata } from "@/lib/seo";
 import { AdminPageHeader } from "../_components/admin-page-header";
 import { resolveAdminSession } from "../_lib/guard";
 import { getPendingReviewPosts } from "../_lib/queries";
 import { ReviewQueueClient } from "./review-queue-client";
 
-export const metadata: Metadata = {
-  title: "Review Queue",
-};
+export const metadata: Metadata = privateMetadata("Review queue");
 
 export const dynamic = "force-dynamic";
 
@@ -18,15 +18,10 @@ export default async function ReviewQueuePage() {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="Moderation Review Queue"
-        category="Operations & Safety"
+        title="Review queue"
         icon={ShieldAlert}
-        description="Inspect content flagged by automated keyword blocks, toxicity models, or high report volumes."
-        badge={
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-warning-subtle text-warning border border-warning/20">
-            {queue.length} pending
-          </span>
-        }
+        description="Posts held by the safety filter. Approve or remove each one."
+        badge={<Badge variant="warning">{queue.length} pending</Badge>}
       />
 
       <ReviewQueueClient initialPosts={queue} />

@@ -857,7 +857,7 @@ function renderDocumentationHtml(origin: string, isAuth: boolean) {
           <span class="text-xs text-fg-muted">v1.0.0 · JSON-RPC 2.0 / REST / SSE</span>
         </div>
         <h1 class="text-3xl font-bold mt-2 text-fg">CampusLoop Articles MCP Engine</h1>
-        <p class="text-fg-muted text-sm mt-1">Full-stack student journalism, technical long-reads, and placement guide management across 1,350+ Indian colleges.</p>
+        <p class="text-fg-muted text-sm mt-1">Full-stack student journalism, technical long-reads, and placement guide management for Indian colleges.</p>
       </div>
       <div class="flex items-center gap-2">
         <a href="/mcp/articles/openapi.json" target="_blank" class="px-4 py-2 bg-surface-muted hover:bg-surface text-xs font-medium rounded-lg transition-colors border border-border">OpenAPI 3.1.0</a>

@@ -1,17 +1,14 @@
+import { eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { merchantUsers } from "@/db/schema";
 import { getAuthenticatedMerchant } from "@/lib/merchant-auth";
+import { privateMetadata } from "@/lib/seo";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 import { MerchantLayoutClient } from "../merchant-layout-client";
 
-export const metadata: Metadata = {
-  title: "Merchant Portal",
-  description: "Manage orders, menu items, business hours, and delivery settings for your campus store.",
-  robots: { index: false, follow: false },
-};
+export const metadata: Metadata = privateMetadata("Store dashboard");
 
 export default async function MerchantPortalLayout({ children }: { children: React.ReactNode }) {
   // 1. Try direct merchant session cookie

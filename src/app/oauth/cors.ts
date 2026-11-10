@@ -25,7 +25,9 @@ export async function readBody(req: Request): Promise<URLSearchParams> {
   const type = req.headers.get("content-type") ?? "";
   if (type.includes("application/json")) {
     const json = (await req.json().catch(() => ({}))) as Record<string, unknown>;
-    return new URLSearchParams(Object.entries(json).filter(([, v]) => typeof v === "string") as [string, string][]);
+    return new URLSearchParams(
+      Object.entries(json).filter(([, v]) => typeof v === "string") as [string, string][]
+    );
   }
   return new URLSearchParams(await req.text());
 }

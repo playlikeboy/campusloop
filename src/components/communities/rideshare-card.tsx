@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Car,
-  Clock,
-  MessageCircle,
-  Share2,
-  ShieldCheck,
-  Users,
-} from "lucide-react";
+import { Car, Clock, MessageCircle, Share2, Users } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -46,17 +39,17 @@ export function RideshareCard({ item, currentUserId }: RideshareCardProps) {
       haptics.light();
       setReserved(false);
       setAvailableSeats((prev) => prev + 1);
-      toast.info("Seat reservation cancelled");
+      toast.info("Seat cancelled");
     } else {
       if (isFull) {
-        toast.error("No seats available for this ride!");
+        toast.error("This ride is full");
         return;
       }
       sounds.match();
       haptics.match();
       setReserved(true);
       setAvailableSeats((prev) => Math.max(0, prev - 1));
-      toast.success("Seat reserved! Coordinate pickup with ride host");
+      toast.success("Seat booked. Message the host to plan pickup.");
     }
   }
 
@@ -90,12 +83,12 @@ export function RideshareCard({ item, currentUserId }: RideshareCardProps) {
         .catch(() => {});
     } else {
       navigator.clipboard.writeText(shareUrl);
-      toast.success("Rideshare link copied!");
+      toast.success("Link copied");
     }
   }
 
   return (
-    <article className="group flex flex-col justify-between rounded-2xl border border-border/40 bg-card p-5 transition-colors duration-200 hover:shadow-md hover:border-border/80 space-y-4">
+    <article className="group flex flex-col justify-between rounded-2xl border border-border/40 bg-card p-5 transition-colors duration-200 hover:shadow-sm hover:border-border/80 space-y-4">
       {/* Route Timeline Block */}
       <div className="space-y-3">
         {/* Origin & Destination Route */}
@@ -103,26 +96,27 @@ export function RideshareCard({ item, currentUserId }: RideshareCardProps) {
           <div className="flex-1 space-y-2.5">
             <div className="flex items-center gap-2.5">
               <span className="flex size-3 items-center justify-center rounded-full bg-success ring-4 ring-success" />
-              <span className="text-sm font-black text-foreground truncate">{item.origin}</span>
+              <span className="text-sm font-bold text-foreground truncate">{item.origin}</span>
             </div>
 
             <div className="ml-1.5 h-4 border-l-2 border-dashed border-border" />
 
             <div className="flex items-center gap-2.5">
               <span className="flex size-3 items-center justify-center rounded-full bg-brand ring-4 ring-ring" />
-              <span className="text-sm font-black text-foreground truncate">{item.destination}</span>
+              <span className="text-sm font-bold text-foreground truncate">{item.destination}</span>
             </div>
           </div>
 
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon"
             onClick={handleShare}
-            className="flex size-8 shrink-0 items-center justify-center rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-            title="Share ride"
             aria-label="Share ride"
+            className="shrink-0"
           >
-            <Share2 className="size-3.5" />
-          </button>
+            <Share2 />
+          </Button>
         </div>
 
         {/* Departure Time & Vehicle Row */}
@@ -134,15 +128,13 @@ export function RideshareCard({ item, currentUserId }: RideshareCardProps) {
 
           <div className="flex items-center gap-1 font-bold text-brand-text">
             <Car className="size-3.5" />
-            <span className="uppercase text-[11px]">{item.vehicleType.replace("_", " ")}</span>
+            <span className="text-xs capitalize">{item.vehicleType.replace("_", " ")}</span>
           </div>
         </div>
 
         {/* Notes snippet */}
         {item.notes ? (
-          <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-            {item.notes}
-          </p>
+          <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">{item.notes}</p>
         ) : null}
       </div>
 
@@ -150,9 +142,7 @@ export function RideshareCard({ item, currentUserId }: RideshareCardProps) {
       <div className="border-t border-border/30 pt-3 space-y-3">
         <div className="flex items-center justify-between">
           <div>
-            <span className="text-lg font-black text-foreground">
-              ₹{item.pricePerSeat}
-            </span>
+            <span className="text-lg font-bold text-foreground">₹{item.pricePerSeat}</span>
             <span className="text-xs text-muted-foreground"> / seat</span>
           </div>
 
@@ -161,9 +151,7 @@ export function RideshareCard({ item, currentUserId }: RideshareCardProps) {
             <span
               className={cn(
                 "rounded-md px-2 py-0.5 text-xs font-bold",
-                isFull
-                  ? "bg-danger-subtle text-danger"
-                  : "bg-success-subtle text-success"
+                isFull ? "bg-danger-subtle text-danger" : "bg-success-subtle text-success"
               )}
             >
               {availableSeats > 0 ? `${availableSeats} Seats Left` : "Ride Full"}
@@ -179,7 +167,7 @@ export function RideshareCard({ item, currentUserId }: RideshareCardProps) {
           >
             <Avatar className="size-6 rounded-full border border-border/50 shrink-0">
               <AvatarImage src={avatar} />
-              <AvatarFallback className="text-[10px] font-bold">
+              <AvatarFallback className="text-xs font-bold">
                 {item.creator.displayName[0] || "U"}
               </AvatarFallback>
             </Avatar>
@@ -188,11 +176,6 @@ export function RideshareCard({ item, currentUserId }: RideshareCardProps) {
                 <span className="text-xs font-semibold text-foreground truncate">
                   {item.creator.displayName}
                 </span>
-                {(item.creator.points || 0) >= 150 ? (
-                  <span title="Verified student">
-                    <ShieldCheck className="size-3 text-primary shrink-0" />
-                  </span>
-                ) : null}
               </div>
             </div>
           </Link>
@@ -201,28 +184,20 @@ export function RideshareCard({ item, currentUserId }: RideshareCardProps) {
             <Button
               type="button"
               variant="outline"
-              size="sm"
+              size="icon"
               onClick={handleCopyContact}
-              className="size-9 p-0 text-muted-foreground hover:text-foreground"
-              title="Contact host"
-              aria-label="Contact host"
+              aria-label="Copy host contact"
             >
-              <MessageCircle className="size-4" />
+              <MessageCircle />
             </Button>
 
             <Button
               type="button"
-              size="sm"
+              variant={reserved ? "secondary" : "primary"}
               onClick={handleReserveSeat}
               disabled={isFull && !reserved}
-              className={cn(
-                "font-bold text-xs h-9 px-4",
-                reserved
-                  ? "bg-muted text-foreground hover:bg-muted/80"
-                  : "bg-brand hover:bg-brand-hover text-white"
-              )}
             >
-              {reserved ? "Cancel Seat" : isFull ? "Full" : "Reserve Seat"}
+              {reserved ? "Cancel seat" : isFull ? "Full" : "Book a seat"}
             </Button>
           </div>
         </div>

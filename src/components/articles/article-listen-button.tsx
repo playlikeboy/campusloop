@@ -27,7 +27,9 @@ export function ArticleListenButton({ title, content }: { title: string; content
     const synth = window.speechSynthesis;
     synth.cancel();
     const u = new SpeechSynthesisUtterance(`${title}. ${articlePlainText(content)}`);
-    const voice = synth.getVoices().find((v) => v.lang === "en-IN") ?? synth.getVoices().find((v) => v.lang.startsWith("en"));
+    const voice =
+      synth.getVoices().find((v) => v.lang === "en-IN") ??
+      synth.getVoices().find((v) => v.lang.startsWith("en"));
     if (voice) u.voice = voice;
     u.rate = 1;
     u.onend = () => setState("idle");
@@ -38,12 +40,16 @@ export function ArticleListenButton({ title, content }: { title: string; content
   }
 
   const base =
-    "inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer";
+    "inline-flex h-10 min-w-10 cursor-pointer items-center justify-center gap-1.5 rounded-full px-3.5 text-sm font-semibold transition-ui focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
   if (state === "idle") {
     return (
-      <button type="button" onClick={start} className={`${base} bg-muted/70 text-foreground hover:bg-muted`}>
-        <Headphones className="size-3.5" aria-hidden /> Listen
+      <button
+        type="button"
+        onClick={start}
+        className={`${base} bg-surface-muted text-fg hover:bg-surface-sunken`}
+      >
+        <Headphones className="size-4" aria-hidden /> Listen
       </button>
     );
   }
@@ -60,10 +66,14 @@ export function ArticleListenButton({ title, content }: { title: string; content
             setState("playing");
           }
         }}
-        className={`${base} bg-primary/10 text-primary`}
+        className={`${base} bg-brand-subtle text-brand-text`}
         aria-label={state === "playing" ? "Pause reading" : "Resume reading"}
       >
-        {state === "playing" ? <Pause className="size-3.5" aria-hidden /> : <Headphones className="size-3.5" aria-hidden />}
+        {state === "playing" ? (
+          <Pause className="size-4" aria-hidden />
+        ) : (
+          <Headphones className="size-4" aria-hidden />
+        )}
         {state === "playing" ? "Pause" : "Resume"}
       </button>
       <button
@@ -72,10 +82,10 @@ export function ArticleListenButton({ title, content }: { title: string; content
           window.speechSynthesis.cancel();
           setState("idle");
         }}
-        className={`${base} bg-muted/70 text-foreground`}
+        className={`${base} bg-surface-muted text-fg hover:bg-surface-sunken`}
         aria-label="Stop reading"
       >
-        <Square className="size-3.5" aria-hidden />
+        <Square className="size-4" aria-hidden />
       </button>
     </span>
   );

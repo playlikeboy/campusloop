@@ -1,26 +1,20 @@
 "use client";
 
-import {
-  CornerDownRight,
-  Loader2,
-  LogIn,
-  MessageSquare,
-  Send,
-  ShieldCheck,
-  ThumbsUp,
-  Trash2,
-  X,
-} from "lucide-react";
+import { LogIn, MessageSquare, Send, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
 import { useProfile } from "@/hooks/use-profile";
 import { fetcher, voteArticleComment } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn } from "@/lib/utils";
+import { type ArticleComment, ArticleCommentItem } from "./article-comment-item";
 
 interface ArticleCommentsSectionProps {
   articleSlug: string;
@@ -47,7 +41,7 @@ export function ArticleCommentsSection({
   const encodedSlug = encodeURIComponent(articleSlug);
 
   const { data, isLoading, mutate } = useSWR<{
-    comments: any[];
+    comments: ArticleComment[];
     totalCount: number;
   }>(`/api/articles/${encodedSlug}/comments`, fetcher, {
     revalidateOnFocus: true,
@@ -62,7 +56,7 @@ export function ArticleCommentsSection({
     if (!textToSend) return;
 
     if (!effectiveProfile) {
-      toast.info("Please sign in to join the discussion.");
+      toast.info("Sign in to comment.");
       return;
     }
 
@@ -81,11 +75,11 @@ export function ArticleCommentsSection({
       });
 
       if (!res.ok) {
-        const errPayload = (await res.json()) as { error?: string };
-        throw new Error(errPayload.error || "Failed to post comment");
+        const errPayload = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(errPayload.error || "Couldn't post your comment. Try again.");
       }
 
-      toast.success(parentId ? "Reply posted successfully" : "Comment posted (+5 LP)");
+      toast.success(parentId ? "Reply posted" : "Comment posted");
       if (parentId) {
         setReplyingToId(null);
         setReplyText("");
@@ -94,7 +88,7 @@ export function ArticleCommentsSection({
       }
       mutate(undefined, { revalidate: true });
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to post comment";
+      const msg = err instanceof Error ? err.message : "Couldn't post your comment. Try again.";
       toast.error(msg);
       haptics.error();
     } finally {
@@ -104,7 +98,7 @@ export function ArticleCommentsSection({
 
   async function handleVoteComment(commentId: string) {
     if (!effectiveProfile) {
-      toast.info("Please sign in to upvote comments.");
+      toast.info("Sign in to upvote comments.");
       return;
     }
 
@@ -114,7 +108,7 @@ export function ArticleCommentsSection({
     const previousData = data;
 
     // Helper to update vote and count optimistically in the nested tree
-    const updateInTree = (list: any[]): any[] => {
+    const updateInTree = (list: ArticleComment[]): ArticleComment[] => {
       return list.map((item) => {
         if (item.id === commentId) {
           const isCurrentlyVoted = (item.userVote || 0) > 0;
@@ -153,7 +147,7 @@ export function ArticleCommentsSection({
       await mutate(
         (current) => {
           if (!current) return current;
-          const syncInTree = (list: any[]): any[] => {
+          const syncInTree = (list: ArticleComment[]): ArticleComment[] => {
             return list.map((item) => {
               if (item.id === commentId) {
                 return {
@@ -181,304 +175,165 @@ export function ArticleCommentsSection({
     } catch {
       // Rollback to previous state on network failure
       await mutate(previousData, { revalidate: false });
-      toast.error("Failed to update reaction");
+      toast.error("Couldn't save your upvote. Try again.");
     }
   }
 
   async function handleDeleteComment(commentId: string) {
-    if (!confirm("Are you sure you want to delete this comment?")) return;
+    if (!confirm("Delete this comment? This can't be undone.")) return;
 
     try {
       const res = await fetch(`/api/articles/${encodedSlug}/comments/${commentId}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to delete comment");
+      if (!res.ok) throw new Error();
       toast.success("Comment deleted");
       mutate();
     } catch {
-      toast.error("Failed to delete comment");
+      toast.error("Couldn't delete the comment. Try again.");
     }
   }
 
-  return (
-    <section id="comments" className="space-y-6 pt-10 border-t border-border/40 scroll-mt-20">
-      {/* ─── Header ─── */}
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-black text-foreground tracking-tight flex items-center gap-2">
-          <MessageSquare className="size-5 text-primary" />
-          <span>Discussion &amp; Insights ({totalCount})</span>
-        </h3>
-      </div>
+  function startReply(id: string) {
+    if (!effectiveProfile) {
+      toast.info("Sign in to reply.");
+      return;
+    }
+    setReplyingToId((prev) => (prev === id ? null : id));
+    setReplyText("");
+  }
 
-      {/* ─── Root Comment Composer ─── */}
-      <div className="rounded-2xl border border-border/40 bg-card/60 p-4 space-y-3 shadow-xs">
+  return (
+    <section
+      id="comments"
+      aria-labelledby="comments-title"
+      className="scroll-mt-20 space-y-6 border-t border-border pt-10"
+    >
+      <h2 id="comments-title" className="flex items-center gap-2 text-2xl text-fg">
+        Comments
+        <span className="text-base font-normal text-fg-muted tabular-nums">{totalCount}</span>
+      </h2>
+
+      <div className="rounded-lg border border-border bg-surface p-4">
         <div className="flex items-start gap-3">
-          <Avatar className="size-8 shrink-0 border border-border/40">
-            <AvatarImage src={effectiveProfile?.avatarUrl || ""} />
-            <AvatarFallback className="text-[10px] font-black bg-primary/10 text-primary">
+          <Avatar className="size-8 shrink-0">
+            <AvatarImage src={effectiveProfile?.avatarUrl || ""} alt="" />
+            <AvatarFallback className="bg-surface-muted text-xs font-semibold text-fg">
               {effectiveProfile?.username?.[0]?.toUpperCase() || "U"}
             </AvatarFallback>
           </Avatar>
-
-          <div className="min-w-0 flex-1">
-            <textarea
-              rows={3}
-              placeholder={
-                effectiveProfile
-                  ? "Share your perspective, question, or experience on this article..."
-                  : "Sign in to join the conversation..."
-              }
-              disabled={!effectiveProfile || isSubmitting}
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              className="w-full bg-transparent text-xs sm:text-sm font-medium text-foreground placeholder:text-muted-foreground outline-none resize-none leading-relaxed"
-            />
-          </div>
+          <label htmlFor="article-comment" className="sr-only">
+            Your comment
+          </label>
+          <Textarea
+            id="article-comment"
+            rows={3}
+            placeholder={
+              effectiveProfile ? "Add a comment or ask the writer something" : "Sign in to comment"
+            }
+            disabled={!effectiveProfile || isSubmitting}
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+            className="min-h-20 flex-1"
+          />
         </div>
-
-        <div className="flex items-center justify-between pt-2 border-t border-border/20">
-          <span className="text-[11px] text-muted-foreground">Be respectful &amp; insightful.</span>
+        <div className="mt-3 flex justify-end">
           {effectiveProfile ? (
-            <button
-              type="button"
-              disabled={!commentText.trim() || isSubmitting}
+            <Button
+              size="sm"
+              disabled={!commentText.trim()}
+              loading={isSubmitting}
               onClick={() => handleAddComment(null)}
-              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-black hover:opacity-90 active:scale-95 transition-ui disabled:opacity-50 cursor-pointer shadow-xs"
             >
-              {isSubmitting ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
-              <span>Comment</span>
-            </button>
+              <Send className="size-4" />
+              Comment
+            </Button>
           ) : (
-            <Link
-              href="/sign-in"
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-black hover:opacity-90 active:scale-95 transition-ui cursor-pointer shadow-xs"
-            >
-              <LogIn className="size-3.5" />
-              <span>Sign in to Comment</span>
-            </Link>
+            <Button size="sm" asChild>
+              <Link href="/sign-in">
+                <LogIn className="size-4" />
+                Sign in to comment
+              </Link>
+            </Button>
           )}
         </div>
       </div>
 
-      {/* ─── Threaded Comments List ─── */}
-      <div className="space-y-4">
-        {isLoading ? (
-          <div className="space-y-3">
-            <div className="h-20 rounded-2xl bg-muted/40 animate-pulse" />
-            <div className="h-20 rounded-2xl bg-muted/40 animate-pulse" />
-          </div>
-        ) : comments.length > 0 ? (
-          comments.map((root) => {
-            const author = root.author;
-            const isVerified = (author?.points || 0) >= 150;
-            const formattedDate = root.createdAt
-              ? new Date(root.createdAt).toLocaleDateString("en-IN", {
-                  month: "short",
-                  day: "numeric",
-                })
-              : "Just now";
+      {isLoading ? (
+        <div className="space-y-3" aria-busy="true" aria-label="Loading comments">
+          <Skeleton className="h-20 rounded-lg" />
+          <Skeleton className="h-20 rounded-lg" />
+        </div>
+      ) : comments.length === 0 ? (
+        <EmptyState
+          icon={MessageSquare}
+          size="compact"
+          title="No comments yet"
+          description="Ask a question or share what you think."
+        />
+      ) : (
+        <ul className="divide-y divide-border">
+          {comments.map((root) => (
+            <li key={root.id} className="space-y-3 py-4">
+              <ArticleCommentItem
+                comment={root}
+                isMine={effectiveProfile?.id === root.authorId}
+                onVote={() => handleVoteComment(root.id)}
+                onReply={() => startReply(root.id)}
+                onDelete={() => handleDeleteComment(root.id)}
+              />
 
-            return (
-              <div
-                key={root.id}
-                className="rounded-2xl border border-border/30 bg-card/40 p-4 space-y-3 transition-colors hover:bg-card/70"
-              >
-                {/* Root Comment Header */}
-                <div className="flex items-start justify-between gap-2">
-                  <Link
-                    href={`/@${author?.username || "student"}`}
-                    className="flex items-center gap-2 min-w-0 group cursor-pointer"
-                  >
-                    <Avatar className="size-7 shrink-0 border border-border/40">
-                      <AvatarImage src={author?.avatarUrl || ""} />
-                      <AvatarFallback className="text-[10px] font-bold bg-muted text-foreground">
-                        {author?.displayName?.[0] || "U"}
-                      </AvatarFallback>
-                    </Avatar>
-
-                    <div className="min-w-0">
-                      <p className="text-xs font-bold text-foreground group-hover:underline flex items-center gap-1">
-                        <span>{author?.displayName || `@${author?.username}`}</span>
-                        {isVerified && <ShieldCheck className="size-3 text-brand shrink-0" />}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground truncate">
-                        @{author?.username}
-                        {author?.institution?.name ? ` · ${author.institution.name.split(",")[0]}` : ""}
-                      </p>
-                    </div>
-                  </Link>
-
-                  <span className="text-[10px] text-muted-foreground font-medium shrink-0">
-                    {formattedDate}
-                  </span>
-                </div>
-
-                {/* Root Comment Body */}
-                <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap pl-9">
-                  {root.body}
-                </p>
-
-                {/* Root Comment Actions */}
-                <div className="flex items-center gap-3 pl-9 pt-1 text-xs text-muted-foreground">
-                  <button
-                    type="button"
-                    onClick={() => handleVoteComment(root.id)}
-                    aria-label={root.userVote > 0 ? "Remove upvote" : "Upvote comment"}
-                    title={root.userVote > 0 ? "Upvoted" : "Upvote"}
-                    className={cn(
-                      "flex items-center gap-1.5 py-1 px-2.5 -ml-1 rounded-lg text-xs font-bold transition-ui duration-150 cursor-pointer active:scale-90",
-                      root.userVote > 0
-                        ? "text-primary bg-primary/10 font-black shadow-2xs"
-                        : "hover:text-foreground hover:bg-muted/50"
-                    )}
-                  >
-                    <ThumbsUp className={cn("size-3.5 transition-transform", root.userVote > 0 && "fill-current scale-110")} />
-                    <span>{root.upvotesCount || 0}</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (!effectiveProfile) {
-                        toast.info("Please sign in to reply to comments.");
-                        return;
-                      }
-                      setReplyingToId((prev) => (prev === root.id ? null : root.id));
-                      setReplyText("");
-                    }}
-                    className="flex items-center gap-1 hover:text-foreground font-semibold cursor-pointer"
-                  >
-                    <CornerDownRight className="size-3.5" />
-                    <span>Reply</span>
-                  </button>
-
-                  {effectiveProfile?.id === root.authorId && (
+              {replyingToId === root.id && (
+                <div className="ml-10 space-y-2 rounded-md border border-brand-subtle-border bg-brand-subtle p-3">
+                  <div className="flex items-center justify-between text-xs font-semibold text-brand-text">
+                    <label htmlFor={`reply-${root.id}`}>Replying to @{root.author?.username}</label>
                     <button
                       type="button"
-                      onClick={() => handleDeleteComment(root.id)}
-                      className="flex items-center gap-1 text-muted-foreground hover:text-destructive transition-colors cursor-pointer ml-auto"
-                      title="Delete comment"
+                      onClick={() => setReplyingToId(null)}
+                      aria-label="Cancel reply"
+                      className="-my-2 -mr-2 flex size-11 cursor-pointer items-center justify-center rounded-full text-fg-muted transition-ui hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
-                      <Trash2 className="size-3.5" />
+                      <X className="size-4" />
                     </button>
-                  )}
+                  </div>
+                  <Textarea
+                    id={`reply-${root.id}`}
+                    rows={2}
+                    placeholder="Write a reply"
+                    value={replyText}
+                    onChange={(e) => setReplyText(e.target.value)}
+                    className="bg-surface"
+                  />
+                  <div className="flex justify-end">
+                    <Button
+                      size="sm"
+                      disabled={!replyText.trim()}
+                      loading={isSubmitting}
+                      onClick={() => handleAddComment(root.id)}
+                    >
+                      Reply
+                    </Button>
+                  </div>
                 </div>
+              )}
 
-                {/* Inline Reply Composer */}
-                {replyingToId === root.id && (
-                  <div className="ml-9 mt-2 p-3 rounded-xl border border-primary/30 bg-primary/5 space-y-2 animate-in fade-in-50">
-                    <div className="flex items-center justify-between text-[11px] font-bold text-primary">
-                      <span>Replying to @{author?.username}</span>
-                      <button
-                        type="button"
-                        onClick={() => setReplyingToId(null)}
-                        className="text-muted-foreground hover:text-foreground cursor-pointer"
-                      >
-                        <X className="size-3" />
-                      </button>
-                    </div>
-
-                    <textarea
-                      rows={2}
-                      placeholder="Write your reply..."
-                      value={replyText}
-                      onChange={(e) => setReplyText(e.target.value)}
-                      className="w-full bg-transparent text-xs text-foreground placeholder:text-muted-foreground outline-none resize-none"
-                    />
-
-                    <div className="flex justify-end pt-1">
-                      <button
-                        type="button"
-                        disabled={!replyText.trim() || isSubmitting}
-                        onClick={() => handleAddComment(root.id)}
-                        className="px-3 py-1 rounded-full bg-primary text-primary-foreground text-xs font-black hover:opacity-90 disabled:opacity-50 cursor-pointer shadow-xs"
-                      >
-                        Reply
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* ─── Nested Replies ─── */}
-                {root.replies && root.replies.length > 0 && (
-                  <div className="ml-9 mt-3 pl-3 border-l-2 border-border/40 space-y-3">
-                    {root.replies.map((reply: any) => {
-                      const replyAuthor = reply.author;
-                      const replyVerified = (replyAuthor?.points || 0) >= 150;
-                      const replyDate = reply.createdAt
-                        ? new Date(reply.createdAt).toLocaleDateString("en-IN", {
-                            month: "short",
-                            day: "numeric",
-                          })
-                        : "Just now";
-
-                      return (
-                        <div key={reply.id} className="space-y-1.5 pt-1">
-                          <div className="flex items-start justify-between gap-2">
-                            <Link
-                              href={`/@${replyAuthor?.username || "student"}`}
-                              className="flex items-center gap-1.5 group cursor-pointer"
-                            >
-                              <Avatar className="size-5 shrink-0 border border-border/40">
-                                <AvatarImage src={replyAuthor?.avatarUrl || ""} />
-                                <AvatarFallback className="text-[8px] font-bold">
-                                  {replyAuthor?.displayName?.[0] || "U"}
-                                </AvatarFallback>
-                              </Avatar>
-                              <p className="text-[11px] font-bold text-foreground group-hover:underline flex items-center gap-1">
-                                <span>{replyAuthor?.displayName || `@${replyAuthor?.username}`}</span>
-                                {replyVerified && <ShieldCheck className="size-2.5 text-brand shrink-0" />}
-                              </p>
-                            </Link>
-
-                            <span className="text-[9px] text-muted-foreground">{replyDate}</span>
-                          </div>
-
-                          <p className="text-xs text-foreground/90 leading-relaxed whitespace-pre-wrap pl-6">
-                            {reply.body}
-                          </p>
-
-                          <div className="flex items-center gap-3 pl-6 pt-0.5">
-                            <button
-                              type="button"
-                              onClick={() => handleVoteComment(reply.id)}
-                              aria-label={reply.userVote > 0 ? "Remove upvote" : "Upvote reply"}
-                              title={reply.userVote > 0 ? "Upvoted" : "Upvote"}
-                              className={cn(
-                                "flex items-center gap-1.5 py-1 px-2 -ml-1 rounded-lg text-[11px] font-bold transition-ui duration-150 cursor-pointer active:scale-90",
-                                reply.userVote > 0
-                                  ? "text-primary bg-primary/10 font-black shadow-2xs"
-                                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                              )}
-                            >
-                              <ThumbsUp className={cn("size-3 transition-transform", reply.userVote > 0 && "fill-current scale-110")} />
-                              <span>{reply.upvotesCount || 0}</span>
-                            </button>
-
-                            {effectiveProfile?.id === reply.authorId && (
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteComment(reply.id)}
-                                className="text-muted-foreground hover:text-destructive transition-colors cursor-pointer ml-auto"
-                                title="Delete reply"
-                              >
-                                <Trash2 className="size-3" />
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          })
-        ) : (
-          <div className="py-12 text-center text-xs text-muted-foreground space-y-2 border border-dashed border-border/40 rounded-2xl p-6">
-            <p className="font-bold text-foreground">No comments yet</p>
-            <p>Be the first to share your thoughts or ask a question on this article.</p>
-          </div>
-        )}
-      </div>
+              {root.replies && root.replies.length > 0 && (
+                <ul className="ml-10 space-y-3 border-l border-border pl-3">
+                  {root.replies.map((reply) => (
+                    <li key={reply.id}>
+                      <ArticleCommentItem
+                        comment={reply}
+                        isReply
+                        isMine={effectiveProfile?.id === reply.authorId}
+                        onVote={() => handleVoteComment(reply.id)}
+                        onDelete={() => handleDeleteComment(reply.id)}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }

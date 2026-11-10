@@ -286,7 +286,7 @@ export function ImageCropModal({ isOpen, onClose, imageUrl, mode, onCropComplete
   const busy = isProcessing || isUploadingOriginal;
 
   return (
-    <div className="fixed inset-0 z-50 flex select-none items-center justify-center bg-black/80 p-4 backdrop-blur-md animate-in fade-in">
+    <div className="fixed inset-0 z-50 flex select-none items-center justify-center bg-overlay p-4 animate-in fade-in">
       <div className="relative w-full max-w-lg space-y-4 overflow-hidden rounded-3xl border border-border bg-card p-5 shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border/60 pb-3">

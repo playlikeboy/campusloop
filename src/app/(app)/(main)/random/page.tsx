@@ -1,19 +1,10 @@
-import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { RandomLoopClient } from "@/components/random/random-loop-client";
+import { privateMetadata } from "@/lib/seo";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 import { isViewerProfile } from "@/lib/viewer";
 
-export const metadata: Metadata = {
-  title: "Random Loop | Serendipitous Verified Campus Discovery",
-  description:
-    "Meet someone unexpected. Real-time anonymous conversations with verified college students across campus.",
-  openGraph: {
-    title: "Random Loop",
-    description: "You don't know who you'll meet. You know they're part of the Loop.",
-    url: "https://campusloop.space/random",
-  },
-};
+export const metadata = privateMetadata("Random chat");
 
 export default async function RandomLoopPage() {
   const user = await getCachedAuthUser();

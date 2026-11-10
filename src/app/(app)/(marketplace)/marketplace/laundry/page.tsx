@@ -1,14 +1,10 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { privateMetadata } from "@/lib/seo";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 import { LaundryMarketplaceClient } from "./laundry-client";
 
-export const metadata: Metadata = {
-  title: "Hostel Laundry & Dry Cleaning ",
-  description:
-    "Order doorstep hostel laundry pickup, wash & fold, steam pressing, and winter jacket dry cleaning inside your campus.",
-  alternates: { canonical: "https://campusloop.space/marketplace/laundry" },
-};
+export const metadata: Metadata = privateMetadata("Laundry");
 
 export default async function LaundryMarketplacePage() {
   const user = await getCachedAuthUser();

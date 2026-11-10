@@ -1,12 +1,14 @@
 "use client";
 
-import { Check, Copy, Download, Share2, X } from "lucide-react";
+import { Check, Copy, Download, Share2 } from "lucide-react";
 import QRCode from "qrcode";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
+import { drawQrPoster } from "./qr-poster";
 
 export interface BrandedQrModalProps {
   isOpen: boolean;
@@ -24,37 +26,28 @@ export function BrandedQrModal({
   onClose,
   title,
   subtitle,
-  badgeText = "Verified Student Network",
+  badgeText = "Verified students only",
   shortUrl,
-  category = "general",
   avatarUrl,
 }: BrandedQrModalProps) {
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
   const [copied, setCopied] = useState(false);
-  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  // Generate crisp QR code data URL
   useEffect(() => {
     if (!isOpen || !shortUrl) return;
-
     QRCode.toDataURL(shortUrl, {
       width: 720,
       margin: 2,
-      color: {
-        // ds-allow: QR poster canvas export; fixed palette so the PNG does not follow the theme
-        dark: "#09090b",
-        // ds-allow: QR poster canvas export; fixed palette so the PNG does not follow the theme
-        light: "#ffffff",
-      },
+      // ds-allow: QR modules must stay ink on white in both themes so phones can scan them
+      color: { dark: "#15131D", light: "#FFFFFF" },
       errorCorrectionLevel: "H",
     })
-      .then((url) => setQrDataUrl(url))
-      .catch((err) => console.error("QR Code Error:", err));
+      .then(setQrDataUrl)
+      .catch((err) => console.error("QR code error:", err));
   }, [isOpen, shortUrl]);
 
-  const displayUrl = useMemo(() => {
-    return shortUrl.replace(/^https?:\/\//, "");
-  }, [shortUrl]);
+  const displayUrl = useMemo(() => shortUrl.replace(/^https?:\/\//, ""), [shortUrl]);
 
   const handleCopyLink = async () => {
     try {
@@ -62,267 +55,105 @@ export function BrandedQrModal({
       haptics.light();
       await navigator.clipboard.writeText(shortUrl);
       setCopied(true);
-      toast.success("Link copied to clipboard");
+      toast.success("Link copied");
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error("Failed to copy link");
+      toast.error("Couldn't copy the link. Press and hold it to copy instead.");
     }
   };
 
-  const handleDownloadCard = async () => {
+  const handleSaveImage = async () => {
     if (!qrDataUrl) return;
-    setIsGeneratingImage(true);
-
+    setSaving(true);
     try {
       sounds.tap();
       haptics.medium();
-
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-      if (!ctx) throw new Error("Canvas context not available");
-
-      const width = 800;
-      const height = 1000;
-      canvas.width = width;
-      canvas.height = height;
-
-      // Dark minimalist background
-      // ds-allow: QR poster canvas export; fixed palette so the PNG does not follow the theme
-      ctx.fillStyle = "#09090b";
-      ctx.fillRect(0, 0, width, height);
-
-      // Subtle gradient header
-      const grad = ctx.createLinearGradient(0, 0, width, 300);
-      grad.addColorStop(0, "rgba(59, 130, 246, 0.15)");
-      grad.addColorStop(1, "rgba(9, 9, 11, 0)");
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, width, 300);
-
-      // Draw CampusLoop Logo text
-      // ds-allow: QR poster canvas export; fixed palette so the PNG does not follow the theme
-      ctx.fillStyle = "#ffffff";
-      ctx.font = "bold 32px system-ui, sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText("CampusLoop", width / 2, 80);
-
-      // Badge
-      ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
-      const badgeW = 260;
-      const badgeH = 34;
-      const badgeX = (width - badgeW) / 2;
-      const badgeY = 110;
-      ctx.beginPath();
-      ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 17);
-      ctx.fill();
-
-      // ds-allow: QR poster canvas export; fixed palette so the PNG does not follow the theme
-      ctx.fillStyle = "#a1a1aa";
-      ctx.font = "bold 14px system-ui, sans-serif";
-      ctx.fillText(badgeText.toUpperCase(), width / 2, 132);
-
-      // Title
-      // ds-allow: QR poster canvas export; fixed palette so the PNG does not follow the theme
-      ctx.fillStyle = "#ffffff";
-      ctx.font = "bold 36px system-ui, sans-serif";
-      const truncatedTitle = title.length > 32 ? `${title.slice(0, 30)}...` : title;
-      ctx.fillText(truncatedTitle, width / 2, 200);
-
-      // Subtitle
-      if (subtitle) {
-        // ds-allow: QR poster canvas export; fixed palette so the PNG does not follow the theme
-        ctx.fillStyle = "#71717a";
-        ctx.font = "500 20px system-ui, sans-serif";
-        const truncatedSub = subtitle.length > 44 ? `${subtitle.slice(0, 42)}...` : subtitle;
-        ctx.fillText(truncatedSub, width / 2, 240);
-      }
-
-      // QR Code Container Box
-      const qrBoxSize = 440;
-      const qrBoxX = (width - qrBoxSize) / 2;
-      const qrBoxY = 300;
-      // ds-allow: QR poster canvas export; fixed palette so the PNG does not follow the theme
-      ctx.fillStyle = "#ffffff";
-      ctx.beginPath();
-      ctx.roundRect(qrBoxX, qrBoxY, qrBoxSize, qrBoxSize, 28);
-      ctx.fill();
-
-      // Draw QR Image
-      const qrImg = new Image();
-      qrImg.crossOrigin = "anonymous";
-      qrImg.src = qrDataUrl;
-      await new Promise<void>((resolve, reject) => {
-        qrImg.onload = () => resolve();
-        qrImg.onerror = reject;
-      });
-
-      const qrPadding = 30;
-      ctx.drawImage(
-        qrImg,
-        qrBoxX + qrPadding,
-        qrBoxY + qrPadding,
-        qrBoxSize - qrPadding * 2,
-        qrBoxSize - qrPadding * 2
-      );
-
-      // URL Pill Box
-      const pillW = 440;
-      const pillH = 54;
-      const pillX = (width - pillW) / 2;
-      const pillY = 780;
-      ctx.fillStyle = "rgba(255, 255, 255, 0.06)";
-      ctx.beginPath();
-      ctx.roundRect(pillX, pillY, pillW, pillH, 27);
-      ctx.fill();
-
-      // ds-allow: QR poster canvas export; fixed palette so the PNG does not follow the theme
-      ctx.fillStyle = "#e4e4e7";
-      ctx.font = "bold 18px monospace";
-      ctx.fillText(displayUrl, width / 2, pillY + 34);
-
-      // Footer
-      // ds-allow: QR poster canvas export; fixed palette so the PNG does not follow the theme
-      ctx.fillStyle = "#52525b";
-      ctx.font = "500 16px system-ui, sans-serif";
-      ctx.fillText("Scan with phone camera · campusloop.space", width / 2, 890);
-
-      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png", 1.0));
-      if (!blob) throw new Error("Could not create image blob");
-
-      const downloadUrl = URL.createObjectURL(blob);
+      const blob = await drawQrPoster({ qrDataUrl, title, subtitle, badgeText, displayUrl });
+      const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = downloadUrl;
-      const fileSlug = title
+      a.href = url;
+      const slug = title
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .slice(0, 24);
-      a.download = `campusloop-${fileSlug}-qr.png`;
+      a.download = `campusloop-${slug}-qr.png`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      URL.revokeObjectURL(downloadUrl);
-
-      toast.success("QR card saved to downloads");
+      URL.revokeObjectURL(url);
+      toast.success("QR image saved");
     } catch (err) {
       console.error(err);
-      toast.error("Failed to generate QR card");
+      toast.error("Couldn't save the image. Try again, or share the link instead.");
     } finally {
-      setIsGeneratingImage(false);
+      setSaving(false);
     }
   };
 
-  const handleNativeShare = async () => {
+  const handleShare = async () => {
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
-        await navigator.share({
-          title,
-          text: `${title} on CampusLoop`,
-          url: shortUrl,
-        });
+        await navigator.share({ title, text: `${title} on CampusLoop`, url: shortUrl });
+        return;
       } catch {
-        handleCopyLink();
+        // Share sheet closed or unavailable: fall back to copying.
       }
-    } else {
-      handleCopyLink();
     }
+    handleCopyLink();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-[380px] p-0 overflow-hidden border-0 bg-card/95 shadow-2xl rounded-3xl backdrop-blur-2xl">
-        <DialogTitle className="sr-only">Share {title} via QR Code</DialogTitle>
+      <DialogContent className="max-w-sm">
+        <DialogHeader>
+          <DialogTitle>Share with a QR code</DialogTitle>
+          <DialogDescription>Anyone can scan it with their phone camera.</DialogDescription>
+        </DialogHeader>
 
-        <div className="p-5 space-y-4">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="flex size-7 items-center justify-center rounded-xl bg-primary/10 text-primary font-black text-xs">
-                QR
-              </span>
-              <div>
-                <h3 className="text-sm font-black text-foreground">Share via QR</h3>
-                <p className="text-[11px] text-muted-foreground">Scan with any phone camera</p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="size-7 rounded-full bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
-            >
-              <X className="size-3.5" />
-            </button>
+        <div className="flex flex-col items-center gap-3 rounded-lg bg-surface-muted p-4 text-center">
+          {avatarUrl && <img src={avatarUrl} alt="" className="size-14 rounded-full object-cover" />}
+          <div className="w-full min-w-0">
+            <p className="truncate font-semibold text-fg">{title}</p>
+            {subtitle && <p className="truncate text-sm text-fg-muted">{subtitle}</p>}
           </div>
 
-          {/* Minimalist QR Card */}
-          <div className="rounded-2xl bg-muted/30 p-4 text-center space-y-3">
-            {avatarUrl && (
-              <div className="flex justify-center">
-                <img
-                  src={avatarUrl}
-                  alt={title}
-                  className="size-14 rounded-full object-cover shadow-sm ring-2 ring-primary/20"
-                />
-              </div>
+          <div className="sticker -rotate-2 p-3">
+            {qrDataUrl ? (
+              <img src={qrDataUrl} alt={`QR code for ${title}`} className="size-44 object-contain" />
+            ) : (
+              <div
+                className="skeleton-shimmer size-44 rounded-sm"
+                role="status"
+                aria-label="Making QR code"
+              />
             )}
-
-            <div className="space-y-0.5 px-2">
-              <h4 className="text-sm font-black text-foreground truncate">{title}</h4>
-              {subtitle && <p className="text-xs text-muted-foreground truncate">{subtitle}</p>}
-            </div>
-
-            {/* QR code canvas */}
-            <div className="flex justify-center py-1">
-              <div className="rounded-2xl bg-surface p-3 shadow-sm">
-                {qrDataUrl ? (
-                  <img
-                    src={qrDataUrl}
-                    alt={`${title} QR Code`}
-                    className="size-44 object-contain rounded-lg"
-                  />
-                ) : (
-                  <div className="size-44 animate-pulse rounded-lg bg-surface-muted flex items-center justify-center text-xs text-muted-foreground font-bold">
-                    Generating...
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Tap to copy short link pill */}
-            <button
-              type="button"
-              onClick={handleCopyLink}
-              title="Click to copy link"
-              className="w-full flex items-center justify-between rounded-xl bg-card/80 hover:bg-card px-3 py-2 text-left transition-colors cursor-pointer shadow-2xs group"
-            >
-              <span className="text-xs font-mono font-bold text-foreground truncate max-w-[240px]">
-                {displayUrl}
-              </span>
-              <span className="shrink-0 text-muted-foreground group-hover:text-foreground transition-colors ml-2">
-                {copied ? <Check className="size-3.5 text-success" /> : <Copy className="size-3.5" />}
-              </span>
-            </button>
           </div>
 
-          {/* Action buttons */}
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={handleDownloadCard}
-              disabled={isGeneratingImage || !qrDataUrl}
-              className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-full bg-primary text-primary-foreground hover:opacity-90 text-xs font-black transition-transform cursor-pointer active:scale-95 shadow-xs"
-            >
-              <Download className="size-3.5" />
-              <span>{isGeneratingImage ? "Saving..." : "Save Image"}</span>
-            </button>
+          <button
+            type="button"
+            onClick={handleCopyLink}
+            className="flex min-h-11 w-full items-center justify-between gap-2 rounded-full bg-surface px-4 text-left transition-ui hover:bg-surface-raised focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <span className="truncate text-sm font-medium text-fg">{displayUrl}</span>
+            <span className="shrink-0 text-fg-muted">
+              {copied ? (
+                <Check className="size-4 text-verified-text" aria-label="Copied" />
+              ) : (
+                <Copy className="size-4" aria-label="Copy link" />
+              )}
+            </span>
+          </button>
+        </div>
 
-            <button
-              type="button"
-              onClick={handleNativeShare}
-              className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-full bg-muted/60 hover:bg-muted text-foreground text-xs font-bold transition-transform cursor-pointer active:scale-95 shadow-2xs"
-            >
-              <Share2 className="size-3.5" />
-              <span>Share Link</span>
-            </button>
-          </div>
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <Button onClick={handleSaveImage} disabled={!qrDataUrl} loading={saving}>
+            <Download className="size-4" aria-hidden="true" />
+            Save image
+          </Button>
+          <Button variant="secondary" onClick={handleShare}>
+            <Share2 className="size-4" aria-hidden="true" />
+            Share link
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

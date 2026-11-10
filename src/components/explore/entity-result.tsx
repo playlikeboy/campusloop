@@ -75,12 +75,12 @@ export function EntityResult({ result }: { result: SearchResult }) {
     <Link
       href={result.href}
       className={cn(
-        "group flex items-start gap-3.5 p-3 rounded-xl border border-border/30 bg-muted/15 hover:bg-muted/40 hover:border-border/60 transition-ui",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+        "group flex items-start gap-3.5 p-3 rounded-xl border border-border bg-muted/15 hover:bg-muted/40 hover:border-border transition-ui",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       )}
     >
       {/* Visual Avatar or Icon Thumbnail */}
-      <Avatar className="size-10 rounded-xl shrink-0 border border-border/40 bg-muted/40">
+      <Avatar className="size-10 rounded-xl shrink-0 border border-border bg-muted/40">
         {result.imageUrl && <AvatarImage src={result.imageUrl} alt={result.title} />}
         <AvatarFallback className="rounded-xl text-xs font-semibold bg-primary/10 text-primary">
           <EntityTypeIcon type={result.type} className="size-4" />
@@ -94,21 +94,19 @@ export function EntityResult({ result }: { result: SearchResult }) {
             <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors truncate">
               {result.title}
             </h3>
-            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 font-normal shrink-0">
+            <Badge variant="secondary" className="text-xs px-1.5 py-0 h-4 font-normal shrink-0">
               {typeLabel}
             </Badge>
           </div>
 
           {result.metadata?.nirfRank && (
-            <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 font-normal shrink-0">
+            <Badge variant="outline" className="text-xs px-1.5 py-0 h-4 font-normal shrink-0">
               {result.metadata.nirfRank}
             </Badge>
           )}
         </div>
 
-        {result.subtitle && (
-          <p className="text-xs text-muted-foreground truncate">{result.subtitle}</p>
-        )}
+        {result.subtitle && <p className="text-xs text-muted-foreground truncate">{result.subtitle}</p>}
 
         {result.description && (
           <p className="text-xs text-muted-foreground/80 line-clamp-2 leading-relaxed">
@@ -118,7 +116,7 @@ export function EntityResult({ result }: { result: SearchResult }) {
 
         {/* Dynamic Metadata Badges */}
         {result.metadata && Object.keys(result.metadata).length > 0 && (
-          <div className="flex items-center gap-2 pt-0.5 text-[11px] text-muted-foreground/70">
+          <div className="flex items-center gap-2 pt-0.5 text-xs text-muted-foreground/70">
             {result.metadata.course && <span>{result.metadata.course}</span>}
             {result.metadata.venue && <span>{result.metadata.venue}</span>}
             {result.metadata.downloads && <span>{result.metadata.downloads} downloads</span>}

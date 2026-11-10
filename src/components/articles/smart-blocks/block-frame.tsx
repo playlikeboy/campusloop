@@ -39,35 +39,47 @@ export function BlockFrame({
   }
 
   return (
-    <figure className={cn("not-prose my-6 rounded-2xl bg-card/60 p-4 shadow-2xs sm:p-5", className)}>
+    <figure className={cn("not-prose my-6 rounded-lg border border-border bg-surface p-4 sm:p-5", className)}>
       <div className="mb-3 flex items-start gap-2">
-        {title ? <figcaption className="min-w-0 flex-1 text-[15px] font-bold leading-snug text-foreground">{title}</figcaption> : <span className="flex-1" />}
+        {title ? (
+          <figcaption className="min-w-0 flex-1 text-base font-bold leading-snug text-fg">{title}</figcaption>
+        ) : (
+          <span className="flex-1" />
+        )}
         {actions}
         <button
           type="button"
           onClick={copy}
-          className="flex size-8 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
+          className="flex size-10 shrink-0 items-center justify-center rounded-full text-fg-muted transition-ui hover:bg-surface-muted hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
           aria-label={copied ? "Copied" : "Copy block as Markdown"}
           title="Copy as Markdown"
         >
-          {copied ? <Check className="size-4 text-primary" /> : <Copy className="size-4" />}
+          {copied ? <Check className="size-4 text-verified-text" /> : <Copy className="size-4" />}
         </button>
       </div>
       {children}
-      {source && <p className="mt-3 text-xs text-muted-foreground">Source: {source}</p>}
+      {source && <p className="mt-3 text-xs text-fg-muted">Source: {source}</p>}
     </figure>
   );
 }
 
-export function ToggleChip({ active, onClick, children }: { active: boolean; onClick: () => void; children: ReactNode }) {
+export function ToggleChip({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: ReactNode;
+}) {
   return (
     <button
       type="button"
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "h-8 shrink-0 rounded-full px-3 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer",
-        active ? "bg-foreground text-background" : "bg-muted/70 text-muted-foreground hover:text-foreground"
+        "h-8 shrink-0 rounded-full px-3 text-xs font-semibold transition-ui focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer",
+        active ? "bg-brand text-brand-fg" : "bg-surface-muted text-fg-muted hover:text-fg"
       )}
     >
       {children}

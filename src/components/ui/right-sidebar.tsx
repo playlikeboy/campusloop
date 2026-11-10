@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight, Clock, Code2, Globe, Heart, MoreHorizontal, Plus, RotateCw, School, ShieldCheck, Sparkles, Trophy, Zap } from "lucide-react";
+import { ArrowUpRight, Clock, Code2, Globe, Heart, MoreHorizontal, Plus, RotateCw, School, ShieldCheck, Trophy, Zap } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -157,7 +157,7 @@ export function RightSidebar({ className }: { className?: string } = {}) {
           {urgentDeadlines.length > 0 && (
             <section className="rounded-2xl border border-border/30 bg-card/60 p-3.5 space-y-2">
               <div className="px-1 flex items-center gap-1.5">
-                <Clock className="size-4 text-red-500" />
+                <Clock className="size-4 text-danger" />
                 <h3 className="text-sm font-bold tracking-tight text-foreground">Closing Soon</h3>
               </div>
               <div className="divide-y divide-border/20">
@@ -171,7 +171,7 @@ export function RightSidebar({ className }: { className?: string } = {}) {
                     <p className="text-xs font-bold text-foreground group-hover:underline truncate">
                       {ev.title}
                     </p>
-                    <p className="text-[10px] font-bold text-red-500 pt-0.5">
+                    <p className="text-[10px] font-bold text-danger pt-0.5">
                       Deadline:{" "}
                       {new Date(ev.registrationDeadline).toLocaleDateString("en-IN", {
                         month: "short",
@@ -189,7 +189,7 @@ export function RightSidebar({ className }: { className?: string } = {}) {
             <section className="rounded-2xl border border-border/30 bg-card/60 p-3.5 space-y-2">
               <div className="px-1 flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
-                  <Trophy className="size-4 text-amber-500" />
+                  <Trophy className="size-4 text-reward-text" />
                   <h3 className="text-sm font-bold tracking-tight text-foreground">Top Campus Events</h3>
                 </div>
               </div>
@@ -208,7 +208,7 @@ export function RightSidebar({ className }: { className?: string } = {}) {
                       {ev.title}
                     </p>
                     {ev.prizesDescription && (
-                      <p className="text-[10px] font-bold text-amber-500 truncate flex items-center gap-1">
+                      <p className="text-[10px] font-bold text-reward-text truncate flex items-center gap-1">
                         <Trophy className="size-2.5 shrink-0" />
                         <span>{ev.prizesDescription}</span>
                       </p>
@@ -383,12 +383,8 @@ export function RightSidebar({ className }: { className?: string } = {}) {
       {/* ─── CampusLoop Ecosystem Products ─── */}
       <section className="rounded-2xl border border-border/40 bg-card/60 p-3.5 space-y-2.5 shadow-2xs">
         <div className="flex items-center justify-between px-1">
-          <span className="text-[11px] font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-            <Sparkles className="size-3 text-primary" />
-            <span>CampusLoop Suite</span>
-          </span>
-          <span className="text-[10px] font-bold text-primary bg-primary/10 border border-primary/20 rounded-full px-2 py-0.5">
-            Ecosystem
+          <span className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
+            <span>Other CampusLoop apps</span>
           </span>
         </div>
 
@@ -400,7 +396,7 @@ export function RightSidebar({ className }: { className?: string } = {}) {
             rel="noopener noreferrer"
             className="group flex items-start gap-2.5 p-2 rounded-xl border border-border/40 bg-muted/20 hover:bg-muted/40 hover:border-primary/40 transition-ui cursor-pointer"
           >
-            <div className="flex size-7 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-mono font-black text-xs shrink-0">
+            <div className="flex size-7 items-center justify-center rounded-lg bg-verified-subtle text-verified-text font-mono font-bold text-xs shrink-0">
               <Code2 className="size-3.5" />
             </div>
             <div className="min-w-0 flex-1">
@@ -421,17 +417,17 @@ export function RightSidebar({ className }: { className?: string } = {}) {
             href="https://baby.campusloop.space"
             target="_blank"
             rel="noopener noreferrer"
-            className="group flex items-start gap-2.5 p-2 rounded-xl border border-border/40 bg-muted/20 hover:bg-muted/40 hover:border-blue-500/40 transition-ui cursor-pointer"
+            className="group flex items-start gap-2.5 p-2 rounded-xl border border-border/40 bg-muted/20 hover:bg-muted/40 hover:border-brand-subtle-border transition-ui cursor-pointer"
           >
-            <div className="flex size-7 items-center justify-center rounded-lg bg-blue-500/15 text-blue-600 dark:text-blue-400 shrink-0">
+            <div className="flex size-7 items-center justify-center rounded-lg bg-brand-subtle text-brand-text shrink-0">
               <Heart className="size-3.5" />
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1">
-                <span className="text-xs font-bold text-foreground group-hover:text-blue-500 transition-colors">
+                <span className="text-xs font-bold text-foreground group-hover:text-brand-text transition-colors">
                   baby · AI Journal
                 </span>
-                <ArrowUpRight className="size-3 text-muted-foreground group-hover:text-blue-500 transition-colors" />
+                <ArrowUpRight className="size-3 text-muted-foreground group-hover:text-brand-text transition-colors" />
               </div>
               <p className="text-[10px] text-muted-foreground line-clamp-1">
                 A calm companion &amp; mindful thoughts sanctuary
@@ -486,7 +482,7 @@ export function RightSidebar({ className }: { className?: string } = {}) {
             href={SOCIAL_LINKS.instagram.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-pink-500 transition-colors"
+            className="hover:text-brand-text transition-colors"
             title="Instagram @campusloop.space"
           >
             Instagram
@@ -496,7 +492,7 @@ export function RightSidebar({ className }: { className?: string } = {}) {
             href={SOCIAL_LINKS.linkedin.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-blue-500 transition-colors"
+            className="hover:text-brand-text transition-colors"
             title="LinkedIn @mycampusloop"
           >
             LinkedIn

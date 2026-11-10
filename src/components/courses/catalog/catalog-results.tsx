@@ -1,7 +1,18 @@
-import { X } from "lucide-react";
+import { SearchX, X } from "lucide-react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { Course } from "@/db/schema";
-import { CATALOG_PAGE_SIZE, type CatalogParams, catalogHref, DURATIONS, LANGUAGES, LEVELS, SORTS, SOURCES } from "@/lib/courses/catalog-params";
+import {
+  CATALOG_PAGE_SIZE,
+  type CatalogParams,
+  catalogHref,
+  DURATIONS,
+  LANGUAGES,
+  LEVELS,
+  SORTS,
+  SOURCES,
+} from "@/lib/courses/catalog-params";
 import { CategoryNav } from "./category-nav";
 import { CourseListItem } from "./course-list-item";
 import { FilterPanel } from "./filter-panel";
@@ -18,7 +29,11 @@ interface Props {
 
 /** Search and category results: filter sidebar (sheet on phones), sort, list, pagination. */
 export function CatalogResults({ params, result, categories }: Props) {
-  const heading = params.q ? `Results for "${params.q}"` : params.category ? `${params.category} courses` : "All courses";
+  const heading = params.q
+    ? `Results for "${params.q}"`
+    : params.category
+      ? `${params.category} courses`
+      : "All courses";
   const chips = [
     // On a category page the topic nav shows the category; only a search scoped to a topic needs a chip.
     params.q && params.category && { label: params.category, href: catalogHref(params, { category: null }) },
@@ -40,9 +55,11 @@ export function CatalogResults({ params, result, categories }: Props) {
       </div>
 
       <div className="mt-6 px-4 sm:px-0">
-        <h1 className="text-2xl font-black tracking-tight text-foreground sm:text-3xl">{heading}</h1>
-        <p className="mt-1 text-sm text-muted-foreground" aria-live="polite">
-          {result.courses.length === 0 ? "No courses found" : `${from}–${from + result.courses.length - 1} of ${result.total.toLocaleString("en-IN")} course${result.total === 1 ? "" : "s"}`}
+        <h1 className="text-2xl text-fg sm:text-3xl">{heading}</h1>
+        <p className="mt-1 text-sm tabular-nums text-fg-muted" aria-live="polite">
+          {result.courses.length === 0
+            ? "No courses found"
+            : `${from}–${from + result.courses.length - 1} of ${result.total.toLocaleString("en-IN")} course${result.total === 1 ? "" : "s"}`}
         </p>
       </div>
 
@@ -53,12 +70,25 @@ export function CatalogResults({ params, result, categories }: Props) {
         <SortSelect value={params.sort} options={sorts} />
         <div className="no-scrollbar flex min-w-0 flex-1 gap-1.5 overflow-x-auto">
           {chips.map((c) => (
-            <Link key={c.label} href={c.href} scroll={false} className="inline-flex h-8 shrink-0 items-center gap-1 rounded-full bg-primary/10 pl-3 pr-2 text-xs font-semibold text-primary hover:bg-primary/15">
-              {c.label} <X className="size-3.5" aria-label="Remove filter" />
+            <Link
+              key={c.label}
+              href={c.href}
+              scroll={false}
+              aria-label={`Remove filter: ${c.label}`}
+              className="inline-flex h-11 shrink-0 items-center gap-1 rounded-full bg-brand pl-4 pr-3 text-sm font-medium text-brand-fg transition-ui hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              {c.label} <X className="size-3.5" aria-hidden />
             </Link>
           ))}
           {chips.length > 1 && (
-            <Link href={catalogHref({ ...params, level: null, duration: null, source: null, lang: null }, { category: params.q ? null : params.category })} scroll={false} className="inline-flex h-8 shrink-0 items-center px-2 text-xs font-semibold text-muted-foreground hover:text-foreground">
+            <Link
+              href={catalogHref(
+                { ...params, level: null, duration: null, source: null, lang: null },
+                { category: params.q ? null : params.category }
+              )}
+              scroll={false}
+              className="inline-flex h-11 shrink-0 items-center rounded-full px-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring text-sm font-semibold text-fg-muted hover:text-fg"
+            >
               Clear all
             </Link>
           )}
@@ -67,22 +97,28 @@ export function CatalogResults({ params, result, categories }: Props) {
 
       <div className="mt-2 grid gap-8 lg:grid-cols-[240px_1fr]">
         <aside className="hidden lg:block" aria-label="Filters">
-          <div className="sticky top-16"><FilterPanel params={params} categories={categories} /></div>
+          <div className="sticky top-16">
+            <FilterPanel params={params} categories={categories} />
+          </div>
         </aside>
         <div className="min-w-0 px-2 sm:px-0">
           {result.courses.length === 0 ? (
-            <div className="mx-2 rounded-2xl bg-card/60 p-10 text-center shadow-2xs sm:mx-0">
-              <p className="font-semibold text-foreground">No courses match that yet</p>
-              <p className="mt-1 text-sm text-muted-foreground">Try fewer filters or another word, or create the course you wish existed.</p>
-              <div className="mt-4 flex justify-center gap-2">
-                <Link href="/courses" className="inline-flex h-10 items-center rounded-full bg-muted/70 px-4 text-sm font-semibold hover:bg-muted">Browse all</Link>
-                <Link href="/courses/new" className="inline-flex h-10 items-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90">Create a course</Link>
-              </div>
-            </div>
+            <EmptyState
+              icon={SearchX}
+              title="No courses match that"
+              description="Try another word or remove a filter."
+              action={
+                <Button asChild variant="secondary">
+                  <Link href="/courses">See all courses</Link>
+                </Button>
+              }
+            />
           ) : (
-            <ul className="divide-y divide-border/40">
+            <ul className="divide-y divide-border">
               {result.courses.map((c) => (
-                <li key={c.id} className="py-1"><CourseListItem course={c} /></li>
+                <li key={c.id} className="py-1">
+                  <CourseListItem course={c} />
+                </li>
               ))}
             </ul>
           )}

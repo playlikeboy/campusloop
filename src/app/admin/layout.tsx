@@ -5,14 +5,11 @@ import { getInboxCounts } from "./_lib/inbox";
 
 export const metadata: Metadata = {
   title: {
-    default: "CampusLoop Admin Console",
-    template: "%s | CampusLoop Admin",
+    default: "Admin",
+    template: "%s · CampusLoop Admin",
   },
-  description: "Internal operations console — content review, telemetry, user management, and audit trails.",
-  robots: {
-    index: false,
-    follow: false,
-  },
+  description: "CampusLoop staff console for moderation, students and settings.",
+  robots: { index: false, follow: false, googleBot: { index: false, follow: false } },
 };
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {

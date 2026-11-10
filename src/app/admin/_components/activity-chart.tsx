@@ -32,12 +32,30 @@ export function ActivityChart({ data }: { data: ActivityDatum[] }) {
           <XAxis dataKey="day" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} interval={2} />
           <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} allowDecimals={false} />
           <Tooltip
-            contentStyle={{ borderRadius: 12, fontSize: 12, border: "1px solid var(--border)", background: "var(--surface-raised)", color: "var(--fg)" }}
+            contentStyle={{
+              borderRadius: 12,
+              fontSize: 12,
+              border: "1px solid var(--border)",
+              background: "var(--surface-raised)",
+              color: "var(--fg)",
+            }}
           />
           <Legend wrapperStyle={{ fontSize: 11 }} />
           <Area type="monotone" dataKey="posts" stroke="var(--chart-1)" fill="url(#gPosts)" strokeWidth={2} />
-          <Area type="monotone" dataKey="comments" stroke="var(--chart-2)" fill="url(#gComments)" strokeWidth={2} />
-          <Area type="monotone" dataKey="signups" stroke="var(--chart-3)" fill="url(#gSignups)" strokeWidth={2} />
+          <Area
+            type="monotone"
+            dataKey="comments"
+            stroke="var(--chart-2)"
+            fill="url(#gComments)"
+            strokeWidth={2}
+          />
+          <Area
+            type="monotone"
+            dataKey="signups"
+            stroke="var(--chart-3)"
+            fill="url(#gSignups)"
+            strokeWidth={2}
+          />
         </AreaChart>
       </ResponsiveContainer>
     </div>

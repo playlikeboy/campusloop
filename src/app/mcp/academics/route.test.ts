@@ -1,4 +1,31 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+// Never touch a real database from unit tests.
+vi.mock("@/db", async () =>
+  (await import("@/test/mock-db")).mockDbModule({
+    tables: {
+      academicResources: [
+        {
+          id: "acad_test_101",
+          title: "Operating Systems Notes",
+          subjectCode: "CS301",
+          subjectName: "Operating Systems",
+          branch: "CSE",
+          semester: 5,
+          resourceType: "NOTES",
+          fileUrl: "https://example.com/notes.pdf",
+          attachments: [],
+          tags: [],
+          institution: null,
+          uploader: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ],
+    },
+  }),
+);
+
 import { DELETE, GET, OPTIONS, POST, PUT } from "./route";
 
 const TEST_API_KEY = "test_academics_api_key_2026";

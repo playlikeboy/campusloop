@@ -4,7 +4,10 @@ import { ChevronLeft, ChevronRight, Eye, SearchIcon, Trash2, VenetianMask } from
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { fieldClassName } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import { type RevealedIdentity, revealAnonymousAuthor } from "../anonymity-actions";
 import { deleteComment } from "./actions";
 
@@ -57,7 +60,7 @@ export function CommentsTable({ initialComments, page, totalPages }: CommentsTab
     setActionLoading(commentId);
     try {
       await deleteComment(commentId);
-      toast.success("Comment deleted successfully");
+      toast.success("Comment deleted");
       setDeleteCommentId(null);
       router.refresh();
     } catch (e) {
@@ -74,7 +77,7 @@ export function CommentsTable({ initialComments, page, totalPages }: CommentsTab
     try {
       const identity = await revealAnonymousAuthor("COMMENT", commentId);
       setRevealed((prev) => ({ ...prev, [commentId]: identity }));
-      toast.success("Anonymous author revealed (audit logged)");
+      toast.success("Author revealed. This is saved in the audit log.");
       setRevealCommentId(null);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to reveal author");
@@ -88,28 +91,26 @@ export function CommentsTable({ initialComments, page, totalPages }: CommentsTab
       {/* Search Header */}
       <form onSubmit={handleSearchSubmit} className="flex gap-2 max-w-sm">
         <div className="relative flex-1">
-          <SearchIcon className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+          <SearchIcon className="absolute left-3 top-2.5 h-4 w-4 text-fg-muted" />
           <input
+            aria-label="Search comments"
             type="text"
-            placeholder="Search comments..."
+            placeholder="Search comments"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-sm bg-card rounded-md border border-border focus:ring-1 focus:ring-ring outline-none"
+            className={cn(fieldClassName, "w-full pl-9 pr-4 h-11")}
           />
         </div>
-        <button
-          type="submit"
-          className="rounded-md bg-primary px-4 text-xs font-semibold text-primary-foreground hover:bg-primary/95 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-        >
+        <button type="submit" className={buttonVariants({ variant: "primary", size: "sm" })}>
           Search
         </button>
       </form>
 
       {/* Table */}
-      <div className="rounded-xl border border-border bg-card overflow-hidden">
+      <div className="rounded-lg border border-border bg-surface overflow-hidden">
         <div className="w-full overflow-x-auto">
-          <table className="w-full min-w-[700px] text-left text-sm text-muted-foreground">
-            <thead className="bg-muted text-xs text-foreground">
+          <table className="w-full min-w-[700px] text-left text-sm text-fg-muted">
+            <thead className="bg-surface-muted text-xs text-fg">
               <tr>
                 <th className="px-6 py-4">Author</th>
                 <th className="px-6 py-4">Comment</th>
@@ -120,10 +121,10 @@ export function CommentsTable({ initialComments, page, totalPages }: CommentsTab
             </thead>
             <tbody>
               {initialComments.map((c) => (
-                <tr key={c.id} className="border-b border-border hover:bg-muted/50">
+                <tr key={c.id} className="border-b border-border hover:bg-surface-muted">
                   <td className="px-6 py-4">
                     <div className="flex flex-col">
-                      <span className="font-semibold text-foreground">
+                      <span className="font-semibold text-fg">
                         {c.isAnonymous
                           ? (revealed[c.id]?.displayName ?? (
                               <span className="inline-flex items-center gap-1">
@@ -133,7 +134,7 @@ export function CommentsTable({ initialComments, page, totalPages }: CommentsTab
                             ))
                           : c.author?.displayName}
                       </span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-fg-muted">
                         {c.isAnonymous
                           ? revealed[c.id]
                             ? `@${revealed[c.id].username} · ${revealed[c.id].accountStatus}`
@@ -142,7 +143,7 @@ export function CommentsTable({ initialComments, page, totalPages }: CommentsTab
                       </span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-foreground">{c.body}</td>
+                  <td className="px-6 py-4 text-fg">{c.body}</td>
                   <td className="px-6 py-4 text-xs max-w-xs truncate">
                     {c.post?.body || "Original post deleted"}
                   </td>
@@ -150,22 +151,28 @@ export function CommentsTable({ initialComments, page, totalPages }: CommentsTab
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-1">
                       {c.isAnonymous && !revealed[c.id] && (
-                        <button
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
                           disabled={actionLoading === c.id}
                           onClick={() => setRevealCommentId(c.id)}
-                          title="Reveal author (audit logged)"
-                          className="p-1.5 rounded hover:bg-muted text-brand-text disabled:opacity-50 transition-colors cursor-pointer"
+                          title="Reveal author (logged)"
+                          aria-label="Reveal author (logged)"
+                          className="text-brand-text"
                         >
-                          <Eye className="h-4 w-4" />
-                        </button>
+                          <Eye aria-hidden />
+                        </Button>
                       )}
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label="Delete"
                         disabled={actionLoading === c.id}
                         onClick={() => setDeleteCommentId(c.id)}
-                        className="p-1.5 rounded hover:bg-muted text-destructive disabled:opacity-50 transition-colors cursor-pointer"
+                        className="text-danger hover:bg-danger-subtle"
                       >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                        <Trash2 aria-hidden />
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -173,7 +180,7 @@ export function CommentsTable({ initialComments, page, totalPages }: CommentsTab
               {initialComments.length === 0 && (
                 <tr>
                   <td colSpan={5} className="px-6 py-8 text-center">
-                    No comments found.
+                    No comments match.
                   </td>
                 </tr>
               )}
@@ -183,25 +190,29 @@ export function CommentsTable({ initialComments, page, totalPages }: CommentsTab
 
         {/* Pagination Footer */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between px-6 py-4 border-t border-border bg-muted/40">
-            <span className="text-xs text-muted-foreground">
+          <div className="flex items-center justify-between px-6 py-4 border-t border-border bg-surface-muted">
+            <span className="text-xs text-fg-muted">
               Page {page} of {totalPages}
             </span>
             <div className="flex gap-2">
-              <button
+              <Button
+                variant="outline"
+                size="icon"
                 disabled={page <= 1}
                 onClick={() => handlePageChange(page - 1)}
-                className="p-1.5 rounded border border-border hover:bg-muted disabled:opacity-50 cursor-pointer"
+                aria-label="Previous page"
               >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <button
+                <ChevronLeft aria-hidden />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
                 disabled={page >= totalPages}
                 onClick={() => handlePageChange(page + 1)}
-                className="p-1.5 rounded border border-border hover:bg-muted disabled:opacity-50 cursor-pointer"
+                aria-label="Next page"
               >
-                <ChevronRight className="h-4 w-4" />
-              </button>
+                <ChevronRight aria-hidden />
+              </Button>
             </div>
           </div>
         )}
@@ -210,9 +221,9 @@ export function CommentsTable({ initialComments, page, totalPages }: CommentsTab
       {/* Reveal Author Modal */}
       <ConfirmDialog
         isOpen={Boolean(revealCommentId)}
-        title="Reveal Anonymous Comment Author?"
-        description="Are you sure you want to reveal the author of this comment? This action is permanently audit-logged with your admin ID."
-        confirmText="Reveal Identity"
+        title="Reveal the author?"
+        description="Only do this for safety or legal reasons. Your name is saved in the audit log."
+        confirmText="Reveal author"
         variant="info"
         isLoading={Boolean(actionLoading && revealCommentId && actionLoading === revealCommentId)}
         onClose={() => setRevealCommentId(null)}
@@ -222,9 +233,9 @@ export function CommentsTable({ initialComments, page, totalPages }: CommentsTab
       {/* Delete Comment Modal */}
       <ConfirmDialog
         isOpen={Boolean(deleteCommentId)}
-        title="Delete Comment?"
-        description="Are you sure you want to delete this comment? It will be removed permanently."
-        confirmText="Delete Comment"
+        title="Delete this comment?"
+        description="It will be deleted for good."
+        confirmText="Delete comment"
         variant="danger"
         isLoading={Boolean(actionLoading && deleteCommentId && actionLoading === deleteCommentId)}
         onClose={() => setDeleteCommentId(null)}

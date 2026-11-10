@@ -5,6 +5,7 @@ import { CommunityHeader } from "@/components/communities/community-header";
 import { CommunityMembersClient } from "@/components/communities/community-members-client";
 import { getDb } from "@/db";
 import { posts } from "@/db/schema";
+import { privateMetadata } from "@/lib/seo";
 import { getCachedAuthUser, getCachedCommunity, getCachedUserProfile } from "@/lib/server-cache";
 
 interface PageProps {
@@ -14,21 +15,7 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   const comm = await getCachedCommunity(id);
-
-  if (!comm) {
-    return {
-      title: "Community Members",
-    };
-  }
-
-  return {
-    title: `c/${comm.name} Members & Leaders`,
-    description: `Browse verified student members, leaders, and moderators in c/${comm.name} on CampusLoop.`,
-    alternates: {
-      canonical: `https://campusloop.space/communities/${comm.slug || comm.id}/members`,
-    },
-    robots: { index: false, follow: false },
-  };
+  return privateMetadata(comm ? `c/${comm.name} members` : "Community members");
 }
 
 export default async function CommunityMembersPage({ params }: PageProps) {

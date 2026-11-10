@@ -1,42 +1,7 @@
-import type { Metadata } from "next";
+import { privateMetadata } from "@/lib/seo";
 import { SavedClient } from "./saved-client";
 
-export const metadata: Metadata = {
-  title: "Saved Posts & Bookmarks Vault",
-  description:
-    "Your private archive of saved campus posts, hostel insights, placement discussions, and student guides on CampusLoop.",
-  keywords: [
-    "Saved Campus Posts",
-    "Campus Bookmarks",
-    "College Life Vault",
-    "Hostel Guides",
-    "Placement Discussions",
-  ],
-  alternates: { canonical: "https://campusloop.space/saved" },
-  openGraph: {
-    title: "Saved Posts & Bookmarks Vault",
-    description: "Your private archive of saved campus posts, hostel insights, and placement realities.",
-    url: "https://campusloop.space/saved",
-    siteName: "CampusLoop",
-    locale: "en_IN",
-    type: "website",
-    images: [
-      {
-        url: "https://campusloop.space/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Saved Posts & Bookmarks Vault",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Saved Posts & Bookmarks Vault",
-    description: "Your private archive of saved campus posts, hostel insights, and placement realities.",
-    images: ["https://campusloop.space/og-image.png"],
-  },
-  robots: { index: false, follow: false },
-};
+export const metadata = privateMetadata("Saved");
 
 export default function SavedPostsPage() {
   return <SavedClient />;

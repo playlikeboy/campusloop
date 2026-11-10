@@ -2,19 +2,16 @@ import { eq } from "drizzle-orm";
 import { Lock } from "lucide-react";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { BrandLogo } from "@/components/ui/brand-logo";
 import { SignOutButton } from "@/components/ui/sign-out-button";
 import { getDb } from "@/db";
 import { institutionDomains, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { findWhitelistedDomain } from "@/lib/institutions";
+import { privateMetadata } from "@/lib/seo";
 import { OnboardingForm } from "./onboarding-form";
 
-export const metadata: Metadata = {
-  title: "Complete Your Profile",
-  description:
-    "Set up your CampusLoop profile — pick your branch, year, and interests to join your campus feed.",
-  robots: { index: false, follow: false },
-};
+export const metadata: Metadata = privateMetadata("Set up your profile");
 
 export default async function OnboardingPage() {
   const user = await hexclaveServerApp.getUser();
@@ -46,7 +43,7 @@ export default async function OnboardingPage() {
   // the student is already verified.
   const viewerMode = !whitelistedDomain || !user.primaryEmailVerified;
 
-  // Smart Name Parser: e.g. "shaswat.raj" -> "Shaswat Raj", "aarav_sharma" -> "Aarav Sharma"
+  // Name from the email: e.g. "shaswat.raj" -> "Shaswat Raj", "aarav_sharma" -> "Aarav Sharma"
   function parseNameFromEmail(raw: string): string {
     const parts = raw
       .replace(/[0-9]+/g, " ")
@@ -72,29 +69,14 @@ export default async function OnboardingPage() {
   const initialAvatarUrl = profile?.avatarUrl || (user as { picture?: string }).picture || "";
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="mx-auto w-full max-w-xl px-4 pb-4 sm:px-6">
-        {/* ─── Header ─── */}
-        <header className="flex items-center justify-between gap-3 border-b border-border/40 py-5">
-          <div className="flex min-w-0 items-center gap-2.5">
-            <div className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-black">
-              <img src="/logo.png" alt="" className="h-full w-full scale-110 object-cover" />
-            </div>
-            <span className="text-sm font-black tracking-tight text-foreground">
-              Campus<span className="text-primary">Loop</span>
-            </span>
-          </div>
-
-          {/*
-            Signing in with the wrong address is the usual reason to leave this
-            page, so show which account this is and offer a way out of it.
-          */}
+    <main className="min-h-svh bg-bg text-fg">
+      <div className="mx-auto w-full max-w-xl px-[var(--gutter)]">
+        <header className="flex items-center justify-between gap-3 border-b border-border py-4">
+          <BrandLogo size="sm" href="" />
+          {/* Signing in with the wrong address is the usual reason to leave, so show it and offer a way out. */}
           <div className="flex min-w-0 items-center gap-2">
             {email && (
-              <span
-                className="hidden max-w-[14rem] truncate text-[13px] text-muted-foreground sm:inline"
-                title={email}
-              >
+              <span className="hidden max-w-56 truncate text-sm text-fg-muted sm:inline" title={email}>
                 {email}
               </span>
             )}
@@ -102,32 +84,25 @@ export default async function OnboardingPage() {
           </div>
         </header>
 
-        <div className="pt-7">
-          <h1 className="text-2xl font-black tracking-tight text-foreground">
+        <div className="pt-8">
+          <h1 className="text-3xl text-fg">
             {viewerMode ? "Set up your preview profile" : "Set up your profile"}
           </h1>
-          <p className="mt-1.5 text-[15px] leading-relaxed text-muted-foreground">
+          <p className="mt-2 text-base text-fg-muted">
             {viewerMode
-              ? "You signed up with a personal email, so you're on Campus Preview — read-only access to campus life."
-              : "A few details so your classmates can find you."}
+              ? "You signed up with a personal email, so you can look around but not post yet."
+              : "Three quick steps so classmates can find you."}
           </p>
         </div>
 
         {viewerMode && (
-          <div className="mt-5 rounded-2xl border border-border/60 bg-muted/25 p-4">
-            <p className="flex items-center gap-1.5 text-[13px] font-black text-foreground">
-              <Lock className="size-3.5 text-warning" />
-              You&apos;ll need a college email to interact
-            </p>
-            <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">
-              Browse feeds, confessions, polls and campus hubs across 1,350+ colleges, and save anything worth
-              keeping. Posting, voting, chat and matching unlock when you verify an official college email on
-              this same account — nothing you save is lost.
-            </p>
-            <p className="mt-2.5 text-[13px] text-muted-foreground">
-              Signed in with the wrong address? Sign out above and come back with your college email.
-            </p>
-          </div>
+          <p className="mt-5 flex gap-3 rounded-lg bg-surface-muted p-4 text-sm text-fg-muted">
+            <Lock className="mt-0.5 size-4 shrink-0 text-fg" aria-hidden="true" />
+            <span>
+              To post, vote, chat or use Campus Match, you need a verified college email. Used the wrong
+              email? Sign out above and join again with your college email.
+            </span>
+          </p>
         )}
 
         <OnboardingForm
@@ -137,6 +112,6 @@ export default async function OnboardingPage() {
           initialAvatarUrl={initialAvatarUrl}
         />
       </div>
-    </div>
+    </main>
   );
 }

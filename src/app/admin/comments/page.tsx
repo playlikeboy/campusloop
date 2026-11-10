@@ -1,14 +1,14 @@
 import { desc, ilike, sql } from "drizzle-orm";
 import { MessageSquare } from "lucide-react";
 import type { Metadata } from "next";
+import { Badge } from "@/components/ui/badge";
 import { comments } from "@/db/schema";
+import { privateMetadata } from "@/lib/seo";
 import { AdminPageHeader } from "../_components/admin-page-header";
 import { resolveAdminSession } from "../_lib/guard";
 import { CommentsTable } from "./comments-table";
 
-export const metadata: Metadata = {
-  title: "Comments Moderation",
-};
+export const metadata: Metadata = privateMetadata("Comments");
 
 export const dynamic = "force-dynamic";
 
@@ -49,15 +49,10 @@ export default async function AdminCommentsPage({ searchParams }: PageProps) {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="Comment Moderation"
-        category="Content & Campus"
+        title="Comments"
         icon={MessageSquare}
-        description="Inspect threaded discussions, remove toxic replies, and maintain positive campus conversations."
-        badge={
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-muted text-muted-foreground border border-border/40">
-            {totalCount.toLocaleString()} comments
-          </span>
-        }
+        description="Read comment threads and remove harmful replies."
+        badge={<Badge variant="neutral">{totalCount.toLocaleString()} comments</Badge>}
       />
 
       <CommentsTable initialComments={list} page={page} totalPages={totalPages} />

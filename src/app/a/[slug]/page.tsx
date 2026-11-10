@@ -1,9 +1,9 @@
 import { eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { ARTICLES_CANONICAL_HOST } from "@/constants/articles";
 import { getDb } from "@/db";
 import { articles } from "@/db/schema";
+import { buildMetadata, ogImageUrl, privateMetadata } from "@/lib/seo";
 
 interface ArticleShortLinkProps {
   params: Promise<{ slug: string }>;
@@ -17,33 +17,19 @@ export async function generateMetadata({ params }: ArticleShortLinkProps): Promi
   });
 
   if (!article) {
-    return { title: "Article Not Found" };
+    return privateMetadata("Article not found");
   }
 
-  const title = article.title;
-  const description = article.excerpt || article.subtitle || "Read student articles on CampusLoop.";
-  const canonicalUrl = `${ARTICLES_CANONICAL_HOST}/articles/${slug}`;
-
-  return {
-    title,
-    description,
-    alternates: { canonical: canonicalUrl },
-    robots: { index: true, follow: true },
-    openGraph: {
-      title,
-      description,
-      url: canonicalUrl,
-      images: article.coverImageUrl
-        ? [{ url: article.coverImageUrl }]
-        : [{ url: `${ARTICLES_CANONICAL_HOST}/og-image.png` }],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: article.coverImageUrl ? [article.coverImageUrl] : [`${ARTICLES_CANONICAL_HOST}/og-image.png`],
-    },
-  };
+  // Share link: preview cards use the article, the canonical points at /articles/[slug].
+  return buildMetadata({
+    title: article.title,
+    description: article.excerpt || article.subtitle || `${article.title}, a student article on CampusLoop.`,
+    path: `/articles/${article.slug}`,
+    image: article.coverImageUrl
+      ? { url: article.coverImageUrl, alt: article.title }
+      : ogImageUrl(article.title, "Article"),
+    type: "article",
+  });
 }
 
 /**

@@ -2,7 +2,6 @@
 
 import { Flame, MessageCircle, Repeat2, Users } from "lucide-react";
 import Link from "next/link";
-import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { FeedSocialActor, FeedSocialContext, SocialActivityType } from "@/hooks/use-feed";
 import { cn } from "@/lib/utils";
@@ -17,11 +16,11 @@ function getActionVerb(actions: SocialActivityType[]): string {
   const hasComment = actions.includes("COMMENT");
   const hasRepost = actions.includes("REPOST");
 
-  if (hasLike && hasRepost && hasComment) return "vibed, commented & reposted this";
-  if (hasLike && hasRepost) return "vibed & reposted this";
-  if (hasLike && hasComment) return "vibed & commented on this";
+  if (hasLike && hasRepost && hasComment) return "liked, commented on and reposted this";
+  if (hasLike && hasRepost) return "liked and reposted this";
+  if (hasLike && hasComment) return "liked and commented on this";
   if (hasComment && hasRepost) return "commented & reposted this";
-  if (hasLike) return "vibed this";
+  if (hasLike) return "liked this";
   if (hasComment) return "commented on this";
   if (hasRepost) return "reposted this";
   return "interacted with this";
@@ -63,7 +62,7 @@ export function FeedSocialContextBar({ socialContext, className }: FeedSocialCon
   return (
     <div
       className={cn(
-        "w-fit max-w-full flex items-center gap-1.5 py-0.5 px-1.5 -ml-1 rounded-md text-[11px] sm:text-xs text-muted-foreground/90 transition-colors select-none",
+        "w-fit max-w-full flex items-center gap-1.5 py-0.5 px-1.5 -ml-1 rounded-md text-xs sm:text-xs text-muted-foreground/90 transition-colors select-none",
         className
       )}
       onClick={(e) => e.stopPropagation()}
@@ -76,7 +75,7 @@ export function FeedSocialContextBar({ socialContext, className }: FeedSocialCon
             href={`/@${actor.username}`}
             onClick={(e) => e.stopPropagation()}
             title={actor.displayName || `@${actor.username}`}
-            className="relative inline-block transition-transform hover:scale-110 hover:z-10 focus-visible:outline-none"
+            className="relative inline-block transition-transform hover:z-10 focus-visible:outline-none"
           >
             <Avatar className="size-4 sm:size-4.5 ring-1.5 ring-background shadow-2xs">
               {actor.avatarUrl && (
@@ -158,7 +157,7 @@ export function FeedSocialContextBar({ socialContext, className }: FeedSocialCon
             </span>{" "}
             <span className="text-muted-foreground">
               {actors.every((a) => a.actions.length === 1 && a.actions[0] === "LIKE")
-                ? "vibed this"
+                ? "liked this"
                 : "interacted"}
             </span>
           </span>

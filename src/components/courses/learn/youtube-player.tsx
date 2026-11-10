@@ -21,7 +21,10 @@ interface YTPlayer {
 
 declare global {
   interface Window {
-    YT?: { Player: new (el: HTMLElement, opts: Record<string, unknown>) => YTPlayer; PlayerState: { ENDED: number; PLAYING: number } };
+    YT?: {
+      Player: new (el: HTMLElement, opts: Record<string, unknown>) => YTPlayer;
+      PlayerState: { ENDED: number; PLAYING: number };
+    };
     onYouTubeIframeAPIReady?: () => void;
   }
 }
@@ -94,7 +97,13 @@ export const YouTubePlayer = forwardRef<PlayerHandle, Props>(function YouTubePla
       player.current = new window.YT.Player(mount, {
         videoId,
         host: "https://www.youtube-nocookie.com",
-        playerVars: { rel: 0, modestbranding: 1, playsinline: 1, start: Math.floor(startAt), autoplay: autoplay ? 1 : 0 },
+        playerVars: {
+          rel: 0,
+          modestbranding: 1,
+          playsinline: 1,
+          start: Math.floor(startAt),
+          autoplay: autoplay ? 1 : 0,
+        },
         events: {
           onStateChange: (e: { data: number }) => {
             if (e.data === window.YT?.PlayerState.ENDED) cbs.current.onEnded?.();
@@ -121,12 +130,18 @@ export const YouTubePlayer = forwardRef<PlayerHandle, Props>(function YouTubePla
       if (timer) clearInterval(timer);
       // Report the final position before tearing down (lecture switch, unmount).
       const p = player.current;
-      if (p && typeof p.getCurrentTime === "function") cbs.current.onProgress?.(p.getCurrentTime(), p.getDuration());
+      if (p && typeof p.getCurrentTime === "function")
+        cbs.current.onProgress?.(p.getCurrentTime(), p.getDuration());
       p?.destroy();
       player.current = null;
       mount.remove();
     };
   }, [videoId, startAt, autoplay]);
 
-  return <div ref={host} className="absolute inset-0 [&>div]:h-full [&>div]:w-full [&_iframe]:h-full [&_iframe]:w-full" />;
+  return (
+    <div
+      ref={host}
+      className="absolute inset-0 [&>div]:h-full [&>div]:w-full [&_iframe]:h-full [&_iframe]:w-full"
+    />
+  );
 });

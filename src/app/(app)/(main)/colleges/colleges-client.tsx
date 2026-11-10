@@ -1,23 +1,25 @@
 "use client";
 
-import {
-  ArrowUpRight,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  MapPin,
-  Plus,
-  School,
-  Search,
-  X,
-} from "lucide-react";
-import Link from "next/link";
+import { ChevronDown, Plus, Search, X } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AddCollegeModal } from "@/components/colleges/add-college-modal";
-import { AllIndiaCollegePodium, type LeaderboardCollegeItem } from "@/components/colleges/all-india-college-podium";
+import {
+  AllIndiaCollegePodium,
+  type LeaderboardCollegeItem,
+} from "@/components/colleges/all-india-college-podium";
+import {
+  CollegeDirectoryList,
+  CollegeListSkeleton,
+  CollegePager,
+  CollegeStandingsList,
+} from "@/components/colleges/college-directory-list";
 import type { CollegeItem } from "@/components/colleges/college-hub-row";
+import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
+import { fieldClassName, Input } from "@/components/ui/input";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { fetcher } from "@/lib/api";
 import { COLLEGE_DIRECTORY_STATES, COLLEGES_PAGE_SIZE } from "@/lib/colleges/directory-shared";
 import { cn } from "@/lib/utils";
@@ -25,9 +27,8 @@ import { cn } from "@/lib/utils";
 const CATEGORY_FILTERS = [
   { id: "ALL", label: "All" },
   { id: "IIT_NIT", label: "IITs & NITs" },
-  { id: "NIRF", label: "NIRF 100" },
-  { id: "CENTRAL", label: "Central" },
-  { id: "TRENDING", label: "Trending" },
+  { id: "NIRF", label: "NIRF top 100" },
+  { id: "CENTRAL", label: "Central universities" },
 ];
 
 const STATES = ["ALL", ...COLLEGE_DIRECTORY_STATES];
@@ -39,7 +40,11 @@ interface CollegesClientProps {
   initialTotalPages?: number;
 }
 
-export default function CollegesClient({ initialColleges, initialTotal, initialTotalPages }: CollegesClientProps) {
+export default function CollegesClient({
+  initialColleges,
+  initialTotal,
+  initialTotalPages,
+}: CollegesClientProps) {
   const searchParams = useSearchParams();
 
   const initialTab = searchParams.get("tab") === "leaderboard" ? "leaderboard" : "directory";
@@ -149,7 +154,7 @@ export default function CollegesClient({ initialColleges, initialTotal, initialT
     };
   }, [search, selectedState, selectedCategory, page, limit]);
 
-  // Fetch Leaderboard for visual addiction podium (always top 3) and full tab
+  // Most active colleges: top 3 on the list view, top 50 on the Most active view
   useEffect(() => {
     let ignore = false;
     async function fetchLeaderboard() {
@@ -196,425 +201,162 @@ export default function CollegesClient({ initialColleges, initialTotal, initialT
         }),
       });
 
-      if (!res.ok) throw new Error("Failed to add college");
+      if (!res.ok) throw new Error("Couldn't send your request. Check the name and try again.");
 
-      toast.success("Campus hub request submitted!");
+      toast.success("Thanks! We'll review your college and add it soon.");
       setShowAddModal(false);
       setNewCollegeName("");
       setNewCollegeState("");
       setNewCollegeDistrict("");
       setNewCollegeWebsite("");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to add college");
+      toast.error(err instanceof Error ? err.message : "Couldn't send your request. Try again.");
     } finally {
       setSubmitting(false);
     }
   }
 
+  const searchTrimmed = search.trim();
+
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 sm:px-6 lg:px-8 pb-28 pt-2">
-      {/* ─── Compact Minimal Header ─── */}
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 pt-2 border-b border-border/30">
-        <div className="flex items-center gap-3">
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-            Colleges
-          </h1>
-          <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-muted text-muted-foreground">
-            {total > 0 ? `${total.toLocaleString("en-IN")}` : "1,350+"}
-          </span>
+    <main className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-4 px-4 pt-4 pb-12 sm:px-6">
+      <header className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-3xl font-bold text-fg">Colleges</h1>
+          <p className="mt-1 text-sm text-fg-muted">
+            {total > 0 ? `${total.toLocaleString("en-IN")} colleges. ` : ""}Find yours and see what students
+            are posting.
+          </p>
         </div>
-
-        <div className="flex items-center gap-2">
-          {/* Minimalist Segmented Tabs */}
-          <div className="flex items-center p-0.5 rounded-full bg-muted/60 border border-border/40 text-xs font-semibold">
-            <button
-              type="button"
-              onClick={() => {
-                setActiveTab("directory");
-                setPage(1);
-              }}
-              className={cn(
-                "px-3.5 py-1.5 rounded-full transition-colors cursor-pointer",
-                activeTab === "directory"
-                  ? "bg-background text-foreground shadow-2xs font-bold"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              Directory
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setActiveTab("leaderboard");
-                setPage(1);
-              }}
-              className={cn(
-                "px-3.5 py-1.5 rounded-full transition-colors cursor-pointer",
-                activeTab === "leaderboard"
-                  ? "bg-background text-foreground shadow-2xs font-bold"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              Leaderboard
-            </button>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setShowAddModal(true)}
-            className="flex h-8.5 items-center gap-1.5 px-3 rounded-full bg-primary/10 hover:bg-primary/15 text-primary text-xs font-bold transition-colors cursor-pointer border border-primary/20 active:scale-95"
-          >
-            <Plus className="size-3.5" />
-            <span className="hidden sm:inline">Request Hub</span>
-            <span className="sm:hidden">Request</span>
-          </button>
-        </div>
+        <Button variant="outline" size="sm" onClick={() => setShowAddModal(true)}>
+          <Plus />
+          Add your college
+        </Button>
       </header>
 
-      {/* ─── Minimal Search & Filter Bar ─── */}
-      <section className="py-3 space-y-2.5 border-b border-border/30">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-          {/* Clean Search Input */}
+      <SegmentedControl
+        aria-label="View"
+        value={activeTab}
+        onChange={(tab) => {
+          setActiveTab(tab);
+          setPage(1);
+        }}
+        options={[
+          { value: "directory", label: "All colleges" },
+          { value: "leaderboard", label: "Most active" },
+        ]}
+        fullWidth
+        className="sm:w-80"
+      />
+
+      <section aria-label="Search and filters" className="space-y-3">
+        <div className="flex flex-col gap-2 sm:flex-row">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search by college or city..."
+            <Search
+              className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-fg-subtle"
+              aria-hidden="true"
+            />
+            <Input
+              type="search"
+              aria-label="Search colleges"
+              placeholder="College name or city"
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
                 setPage(1);
               }}
-              className="h-9 w-full rounded-xl border border-border/50 bg-muted/20 pl-9 pr-8 text-xs sm:text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-primary focus:bg-background"
+              className="pr-11 pl-10"
             />
             {search && (
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                size="icon-sm"
                 onClick={() => setSearch("")}
                 aria-label="Clear search"
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground"
+                className="absolute top-1/2 right-1 -translate-y-1/2"
               >
-                <X className="size-3.5" />
-              </button>
+                <X />
+              </Button>
             )}
           </div>
 
-          {/* Minimal State Selector Dropdown */}
-          <div className="relative shrink-0">
+          <div className="relative shrink-0 sm:w-52">
             <select
+              aria-label="State"
               value={selectedState}
               onChange={(e) => {
                 setSelectedState(e.target.value);
                 setPage(1);
               }}
-              className="h-9 w-full sm:w-auto appearance-none rounded-xl border border-border/50 bg-muted/20 pl-3 pr-8 text-xs font-semibold text-foreground outline-none transition-colors focus:border-primary cursor-pointer"
+              className={cn(fieldClassName, "h-11 cursor-pointer appearance-none pr-10")}
             >
               {STATES.map((s) => (
                 <option key={s} value={s}>
-                  {s === "ALL" ? "All States" : s}
+                  {s === "ALL" ? "All states" : s}
                 </option>
               ))}
             </select>
-            <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+            <ChevronDown
+              className="pointer-events-none absolute top-1/2 right-3.5 size-4 -translate-y-1/2 text-fg-subtle"
+              aria-hidden="true"
+            />
           </div>
         </div>
 
-        {/* Horizontal Category Chips */}
-        <div className="no-scrollbar flex items-center gap-1.5 overflow-x-auto pt-0.5">
-          {CATEGORY_FILTERS.map((cat) => {
-            const isSelected = selectedCategory === cat.id;
-            return (
-              <Link
-                key={cat.id}
-                href={hrefFor({ category: cat.id, page: 1 })}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setSelectedCategory(cat.id);
-                  setPage(1);
-                }}
-                aria-current={isSelected ? "page" : undefined}
-                className={cn(
-                  "px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer",
-                  isSelected
-                    ? "bg-foreground text-background font-bold"
-                    : "bg-muted/40 text-muted-foreground hover:text-foreground border border-border/40"
-                )}
-              >
-                {cat.label}
-              </Link>
-            );
-          })}
-        </div>
+        <fieldset className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+          <legend className="sr-only">College type</legend>
+          {CATEGORY_FILTERS.map((cat) => (
+            <Chip
+              key={cat.id}
+              size="sm"
+              selected={selectedCategory === cat.id}
+              onClick={() => {
+                setSelectedCategory(cat.id);
+                setPage(1);
+              }}
+            >
+              {cat.label}
+            </Chip>
+          ))}
+        </fieldset>
       </section>
 
-      {/* ─── Directory Tab View ─── */}
       {activeTab === "directory" && (
-        <section className="pt-4 flex-1 flex flex-col justify-between">
-          {/* Top 3 Campus Spotlight / Visual Addiction Podium */}
-          {page === 1 && !search.trim() && (
-            <div className="mb-6">
-              <AllIndiaCollegePodium
-                leaderboard={leaderboard.slice(0, 3)}
-                loading={leaderboardLoading && leaderboard.length === 0}
-                className="mx-0 my-0"
-                onExploreMore={() => {
-                  setActiveTab("leaderboard");
-                  setPage(1);
-                }}
-              />
-            </div>
-          )}
-
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {Array.from({ length: 9 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="p-4 rounded-2xl border border-border/30 bg-card/20 animate-pulse space-y-3"
-                >
-                  <div className="size-10 rounded-full bg-muted/60" />
-                  <div className="h-4 w-3/4 rounded bg-muted/60" />
-                  <div className="h-3 w-1/2 rounded bg-muted/40" />
-                </div>
-              ))}
-            </div>
-          ) : colleges.length > 0 ? (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {colleges.map((college) => {
-                  const location = [college.district, college.state].filter(Boolean).join(", ") || "India";
-                  const initials =
-                    college.name
-                      .split(/\s+/)
-                      .filter(Boolean)
-                      .slice(0, 2)
-                      .map((w) => w[0]?.toUpperCase())
-                      .join("") || "CL";
-
-                  return (
-                    <Link
-                      key={college.id}
-                      href={`/college/${college.slug || college.id}`}
-                      className="group flex flex-col justify-between p-4 rounded-2xl border border-border/40 bg-card/40 hover:bg-card hover:border-border/80 transition-colors shadow-2xs"
-                    >
-                      <div className="space-y-3">
-                        {/* Top row: crest + NIRF chip */}
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="size-10 rounded-full border border-border/50 bg-muted/30 p-1 flex items-center justify-center shrink-0 overflow-hidden">
-                            {college.logoUrl ? (
-                              <img
-                                src={college.logoUrl}
-                                alt=""
-                                className="size-full object-contain"
-                                loading="lazy"
-                              />
-                            ) : (
-                              <span className="text-xs font-bold text-primary">{initials}</span>
-                            )}
-                          </div>
-
-                          {college.nirfRank ? (
-                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-warning-subtle text-warning border border-warning/20">
-                              NIRF #{college.nirfRank}
-                            </span>
-                          ) : college.websiteDomain ? (
-                            <span className="font-mono text-[10px] font-semibold text-muted-foreground truncate max-w-[140px]">
-                              @{college.websiteDomain}
-                            </span>
-                          ) : null}
-                        </div>
-
-                        {/* College Name & Location */}
-                        <div className="space-y-1">
-                          <h2 className="text-sm font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-snug">
-                            {college.name}
-                          </h2>
-                          <p className="text-xs text-muted-foreground flex items-center gap-1 truncate">
-                            <MapPin className="size-3 shrink-0" />
-                            <span className="truncate">{location}</span>
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Subtle Footer Hover Arrow */}
-                      <div className="pt-3 mt-3 border-t border-border/30 flex items-center justify-between text-[11px] text-muted-foreground">
-                        <span className="group-hover:text-foreground transition-colors">View campus</span>
-                        <ArrowUpRight className="size-3.5 text-muted-foreground group-hover:text-primary transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-
-              {/* Minimal Pagination */}
-              {totalPages > 1 && (
-                <div className="flex items-center justify-between pt-6 pb-2 text-xs text-muted-foreground border-t border-border/30 mt-6">
-                  <span>
-                    Page <strong className="font-bold text-foreground">{page}</strong> of{" "}
-                    <strong className="font-bold text-foreground">{totalPages}</strong>
-                  </span>
-
-                  <div className="flex items-center gap-1.5">
-                    {/* Real ?page= anchors so crawlers can walk the directory; JS keeps the in-place flow. */}
-                    <Link
-                      href={hrefFor({ page: Math.max(1, page - 1) })}
-                      aria-disabled={page <= 1}
-                      rel="prev"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (page <= 1) return;
-                        setPage((p) => Math.max(1, p - 1));
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                      }}
-                      className={cn(
-                        "px-3 py-1.5 rounded-lg border text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1",
-                        page <= 1
-                          ? "opacity-40 border-border/30 cursor-not-allowed"
-                          : "border-border/60 hover:bg-muted text-foreground"
-                      )}
-                    >
-                      <ChevronLeft className="size-3.5" />
-                      <span>Prev</span>
-                    </Link>
-
-                    <Link
-                      href={hrefFor({ page: Math.min(totalPages, page + 1) })}
-                      aria-disabled={page >= totalPages}
-                      rel="next"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (page >= totalPages) return;
-                        setPage((p) => Math.min(totalPages, p + 1));
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                      }}
-                      className={cn(
-                        "px-3 py-1.5 rounded-lg border text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1",
-                        page >= totalPages
-                          ? "opacity-40 border-border/30 cursor-not-allowed"
-                          : "border-border/60 hover:bg-muted text-foreground"
-                      )}
-                    >
-                      <span>Next</span>
-                      <ChevronRight className="size-3.5" />
-                    </Link>
-                  </div>
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-20 text-center space-y-3">
-              <School className="size-8 text-muted-foreground/60" />
-              <p className="text-sm font-bold text-foreground">No campus hubs found</p>
-              <button
-                type="button"
-                onClick={() => setShowAddModal(true)}
-                className="text-xs font-bold text-primary hover:underline"
-              >
-                Request this college to be added →
-              </button>
-            </div>
-          )}
-        </section>
-      )}
-
-      {/* ─── Leaderboard Tab View ─── */}
-      {activeTab === "leaderboard" && (
-        <section className="pt-4 flex-1 space-y-4">
-          {/* Top 3 Championship Podium */}
-          {leaderboard.length >= 3 && !leaderboardLoading && (
+        <section aria-label="College list" className="flex flex-1 flex-col gap-4">
+          {page === 1 && !searchTrimmed && (
             <AllIndiaCollegePodium
               leaderboard={leaderboard.slice(0, 3)}
-              loading={leaderboardLoading}
-              className="mx-0 my-0 mb-5"
+              loading={leaderboardLoading && leaderboard.length === 0}
+              onExploreMore={() => {
+                setActiveTab("leaderboard");
+                setPage(1);
+              }}
             />
           )}
 
-          {leaderboardLoading ? (
-            <div className="space-y-2">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="h-14 rounded-xl border border-border/30 bg-card/20 animate-pulse"
-                />
-              ))}
-            </div>
-          ) : leaderboard.length > 0 ? (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between px-1 text-xs font-bold text-muted-foreground">
-                <span>Complete Campus Standings</span>
-                <span className="font-mono text-[11px] text-primary">Season 1 Live</span>
-              </div>
-              {leaderboard.map((item, index) => {
-                const rank = index + 1;
-                const location = [item.district, item.state].filter(Boolean).join(", ") || "India";
-                const initials =
-                  item.name
-                    .split(/\s+/)
-                    .filter(Boolean)
-                    .slice(0, 2)
-                    .map((w) => w[0]?.toUpperCase())
-                    .join("") || "CL";
-
-                return (
-                  <Link
-                    key={item.id}
-                    href={`/college/${item.slug || item.id}`}
-                    className="group flex items-center justify-between p-3.5 rounded-xl border border-border/30 bg-card/30 hover:bg-card hover:border-border/60 transition-colors"
-                  >
-                    <div className="flex items-center gap-3.5 min-w-0">
-                      <span
-                        className={cn(
-                          "w-6 text-center text-sm font-bold tabular-nums shrink-0",
-                          rank === 1 && "text-warning",
-                          rank === 2 && "text-fg-subtle",
-                          rank === 3 && "text-warning",
-                          rank > 3 && "text-muted-foreground"
-                        )}
-                      >
-                        #{rank}
-                      </span>
-
-                      <div className="size-9 rounded-full border border-border/40 bg-muted/20 p-1 flex items-center justify-center shrink-0 overflow-hidden">
-                        {item.logoUrl ? (
-                          <img src={item.logoUrl} alt="" className="size-full object-contain" />
-                        ) : (
-                          <span className="text-xs font-bold text-primary">{initials}</span>
-                        )}
-                      </div>
-
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <h3 className="text-sm font-bold text-foreground group-hover:text-primary transition-colors truncate">
-                            {item.name}
-                          </h3>
-                          {item.nirfRank && (
-                            <span className="shrink-0 text-[10px] font-bold text-warning bg-warning-subtle px-1.5 rounded">
-                              NIRF #{item.nirfRank}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs text-muted-foreground truncate">{location}</p>
-                      </div>
-                    </div>
-
-                    <div className="shrink-0 pl-3 text-right">
-                      <span className="text-xs font-bold text-primary">
-                        {item.points ? item.points.toLocaleString("en-IN") : `${item.studentCount || 0} students`}
-                      </span>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
+          {loading ? (
+            <CollegeListSkeleton />
           ) : (
-            <div className="py-20 text-center text-sm text-muted-foreground">
-              No active leaderboard data yet.
-            </div>
+            <CollegeDirectoryList colleges={colleges} onRequest={() => setShowAddModal(true)} />
+          )}
+
+          {!loading && colleges.length > 0 && (
+            <CollegePager
+              page={page}
+              totalPages={totalPages}
+              hrefFor={(p) => hrefFor({ page: p })}
+              onPage={setPage}
+            />
           )}
         </section>
       )}
 
-      {/* Add College Modal */}
+      {activeTab === "leaderboard" && (
+        <section aria-label="Most active colleges" className="flex-1">
+          {leaderboardLoading ? <CollegeListSkeleton /> : <CollegeStandingsList leaderboard={leaderboard} />}
+        </section>
+      )}
+
       <AddCollegeModal
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}

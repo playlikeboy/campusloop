@@ -1,134 +1,92 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { breadcrumbJsonLd, buildMetadata } from "@/lib/seo";
+import { JsonLd } from "@/lib/seo/json-ld-script";
 import { CategoryEventsClient } from "./category-events-client";
 
 interface CategoryPageProps {
   params: Promise<{ category: string }>;
 }
 
-const CATEGORY_MAP: Record<
-  string,
-  {
-    title: string;
-    headline: string;
-    description: string;
-    keywords: string[];
-    canonicalCategory: string;
-  }
-> = {
+type CategoryConfig = {
+  title: string;
+  headline: string;
+  description: string;
+};
+
+const CATEGORY_MAP: Record<string, CategoryConfig> = {
   hackathons: {
-    title: "College Hackathons 2026 | Coding Sprints & Cash Prizes in India",
-    headline: "College Hackathons & Builds",
-    description: "Browse verified hackathons, coding sprints, AI builds, and developer competitions across top Indian universities with live cash prizes and recruiter bounties.",
-    keywords: ["college hackathons India", "coding sprint", "AI hackathon", "student developer competitions"],
-    canonicalCategory: "hackathons",
+    title: "College hackathons",
+    headline: "Hackathons",
+    description:
+      "Hackathons and coding contests at colleges across India. See dates, team size and how to register.",
   },
   workshops: {
-    title: "Campus Tech & Creative Workshops | Hands-On Bootcamps",
-    headline: "Hands-on Workshops & Bootcamps",
-    description: "Explore student and club-led workshops in Web3, AI, Cloud, design, and robotics hosted across college hubs in India.",
-    keywords: ["college workshops", "tech bootcamp", "student workshops", "campus skill building"],
-    canonicalCategory: "workshops",
+    title: "College workshops",
+    headline: "Workshops",
+    description:
+      "Hands-on workshops run by college clubs, from coding and design to robotics. Find one near you.",
   },
   fests: {
-    title: "College Fests 2026 | Tech, Cultural & Sports Expos in India",
-    headline: "Annual College Fests & Expos",
-    description: "Discover upcoming annual cultural nights, technical fests, concert passes, and campus expos across Indian colleges.",
-    keywords: ["college fests India", "cultural fest", "tech fest", "university concert passes"],
-    canonicalCategory: "fests",
+    title: "College fests",
+    headline: "Fests",
+    description:
+      "Cultural, tech and sports fests at colleges across India. See what is coming up and get your pass.",
   },
   competitions: {
-    title: "Student Competitions & Case Battles | Campus Challenges",
-    headline: "Competitions, Quizzes & Debates",
-    description: "Compete in case study challenges, business model wars, debate circuits, and student quizzes hosted by university societies.",
-    keywords: ["case study competition", "college quiz", "student debate", "business competition"],
-    canonicalCategory: "competitions",
+    title: "Student competitions",
+    headline: "Competitions",
+    description:
+      "Case studies, quizzes and debates run by college societies. Find one and sign up solo or as a team.",
   },
   seminars: {
-    title: "Academic Seminars & Guest Talks | Campus Keynotes",
-    headline: "Seminars, Talks & Conferences",
-    description: "Attend insightful guest lectures, academic research symposiums, and tech keynote talks on CampusLoop.",
-    keywords: ["academic seminar", "college guest talk", "university symposium", "alumni keynote"],
-    canonicalCategory: "seminars",
+    title: "Talks and seminars",
+    headline: "Talks and seminars",
+    description:
+      "Guest lectures, alumni talks and seminars at colleges on CampusLoop. Check the date and save a seat.",
   },
   gaming: {
-    title: "College Esports Tournaments & Gaming LANs | India",
-    headline: "Gaming & Esports Tournaments",
-    description: "Join competitive gaming LANs, Valorant & BGMI campus showdowns, and console esports tournaments with student prize pools.",
-    keywords: ["college esports India", "campus gaming tournament", "student LAN", "university BGMI"],
-    canonicalCategory: "gaming",
+    title: "College gaming tournaments",
+    headline: "Gaming tournaments",
+    description:
+      "Campus esports and LAN tournaments for games like Valorant, BGMI and chess. Find one and join.",
   },
   meetups: {
-    title: "Campus Tech Meetups & Open Source Gatherings",
-    headline: "Developer Meetups & Jam Sessions",
-    description: "Connect with builders, join weekend hack sessions, and network with tech leaders at offline and online campus meetups.",
-    keywords: ["college tech meetup", "student developer group", "campus networking"],
-    canonicalCategory: "meetups",
+    title: "Campus meetups",
+    headline: "Meetups",
+    description:
+      "Club meetups, build nights and open-source sessions at colleges. Drop in, meet people, build stuff.",
   },
 };
 
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const { category } = await params;
-  const config = CATEGORY_MAP[category.toLowerCase()];
+  const key = category.toLowerCase();
+  const config = CATEGORY_MAP[key];
+  if (!config) return { title: "Events", robots: { index: false, follow: false } };
 
-  if (!config) {
-    return { title: "Campus Opportunities" };
-  }
-
-  const canonical = `https://campusloop.space/events/category/${category.toLowerCase()}`;
-  return {
-    title: `${config.title}`,
+  return buildMetadata({
+    title: config.title,
     description: config.description,
-    alternates: { canonical },
-    keywords: config.keywords,
-    robots: { index: true, follow: true },
-    openGraph: {
-      type: "website",
-      title: config.title,
-      description: config.description,
-      url: canonical,
-      images: [{ url: "https://campusloop.space/og-image.png" }],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: config.title,
-      description: config.description,
-      images: ["https://campusloop.space/og-image.png"],
-    },
-  };
+    path: `/events/category/${key}`,
+  });
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { category } = await params;
-  const config = CATEGORY_MAP[category.toLowerCase()];
-
-  if (!config) {
-    notFound();
-  }
-
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    name: config.title,
-    description: config.description,
-    url: `https://campusloop.space/events/category/${category.toLowerCase()}`,
-    publisher: {
-      "@type": "Organization",
-      name: "CampusLoop",
-      url: "https://campusloop.space",
-    },
-  };
+  const key = category.toLowerCase();
+  const config = CATEGORY_MAP[key];
+  if (!config) notFound();
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Events", path: "/events" },
+          { name: config.headline, path: `/events/category/${key}` },
+        ])}
       />
-      <CategoryEventsClient
-        category={category.toLowerCase()}
-        config={config}
-      />
+      <CategoryEventsClient category={key} config={config} />
     </>
   );
 }

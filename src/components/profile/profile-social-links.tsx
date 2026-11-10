@@ -13,7 +13,6 @@ interface SocialLinkItem {
   label: string;
   sub: string;
   href: string | null;
-  color: string;
   monogram: string;
 }
 
@@ -48,7 +47,6 @@ export function ProfileSocialLinks({
           label: platform.label,
           sub: displayValueFor(platform, raw),
           href: resolvePlatformUrl(platform, raw),
-          color: platform.color,
           monogram: platform.monogram,
         };
       })
@@ -65,7 +63,6 @@ export function ProfileSocialLinks({
           label: trimmedLabel,
           sub: trimmedLabel,
           href: safeUrl,
-          color: "var(--brand)",
           monogram: (trimmedLabel[0] ?? "L").toUpperCase(),
         };
       });
@@ -74,92 +71,80 @@ export function ProfileSocialLinks({
   }, [links]);
 
   if (items.length === 0) {
-    if (isOwnProfile) {
-      return (
-        <div className={cn("pt-1", className)}>
-          <Link
-            href="/profile/edit"
-            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors py-1 px-2.5 rounded-full border border-dashed border-border/70 hover:border-primary/50 bg-muted/20"
-          >
-            <Plus className="size-3" />
-            <span>Connect GitHub, X, LinkedIn...</span>
-          </Link>
-        </div>
-      );
-    }
-    return null;
+    if (!isOwnProfile) return null;
+    return (
+      <Link
+        href="/profile/edit"
+        className={cn(
+          "inline-flex h-9 items-center gap-1.5 rounded-full border border-dashed border-border-strong px-3 text-sm text-fg-muted transition-ui hover:border-brand hover:text-brand-text",
+          className
+        )}
+      >
+        <Plus aria-hidden="true" className="size-4" />
+        Add your Instagram, GitHub or LinkedIn
+      </Link>
+    );
   }
 
   const visibleItems = expanded ? items : items.slice(0, maxVisible);
   const hiddenCount = items.length - maxVisible;
+  const circle =
+    "inline-flex size-10 items-center justify-center rounded-full border border-border bg-surface text-fg transition-ui hover:bg-surface-muted active:scale-95";
 
   return (
-    <div className={cn("flex flex-wrap items-center gap-1.5 sm:gap-2 pt-1 select-none", className)}>
+    <ul className={cn("flex flex-wrap items-center gap-2", className)} aria-label="Links">
       {visibleItems.map((item) => {
-        const titleText = `${item.label} (${item.sub})`;
-
-        const content = (
-          <span className="relative flex items-center justify-center size-8 sm:size-8.5 rounded-full bg-secondary/80 hover:bg-secondary text-foreground border border-border/60 hover:border-border transition-[opacity,transform] duration-200 group shadow-2xs hover:scale-105 active:scale-95">
-            <SocialPlatformIcon
-              platformKey={item.key}
-              fallbackMonogram={item.monogram}
-              className="size-3.5 sm:size-4 transition-transform group-hover:scale-110"
-            />
-            {item.href && (
-              <span
-                className="absolute -top-0.5 -right-0.5 size-2 rounded-full border-2 border-background opacity-0 group-hover:opacity-100 transition-opacity"
-                style={{ backgroundColor: item.color }}
-              />
-            )}
-            <span className="sr-only">{titleText}</span>
-          </span>
+        const titleText = `${item.label}: ${item.sub}`;
+        const icon = (
+          <SocialPlatformIcon platformKey={item.key} fallbackMonogram={item.monogram} className="size-4" />
         );
-
-        if (!item.href) {
-          return (
-            <span key={item.id} title={titleText} className="cursor-default">
-              {content}
-            </span>
-          );
-        }
-
         return (
-          <a
-            key={item.id}
-            href={item.href}
-            target="_blank"
-            rel="me noopener noreferrer"
-            title={titleText}
-            aria-label={titleText}
-            className="group relative cursor-pointer"
-          >
-            {content}
-          </a>
+          <li key={item.id}>
+            {item.href ? (
+              <a
+                href={item.href}
+                target="_blank"
+                rel="me noopener noreferrer"
+                title={titleText}
+                aria-label={titleText}
+                className={cn(circle, "outline-none focus-visible:ring-2 focus-visible:ring-ring")}
+              >
+                {icon}
+              </a>
+            ) : (
+              <span title={titleText} className={circle}>
+                {icon}
+                <span className="sr-only">{titleText}</span>
+              </span>
+            )}
+          </li>
         );
       })}
 
       {hiddenCount > 0 && (
-        <button
-          type="button"
-          onClick={() => setExpanded((prev) => !prev)}
-          className="inline-flex items-center justify-center size-8 sm:size-8.5 rounded-full bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground text-[11px] font-bold border border-border/60 transition-[opacity,transform] cursor-pointer shadow-2xs hover:scale-105 active:scale-95"
-          title={expanded ? "Show less" : `Show ${hiddenCount} more links`}
-          aria-label={expanded ? "Show less links" : `Show ${hiddenCount} more links`}
-        >
-          {expanded ? <ChevronUp className="size-3.5" /> : `+${hiddenCount}`}
-        </button>
+        <li>
+          <button
+            type="button"
+            onClick={() => setExpanded((prev) => !prev)}
+            className={cn(circle, "cursor-pointer text-xs font-semibold text-fg-muted")}
+            aria-label={expanded ? "Show fewer links" : `Show ${hiddenCount} more links`}
+          >
+            {expanded ? <ChevronUp aria-hidden="true" className="size-4" /> : `+${hiddenCount}`}
+          </button>
+        </li>
       )}
 
       {isOwnProfile && (
-        <Link
-          href="/profile/edit"
-          className="inline-flex items-center justify-center size-8 sm:size-8.5 rounded-full border border-dashed border-border hover:border-primary/50 text-muted-foreground hover:text-primary transition-[opacity,transform] hover:scale-105 active:scale-95 cursor-pointer"
-          title="Edit or add links"
-          aria-label="Edit or add social links"
-        >
-          <Plus className="size-3.5" />
-        </Link>
+        <li>
+          <Link
+            href="/profile/edit"
+            className={cn(circle, "border-dashed border-border-strong text-fg-muted hover:text-brand-text")}
+            aria-label="Edit your links"
+          >
+            <Plus aria-hidden="true" className="size-4" />
+          </Link>
+        </li>
       )}
-    </div>
+    </ul>
   );
 }

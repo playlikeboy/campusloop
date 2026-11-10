@@ -1,12 +1,16 @@
 "use client";
 
-import { ArrowLeft, Flame, Globe, MessageSquare, School, Search, ShieldCheck } from "lucide-react";
+import { ArrowLeft, MessageSquare, School, Search, Users, X } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import useSWR from "swr";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getBranchIcon } from "@/constants";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Input } from "@/components/ui/input";
+import { SegmentedControl } from "@/components/ui/segmented-control";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { Institution, UserProfile } from "@/db/schema";
 import { fetcher } from "@/lib/api";
 import { getAvatarUrl } from "@/lib/utils";
@@ -22,245 +26,165 @@ type BranchApiResponse = {
   students: BranchStudent[];
 };
 
+type Scope = "GLOBAL" | "CAMPUS";
+type Sort = "CLOUT" | "RECENT";
+
 export function BranchDirectoryClient() {
   const params = useParams();
   const router = useRouter();
   const rawSlug = typeof params.slug === "string" ? params.slug : "";
   const slug = decodeURIComponent(rawSlug);
 
-  const [scope, setScope] = useState<"GLOBAL" | "CAMPUS">("GLOBAL");
-  const [sort, setSort] = useState<"CLOUT" | "RECENT" | "NAME">("CLOUT");
+  const [scope, setScope] = useState<Scope>("GLOBAL");
+  const [sort, setSort] = useState<Sort>("CLOUT");
   const [searchQuery, setSearchQuery] = useState("");
 
   const url = `/api/academics/branch/${encodeURIComponent(slug)}?scope=${scope}&sort=${sort}&q=${encodeURIComponent(searchQuery)}`;
-  const { data, isLoading } = useSWR<BranchApiResponse>(url, fetcher);
+  const { data, isLoading, error } = useSWR<BranchApiResponse>(url, fetcher);
 
   const branchTitle = data?.branch || slug.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
-  const branchIcon = data?.icon || getBranchIcon(branchTitle);
 
   return (
-    <div className="w-full max-w-2xl mx-auto min-h-screen border-x border-border/30 pb-24 select-none">
-      {/* ─── Twitter-Style Sticky Top Bar ─── */}
-      <header className="sticky top-12 lg:top-0 z-30 flex h-13 w-full items-center justify-between border-b border-border/30 bg-background/85 px-4 backdrop-blur-xl">
-        <div className="flex items-center gap-3 min-w-0 flex-1">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="flex size-9 shrink-0 items-center justify-center rounded-full text-foreground/80 hover:bg-muted transition-colors cursor-pointer"
-            aria-label="Back"
-          >
-            <ArrowLeft className="size-4.5" />
-          </button>
-
-          <div className="min-w-0 flex-1">
-            <h1 className="text-sm sm:text-base font-black text-foreground tracking-tight truncate flex items-center gap-1.5">
-              <span>{branchIcon}</span>
-              <span className="truncate">{branchTitle}</span>
-            </h1>
-            <p className="text-[11px] text-muted-foreground font-medium truncate">
-              {data ? `${data.totalCount} verified students` : "Academic Branch Directory"}
-            </p>
-          </div>
-        </div>
-
-        <Link href="/colleges" className="text-xs font-bold text-primary hover:underline shrink-0 pl-2">
-          All Colleges
-        </Link>
+    <div className="mx-auto min-h-screen w-full max-w-2xl space-y-4 px-4 pt-3 pb-24">
+      <header className="space-y-1">
+        <Button variant="ghost" size="sm" className="-ml-2" onClick={() => router.back()}>
+          <ArrowLeft />
+          Back
+        </Button>
+        <h1 className="text-2xl font-bold text-fg">{branchTitle}</h1>
+        <p className="text-sm text-fg-muted tabular-nums">
+          {data ? `${data.totalCount.toLocaleString("en-IN")} students` : "Students in this branch"}
+        </p>
       </header>
 
-      {/* ─── Search Input ─── */}
-      <div className="px-4 py-2.5 border-b border-border/30 bg-background/50">
-        <div className="relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder={`Search ${branchTitle} classmates...`}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-9.5 pl-10 pr-4 rounded-full bg-muted/40 text-xs font-semibold text-foreground placeholder:text-muted-foreground outline-none border border-transparent focus:border-primary/40 focus:bg-background transition-ui"
-          />
-        </div>
-      </div>
-
-      {/* ─── Twitter-Style Equal-Width Tabs ─── */}
-      <div className="flex border-b border-border/30 bg-background text-xs font-bold">
-        <button
-          type="button"
-          onClick={() => setScope("GLOBAL")}
-          className={`flex-1 py-3 text-center relative transition-colors cursor-pointer ${
-            scope === "GLOBAL" ? "text-foreground" : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <span className="inline-flex items-center gap-1.5">
-            <Globe className="size-3.5" />
-            All Campuses
-          </span>
-          {scope === "GLOBAL" && (
-            <span className="absolute bottom-0 inset-x-12 h-1 bg-primary rounded-full" />
-          )}
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setScope("CAMPUS")}
-          className={`flex-1 py-3 text-center relative transition-colors cursor-pointer ${
-            scope === "CAMPUS" ? "text-foreground" : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <span className="inline-flex items-center gap-1.5">
-            <School className="size-3.5" />
-            My College
-          </span>
-          {scope === "CAMPUS" && (
-            <span className="absolute bottom-0 inset-x-12 h-1 bg-primary rounded-full" />
-          )}
-        </button>
-      </div>
-
-      {/* ─── Sub-filter Sort Bar ─── */}
-      <div className="px-4 py-2 border-b border-border/20 bg-muted/10 flex items-center justify-between text-xs">
-        <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-          Sort Students
-        </span>
-        <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            onClick={() => setSort("CLOUT")}
-            className={`px-2.5 py-1 rounded-full text-xs font-bold transition-ui cursor-pointer ${
-              sort === "CLOUT"
-                ? "bg-primary text-primary-foreground shadow-2xs"
-                : "bg-muted/40 text-muted-foreground hover:text-foreground"
-            }`}
+      <div className="relative">
+        <Search
+          className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-fg-subtle"
+          aria-hidden="true"
+        />
+        <Input
+          type="search"
+          aria-label="Search students"
+          placeholder="Search by name or username"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pr-11 pl-10"
+        />
+        {searchQuery && (
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Clear search"
+            onClick={() => setSearchQuery("")}
+            className="absolute top-1/2 right-1 -translate-y-1/2"
           >
-            <span className="inline-flex items-center gap-1">
-              <Flame className="size-3.5 fill-reward text-reward" />
-              <span>Top Clout</span>
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setSort("RECENT")}
-            className={`px-2.5 py-1 rounded-full text-xs font-bold transition-ui cursor-pointer ${
-              sort === "RECENT"
-                ? "bg-primary text-primary-foreground shadow-2xs"
-                : "bg-muted/40 text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            ⚡ Newest
-          </button>
-        </div>
+            <X />
+          </Button>
+        )}
       </div>
 
-      {/* ─── Student Directory List (Twitter Search / User Style) ─── */}
-      <div className="divide-y divide-border/30">
-        {isLoading ? (
-          <div className="divide-y divide-border/30">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="flex items-start gap-3.5 p-4 animate-pulse">
-                <div className="size-11 rounded-full bg-muted/60 shrink-0" />
-                <div className="flex-1 space-y-2 py-1">
-                  <div className="h-3 w-1/3 rounded bg-muted/60" />
-                  <div className="h-2.5 w-1/2 rounded bg-muted/40" />
-                </div>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <SegmentedControl<Scope>
+          aria-label="Where"
+          size="sm"
+          value={scope}
+          onChange={setScope}
+          options={[
+            { value: "GLOBAL", label: "All colleges" },
+            { value: "CAMPUS", label: "My college" },
+          ]}
+        />
+        <SegmentedControl<Sort>
+          aria-label="Sort"
+          size="sm"
+          value={sort}
+          onChange={setSort}
+          options={[
+            { value: "CLOUT", label: "Most points" },
+            { value: "RECENT", label: "Newest" },
+          ]}
+        />
+      </div>
+
+      {isLoading ? (
+        <div className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-surface">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="flex items-center gap-3 p-4">
+              <Skeleton className="size-11 rounded-full" />
+              <div className="flex-1 space-y-1.5">
+                <Skeleton className="h-4 w-1/3" />
+                <Skeleton className="h-3 w-1/2" />
               </div>
-            ))}
-          </div>
-        ) : data && data.students.length > 0 ? (
-          data.students.map((student) => (
-            <div
-              key={student.id}
-              className="flex items-start gap-3.5 px-4 py-3.5 hover:bg-muted/15 transition-colors group"
-            >
+            </div>
+          ))}
+        </div>
+      ) : error ? (
+        <EmptyState
+          icon={Users}
+          bordered
+          title="Couldn't load students"
+          description="Check your connection and try again."
+          action={
+            <Button variant="outline" onClick={() => router.refresh()}>
+              Try again
+            </Button>
+          }
+        />
+      ) : data && data.students.length > 0 ? (
+        <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-surface">
+          {data.students.map((student) => (
+            <li key={student.id} className="flex items-start gap-3 px-4 py-3">
               <Link href={`/@${student.username}`} className="shrink-0">
-                <Avatar className="size-11 rounded-full border border-border/40 hover:opacity-90 transition-opacity">
-                  <AvatarImage src={student.avatarUrl || getAvatarUrl(null, student.username)} />
-                  <AvatarFallback className="font-bold text-xs bg-primary/10 text-primary">
-                    {student.displayName[0]?.toUpperCase()}
-                  </AvatarFallback>
+                <Avatar className="size-11">
+                  <AvatarImage src={student.avatarUrl || getAvatarUrl(null, student.username)} alt="" />
+                  <AvatarFallback>{student.displayName[0]?.toUpperCase()}</AvatarFallback>
                 </Avatar>
               </Link>
-
-              <div className="min-w-0 flex-1 space-y-1">
-                {/* Name, Handle, and Action Row */}
-                <div className="flex items-center justify-between gap-2">
-                  <Link href={`/@${student.username}`} className="min-w-0 group/name block">
-                    <p className="text-sm font-bold text-foreground truncate group-hover/name:underline flex items-center gap-1">
-                      <span className="truncate">{student.displayName}</span>
-                      {student.points >= 150 && <ShieldCheck className="size-3.5 text-brand shrink-0" />}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      @{student.username}
-                      {student.year ? ` · Year ${student.year}` : ""}
-                    </p>
-                  </Link>
-
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <Link
-                      href={`/@${student.username}`}
-                      className="px-3 py-1 rounded-full border border-border/60 bg-card hover:bg-muted text-xs font-bold text-foreground transition-colors cursor-pointer"
-                    >
-                      Profile
-                    </Link>
-                    <Link
-                      href={`/chat?userId=${student.id}`}
-                      className="size-7 rounded-full bg-primary/10 text-primary hover:bg-primary/20 flex items-center justify-center transition-colors cursor-pointer"
-                      title="Direct Message"
-                    >
-                      <MessageSquare className="size-3.5" />
-                    </Link>
-                  </div>
-                </div>
-
-                {/* College / Institution with Direct Hyperlink */}
+              <div className="min-w-0 flex-1 space-y-0.5">
+                <Link href={`/@${student.username}`} className="group block min-w-0">
+                  <p className="truncate font-semibold text-fg group-hover:underline">
+                    {student.displayName}
+                  </p>
+                  <p className="truncate text-sm text-fg-muted">
+                    @{student.username}
+                    {student.year ? ` · Year ${student.year}` : ""}
+                  </p>
+                </Link>
                 {student.institution && (
                   <Link
                     href={`/college/${student.institution.slug || student.institution.id}`}
-                    className="text-xs text-primary font-medium hover:underline inline-flex items-center gap-1 truncate max-w-full"
+                    className="inline-flex max-w-full items-center gap-1 truncate text-sm text-brand-text hover:underline"
                   >
-                    <School className="size-3.5 shrink-0 text-primary/70" />
+                    <School className="size-3.5 shrink-0" aria-hidden="true" />
                     <span className="truncate">{student.institution.name}</span>
                   </Link>
                 )}
-
-                {/* Bio Snippet */}
-                {student.bio && (
-                  <p className="text-xs text-muted-foreground/90 line-clamp-2 leading-relaxed pt-0.5">
-                    &ldquo;{student.bio}&rdquo;
-                  </p>
-                )}
-
-                {/* Clout LP Badge */}
-                <div className="pt-0.5">
-                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-reward-text">
-                    <Flame className="size-3 fill-reward text-reward" />
-                    <span>{student.points || 0} LP Clout</span>
-                  </span>
-                </div>
+                {student.bio && <p className="line-clamp-2 text-sm text-fg-muted">{student.bio}</p>}
+                <p className="text-xs font-semibold text-reward-text tabular-nums">
+                  {(student.points || 0).toLocaleString("en-IN")} LP
+                </p>
               </div>
-            </div>
-          ))
-        ) : (
-          <div className="flex flex-col items-center justify-center p-12 text-center space-y-3">
-            <div className="size-14 rounded-full bg-muted/40 flex items-center justify-center text-2xl">
-              {branchIcon}
-            </div>
-            <div className="space-y-1">
-              <h3 className="text-sm font-bold text-foreground">No students found</h3>
-              <p className="text-xs text-muted-foreground max-w-xs leading-relaxed">
-                {searchQuery
-                  ? `No students matching "${searchQuery}" in ${branchTitle}.`
-                  : `Be the first student to enroll in ${branchTitle} on CampusLoop!`}
-              </p>
-            </div>
-            <Link
-              href="/profile/edit"
-              className="py-2 px-4 rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:bg-primary/95 transition-ui cursor-pointer"
-            >
-              Add {branchTitle} to Profile
-            </Link>
-          </div>
-        )}
-      </div>
+              <Button asChild variant="ghost" size="icon" aria-label={`Message ${student.displayName}`}>
+                <Link href={`/chat?userId=${student.id}`}>
+                  <MessageSquare />
+                </Link>
+              </Button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <EmptyState
+          icon={Users}
+          bordered
+          title={searchQuery ? `No one matches "${searchQuery}"` : `No ${branchTitle} students yet`}
+          description="Add your branch to your profile so classmates can find you."
+          action={
+            <Button asChild>
+              <Link href="/profile/edit">Edit profile</Link>
+            </Button>
+          }
+        />
+      )}
     </div>
   );
 }

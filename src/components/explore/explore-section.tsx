@@ -13,41 +13,42 @@ interface ExploreSectionProps {
   className?: string;
 }
 
+/** A titled row on Explore. Its items are the cards; the section itself is not a card. */
 export function ExploreSection({
   id,
   title,
   subtitle,
   icon: Icon,
   viewAllHref,
-  viewAllLabel = "View all",
+  viewAllLabel = "See all",
   children,
   className,
 }: ExploreSectionProps) {
+  const headingId = id ? `${id}-title` : undefined;
   return (
-    <section id={id} className={cn("space-y-3.5 scroll-mt-20", className)}>
+    <section id={id} aria-labelledby={headingId} className={cn("space-y-3 scroll-mt-20", className)}>
       <div className="flex items-end justify-between gap-3 px-1">
-        <div className="space-y-0.5 min-w-0">
-          <div className="flex items-center gap-2">
-            {Icon && <Icon className="size-4.5 text-primary shrink-0" />}
-            <h2 className="text-base font-bold tracking-tight text-foreground">{title}</h2>
-          </div>
-          {subtitle && <p className="text-xs text-muted-foreground truncate">{subtitle}</p>}
+        <div className="min-w-0">
+          <h2 id={headingId} className="flex items-center gap-2 text-lg">
+            {Icon && <Icon className="size-5 text-fg-muted shrink-0" aria-hidden />}
+            {title}
+          </h2>
+          {subtitle && <p className="mt-0.5 text-sm text-fg-muted truncate">{subtitle}</p>}
         </div>
 
         {viewAllHref && (
           <Link
             href={viewAllHref}
-            className="group inline-flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary/80 transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-md px-1 py-0.5"
+            aria-label={`${viewAllLabel}: ${title}`}
+            className="inline-flex min-h-11 items-center gap-1 rounded-full px-2 text-sm font-semibold text-brand-text transition-ui hover:underline underline-offset-4 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <span>{viewAllLabel}</span>
-            <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+            {viewAllLabel}
+            <ArrowRight className="size-4" aria-hidden />
           </Link>
         )}
       </div>
 
-      <div className="rounded-2xl border border-border/40 bg-card/60 p-3 sm:p-4 backdrop-blur-xs">
-        {children}
-      </div>
+      {children}
     </section>
   );
 }

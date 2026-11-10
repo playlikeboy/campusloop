@@ -18,7 +18,7 @@ export function PostComposerToolbar({
   if (!editor) return null;
 
   return (
-    <div className="flex items-center gap-1 rounded-2xl bg-muted/30 p-1.5 backdrop-blur-xs overflow-x-auto no-scrollbar">
+    <div className="flex items-center gap-1 rounded-2xl bg-muted/30 p-1.5 overflow-x-auto no-scrollbar">
       <ToolbarChip
         label="Bold"
         active={editor.isActive("bold")}
@@ -75,9 +75,9 @@ export function PostComposerToolbar({
           <button
             type="button"
             onClick={onOpenStickerPicker}
-            aria-label="Add Sticker"
-            title="Add Campus Sticker"
-            className="flex items-center gap-1 rounded-xl px-2.5 py-1 text-[10px] font-black tracking-wider bg-warning/10 text-warning hover:bg-warning/20 transition-transform cursor-pointer select-none active:scale-95 shrink-0"
+            aria-label="Add sticker"
+            title="Add sticker"
+            className="flex items-center gap-1 rounded-xl px-2.5 py-1 text-xs font-bold tracking-wider bg-warning/10 text-warning hover:bg-warning/20 transition-transform cursor-pointer select-none active:scale-95 shrink-0"
           >
             <Smile className="size-3" />
             <span>Sticker</span>
@@ -92,8 +92,8 @@ export function PostComposerToolbar({
             type="button"
             onClick={onOpenGifPicker}
             aria-label="Add GIF"
-            title="Add Reaction GIF (GIPHY)"
-            className="flex items-center justify-center rounded-xl px-2.5 py-1 text-[10px] font-black tracking-wider bg-primary/10 text-primary hover:bg-primary/20 transition-transform cursor-pointer select-none active:scale-95 shrink-0"
+            title="Add GIF"
+            className="flex items-center justify-center rounded-xl px-2.5 py-1 text-xs font-bold tracking-wider bg-primary/10 text-primary hover:bg-primary/20 transition-transform cursor-pointer select-none active:scale-95 shrink-0"
           >
             GIF
           </button>

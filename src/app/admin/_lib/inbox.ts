@@ -22,7 +22,14 @@ export async function getInboxCounts(db: Db) {
 export async function getInboxItems(db: Db) {
   const [heldPosts, openReports, hubRequests, apps] = await Promise.all([
     db
-      .select({ id: posts.id, body: posts.body, type: posts.type, riskScore: posts.riskScore, createdAt: posts.createdAt, college: institutions.name })
+      .select({
+        id: posts.id,
+        body: posts.body,
+        type: posts.type,
+        riskScore: posts.riskScore,
+        createdAt: posts.createdAt,
+        college: institutions.name,
+      })
       .from(posts)
       .leftJoin(institutions, eq(posts.institutionId, institutions.id))
       .where(eq(posts.status, "PENDING_REVIEW"))
@@ -30,7 +37,15 @@ export async function getInboxItems(db: Db) {
       .limit(5)
       .catch(() => []),
     db
-      .select({ id: reports.id, targetType: reports.targetType, targetId: reports.targetId, reason: reports.reason, details: reports.details, createdAt: reports.createdAt, reporter: userProfiles.username })
+      .select({
+        id: reports.id,
+        targetType: reports.targetType,
+        targetId: reports.targetId,
+        reason: reports.reason,
+        details: reports.details,
+        createdAt: reports.createdAt,
+        reporter: userProfiles.username,
+      })
       .from(reports)
       .leftJoin(userProfiles, eq(userProfiles.id, reports.reporterId))
       .where(eq(reports.status, "OPEN"))
@@ -48,13 +63,24 @@ export async function getInboxItems(db: Db) {
         requester: userProfiles.username,
       })
       .from(institutionRequests)
-      .leftJoin(userProfiles, sql`${userProfiles.userId} = ${institutionRequests.userId} or ${userProfiles.id} = ${institutionRequests.userId}`)
+      .leftJoin(
+        userProfiles,
+        sql`${userProfiles.userId} = ${institutionRequests.userId} or ${userProfiles.id} = ${institutionRequests.userId}`
+      )
       .where(eq(institutionRequests.status, "PENDING"))
       .orderBy(desc(institutionRequests.createdAt))
       .limit(10)
       .catch(() => []),
     db
-      .select({ id: oauthClients.id, name: oauthClients.name, usersCount: oauthClients.usersCount, isFirstParty: oauthClients.isFirstParty, status: oauthClients.status, createdAt: oauthClients.createdAt, owner: userProfiles.username })
+      .select({
+        id: oauthClients.id,
+        name: oauthClients.name,
+        usersCount: oauthClients.usersCount,
+        isFirstParty: oauthClients.isFirstParty,
+        status: oauthClients.status,
+        createdAt: oauthClients.createdAt,
+        owner: userProfiles.username,
+      })
       .from(oauthClients)
       .leftJoin(userProfiles, eq(userProfiles.id, oauthClients.ownerProfileId))
       .orderBy(desc(oauthClients.createdAt))
@@ -78,4 +104,5 @@ export async function getHeadline(db: Db) {
   return row ?? { students: 0, newToday: 0, postsToday: 0, verified: 0 };
 }
 
-export const hubRequestWhere = (id: string) => and(eq(institutionRequests.id, id), eq(institutionRequests.status, "PENDING"));
+export const hubRequestWhere = (id: string) =>
+  and(eq(institutionRequests.id, id), eq(institutionRequests.status, "PENDING"));

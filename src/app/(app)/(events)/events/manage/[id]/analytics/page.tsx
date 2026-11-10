@@ -1,36 +1,16 @@
-import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
 import { eq, or } from "drizzle-orm";
+import { notFound, redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { events, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { privateMetadata } from "@/lib/seo";
 import { AnalyticsClient } from "./analytics-client";
 
 interface AnalyticsPageProps {
   params: Promise<{ id: string }>;
 }
 
-export async function generateMetadata({ params }: AnalyticsPageProps): Promise<Metadata> {
-  const { id } = await params;
-  try {
-    const db = getDb();
-    const event = await db.query.events.findFirst({
-      where: or(eq(events.id, id), eq(events.slug, id)),
-    });
-
-    if (!event) {
-      return { title: "Event Analytics" };
-    }
-
-    return {
-      title: `Analytics: ${event.title}`,
-      description: `Attendee demographics, conversion rates, and campus breakdown for ${event.title}.`,
-      robots: { index: false, follow: false },
-    };
-  } catch {
-    return { title: "Event Analytics" };
-  }
-}
+export const metadata = privateMetadata("Event stats");
 
 export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
   const { id } = await params;

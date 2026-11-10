@@ -96,8 +96,7 @@ export function calculateCurrentStreakFromDates(
     cursor = getYesterdayDateString(cursor);
   }
 
-  // Never show 0 on CampusLoop: active students start counting from at least 1 today
-  return { currentStreak: Math.max(1, currentStreak), isSafeToday };
+  return { currentStreak, isSafeToday };
 }
 
 /** Longest consecutive run represented by the event journal. */
@@ -194,19 +193,19 @@ export async function getUserStreakState(
 
   if (useJournal) {
     const currentFromJournal = calculateCurrentStreakFromDates(qualifyingDates, todayStr);
-    activeStreak = Math.max(1, currentFromJournal.currentStreak);
+    activeStreak = currentFromJournal.currentStreak;
     isSafeToday = currentFromJournal.isSafeToday;
     authoritativeLastDate = qualifyingDates[0] ?? null;
   } else {
     isSafeToday = lastDate === todayStr;
-    activeStreak = Math.max(1, streakRow.currentStreak);
-    if (lastDate && lastDate < yesterdayStr && !isSafeToday) activeStreak = 1;
+    activeStreak = Math.max(0, streakRow.currentStreak);
+    if (lastDate && lastDate < yesterdayStr && !isSafeToday) activeStreak = 0;
     authoritativeLastDate = lastDate;
   }
 
   const longestFromJournal = calculateLongestStreakFromDates(qualifyingDates);
-  const longestStreak = Math.max(1, streakRow.longestStreak, longestFromJournal, activeStreak);
-  const totalQualifiedDays = Math.max(1, streakRow.totalQualifiedDays, qualifyingDateSet.size);
+  const longestStreak = Math.max(0, streakRow.longestStreak, longestFromJournal, activeStreak);
+  const totalQualifiedDays = Math.max(0, streakRow.totalQualifiedDays, qualifyingDateSet.size);
 
   // 3. Build the weekly tracker and recent calendar from this same date journal.
   const past35Days = getRecentCalendarDays(35, todayStr);
@@ -236,7 +235,7 @@ export async function getUserStreakState(
   const unlockedMilestones = STREAK_MILESTONES.filter((m) => m.days <= longestStreak);
 
   return {
-    currentStreak: Math.max(1, activeStreak),
+    currentStreak: activeStreak,
     longestStreak,
     totalQualifiedDays,
     isSafeToday,

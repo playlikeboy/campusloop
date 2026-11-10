@@ -1,14 +1,14 @@
 import { eq } from "drizzle-orm";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FollowListClient } from "@/components/profile/follow-list-client";
-import { BrandLogo } from "@/components/ui/brand-logo";
+import { MarketingShell } from "@/components/shells/marketing-shell";
 import { Navigation } from "@/components/ui/navigation";
 import { getDb } from "@/db";
 import { institutions, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { type FollowDirection, getFollowCounts, getFollowListPage } from "@/lib/follows";
+import { buildMetadata } from "@/lib/seo";
 
 type Direction = FollowDirection;
 
@@ -26,17 +26,17 @@ export async function generateFollowListMetadata(
   if (!username) return { title: "Profile" };
 
   const label = direction === "followers" ? "Followers" : direction === "following" ? "Following" : "Friends";
-  return {
-    title: `@${username}'s ${label} | CampusLoop`,
+  return buildMetadata({
+    title: `@${username} · ${label}`,
     description:
       direction === "followers"
-        ? `Students following @${username} on CampusLoop.`
+        ? `People who follow @${username} on CampusLoop.`
         : direction === "following"
-          ? `Students @${username} follows on CampusLoop.`
-          : `Students who are mutual campus friends with @${username} on CampusLoop.`,
-    alternates: { canonical: `https://campusloop.space/@${username}/${direction}` },
-    robots: { index: false, follow: true },
-  };
+          ? `People @${username} follows on CampusLoop.`
+          : `People who follow @${username} and are followed back, on CampusLoop.`,
+    path: `/@${username}/${direction}`,
+    noindex: true,
+  });
 }
 
 export async function FollowListPageView({
@@ -86,18 +86,9 @@ export async function FollowListPageView({
 
   if (!currentProfile) {
     return (
-      <div className="flex min-h-screen flex-col bg-background text-foreground">
-        <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-border/80 bg-background/80 px-4 backdrop-blur-xl">
-          <BrandLogo href="/" size="sm" />
-          <Link
-            href="/join?mode=signup"
-            className="rounded-xl bg-primary px-3.5 py-1.5 text-xs font-bold text-white hover:opacity-95 shadow-md transition-ui"
-          >
-            Join Campus
-          </Link>
-        </header>
-        <main className="mx-auto w-full max-w-4xl px-4 py-6">{list}</main>
-      </div>
+      <MarketingShell>
+        <div className="mx-auto w-full max-w-2xl">{list}</div>
+      </MarketingShell>
     );
   }
 
@@ -108,14 +99,14 @@ export async function FollowListPageView({
     : null;
 
   return (
-    <div className="relative min-h-screen bg-background">
+    <div className="relative min-h-screen bg-bg">
       <Navigation
         profile={currentProfile}
-        collegeName={college?.name ?? "Your College"}
+        collegeName={college?.name ?? "Your college"}
         isAdmin={currentProfile.role === "ADMIN"}
       />
 
-      <div className="w-full max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-6">
+      <div className="mx-auto w-full max-w-2xl px-2 py-4 sm:px-6 sm:py-6">
         <main className="w-full pb-24 md:pb-8">{list}</main>
       </div>
     </div>

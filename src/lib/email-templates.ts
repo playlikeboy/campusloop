@@ -234,7 +234,7 @@ export function buildWelcomeEmail({
     </p>
     <ul style="padding-left: 20px; margin-bottom: 24px; color: #cbd5e1; line-height: 1.8;">
       <li><strong>Campus Feed:</strong> Participate in college polls, confessions, and discussions.</li>
-      <li><strong>Loop Points (LP):</strong> Earn clout by engaging and unlock your verified blue badge at 150 LP.</li>
+      <li><strong>Loop Points (LP):</strong> Earn points by posting and helping others. At 150 LP you get the verified badge.</li>
       <li><strong>Campus Match:</strong> Connect with verified classmates in your college or across India.</li>
       <li><strong>Campus Hubs:</strong> Explore lost &amp; found, peer marketplace, notes, and rideshare.</li>
     </ul>

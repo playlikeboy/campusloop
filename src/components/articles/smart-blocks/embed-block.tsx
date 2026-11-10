@@ -8,7 +8,8 @@ import type { EmbedBlock } from "@/lib/articles/smart-blocks";
 import { cn } from "@/lib/utils";
 
 // Third-party frames get the minimum they need to work.
-const SANDBOX = "allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-presentation allow-forms";
+const SANDBOX =
+  "allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-presentation allow-forms";
 
 function Frame({ plan, height }: { plan: EmbedPlan; height?: number }) {
   const [src, setSrc] = useState(plan.needsParent ? "" : plan.src);
@@ -16,9 +17,12 @@ function Frame({ plan, height }: { plan: EmbedPlan; height?: number }) {
     if (plan.needsParent) setSrc(`${plan.src}&parent=${window.location.hostname}`);
   }, [plan]);
   const h = height ?? plan.height;
-  if (!src) return <div className="aspect-video w-full animate-pulse rounded-xl bg-muted" />;
+  if (!src) return <div className="aspect-video w-full animate-pulse rounded-lg bg-surface-muted" />;
   return (
-    <div className={cn("relative w-full overflow-hidden rounded-xl bg-muted/40", !h && "h-0")} style={h ? { height: h } : { paddingBottom: `${100 / (plan.aspect ?? 16 / 9)}%` }}>
+    <div
+      className={cn("relative w-full overflow-hidden rounded-lg bg-surface-muted", !h && "h-0")}
+      style={h ? { height: h } : { paddingBottom: `${100 / (plan.aspect ?? 16 / 9)}%` }}
+    >
       <iframe
         src={src}
         title={plan.title}
@@ -43,20 +47,39 @@ function GistFrame({ plan, height }: { plan: EmbedPlan; height?: number }) {
       sandbox="allow-scripts allow-popups"
       loading="lazy"
       style={{ height: height ?? plan.height }}
-      className="w-full rounded-xl border-0 bg-white"
+      className="w-full rounded-lg border-0 bg-sticker"
     />
   );
 }
 
-function EmbedItem({ url, start, height, compact }: { url: string; start?: number; height?: number; compact?: boolean }) {
+function EmbedItem({
+  url,
+  start,
+  height,
+  compact,
+}: {
+  url: string;
+  start?: number;
+  height?: number;
+  compact?: boolean;
+}) {
   const plan = useMemo(() => resolveArticleEmbed(url, { start }), [url, start]);
   const [active, setActive] = useState(false);
   if (!plan) return null;
 
   if (plan.kind === "card") return <LinkPreviewEmbed url={url} />;
-  if (plan.kind === "image") return <img src={plan.src} alt="" loading="lazy" className="w-full rounded-xl object-cover" />;
-  if (plan.kind === "video") return <video src={plan.src} controls preload="metadata" className="w-full rounded-xl bg-black" />;
-  if (plan.kind === "audio") return <audio src={plan.src} controls preload="metadata" className="w-full" />;
+  if (plan.kind === "image")
+    return <img src={plan.src} alt="" loading="lazy" className="w-full rounded-lg object-cover" />;
+  if (plan.kind === "video")
+    return (
+      // biome-ignore lint/a11y/useMediaCaption: writer-supplied media links carry no caption file
+      <video src={plan.src} controls preload="metadata" className="w-full rounded-lg bg-surface-sunken" />
+    );
+  if (plan.kind === "audio")
+    return (
+      // biome-ignore lint/a11y/useMediaCaption: writer-supplied media links carry no caption file
+      <audio src={plan.src} controls preload="metadata" className="w-full" />
+    );
   if (plan.kind === "gist") return <GistFrame plan={plan} height={height} />;
 
   // Heavy video players load on click, so an article with ten videos stays fast.
@@ -65,20 +88,38 @@ function EmbedItem({ url, start, height, compact }: { url: string; start?: numbe
       <button
         type="button"
         onClick={() => setActive(true)}
-        className="group relative block w-full overflow-hidden rounded-xl bg-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
+        className="group relative block w-full overflow-hidden rounded-lg bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
         style={{ aspectRatio: String(plan.aspect ?? 16 / 9) }}
         aria-label={`Play ${plan.title}`}
       >
-        <img src={plan.facade.thumbnail} alt="" loading="lazy" className="h-full w-full object-cover opacity-90 transition-opacity group-hover:opacity-100" />
+        <img
+          src={plan.facade.thumbnail}
+          alt=""
+          loading="lazy"
+          className="h-full w-full object-cover opacity-90 transition-ui group-hover:opacity-100"
+        />
         <span className="absolute inset-0 flex items-center justify-center">
-          <span className={cn("flex items-center justify-center rounded-full bg-black/70 text-white backdrop-blur transition-transform group-hover:scale-105", compact ? "size-12" : "size-16")}>
-            <Play className="ml-1 size-6 fill-white" aria-hidden />
+          <span
+            className={cn(
+              "flex items-center justify-center rounded-full bg-brand text-brand-fg shadow-sm transition-ui group-hover:bg-brand-hover",
+              compact ? "size-12" : "size-16"
+            )}
+          >
+            <Play className="ml-1 size-6 fill-current" aria-hidden />
           </span>
         </span>
       </button>
     );
   }
-  return <Frame plan={{ ...plan, src: plan.facade ? `${plan.src}${plan.src.includes("?") ? "&" : "?"}autoplay=1` : plan.src }} height={height} />;
+  return (
+    <Frame
+      plan={{
+        ...plan,
+        src: plan.facade ? `${plan.src}${plan.src.includes("?") ? "&" : "?"}autoplay=1` : plan.src,
+      }}
+      height={height}
+    />
+  );
 }
 
 export function EmbedBlockView({ block }: { block: EmbedBlock }) {
@@ -92,10 +133,15 @@ export function EmbedBlockView({ block }: { block: EmbedBlock }) {
         ))}
       </div>
       {(block.caption || (!gallery && first && first.kind !== "card")) && (
-        <figcaption className="mt-2 flex items-center justify-between gap-3 text-sm text-muted-foreground">
+        <figcaption className="mt-2 flex items-center justify-between gap-3 text-sm text-fg-muted">
           <span>{block.caption}</span>
           {!gallery && first && first.kind !== "card" && (
-            <a href={first.url} target="_blank" rel="noopener noreferrer" className="inline-flex shrink-0 items-center gap-1 text-xs font-medium hover:text-foreground">
+            <a
+              href={first.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex shrink-0 items-center gap-1 text-xs font-medium hover:text-fg"
+            >
               {first.provider} <ExternalLink className="size-3" aria-hidden />
             </a>
           )}

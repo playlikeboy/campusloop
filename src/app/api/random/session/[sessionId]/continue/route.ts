@@ -64,7 +64,7 @@ export async function POST(req: Request, { params }: RouteParams) {
       await db.insert(messages).values({
         conversationId: newConv.id,
         senderId: profile.id,
-        body: "👋 Hey! We connected via Random Loop and chose to keep talking.",
+        body: "We met on Random Loop and chose to keep talking.",
       });
     }
 

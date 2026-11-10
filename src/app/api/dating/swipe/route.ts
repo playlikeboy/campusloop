@@ -139,13 +139,13 @@ export async function POST(req: Request) {
           await db.insert(messages).values({
             conversationId: newConv.id,
             senderId: profile.id,
-            body: "🎉 Match made! You both swiped right on each other. Say hello!",
+            body: "You matched! You both liked each other. Say hello.",
           });
         }
 
         // Only send push notifications for newly created match conversations
         if (isNewMatch) {
-          const matchBlurb = "You matched with each other on Campus Match! 🎉 Say hello in chat.";
+          const matchBlurb = "You matched on Campus Match. Say hello in chat.";
 
           await Promise.all([
             createNotification({

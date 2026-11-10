@@ -1,14 +1,14 @@
 import { desc, eq } from "drizzle-orm";
 import { Ghost } from "lucide-react";
 import type { Metadata } from "next";
+import { Badge } from "@/components/ui/badge";
 import { institutions, posts } from "@/db/schema";
+import { privateMetadata } from "@/lib/seo";
 import { AdminPageHeader } from "../_components/admin-page-header";
 import { resolveAdminSession } from "../_lib/guard";
 import { ConfessionsTable } from "./confessions-table";
 
-export const metadata: Metadata = {
-  title: "Sealed Confessions",
-};
+export const metadata: Metadata = privateMetadata("Confessions");
 
 export const dynamic = "force-dynamic";
 
@@ -34,15 +34,10 @@ export default async function AdminConfessionsPage() {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="Sealed Confessions Vault"
-        category="Operations & Safety"
+        title="Confessions"
         icon={Ghost}
-        description="Anonymous campus whispers and confessions. User real identities are sealed in cryptographic vault with zero profile traces exposed."
-        badge={
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
-            {confessionRows.length} recent
-          </span>
-        }
+        description="Recent anonymous confessions. Authors are hidden here."
+        badge={<Badge variant="neutral">{confessionRows.length} recent</Badge>}
       />
 
       <ConfessionsTable initialConfessions={confessionRows as any} />

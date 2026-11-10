@@ -1,14 +1,14 @@
 import { desc, eq, isNotNull } from "drizzle-orm";
 import { Megaphone } from "lucide-react";
 import type { Metadata } from "next";
+import { Badge } from "@/components/ui/badge";
 import { institutions, posts } from "@/db/schema";
+import { privateMetadata } from "@/lib/seo";
 import { AdminPageHeader } from "../_components/admin-page-header";
 import { resolveAdminSession } from "../_lib/guard";
 import { BroadcastsClient } from "./broadcasts-client";
 
-export const metadata: Metadata = {
-  title: "Campus Broadcasts & Announcements",
-};
+export const metadata: Metadata = privateMetadata("Broadcasts");
 
 export const dynamic = "force-dynamic";
 
@@ -47,15 +47,10 @@ export default async function AdminBroadcastsPage() {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="Campus Broadcasts & Urgent Announcements"
-        category="Content & Campus"
+        title="Broadcasts"
         icon={Megaphone}
-        description="Dispatch official college notices, placement alerts, emergency campus warnings, and pinned announcements to verified student timelines."
-        badge={
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-muted text-muted-foreground border border-border/40">
-            {recentBroadcasts.length} broadcasts
-          </span>
-        }
+        description="Send notices and alerts to students."
+        badge={<Badge variant="neutral">{recentBroadcasts.length} broadcasts</Badge>}
       />
 
       <BroadcastsClient institutions={institutionsList} recentBroadcasts={recentBroadcasts} />

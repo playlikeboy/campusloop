@@ -106,7 +106,7 @@ export async function awardPoints(
         userId: currentProfile.id,
         actorId: currentProfile.id,
         type: "MILESTONE",
-        previewText: `Level Up! You just unlocked ${newTier.tierName} (Level ${newTier.level}) with ${newPoints} LP!`,
+        previewText: `You reached ${newTier.tierName} (level ${newTier.level}) with ${newPoints} LP.`,
         referenceId: profileId,
         silent: false,
       });
@@ -119,7 +119,7 @@ export async function awardPoints(
         userId: currentProfile.id,
         actorId: currentProfile.id,
         type: "MILESTONE",
-        previewText: `You reached 150 LP! Verified Student Shield & 50 Secret Crush slots are now unlocked.`,
+        previewText: `You reached 150 LP. You now get the verified student badge and 50 Secret Crush slots.`,
         referenceId: profileId,
         silent: false,
       });

@@ -1,38 +1,11 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { privateMetadata } from "@/lib/seo";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 import { BuyAndSellClient } from "./buy-and-sell-client";
 
-export const metadata: Metadata = {
-  title: "Buy & Sell | Verified Campus Marketplace",
-  description:
-    "Buy and sell second-hand bicycles, coolers, mattresses, textbooks, drafters, and calculators safely with verified college batchmates.",
-  keywords: [
-    "Buy and Sell College",
-    "Campus Marketplace",
-    "Student Second Hand",
-    "Hostel Essentials",
-    "Used Bicycles College",
-    "Used Textbooks India",
-  ],
-  alternates: { canonical: "https://campusloop.space/buy-and-sell" },
-  openGraph: {
-    title: "Buy & Sell | Verified Campus Marketplace",
-    description:
-      "Buy and sell second-hand bicycles, coolers, mattresses, textbooks, and hostel essentials with verified students.",
-    url: "https://campusloop.space/buy-and-sell",
-    siteName: "CampusLoop",
-    locale: "en_IN",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Buy & Sell | Verified Campus Marketplace",
-    description:
-      "Buy and sell second-hand bicycles, coolers, mattresses, textbooks, and hostel essentials with verified students.",
-  },
-  robots: { index: true, follow: true },
-};
+// Signed-in only: visitors are sent to sign-in, so search engines can't read it.
+export const metadata: Metadata = privateMetadata("Buy and sell");
 
 export default async function BuyAndSellPage() {
   const user = await getCachedAuthUser();

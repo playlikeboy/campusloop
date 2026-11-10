@@ -51,7 +51,7 @@ export function RedditAttribution({
           u/{externalAuthor}
         </span>
       )}
-      <ExternalLink className="size-3 opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform shrink-0" />
+      <ExternalLink className="size-3 opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 transition-transform shrink-0" />
     </a>
   );
 }

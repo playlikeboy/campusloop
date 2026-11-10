@@ -1,11 +1,12 @@
 "use client";
 
-import { Loader2, Lock } from "lucide-react";
+import { Heart } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { toast } from "sonner";
-import { AnimateHeart } from "@/components/ui/animated-icon";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { useSecretCrush } from "./use-secret-crush";
 
 interface SecretCrushButtonProps {
   targetId: string;
@@ -14,106 +15,67 @@ interface SecretCrushButtonProps {
   iconOnly?: boolean;
 }
 
+/** Profile action: add this person as a secret crush after a short confirm. */
 export function SecretCrushButton({ targetId, targetName, className, iconOnly }: SecretCrushButtonProps) {
-  const [isLoading, setIsLoading] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
+  const [open, setOpen] = useState(false);
+  const crush = useSecretCrush(open);
+  const alreadyAdded = crush.crushes.some((c) => c.targetId === targetId);
+  const loaded = !!crush.data;
 
-  async function handleCrush() {
-    setIsLoading(true);
-    try {
-      const res = await fetch("/api/dating/crush", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ targetId }),
-      });
-
-      const data = (await res.json()) as { error?: string; matched?: boolean };
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to add secret crush");
-      }
-
-      if (data.matched) {
-        toast.success(`Mutual match unlocked! You and ${targetName} both secretly liked each other!`);
-      } else {
-        toast.success(`Locked in! ${targetName} will never know unless they crush on you too.`);
-      }
-
-      setShowConfirm(false);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to add crush");
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  let note = `${targetName} is only told if they add you too.`;
+  if (alreadyAdded) note = `${targetName} is already on your crush list.`;
+  else if (loaded && !crush.canAdd)
+    note =
+      crush.attemptsLeft > 0
+        ? `Your list is full (${crush.maxSlots} people). Remove someone first.`
+        : "You've used all your adds for this week. Check back in a few days.";
+  else if (loaded)
+    note += ` You can add ${crush.attemptsLeft} more ${crush.attemptsLeft === 1 ? "person" : "people"} this week.`;
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setShowConfirm(true)}
-        className={cn(
-          iconOnly
-            ? "inline-flex items-center justify-center h-9 w-9 sm:w-10 rounded-full border border-border/80 bg-card hover:bg-muted/60 text-foreground transition-[opacity,transform] active:scale-95 cursor-pointer shadow-2xs shrink-0 relative before:absolute before:-inset-1.5 before:content-['']"
-            : "inline-flex items-center justify-center gap-1.5 h-9 px-3 sm:px-3.5 rounded-full border border-border/80 bg-card hover:bg-muted/60 text-foreground text-xs font-semibold transition-[opacity,transform] active:scale-95 cursor-pointer shadow-2xs shrink-0",
-          className
-        )}
-        title={`Secret Crush on ${targetName}`}
-        aria-label={`Secret Crush on ${targetName}`}
+      <Button
+        variant="outline"
+        size={iconOnly ? "icon" : "sm"}
+        onClick={() => setOpen(true)}
+        className={cn("text-crush-text", className)}
+        aria-label={`Add ${targetName} as a secret crush`}
       >
-        <AnimateHeart size={iconOnly ? 17 : 14} className="text-crush-text fill-crush shrink-0" />
-        {!iconOnly && <span className="hidden sm:inline">Secret Crush</span>}
-      </button>
+        <Heart className="fill-current" />
+        {!iconOnly && <span className="hidden text-fg sm:inline">Secret crush</span>}
+      </Button>
 
-      {/* Confirmation Modal */}
-      {showConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 select-none animate-in fade-in duration-200">
-          <div
-            className="absolute inset-0 bg-black/70 backdrop-blur-xs"
-            onClick={() => setShowConfirm(false)}
-          />
-
-          <div className="relative z-10 w-full max-w-sm rounded-3xl border border-border/40 bg-card p-6 shadow-2xl space-y-4 text-center animate-in zoom-in-95">
-            <div className="size-12 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center mx-auto shadow-md shadow-primary/25">
-              <AnimateHeart size={24} />
-            </div>
-
-            <div className="space-y-1">
-              <h3 className="text-base font-black text-foreground">Secret Crush on {targetName}?</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Your intent is <strong>100% hidden</strong>. {targetName} will <strong>never</strong> know you
-                crushed on them unless they secretly crush on you too!
-              </p>
-            </div>
-
-            <Link
-              href="/crush"
-              className="inline-flex items-center justify-center gap-1 rounded-xl bg-muted/50 p-2 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Add {targetName} as a secret crush?</DialogTitle>
+            <DialogDescription>{note}</DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-2 sm:flex-row-reverse">
+            <Button
+              variant="crush"
+              className="sm:flex-1"
+              loading={crush.submitting}
+              disabled={!loaded || alreadyAdded || !crush.canAdd}
+              onClick={async () => {
+                if (await crush.add(targetId, targetName)) setOpen(false);
+              }}
             >
-              <Lock className="size-3 text-primary" />
-              <span>Uses 1 secret crush slot • Safe &amp; intent-hidden</span>
-            </Link>
-
-            <div className="flex gap-2 pt-1">
-              <button
-                type="button"
-                onClick={() => setShowConfirm(false)}
-                className="flex-1 py-2 rounded-full border border-border/50 text-xs font-bold text-muted-foreground hover:bg-muted transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                disabled={isLoading}
-                onClick={handleCrush}
-                className="flex-1 py-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/95 text-xs font-black shadow-xs transition-transform active:scale-95 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5"
-              >
-                {isLoading ? <Loader2 className="size-3.5 animate-spin" /> : <AnimateHeart size={14} />}
-                <span>Lock In</span>
-              </button>
-            </div>
+              Add secret crush
+            </Button>
+            <Button variant="ghost" className="sm:flex-1" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
           </div>
-        </div>
-      )}
+          <Link
+            href="/crush"
+            onClick={() => setOpen(false)}
+            className="mt-3 block text-center text-sm text-fg-muted underline-offset-4 hover:text-fg hover:underline"
+          >
+            See your crush list
+          </Link>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

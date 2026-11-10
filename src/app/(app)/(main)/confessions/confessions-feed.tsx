@@ -1,24 +1,21 @@
 "use client";
 
-import {
-  Lock,
-  Plus,
-  Sparkles,
-  VenetianMask,
-} from "lucide-react";
+import { Loader2, Lock, Plus, VenetianMask } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { ConfessionComposerInline } from "@/components/confessions/confession-composer-inline";
 import { ConfessionEmptyState } from "@/components/confessions/confession-empty-state";
 import { ConfessionSidebar } from "@/components/confessions/confession-sidebar";
+import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
 import { FeedCard } from "@/components/ui/feed-card";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { ConfessionsFeedSkeleton } from "@/components/ui/skeleton-card";
 import { type FeedPost, useFeed } from "@/hooks/use-feed";
 import { useProfile } from "@/hooks/use-profile";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn } from "@/lib/utils";
 
 const CONFESSION_SORTS = [
   { id: "latest", label: "Latest" },
@@ -27,12 +24,11 @@ const CONFESSION_SORTS = [
 ] as const;
 
 const TOPIC_CHIPS = [
-  { label: "Hostel Lore", tag: "#HostelLore" },
-  { label: "Placement Tea", tag: "#PlacementTea" },
-  { label: "Campus Crush", tag: "#CampusCrush" },
-  { label: "Exam Vent", tag: "#ExamVent" },
-  { label: "Prof Tales", tag: "#ProfTales" },
-  { label: "Unfiltered", tag: "#Unfiltered" },
+  { label: "Hostel", tag: "#HostelLore" },
+  { label: "Placements", tag: "#PlacementTea" },
+  { label: "Crush", tag: "#CampusCrush" },
+  { label: "Exams", tag: "#ExamVent" },
+  { label: "Profs", tag: "#ProfTales" },
 ];
 
 export function ConfessionsFeed() {
@@ -41,7 +37,7 @@ export function ConfessionsFeed() {
   const searchParams = useSearchParams();
   const { profile } = useProfile();
 
-  // Default scope to GLOBAL so students immediately see a thriving campus stream across India
+  // Default to all colleges so a new campus never opens on an empty page.
   const rawScope = searchParams.get("scope");
   const scope: "CAMPUS" | "GLOBAL" = rawScope === "CAMPUS" ? "CAMPUS" : "GLOBAL";
 
@@ -53,7 +49,6 @@ export function ConfessionsFeed() {
   useEffect(() => {
     setCurrentSort(rawSort);
   }, [rawSort]);
-  const [isRotating, setIsRotating] = useState(false);
 
   // Active hashtag filter
   const activeTag = searchParams.get("tag") || "";
@@ -119,7 +114,7 @@ export function ConfessionsFeed() {
     haptics.light();
     setCurrentSort(sortId);
     if (sortId === "random") {
-      setRandomSeed((prev) => prev + 1);
+      setRandomSeed((prev: number) => prev + 1);
     }
     const params = new URLSearchParams(searchParams.toString());
     params.set("sort", sortId);
@@ -138,163 +133,91 @@ export function ConfessionsFeed() {
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }
 
-  function handleReloadRandom() {
-    sounds.pop();
-    haptics.medium();
-    setIsRotating(true);
-    setRandomSeed((prev) => prev + 1);
-    mutate();
-    setTimeout(() => setIsRotating(false), 700);
-  }
-
   function handleConfessionPosted(newPost: FeedPost) {
     setOptimisticPosts((prev) => [newPost, ...prev]);
     mutate();
   }
 
-  const campusShortName =
-    profile?.institution?.name?.split(",")[0] || profile?.institution?.name || "Campus";
+  const campusShortName = profile?.institution?.name?.split(",")[0] || profile?.institution?.name || "Campus";
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-0 sm:px-4 lg:px-6 pt-0 pb-0 sm:pt-0 sm:pb-3 sm:-mt-6 lg:mt-0">
+    <div className="w-full max-w-7xl mx-auto px-0 sm:px-4 lg:px-6 sm:pb-3">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-        {/* ─── Main Confessions Column (8 cols on lg) ─── */}
-        <main className="lg:col-span-8 flex flex-col min-h-screen pb-28 sm:pb-12 bg-transparent sm:bg-card/25 sm:rounded-2xl sm:border sm:border-border/30 overflow-hidden shadow-2xs">
-          {/* ─── Sticky Controls Bar (Streamlined Header + Single Filter Row) ─── */}
-          <div className="sticky top-12 lg:top-0 z-30 bg-background/95 backdrop-blur-xl border-b border-border/20">
-            {/* 1. Sleek Header Row */}
-            <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-2 border-b border-border/15 bg-muted/10">
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="flex size-7 items-center justify-center rounded-lg bg-brand/15 text-brand-text border border-brand-subtle-border/25 shrink-0">
-                  <VenetianMask className="size-3.5" />
-                </div>
-                <div className="min-w-0 flex items-center gap-2">
-                  <h1 className="text-sm sm:text-base font-bold text-foreground tracking-tight leading-none font-[family-name:var(--font-heading)] truncate">
-                    Confessions
-                  </h1>
-                  <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-brand/10 text-brand-text border border-brand-subtle-border/20 shrink-0">
-                    <Lock className="size-2.5" />
-                    <span>100% Anon</span>
-                  </span>
-                </div>
+        <main className="lg:col-span-8 flex flex-col min-h-screen pb-28 sm:pb-12 sm:rounded-lg sm:border sm:border-border bg-bg overflow-hidden">
+          <div className="sticky top-12 lg:top-0 z-30 bg-bg border-b border-border">
+            <div className="flex items-center justify-between gap-3 px-4 pt-3 pb-2">
+              <div className="min-w-0">
+                <h1 className="flex items-center gap-2 text-xl">
+                  <VenetianMask className="size-5 text-fg-muted" aria-hidden />
+                  Confessions
+                </h1>
+                <p className="mt-0.5 flex items-center gap-1 text-xs text-fg-muted">
+                  <Lock className="size-3" aria-hidden />
+                  Your name is never shown here.
+                </p>
               </div>
-
-              {/* Scope Switcher Pill & Quick Action */}
-              <div className="flex items-center gap-1.5 shrink-0">
-                <div className="flex items-center p-0.5 rounded-full bg-muted/50 border border-border/35 text-[10px] font-semibold">
-                  <button
-                    type="button"
-                    onClick={() => handleScopeToggle("GLOBAL")}
-                    className={cn(
-                      "px-2.5 py-0.5 rounded-full transition-colors cursor-pointer",
-                      scope === "GLOBAL"
-                        ? "bg-foreground text-background font-bold shadow-2xs"
-                        : "text-muted-foreground hover:text-foreground"
-                    )}
-                    title="Pan-India All Colleges"
-                  >
-                    All India
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleScopeToggle("CAMPUS")}
-                    className={cn(
-                      "px-2.5 py-0.5 rounded-full transition-colors cursor-pointer max-w-[80px] sm:max-w-[120px] truncate",
-                      scope === "CAMPUS"
-                        ? "bg-foreground text-background font-bold shadow-2xs"
-                        : "text-muted-foreground hover:text-foreground"
-                    )}
-                    title={`Campus Hub: ${campusShortName}`}
-                  >
-                    {campusShortName}
-                  </button>
-                </div>
-
-                {/* Direct Whisper Action */}
-                <Link
-                  href="/post/new?type=CONFESSION"
-                  className="inline-flex h-7 px-2.5 items-center gap-1 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-transform cursor-pointer shadow-2xs shrink-0 active:scale-95"
-                  title="Whisper an anonymous confession"
-                >
-                  <Plus className="size-3" />
-                  <span>Whisper</span>
+              <Button asChild size="sm" className="shrink-0">
+                <Link href="/post/new?type=CONFESSION">
+                  <Plus className="size-4" aria-hidden />
+                  Confess
                 </Link>
-              </div>
+              </Button>
             </div>
 
-            {/* 2. Unified Filter Strip: Sorts + Topics in a single horizontal scroll row */}
-            <div className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 overflow-x-auto no-scrollbar bg-card/20 select-none">
-              {CONFESSION_SORTS.map((s) => {
-                const isActive = currentSort === s.id;
-                return (
-                  <button
-                    key={s.id}
-                    type="button"
-                    aria-pressed={currentSort === s.id}
-                    onClick={() => handleSortChange(s.id)}
-                    className={cn(
-                      "h-7 px-3 rounded-full text-xs transition-colors cursor-pointer select-none shrink-0",
-                      isActive
-                        ? "bg-primary text-primary-foreground font-semibold shadow-2xs"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted/40 font-medium"
-                    )}
-                  >
-                    {s.label}
-                  </button>
-                );
-              })}
+            <div className="px-4 pb-2">
+              <SegmentedControl
+                size="sm"
+                fullWidth
+                value={scope}
+                onChange={handleScopeToggle}
+                options={[
+                  { value: "GLOBAL", label: "All colleges" },
+                  { value: "CAMPUS", label: campusShortName },
+                ]}
+              />
+            </div>
 
-              <div className="h-3.5 w-px bg-border/40 shrink-0 mx-0.5" />
-
-              {/* Active Topic Filter Chip with Clear Button */}
-              {activeTag && (
-                <button
-                  type="button"
-                  onClick={() => handleTagSelect("")}
-                  className="h-7 px-2.5 rounded-full text-[11px] font-semibold bg-primary/15 text-primary border border-primary/30 hover:bg-primary/25 shrink-0 flex items-center gap-1 transition-colors cursor-pointer shadow-2xs"
+            <div className="flex items-center gap-1.5 px-4 pb-2.5 overflow-x-auto no-scrollbar select-none">
+              {CONFESSION_SORTS.map((item) => (
+                <Chip
+                  key={item.id}
+                  size="sm"
+                  selected={currentSort === item.id}
+                  onClick={() => handleSortChange(item.id)}
                 >
-                  <span>{activeTag}</span>
-                  <span className="text-xs font-bold">×</span>
-                </button>
+                  {item.label}
+                </Chip>
+              ))}
+              <span className="h-4 w-px bg-border shrink-0 mx-1" aria-hidden />
+              {activeTag && (
+                <Chip
+                  size="sm"
+                  selected
+                  onClick={() => handleTagSelect("")}
+                  onRemove={() => handleTagSelect("")}
+                >
+                  {activeTag}
+                </Chip>
               )}
-
-              {/* Topic Chips */}
-              {TOPIC_CHIPS.map((chip) => {
-                if (activeTag === chip.tag) return null;
-                return (
-                  <button
-                    key={chip.label}
-                    type="button"
-                    onClick={() => handleTagSelect(chip.tag)}
-                    className="h-7 px-2.5 rounded-full text-[11px] font-medium bg-muted/30 hover:bg-muted/60 text-muted-foreground hover:text-foreground border border-border/25 transition-colors cursor-pointer shrink-0 whitespace-nowrap"
-                  >
-                    {chip.label}
-                  </button>
-                );
-              })}
+              {TOPIC_CHIPS.filter((chip) => chip.tag !== activeTag).map((chip) => (
+                <Chip key={chip.label} size="sm" onClick={() => handleTagSelect(chip.tag)}>
+                  {chip.label}
+                </Chip>
+              ))}
             </div>
           </div>
 
-          {/* 3. Mobile Prompt Bar & Desktop Inline Composer */}
-          <div className="sm:hidden px-3 py-2 border-b border-border/15 bg-muted/10">
+          <div className="sm:hidden px-4 py-3 border-b border-border">
             <Link
               href="/post/new?type=CONFESSION"
-              className="flex items-center justify-between gap-3 px-3.5 py-2 rounded-xl bg-card border border-border/50 hover:border-primary/40 text-muted-foreground transition-transform shadow-2xs active:scale-[0.99]"
+              className="flex min-h-11 items-center gap-2 rounded-md bg-surface-muted px-3.5 text-sm text-fg-subtle transition-ui hover:bg-surface-sunken"
             >
-              <div className="flex items-center gap-2 min-w-0">
-                <VenetianMask className="size-3.5 text-brand-text shrink-0" />
-                <span className="text-xs truncate">
-                  Spill an anonymous confession...
-                </span>
-              </div>
-              <span className="text-[10px] font-bold text-primary flex items-center gap-0.5 shrink-0">
-                <Lock className="size-2.5" />
-                Anon
-              </span>
+              <VenetianMask className="size-4 text-fg-muted shrink-0" aria-hidden />
+              <span className="truncate">Write something anonymously…</span>
             </Link>
           </div>
 
-          <div className="hidden sm:block p-3 sm:p-4 border-b border-border/15 bg-card/10">
+          <div className="hidden sm:block p-4 border-b border-border">
             <ConfessionComposerInline
               scope={scope}
               campusName={campusShortName}
@@ -302,7 +225,6 @@ export function ConfessionsFeed() {
             />
           </div>
 
-          {/* ─── 3. Confessions Feed Stream ─── */}
           <div className="flex flex-col">
             {isLoading && uniqueFeed.length === 0 ? (
               <ConfessionsFeedSkeleton />
@@ -312,29 +234,21 @@ export function ConfessionsFeed() {
                   <FeedCard key={post.id} post={post} />
                 ))}
 
-                {/* Infinite Scroll Trigger */}
                 <div
                   ref={setLoadMoreNode}
-                  className="flex flex-col items-center justify-center gap-2 py-8 text-xs text-muted-foreground select-none"
+                  className="flex flex-col items-center justify-center gap-2 py-8 text-sm text-fg-muted select-none"
                 >
                   {isLoadingMore ? (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <div className="size-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                      <span className="text-xs font-medium">Whispering more secrets...</span>
-                    </div>
+                    <span className="flex items-center gap-2" role="status">
+                      <Loader2 className="size-4 animate-spin" aria-hidden />
+                      Loading more…
+                    </span>
                   ) : !isReachingEnd ? (
-                    <button
-                      type="button"
-                      onClick={() => setSize((s) => s + 1)}
-                      className="h-8 rounded-full bg-muted/60 px-4 text-xs font-bold text-foreground shadow-2xs hover:bg-muted transition-colors cursor-pointer"
-                    >
-                      Load more whispers
-                    </button>
+                    <Button variant="secondary" size="sm" onClick={() => setSize((n) => n + 1)}>
+                      Load more
+                    </Button>
                   ) : (
-                    <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/60 font-medium">
-                      <Sparkles className="size-3 text-brand-text/60" />
-                      <span>You&apos;ve caught up with all campus secrets</span>
-                    </div>
+                    <span>You&apos;re all caught up</span>
                   )}
                 </div>
               </>
@@ -354,7 +268,6 @@ export function ConfessionsFeed() {
           </div>
         </main>
 
-        {/* ─── Desktop Context & Rules Rail (4 cols on lg, sticky) ─── */}
         <div className="hidden lg:block lg:col-span-4 sticky top-20">
           <ConfessionSidebar
             scope={scope}

@@ -21,7 +21,7 @@ export async function GET(req: Request) {
       title: "CampusLoop Academic Vault & Notes Engine",
       version: "1.0.0",
       description:
-        "Programmatically search, upload, organize, and curate university study materials, PYQs, and semester packs across 1,350+ Indian colleges.",
+        "Programmatically search, upload, organize, and curate university study materials, PYQs, and semester packs for Indian colleges.",
       contact: {
         name: "CampusLoop Academics Team",
         url: "https://campusloop.space/academics",

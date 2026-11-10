@@ -13,11 +13,11 @@ export function SoundCloudEmbed({ embedUrl, rawUrl }: SoundCloudEmbedProps) {
 
   return (
     <div
-      className="mt-3 overflow-hidden rounded-2xl border border-border/50 bg-card shadow-xs transition-colors hover:border-border"
+      className="mt-3 overflow-hidden rounded-2xl border border-border bg-card shadow-xs transition-colors hover:border-border"
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="flex items-center justify-between border-b border-border/30 bg-surface-muted px-3.5 py-1.5">
-        <div className="flex items-center gap-1.5 text-xs font-black text-fg">
+      <div className="flex items-center justify-between border-b border-border bg-surface-muted px-3.5 py-1.5">
+        <div className="flex items-center gap-1.5 text-xs font-bold text-fg">
           <Music2 className="size-3.5" />
           <span>SoundCloud</span>
         </div>
@@ -26,7 +26,7 @@ export function SoundCloudEmbed({ embedUrl, rawUrl }: SoundCloudEmbedProps) {
             href={rawUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1 text-[11px] font-bold text-muted-foreground hover:text-foreground transition-colors"
+            className="flex items-center gap-1 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors"
           >
             <span>Open in SoundCloud</span>
             <ExternalLink className="size-3 opacity-70" />

@@ -1,15 +1,7 @@
-import type { Metadata } from "next";
 import { FirstVisitNotificationPrompt } from "@/components/notifications/first-visit-notification-prompt";
 import { AppShell } from "@/components/shells/app-shell";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 import { isViewerProfile } from "@/lib/viewer";
-
-export const metadata: Metadata = {
-  title: {
-    default: "Events | CampusLoop",
-    template: "%s · CampusLoop",
-  },
-};
 
 export default async function EventsLayout({ children }: { children: React.ReactNode }) {
   const user = await getCachedAuthUser();

@@ -1,53 +1,29 @@
 import { desc, eq, sql } from "drizzle-orm";
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { ARTICLES_CANONICAL_HOST } from "@/constants/articles";
+import { Skeleton } from "@/components/ui/skeleton";
 import { getDb } from "@/db";
 import { articles, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { absoluteUrl, breadcrumbJsonLd, buildMetadata, SITE_URL } from "@/lib/seo";
+import { JsonLd } from "@/lib/seo/json-ld-script";
 import { getViewerInstitutionId, VIEWER_INSTITUTION_SLUG } from "@/lib/viewer";
 import { ArticlesHubClient } from "./articles-hub-client";
 
-export const metadata: Metadata = {
-  robots: { index: true, follow: true },
-  title: "Campus Articles & Student Long Reads",
+export const metadata: Metadata = buildMetadata({
+  title: "Student articles",
   description:
-    "Read, write, and explore in-depth student articles, placement roadmaps, engineering guides, research, and campus stories from Indian colleges.",
+    "Read and write placement stories, interview experiences, study guides and campus stories from Indian colleges.",
+  path: "/articles",
+  image: { url: "/og-articles.png", width: 1536, height: 1024, alt: "CampusLoop Articles" },
   keywords: [
-    "CampusLoop Articles",
-    "Student Blog",
-    "College Placement Experiences",
-    "Engineering Guides",
-    "Campus Stories",
-    "Indian College Tech Blogs",
+    "student articles",
+    "placement experiences",
+    "interview experiences",
+    "engineering guides",
+    "college stories",
   ],
-  alternates: {
-    canonical: `${ARTICLES_CANONICAL_HOST}/articles`,
-  },
-  openGraph: {
-    title: "Campus Articles & Student Long Reads",
-    description:
-      "In-depth student articles, placement guides, and campus insights written by verified seniors.",
-    url: `${ARTICLES_CANONICAL_HOST}/articles`,
-    siteName: "CampusLoop",
-    type: "website",
-    images: [
-      {
-        url: `${ARTICLES_CANONICAL_HOST}/og-articles.png`,
-        width: 1536,
-        height: 1024,
-        alt: "CampusLoop Articles",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "CampusLoop Articles — Student Tech & Campus Journalism",
-    description:
-      "Deep-dives, interview experiences, and campus guides written by verified university students.",
-    images: [`${ARTICLES_CANONICAL_HOST}/og-articles.png`],
-  },
-};
+});
 
 export default async function ArticlesPage() {
   const db = getDb();
@@ -89,43 +65,37 @@ export default async function ArticlesPage() {
     console.error("Failed to load initial server articles:", err);
   }
 
-  const jsonLd = {
-    "@context": "https://schema.org",
+  const listJsonLd = {
     "@type": "CollectionPage",
-    name: "CampusLoop Student Articles",
-    url: `${ARTICLES_CANONICAL_HOST}/articles`,
-    description: "Verified student articles, roadmaps, and campus journalism.",
-    publisher: {
-      "@type": "Organization",
-      name: "CampusLoop",
-      url: ARTICLES_CANONICAL_HOST,
-      logo: `${ARTICLES_CANONICAL_HOST}/logo.png`,
-    },
+    name: "CampusLoop student articles",
+    url: absoluteUrl("/articles"),
+    description:
+      "Articles written by college students: placements, interviews, study guides and campus life.",
+    publisher: { "@id": `${SITE_URL}/#organization` },
     mainEntity: {
       "@type": "ItemList",
       itemListElement: initialArticles.map((art, idx) => ({
         "@type": "ListItem",
         position: idx + 1,
-        url: `${ARTICLES_CANONICAL_HOST}/articles/${art.slug}`,
+        url: absoluteUrl(`/articles/${art.slug}`),
         name: art.title,
-        description: art.excerpt || art.subtitle,
       })),
     },
   };
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <JsonLd data={[breadcrumbJsonLd([{ name: "Articles", path: "/articles" }]), listJsonLd]} />
       <Suspense
         fallback={
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6">
-            <div className="h-10 max-w-md bg-muted/40 rounded-xl animate-pulse mb-6" />
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              <div className="lg:col-span-8 space-y-4">
-                <div className="h-44 rounded-xl bg-muted/40 animate-pulse" />
-                <div className="h-44 rounded-xl bg-muted/40 animate-pulse" />
+          <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+            <Skeleton className="mb-6 h-10 max-w-md rounded-full" />
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+              <div className="space-y-4 lg:col-span-8">
+                <Skeleton className="h-44 rounded-lg" />
+                <Skeleton className="h-44 rounded-lg" />
               </div>
-              <div className="lg:col-span-4 h-96 rounded-xl bg-muted/40 animate-pulse" />
+              <Skeleton className="h-96 rounded-lg lg:col-span-4" />
             </div>
           </div>
         }

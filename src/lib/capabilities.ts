@@ -18,48 +18,48 @@ const VIEWER_ALLOWED_CAPABILITIES: Set<UserCapability> = new Set(["READ_PUBLIC_C
 
 const CAPABILITY_MESSAGES: Record<UserCapability, { title: string; desc: string }> = {
   READ_PUBLIC_CONTENT: {
-    title: "Browse Public Content",
-    desc: "Explore discussions and buzz across Indian campuses.",
+    title: "Read public posts",
+    desc: "See what students across India are posting.",
   },
   SAVE_POST: {
-    title: "Save Posts to Vault",
-    desc: "Bookmark valuable campus discussions to your personal archive.",
+    title: "Save posts",
+    desc: "Keep posts so you can read them later.",
   },
   LIKE_POST: {
-    title: "Likes Unlock in Student Mode",
-    desc: "React and upvote campus threads once you join with your college email.",
+    title: "Join with your college email to like posts",
+    desc: "Liking is for verified students.",
   },
   COMMENT_POST: {
-    title: "Comments Unlock in Student Mode",
-    desc: "Join the live banter with verified students from this campus.",
+    title: "Join with your college email to comment",
+    desc: "Commenting is for verified students from this college.",
   },
   CREATE_POST: {
-    title: "Posting Unlocks in Student Mode",
-    desc: "Share your campus vibes and questions with classmates.",
+    title: "Join with your college email to post",
+    desc: "Share news and questions with your classmates.",
   },
   JOIN_COMMUNITY: {
-    title: "Communities Unlock in Student Mode",
-    desc: "Join clubs, batch groups, and interest hubs on campus.",
+    title: "Join with your college email to join communities",
+    desc: "Join clubs, batch groups and interest groups.",
   },
   SEND_MESSAGE: {
-    title: "Messaging Unlocks in Student Mode",
-    desc: "Direct message fellow verified students.",
+    title: "Join with your college email to send messages",
+    desc: "Message other verified students.",
   },
   CAMPUS_MATCH: {
-    title: "Campus Match Unlocks in Student Mode",
-    desc: "Connect and match with verified students in a safe, mutual opt-in campus space.",
+    title: "Join with your college email to use Campus Match",
+    desc: "Match with verified students. Both people have to say yes.",
   },
   SECRET_CRUSH: {
-    title: "Secret Crush Unlocks in Student Mode",
-    desc: "Send anonymous crush signals to classmates safely.",
+    title: "Join with your college email to send a Secret Crush",
+    desc: "Tell a classmate you like them. They only find out if they like you too.",
   },
   ANONYMOUS_POST: {
-    title: "Anonymous Mode Unlocks in Student Mode",
-    desc: "Post zero-trace campus confessions safely.",
+    title: "Join with your college email to post anonymously",
+    desc: "Post confessions without your name on them.",
   },
   MARKETPLACE_ORDER: {
-    title: "Ordering Unlocks in Student Mode",
-    desc: "Rent bikes and buy from campus stores directly.",
+    title: "Join with your college email to order",
+    desc: "Rent bikes and buy from campus stores.",
   },
 };
 

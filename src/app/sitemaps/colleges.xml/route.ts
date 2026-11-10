@@ -1,60 +1,35 @@
 import { desc, ne } from "drizzle-orm";
-import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { institutions } from "@/db/schema";
+import { type SitemapEntry, sitemapFromQuery } from "@/lib/seo/sitemap";
 import { VIEWER_INSTITUTION_SLUG } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
 
 const SITEMAP_URL_CAP = 50_000;
 
-export async function GET() {
-  try {
-    const db = getDb();
-    const list = await db.query.institutions.findMany({
-      columns: {
-        id: true,
-        slug: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-      // The reserved Viewer Hub is internal plumbing for personal-email
-      // accounts, not a real campus — it must never be handed to Google.
-      where: ne(institutions.slug, VIEWER_INSTITUTION_SLUG),
-      orderBy: [desc(institutions.createdAt)],
-      limit: SITEMAP_URL_CAP,
-    });
+const STATIC: SitemapEntry[] = [{ path: "/colleges", changefreq: "daily", priority: 0.9 }];
 
-    const urls = list
-      .map((item) => {
-        const slugOrId = item.slug || item.id;
-        const lastmod = (item.updatedAt ?? item.createdAt ?? new Date()).toISOString();
-        return `
-  <url>
-    <loc>https://campusloop.space/college/${slugOrId}</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>`;
-      })
-      .join("");
-
-    const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls}
-</urlset>`;
-
-    return new NextResponse(xml, {
-      headers: {
-        "Content-Type": "application/xml",
-        "Cache-Control": "public, max-age=43200, s-maxage=86400",
-      },
-    });
-  } catch (error) {
-    console.error("Colleges sitemap error:", error);
-    return new NextResponse(
-      `<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>`,
-      { headers: { "Content-Type": "application/xml" } }
-    );
-  }
+export function GET() {
+  return sitemapFromQuery(
+    "colleges",
+    STATIC,
+    async () => {
+      const list = await getDb().query.institutions.findMany({
+        columns: { id: true, slug: true, createdAt: true, updatedAt: true },
+        // The reserved Viewer Hub is internal plumbing for personal-email
+        // accounts, not a real campus — it must never be handed to Google.
+        where: ne(institutions.slug, VIEWER_INSTITUTION_SLUG),
+        orderBy: [desc(institutions.createdAt)],
+        limit: SITEMAP_URL_CAP - STATIC.length,
+      });
+      return list.map((item) => ({
+        path: `/college/${item.slug || item.id}`,
+        lastmod: item.updatedAt ?? item.createdAt,
+        changefreq: "daily",
+        priority: 0.9,
+      }));
+    },
+    43200
+  );
 }

@@ -1,41 +1,12 @@
-import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { PresenceHeartbeat } from "@/components/pwa/presence-heartbeat";
 import { AppShell } from "@/components/shells/app-shell";
 import { MatchSubHeader } from "@/components/shells/match-sub-header";
 import { AppPullToRefresh } from "@/components/ui/app-pull-to-refresh";
+import { privateMetadata } from "@/lib/seo";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 
-export const metadata: Metadata = {
-  title: "CampusLoop Matching · Campus Vibes",
-  description:
-    "Discover verified students from your campus for friendships, study partners, and shared interests.",
-  openGraph: {
-    title: "CampusLoop Matching · Friends & Shared Interests",
-    description:
-      "Connect with verified fellow students within your campus radius. Zero creeps, 100% college-verified.",
-    url: "https://campusloop.space/matching",
-    siteName: "CampusLoop Match",
-    images: [
-      {
-        url: "https://campusloop.space/og-dating.png",
-        width: 1536,
-        height: 1024,
-        alt: "CampusLoop Match",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "CampusLoop Matching | Verified Students",
-    description: "Meet verified fellow students on your campus.",
-    images: ["https://campusloop.space/og-dating.png"],
-  },
-  robots: {
-    index: false,
-    follow: false,
-  },
-};
+export const metadata = privateMetadata("Campus Match");
 
 export default async function DatingLayout({ children }: { children: React.ReactNode }) {
   const user = await getCachedAuthUser();

@@ -1,19 +1,12 @@
 import type { Metadata } from "next";
 import { AtlasClient } from "@/components/atlas/atlas-client";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Campus Atlas | Campus Intelligence",
-  description:
-    "Find campus clubs, upcoming events, schedules, and eligibility with answers grounded in campus records.",
-  alternates: { canonical: "https://campusloop.space/atlas" },
-  openGraph: {
-    title: "Campus Atlas | Campus Intelligence",
-    description:
-      "Find campus clubs, upcoming events, schedules, and eligibility with answers grounded in campus records.",
-    url: "https://campusloop.space/atlas",
-    siteName: "CampusLoop",
-  },
-};
+export const metadata: Metadata = buildMetadata({
+  title: "Campus Atlas",
+  description: "Ask about clubs, events, timings and who can join, with answers taken from campus records.",
+  path: "/atlas",
+});
 
 export default function AtlasPage() {
   return <AtlasClient />;

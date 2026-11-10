@@ -1,17 +1,8 @@
 "use client";
 
-import {
-  Globe,
-  Info,
-  Lock,
-  School,
-  ShieldCheck,
-  Sparkles,
-  VenetianMask,
-} from "lucide-react";
-import { useState } from "react";
-import { haptics } from "@/lib/haptics";
-import { sounds } from "@/lib/sounds";
+import { Flag, Lock } from "lucide-react";
+import { Chip } from "@/components/ui/chip";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { cn } from "@/lib/utils";
 
 interface ConfessionSidebarProps {
@@ -24,16 +15,16 @@ interface ConfessionSidebarProps {
 }
 
 const TOPIC_TAGS = [
-  { tag: "#HostelLore", count: "1.4k" },
-  { tag: "#PlacementTea", count: "980" },
-  { tag: "#CampusCrush", count: "2.1k" },
-  { tag: "#ExamVent", count: "860" },
-  { tag: "#ProfTales", count: "540" },
-  { tag: "#Unfiltered", count: "1.8k" },
-  { tag: "#LateNightThoughts", count: "720" },
-  { tag: "#MessFoodHorrors", count: "610" },
+  "#HostelLore",
+  "#PlacementTea",
+  "#CampusCrush",
+  "#ExamVent",
+  "#ProfTales",
+  "#LateNightThoughts",
+  "#MessFood",
 ];
 
+/** Desktop rail: how anonymity works, where you're reading from, topics and house rules. Calm, no stickers. */
 export function ConfessionSidebar({
   scope,
   onScopeChange,
@@ -42,169 +33,80 @@ export function ConfessionSidebar({
   onTagSelect,
   className,
 }: ConfessionSidebarProps) {
-  const [showPrivacyDetails, setShowPrivacyDetails] = useState(false);
-
   return (
-    <aside className={cn("flex flex-col gap-4 select-none", className)}>
-      {/* ─── 1. Architectural Anonymity Vault Card ─── */}
-      <div className="rounded-2xl border border-border bg-surface p-4.5 space-y-3.5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-brand-text">
-            <div className="flex size-7 items-center justify-center rounded-lg bg-brand/20 text-brand-text border border-brand-subtle-border/35">
-              <VenetianMask className="size-4" />
-            </div>
-            <h2 className="text-sm font-bold text-foreground">Cryptographic Anonymity</h2>
-          </div>
-          <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-success/10 text-success border border-success/20 flex items-center gap-1">
-            <Lock className="size-2.5" /> Sealed
-          </span>
-        </div>
-
-        <p className="text-xs text-muted-foreground leading-relaxed">
-          Confessions are isolated from your student account. Your verified identity, roll number, and personal profile are never linked or revealed to other students.
+    <aside className={cn("flex flex-col gap-4", className)}>
+      <section
+        className="rounded-lg border border-border bg-surface p-4"
+        aria-labelledby="confession-anon-title"
+      >
+        <h2 id="confession-anon-title" className="flex items-center gap-2 text-base">
+          <Lock className="size-4 text-fg-muted" aria-hidden />
+          You stay anonymous
+        </h2>
+        <p className="mt-2 text-sm text-fg-muted">
+          Confessions show a random nickname, never your name, photo or profile. Only students who signed in
+          can post.
         </p>
+      </section>
 
-        <button
-          type="button"
-          onClick={() => {
-            sounds.tap();
-            haptics.light();
-            setShowPrivacyDetails((prev) => !prev);
-          }}
-          className="w-full flex items-center justify-between py-1.5 px-2.5 rounded-xl bg-brand/10 hover:bg-brand-hover/15 border border-brand-subtle-border/20 text-[11px] font-bold text-brand-text transition-colors cursor-pointer"
-        >
-          <span className="flex items-center gap-1.5">
-            <ShieldCheck className="size-3.5 text-brand-text" />
-            How Accountable Privacy Works
-          </span>
-          <span className="text-[10px] text-brand-text/80 font-mono">
-            {showPrivacyDetails ? "Hide" : "Details"}
-          </span>
-        </button>
+      <section
+        className="rounded-lg border border-border bg-surface p-4"
+        aria-labelledby="confession-scope-title"
+      >
+        <h2 id="confession-scope-title" className="text-base">
+          Show confessions from
+        </h2>
+        <SegmentedControl
+          className="mt-3"
+          size="sm"
+          fullWidth
+          value={scope}
+          onChange={onScopeChange}
+          options={[
+            { value: "GLOBAL", label: "All colleges" },
+            { value: "CAMPUS", label: campusName },
+          ]}
+        />
+      </section>
 
-        {showPrivacyDetails && (
-          <div className="space-y-2 pt-1 border-t border-brand-subtle-border/20 text-[11px] text-muted-foreground leading-relaxed animate-in fade-in duration-150">
-            <div className="flex items-start gap-2">
-              <span className="text-brand-text font-bold">1.</span>
-              <span><strong>Zero FK Linkage:</strong> The database row stores only a thread pseudonym. Real author ID is null.</span>
-            </div>
-            <div className="flex items-start gap-2">
-              <span className="text-brand-text font-bold">2.</span>
-              <span><strong>Client-Side PII Filter:</strong> Phone numbers, room numbers, and personal handles are auto-quarantined.</span>
-            </div>
-            <div className="flex items-start gap-2">
-              <span className="text-brand-text font-bold">3.</span>
-              <span><strong>Verified Gate:</strong> Only verified college students can post, eliminating external trolls.</span>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* ─── 2. Scope Quick Switcher ─── */}
-      <div className="rounded-2xl border border-border/30 bg-card/60 p-4 space-y-3 shadow-2xs">
-        <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold text-muted-foreground">
-            Feed Scope
-          </span>
-          <span className="text-[10px] text-muted-foreground">1,350+ Hubs</span>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2">
-          <button
-            type="button"
-            onClick={() => onScopeChange("GLOBAL")}
-            className={cn(
-              "flex flex-col items-start gap-1 p-2.5 rounded-xl border text-left transition-colors cursor-pointer relative before:absolute before:-inset-1 before:content-['']",
-              scope === "GLOBAL"
-                ? "border-primary/50 bg-primary/10 text-primary shadow-2xs font-semibold"
-                : "border-border/40 hover:bg-muted/40 text-muted-foreground"
-            )}
-          >
-            <div className="flex items-center gap-1.5 font-bold text-xs">
-              <Globe className="size-3.5" />
-              <span>All India</span>
-            </div>
-            <span className="text-[10px] text-muted-foreground">National pulse</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onScopeChange("CAMPUS")}
-            className={cn(
-              "flex flex-col items-start gap-1 p-2.5 rounded-xl border text-left transition-colors cursor-pointer relative before:absolute before:-inset-1 before:content-['']",
-              scope === "CAMPUS"
-                ? "border-primary/50 bg-primary/10 text-primary shadow-2xs font-semibold"
-                : "border-border/40 hover:bg-muted/40 text-muted-foreground"
-            )}
-          >
-            <div className="flex items-center gap-1.5 font-bold text-xs truncate w-full">
-              <School className="size-3.5 shrink-0" />
-              <span className="truncate">{campusName}</span>
-            </div>
-            <span className="text-[10px] text-muted-foreground">Your college hub</span>
-          </button>
-        </div>
-      </div>
-
-      {/* ─── 3. Trending Topics Tag Cloud ─── */}
-      <div className="rounded-2xl border border-border/30 bg-card/60 p-4 space-y-2.5 shadow-2xs">
-        <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold text-muted-foreground flex items-center gap-1.5">
-            <Sparkles className="size-3 text-brand-text" />
-            <span>Popular Whisper Tags</span>
-          </span>
-        </div>
-
-        <div className="flex flex-wrap gap-1.5 pt-0.5">
-          {TOPIC_TAGS.map((item) => {
-            const isSelected = activeTag === item.tag;
+      <section
+        className="rounded-lg border border-border bg-surface p-4"
+        aria-labelledby="confession-topics-title"
+      >
+        <h2 id="confession-topics-title" className="text-base">
+          Topics
+        </h2>
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {TOPIC_TAGS.map((tag) => {
+            const selected = activeTag === tag;
             return (
-              <button
-                key={item.tag}
-                type="button"
-                onClick={() => {
-                  sounds.tap();
-                  haptics.light();
-                  onTagSelect?.(isSelected ? "" : item.tag);
-                }}
-                className={cn(
-                  "h-7 px-2.5 rounded-full text-[11px] font-bold transition-colors cursor-pointer border flex items-center gap-1",
-                  isSelected
-                    ? "bg-brand text-white border-brand-subtle-border shadow-xs ring-1 ring-ring/40"
-                    : "bg-muted/30 hover:bg-muted text-muted-foreground hover:text-foreground border-border/40"
-                )}
+              <Chip
+                key={tag}
+                size="sm"
+                selected={selected}
+                onClick={() => onTagSelect?.(selected ? "" : tag)}
               >
-                <span>{item.tag}</span>
-                <span className={cn("text-[9px] font-mono", isSelected ? "text-white/80" : "text-muted-foreground/60")}>
-                  {item.count}
-                </span>
-              </button>
+                {tag}
+              </Chip>
             );
           })}
         </div>
-      </div>
+      </section>
 
-      {/* ─── 4. Community Safe-Harbor Pledge ─── */}
-      <div className="rounded-2xl border border-border/30 bg-card/60 p-4 space-y-2.5 shadow-2xs text-xs text-muted-foreground">
-        <h3 className="text-[11px] font-bold text-foreground flex items-center gap-1.5">
-          <Info className="size-3 text-primary" />
-          <span>Community Pledge</span>
-        </h3>
-        <ul className="space-y-1.5 text-[11px] leading-relaxed">
-          <li className="flex items-start gap-1.5">
-            <span className="text-brand-text font-bold">•</span>
-            <span>No targeted harassment, doxxing, or naming individual peers.</span>
-          </li>
-          <li className="flex items-start gap-1.5">
-            <span className="text-brand-text font-bold">•</span>
-            <span>Wholesome secrets, funny hostel sagas, and exam vents welcomed.</span>
-          </li>
-          <li className="flex items-start gap-1.5">
-            <span className="text-brand-text font-bold">•</span>
-            <span>Flag toxic content instantly via the card report button.</span>
-          </li>
+      <section
+        className="rounded-lg border border-border bg-surface p-4"
+        aria-labelledby="confession-rules-title"
+      >
+        <h2 id="confession-rules-title" className="flex items-center gap-2 text-base">
+          <Flag className="size-4 text-fg-muted" aria-hidden />
+          House rules
+        </h2>
+        <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-fg-muted">
+          <li>Don&apos;t name, target or expose anyone.</li>
+          <li>No phone numbers, room numbers or handles.</li>
+          <li>See something harmful? Report it from the post menu.</li>
         </ul>
-      </div>
+      </section>
     </aside>
   );
 }

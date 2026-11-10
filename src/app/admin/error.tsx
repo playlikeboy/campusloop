@@ -3,6 +3,7 @@
 import { RefreshCw, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
 
 export default function AdminError({
   error,
@@ -16,28 +17,22 @@ export default function AdminError({
   }, [error]);
 
   return (
-    <div className="mx-auto max-w-lg mt-24 rounded-2xl border border-border bg-card p-10 text-center space-y-4 shadow-sm">
-      <div className="size-12 rounded-full bg-destructive/10 text-destructive flex items-center justify-center mx-auto">
-        <TriangleAlert className="size-6" />
+    <div className="mx-auto mt-16 max-w-md rounded-lg border border-border bg-surface p-8 text-center">
+      <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-danger-subtle text-danger">
+        <TriangleAlert className="size-6" aria-hidden />
       </div>
-      <h2 className="text-lg font-bold text-foreground">This section couldn&apos;t load</h2>
-      <p className="text-xs text-muted-foreground leading-relaxed">
-        A data source returned an unexpected response. Retrying usually fixes it — nothing was lost.
-        {error.digest && <span className="block mt-1 opacity-60">ref: {error.digest}</span>}
+      <h1 className="mt-4 text-xl text-fg">This page didn&apos;t load</h1>
+      <p className="mt-2 text-sm text-fg-muted">
+        A data source sent back an error. Nothing was changed. Try again, or go back to the inbox.
       </p>
-      <div className="flex items-center justify-center gap-2 pt-1">
-        <button
-          onClick={reset}
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-xs font-bold text-primary-foreground hover:bg-primary/95 transition-colors cursor-pointer"
-        >
-          <RefreshCw className="h-3.5 w-3.5" /> Reload
-        </button>
-        <Link
-          href="/admin"
-          className="rounded-lg border border-border px-4 py-2 text-xs font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-        >
-          Go to Dashboard
-        </Link>
+      {error.digest && <p className="mt-2 font-mono text-xs text-fg-subtle">Error code: {error.digest}</p>}
+      <div className="mt-6 flex flex-col items-center justify-center gap-2 sm:flex-row">
+        <Button onClick={reset}>
+          <RefreshCw aria-hidden /> Try again
+        </Button>
+        <Button variant="outline" asChild>
+          <Link href="/admin">Back to inbox</Link>
+        </Button>
       </div>
     </div>
   );

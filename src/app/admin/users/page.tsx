@@ -1,14 +1,14 @@
 import { and, asc, count, desc, eq, ilike, or, type SQL, sql } from "drizzle-orm";
 import { Users } from "lucide-react";
 import type { Metadata } from "next";
+import { Badge } from "@/components/ui/badge";
 import { institutions, userProfiles } from "@/db/schema";
+import { privateMetadata } from "@/lib/seo";
 import { AdminPageHeader } from "../_components/admin-page-header";
 import { resolveAdminSession } from "../_lib/guard";
 import { UsersTable } from "./users-table";
 
-export const metadata: Metadata = {
-  title: "User Directory & Student Analytics",
-};
+export const metadata: Metadata = privateMetadata("Students");
 
 type RoleFilter = "ALL" | "STUDENT" | "MODERATOR" | "ADMIN";
 type StatusFilter = "ALL" | "ACTIVE" | "SUSPENDED" | "BANNED";
@@ -104,15 +104,10 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="Student Directory & Account Analytics"
-        category="Content & Campus"
+        title="Students"
         icon={Users}
-        description="Search verified college students, audit presence, points, account standing, and assign staff roles."
-        badge={
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-muted text-muted-foreground border border-border/40">
-            {totalCount.toLocaleString()} profiles
-          </span>
-        }
+        description="Search accounts, check standing and points, and set staff roles."
+        badge={<Badge variant="neutral">{totalCount.toLocaleString()} accounts</Badge>}
       />
 
       <UsersTable

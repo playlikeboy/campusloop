@@ -1,11 +1,7 @@
-import type { Metadata } from "next";
+import { privateMetadata } from "@/lib/seo";
 import { MerchantDashboardClient } from "./merchant-dashboard-client";
 
-export const metadata: Metadata = {
-  title: "Merchant Dashboard",
-  description: "Live partner dashboard with incoming orders, daily revenue, and store controls.",
-  robots: { index: false, follow: false },
-};
+export const metadata = privateMetadata("Store dashboard");
 
 export default function MerchantDashboardPage() {
   return <MerchantDashboardClient />;

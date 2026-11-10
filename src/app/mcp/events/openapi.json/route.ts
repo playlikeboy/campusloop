@@ -22,7 +22,7 @@ export async function GET(req: Request) {
       title: "CampusLoop Remote Events & Opportunities Engine",
       version: "1.0.0",
       description:
-        "Programmatically discover campus hackathons and publish external remote opportunities to 1,350+ university feeds across India.",
+        "Programmatically discover campus hackathons and publish external remote opportunities to campus feeds across India.",
     },
     servers: [
       {
@@ -98,7 +98,7 @@ export async function GET(req: Request) {
           operationId: "create_remote_event",
           summary: "Create and publish a remote event, hackathon, or student opportunity",
           description:
-            "Publish a remote opportunity (Devfolio, Unstop, MLH hackathon, fellowship, virtual workshop) to 1,350+ campus feeds across India.",
+            "Publish a remote opportunity (Devfolio, Unstop, MLH hackathon, fellowship, virtual workshop) to campus feeds across India.",
           parameters: [
             {
               name: "apikey",

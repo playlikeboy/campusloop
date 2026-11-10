@@ -1,7 +1,6 @@
 "use client";
 
-import { Loader2, Mic, Pause, Play } from "lucide-react";
-import { motion } from "motion/react";
+import { AlertCircle, Loader2, Mic, Pause, Play } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -10,13 +9,30 @@ interface AudioPlayerProps {
   title?: string;
   duration?: number; // seconds
   compact?: boolean;
+  /** Inside the sender's violet chat bubble: draws in the bubble's foreground colour. */
   isMe?: boolean;
   className?: string;
 }
 
+// Fixed bar heights so the waveform looks the same on server and client.
+const WAVE_BARS = [
+  35, 60, 90, 45, 75, 100, 80, 50, 65, 95, 70, 40, 85, 100, 60, 75, 90, 45, 80, 60, 40, 90, 70, 50,
+];
+
+const RATES = [1, 1.5, 2] as const;
+type Rate = (typeof RATES)[number];
+
+function formatTime(seconds: number) {
+  if (!seconds || Number.isNaN(seconds) || !Number.isFinite(seconds)) return "0:00";
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+}
+
 export function AudioPlayer({
   src,
-  title = "Voice Memo",
+  title = "Voice note",
+  duration,
   compact = false,
   isMe = false,
   className,
@@ -24,31 +40,24 @@ export function AudioPlayer({
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
-  const [totalDuration, setTotalDuration] = useState(0);
-  const [playbackRate, setPlaybackRate] = useState<1 | 1.5 | 2>(1);
+  const [totalDuration, setTotalDuration] = useState(duration ?? 0);
+  const [rate, setRate] = useState<Rate>(1);
   const [isLoading, setIsLoading] = useState(true);
-  const [isMuted, setIsMuted] = useState(false);
+  const [failed, setFailed] = useState(false);
 
-  // Generate deterministic wave heights for aesthetic waveform
-  const waveBars = [
-    35, 60, 90, 45, 75, 100, 80, 50, 65, 95, 70, 40, 85, 100, 60, 75, 90, 45, 80, 60, 40, 90, 70, 50,
-  ];
-
-  function formatTime(seconds: number) {
-    if (!seconds || Number.isNaN(seconds)) return "0:00";
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
-  }
+  const onBubble = compact && isMe;
 
   function togglePlay() {
-    if (!audioRef.current) return;
+    const audio = audioRef.current;
+    if (!audio || failed) return;
     if (isPlaying) {
-      audioRef.current.pause();
+      audio.pause();
       setIsPlaying(false);
     } else {
-      audioRef.current.play().catch(() => {});
-      setIsPlaying(true);
+      audio
+        .play()
+        .then(() => setIsPlaying(true))
+        .catch(() => setIsPlaying(false));
     }
   }
 
@@ -62,11 +71,9 @@ export function AudioPlayer({
 
   function cycleRate(e: React.MouseEvent) {
     e.stopPropagation();
-    const nextRate: 1 | 1.5 | 2 = playbackRate === 1 ? 1.5 : playbackRate === 1.5 ? 2 : 1;
-    setPlaybackRate(nextRate);
-    if (audioRef.current) {
-      audioRef.current.playbackRate = nextRate;
-    }
+    const next = RATES[(RATES.indexOf(rate) + 1) % RATES.length];
+    setRate(next);
+    if (audioRef.current) audioRef.current.playbackRate = next;
   }
 
   useEffect(() => {
@@ -74,23 +81,24 @@ export function AudioPlayer({
     if (!audio) return;
 
     const onLoadedMetadata = () => {
-      setTotalDuration(audio.duration || 0);
+      if (Number.isFinite(audio.duration)) setTotalDuration(audio.duration);
       setIsLoading(false);
     };
-
-    const onTimeUpdate = () => {
-      setCurrentTime(audio.currentTime);
-    };
-
+    const onTimeUpdate = () => setCurrentTime(audio.currentTime);
     const onEnded = () => {
       setIsPlaying(false);
       setCurrentTime(0);
     };
-
     const onWaiting = () => setIsLoading(true);
     const onPlaying = () => {
       setIsLoading(false);
       setIsPlaying(true);
+    };
+    const onPause = () => setIsPlaying(false);
+    const onError = () => {
+      setFailed(true);
+      setIsLoading(false);
+      setIsPlaying(false);
     };
 
     audio.addEventListener("loadedmetadata", onLoadedMetadata);
@@ -98,6 +106,8 @@ export function AudioPlayer({
     audio.addEventListener("ended", onEnded);
     audio.addEventListener("waiting", onWaiting);
     audio.addEventListener("playing", onPlaying);
+    audio.addEventListener("pause", onPause);
+    audio.addEventListener("error", onError);
 
     return () => {
       audio.removeEventListener("loadedmetadata", onLoadedMetadata);
@@ -105,6 +115,8 @@ export function AudioPlayer({
       audio.removeEventListener("ended", onEnded);
       audio.removeEventListener("waiting", onWaiting);
       audio.removeEventListener("playing", onPlaying);
+      audio.removeEventListener("pause", onPause);
+      audio.removeEventListener("error", onError);
     };
   }, []);
 
@@ -114,75 +126,70 @@ export function AudioPlayer({
     <div
       onClick={(e) => e.stopPropagation()}
       className={cn(
-        "rounded-2xl border transition-colors select-none no-card-nav",
-        compact
-          ? isMe
-            ? "bg-transparent border-transparent py-1 px-1 min-w-[210px] max-w-xs"
-            : "bg-transparent border-transparent py-1 px-1 min-w-[210px] max-w-xs"
-          : "bg-muted/30 border-border/50 p-3.5 max-w-md shadow-xs",
+        "no-card-nav select-none rounded-lg",
+        compact ? "min-w-[210px] max-w-xs px-1 py-1" : "max-w-md border border-border bg-surface p-3",
         className
       )}
     >
-      <audio ref={audioRef} src={src} preload="metadata" muted={isMuted} />
+      {/* biome-ignore lint/a11y/useMediaCaption: user voice notes have no caption track */}
+      <audio ref={audioRef} src={src} preload="metadata" />
 
       <div className="flex items-center gap-3">
-        {/* Play/Pause Button */}
-        <motion.button
-          whileTap={{ scale: 0.9 }}
+        <button
           type="button"
           onClick={togglePlay}
+          disabled={failed}
           className={cn(
-            "size-10 rounded-full flex items-center justify-center shrink-0 cursor-pointer shadow-xs transition-colors",
-            compact && isMe
-              ? "bg-surface text-brand-text hover:bg-white/90"
-              : "bg-primary text-primary-foreground hover:bg-primary/90"
+            "cl-interactive flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+            onBubble
+              ? "bg-brand-fg text-brand hover:opacity-90"
+              : "bg-brand text-brand-fg hover:bg-brand-hover"
           )}
-          aria-label={isPlaying ? "Pause audio" : "Play audio"}
+          aria-label={failed ? "Voice note can't play" : isPlaying ? "Pause" : "Play"}
         >
-          {isLoading ? (
-            <Loader2 className="size-4.5 animate-spin" />
+          {failed ? (
+            <AlertCircle className="size-5" aria-hidden />
+          ) : isLoading && isPlaying ? (
+            <Loader2 className="size-5 animate-spin" aria-hidden />
           ) : isPlaying ? (
-            <Pause className="size-4.5 fill-current" />
+            <Pause className="size-5 fill-current" aria-hidden />
           ) : (
-            <Play className="size-4.5 fill-current ml-0.5" />
+            <Play className="ml-0.5 size-5 fill-current" aria-hidden />
           )}
-        </motion.button>
+        </button>
 
-        {/* Waveform & Scrubber Area */}
-        <div className="flex-1 min-w-0 space-y-1.5">
+        <div className="min-w-0 flex-1 space-y-1.5">
           {!compact && (
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-bold text-foreground truncate flex items-center gap-1.5">
-                <Mic className="size-3.5 text-primary shrink-0" />
-                <span>{title}</span>
+            <div className="flex items-center justify-between gap-2 text-xs">
+              <span className="flex min-w-0 items-center gap-1.5 font-semibold text-fg">
+                <Mic className="size-3.5 shrink-0 text-fg-muted" aria-hidden />
+                <span className="truncate">{title}</span>
               </span>
-              <span className="text-[11px] font-mono text-muted-foreground">
+              <span className="shrink-0 tabular-nums text-fg-muted">
                 {formatTime(currentTime)} / {formatTime(totalDuration)}
               </span>
             </div>
           )}
 
-          {/* Interactive Waveform Bars & Range Track */}
-          <div className="relative flex items-center h-6 cursor-pointer group">
-            {/* Waveform visualizer bars */}
-            <div className="absolute inset-0 flex items-center justify-between gap-[2px] pointer-events-none px-0.5">
-              {waveBars.map((height, idx) => {
-                const barPosition = (idx / (waveBars.length - 1)) * 100;
-                const isPassed = barPosition <= progressPercent;
-
+          <div className="relative flex h-6 items-center">
+            <div
+              className="pointer-events-none absolute inset-0 flex items-center justify-between gap-[2px] px-0.5"
+              aria-hidden
+            >
+              {WAVE_BARS.map((height, idx) => {
+                const passed = (idx / (WAVE_BARS.length - 1)) * 100 <= progressPercent;
                 return (
-                  <div
+                  <span
                     key={idx}
                     className={cn(
-                      "w-[3px] rounded-full transition-colors duration-150",
-                      compact && isMe
-                        ? isPassed
-                          ? "bg-surface"
-                          : "bg-white/40"
-                        : isPassed
-                          ? "bg-primary"
-                          : "bg-muted-foreground/30",
-                      isPlaying && isPassed && "animate-pulse"
+                      "w-[3px] rounded-full transition-ui",
+                      onBubble
+                        ? passed
+                          ? "bg-brand-fg"
+                          : "bg-brand-fg/40"
+                        : passed
+                          ? "bg-brand"
+                          : "bg-border-strong"
                     )}
                     style={{ height: `${Math.max(15, (height / 100) * 22)}px` }}
                   />
@@ -190,7 +197,6 @@ export function AudioPlayer({
               })}
             </div>
 
-            {/* Invisible Range Slider for Scrubbing */}
             <input
               type="range"
               min={0}
@@ -198,32 +204,35 @@ export function AudioPlayer({
               step={0.1}
               value={currentTime}
               onChange={handleSeek}
-              className="absolute inset-0 w-full opacity-0 cursor-pointer z-10"
-              aria-label="Seek audio position"
+              disabled={failed}
+              className="absolute inset-0 z-10 w-full cursor-pointer opacity-0"
+              aria-label="Seek"
+              aria-valuetext={`${formatTime(currentTime)} of ${formatTime(totalDuration)}`}
             />
           </div>
 
           {compact && (
-            <div className="flex items-center justify-between text-[10px] font-mono opacity-80 leading-none">
-              <span>{formatTime(currentTime)}</span>
-              <span>{formatTime(totalDuration)}</span>
+            <div className="flex items-center justify-between text-xs leading-none tabular-nums opacity-80">
+              <span>{failed ? "Can't play this voice note" : formatTime(currentTime)}</span>
+              {!failed && <span>{formatTime(totalDuration)}</span>}
             </div>
+          )}
+          {!compact && failed && (
+            <p className="text-xs text-danger">This voice note can't play. Try opening it again later.</p>
           )}
         </div>
 
-        {/* Speed / Rate Toggle Button */}
         <button
           type="button"
           onClick={cycleRate}
+          disabled={failed}
           className={cn(
-            "text-[10px] font-black px-2 py-1 rounded-full border transition-colors cursor-pointer shrink-0",
-            compact && isMe
-              ? "bg-white/20 border-white/40 text-white hover:bg-white/30"
-              : "bg-muted/80 border-border/60 text-foreground hover:bg-muted"
+            "flex h-11 min-w-11 shrink-0 cursor-pointer items-center justify-center rounded-full px-2 text-xs font-semibold tabular-nums transition-ui focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50",
+            onBubble ? "text-brand-fg hover:bg-brand-fg/15" : "text-fg hover:bg-surface-muted"
           )}
-          title="Playback speed"
+          aria-label={`Playback speed ${rate}x`}
         >
-          {playbackRate}x
+          {rate}x
         </button>
       </div>
     </div>

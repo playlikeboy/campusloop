@@ -3,6 +3,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { articles, articleVotes, savedArticles, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { LP_ACTION_REWARDS } from "@/constants/gamification";
 import { awardPoints } from "@/lib/gamification-server";
 import { getViewerInstitutionId, VIEWER_INSTITUTION_SLUG } from "@/lib/viewer";
 import { smartifyMarkdown } from "@/lib/articles/smart-blocks";
@@ -315,7 +316,7 @@ export async function POST(req: NextRequest) {
     // Award clout Loop Points (+15 LP) idempotently on publish
     if (status === "PUBLISHED") {
       try {
-        await awardPoints(profile.id, 15, "ARTICLE_PUBLISHED", {
+        await awardPoints(profile.id, LP_ACTION_REWARDS.PUBLISH_ARTICLE, "ARTICLE_PUBLISHED", {
           referenceId: articleId,
           actorId: profile.id,
         });

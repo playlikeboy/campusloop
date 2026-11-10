@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
+import { privateMetadata } from "@/lib/seo";
 import { MoreClient } from "./more-client";
 
-export const metadata: Metadata = {
-  title: "More",
-  description:
-    "Explore all campus directories, secret crush vault, match mode, confessions, and settings on CampusLoop.",
-};
+// An in-app menu, not a page for search results. /ecosystem redirects here.
+export const metadata: Metadata = privateMetadata("More");
 
 export default function MorePage() {
   return <MoreClient />;

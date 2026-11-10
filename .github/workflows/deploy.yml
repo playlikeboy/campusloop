@@ -19,10 +19,25 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # vitest, opennextjs and scripts/deploy.mjs run on Node; match local (v22).
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
       - name: Setup Bun Environment
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          # Pinned to the version used locally; bump deliberately, never "latest".
+          bun-version: 1.4.2
+
+      - name: Cache Bun Packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            bun-${{ runner.os }}-
 
       - name: Install Dependencies
         run: bun install --frozen-lockfile
@@ -31,11 +46,9 @@ jobs:
         run: bun run typecheck
 
       - name: Unit Tests
+        # Tests mock `@/db` (src/test/mock-db.ts) and src/test/setup.ts clears the
+        # DB URLs, so no database secrets are needed or used here.
         run: bun run test
-        # Route tests read from the real DB (no writes: all POST cases assert 401).
-        env:
-          DB_URL: ${{ secrets.DB_URL }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Design System Guard (report)
         run: bun run check:design

@@ -6,26 +6,33 @@ import { ItemListJsonLd } from "@/components/courses/catalog/item-list-json-ld";
 import { catalogHref, isBrowseHome, parseCatalogParams } from "@/lib/courses/catalog-params";
 import { currentProfile, getBrowseRows, listCategoryCounts, listCourses } from "@/lib/courses/server";
 import { rememberSearch } from "@/lib/search-history";
+import { absoluteUrl, buildMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-const SITE = "https://campusloop.space";
 const DESCRIPTION =
-  "Watch full free courses from Harvard CS50, MIT, Stanford, NPTEL and top Indian educators like CodeWithHarry, Gate Smashers and Neso Academy, track your progress lecture by lecture, take notes, ask questions and earn a certificate. Students can create and share their own courses too.";
+  "Watch free full courses from CS50, MIT, NPTEL and Indian YouTube teachers. Track each lecture, take notes and ask questions.";
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const p = parseCatalogParams(await searchParams);
-  const canonical = `${SITE}${catalogHref(p, { page: p.page })}`;
-  const title = p.q ? `${p.q} courses` : "Free Online Courses: CS50, MIT, DBMS, DSA, Python, AI and More";
-  return {
-    title: p.page > 1 ? `${title} (page ${p.page})` : title,
-    description: p.q ? `Free ${p.q} courses with progress tracking, notes, Q&A and certificates on CampusLoop.` : DESCRIPTION,
-    alternates: { canonical },
+  const base = p.q ? `${p.q} courses` : "Free online courses";
+  const title = p.page > 1 ? `${base} (page ${p.page})` : base;
+  const meta = buildMetadata({
+    title,
+    description: p.q
+      ? `Free ${p.q} courses with lecture tracking, notes and Q&A on CampusLoop.`
+      : DESCRIPTION,
+    path: "/courses",
     // Free-text search pages are thin duplicates of category pages; keep them out of the index.
-    robots: p.q ? { index: false, follow: true } : undefined,
-    openGraph: { title: "Courses on CampusLoop", description: "Free courses with progress tracking, notes, Q&A and certificates, including every Harvard CS50 lecture.", url: canonical, siteName: "CampusLoop", type: "website" },
+    noindex: Boolean(p.q),
+  });
+  // Paginated pages keep their own canonical (buildMetadata drops query strings).
+  return {
+    ...meta,
+    alternates: { canonical: absoluteUrl(catalogHref(p, { page: p.page })) },
+    robots: p.q ? { index: false, follow: true } : meta.robots,
   };
 }
 
@@ -45,7 +52,11 @@ export default async function CoursesPage({ searchParams }: Props) {
     );
   }
 
-  const [result, categories, profile] = await Promise.all([listCourses(params), listCategoryCounts(), params.q ? currentProfile() : null]);
+  const [result, categories, profile] = await Promise.all([
+    listCourses(params),
+    listCategoryCounts(),
+    params.q ? currentProfile() : null,
+  ]);
   // Searches personalise the feed's course slot (src/lib/courses/recommend.ts).
   if (profile && params.q) await rememberSearch(profile.id, params.q);
   if (params.page > result.pages) redirect(catalogHref(params, { page: result.pages }));

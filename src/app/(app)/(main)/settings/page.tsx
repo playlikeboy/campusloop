@@ -1,17 +1,14 @@
 import { eq } from "drizzle-orm";
-import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { privateMetadata } from "@/lib/seo";
 import { SettingsClient } from "./settings-client";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Account Settings",
-  description: "Manage your campus profile, avatar, preferences, and privacy.",
-};
+export const metadata = privateMetadata("Settings");
 
 export default async function SettingsPage() {
   const user = await hexclaveServerApp.getUser();
@@ -40,7 +37,7 @@ export default async function SettingsPage() {
         year: profile.year,
         role: profile.role,
         points: profile.points,
-        institutionName: profile.institution?.name || "Verified Campus",
+        institutionName: profile.institution?.name ?? null,
         anonymousUsername: profile.anonymousUsername,
         feedVisibility: profile.feedVisibility,
       }}

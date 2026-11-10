@@ -126,7 +126,7 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("POST /api/profile/upgrade-campus/confirm error:", error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to unlock your campus" },
+      { error: error instanceof Error ? error.message : "We could not verify your college email. Try again." },
       { status: 500 }
     );
   }

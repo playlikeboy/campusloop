@@ -1,11 +1,8 @@
 import type { Metadata } from "next";
+import { privateMetadata } from "@/lib/seo";
 import { AdminRentalsClient } from "./admin-rentals-client";
 
-export const metadata: Metadata = {
-  title: "Bike Fleet & Rentals Oversight",
-  description: "Admin oversight for campus bike fleets, bookings, and deposit dispute resolution.",
-  robots: { index: false, follow: false },
-};
+export const metadata: Metadata = privateMetadata("Bike rentals");
 
 export default function AdminRentalsPage() {
   return <AdminRentalsClient />;

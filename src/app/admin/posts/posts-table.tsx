@@ -16,10 +16,17 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { fieldClassName } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { cn } from "@/lib/utils";
 
+import { AdminFilterRow } from "../_components/admin-filter-row";
 import { type RevealedIdentity, revealAnonymousAuthor } from "../anonymity-actions";
-import {  deletePost,
+import {
+  deletePost,
   restoreAllSeededPosts,
   toggleGlobalShowSeededPosts,
   toggleHidePost,
@@ -29,7 +36,7 @@ import {  deletePost,
 import type { PostAnonFilter, PostOriginFilter, PostStatusFilter } from "./page";
 
 const statusTabs: { value: PostStatusFilter; label: string }[] = [
-  { value: "ALL", label: "All Statuses" },
+  { value: "ALL", label: "All" },
   { value: "PUBLISHED", label: "Published" },
   { value: "HIDDEN", label: "Hidden" },
   { value: "PENDING_REVIEW", label: "Flagged" },
@@ -37,14 +44,14 @@ const statusTabs: { value: PostStatusFilter; label: string }[] = [
 ];
 
 const originTabs: { value: PostOriginFilter; label: string }[] = [
-  { value: "all", label: "All Posts" },
-  { value: "real", label: "Student Posts" },
-  { value: "seeded", label: "Platform Seeded" },
+  { value: "all", label: "All" },
+  { value: "real", label: "Students" },
+  { value: "seeded", label: "Seeded" },
 ];
 
 const anonTabs: { value: PostAnonFilter; label: string }[] = [
-  { value: "all", label: "All Identities" },
-  { value: "public", label: "Public Profile" },
+  { value: "all", label: "All" },
+  { value: "public", label: "Public" },
   { value: "anon", label: "Anonymous" },
 ];
 
@@ -84,12 +91,13 @@ interface PostsTableProps {
   initialShowSeededPosts?: boolean;
 }
 
-const statusBadgeTone: Record<string, string> = {
-  PUBLISHED: "bg-success-subtle text-success border-success/30",
-  PENDING_REVIEW: "bg-warning-subtle text-warning border-warning/30",
-  HIDDEN: "bg-warning-subtle text-warning border-warning/30",
-  DELETED: "bg-danger-subtle text-danger border-danger/30",
-};
+const statusBadge: Record<string, { label: string; variant: "success" | "warning" | "danger" | "neutral" }> =
+  {
+    PUBLISHED: { label: "Published", variant: "success" },
+    PENDING_REVIEW: { label: "Flagged", variant: "warning" },
+    HIDDEN: { label: "Hidden", variant: "warning" },
+    DELETED: { label: "Deleted", variant: "danger" },
+  };
 
 export function PostsTable({
   initialPosts,
@@ -121,14 +129,14 @@ export function PostsTable({
     router.push(`/admin/posts?${params.toString()}`);
   }
 
-  async function runAction(postId: string, fn: () => Promise<unknown>, successMsg = "Action completed") {
+  async function runAction(postId: string, fn: () => Promise<unknown>, successMsg = "Done") {
     setActionLoading(postId);
     try {
       await fn();
       toast.success(successMsg);
       router.refresh();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Action failed");
+      toast.error(e instanceof Error ? e.message : "Couldn't do that. Try again.");
     } finally {
       setActionLoading(null);
     }
@@ -142,7 +150,7 @@ export function PostsTable({
     await runAction(
       postId,
       () => togglePostSeededStatus(postId, !currentIsSeeded),
-      currentIsSeeded ? "Post marked as REAL student content" : "Post marked as SEEDED / BOT"
+      currentIsSeeded ? "Marked as a student post" : "Marked as a seeded post"
     );
   }
 
@@ -150,11 +158,11 @@ export function PostsTable({
     setActionLoading("bulk_unlist");
     try {
       await unlistAllSeededPosts();
-      toast.success("All seeded bot posts unlisted & hidden from public website!");
+      toast.success("Seeded posts hidden");
       setShowUnlistConfirm(false);
       router.refresh();
     } catch {
-      toast.error("Failed to unlist seeded posts");
+      toast.error("Couldn't hide seeded posts. Try again.");
     } finally {
       setActionLoading(null);
     }
@@ -164,11 +172,11 @@ export function PostsTable({
     setActionLoading("bulk_restore");
     try {
       await restoreAllSeededPosts();
-      toast.success("Seeded bot posts restored to published status");
+      toast.success("Seeded posts are visible again");
       setShowRestoreConfirm(false);
       router.refresh();
     } catch {
-      toast.error("Failed to restore seeded posts");
+      toast.error("Couldn't restore seeded posts. Try again.");
     } finally {
       setActionLoading(null);
     }
@@ -179,15 +187,11 @@ export function PostsTable({
     try {
       setShowSeededPosts(nextVal);
       await toggleGlobalShowSeededPosts(nextVal);
-      toast.success(
-        nextVal
-          ? "All seeded posts are now ACTIVE and listed across website!"
-          : "All seeded posts are now UNLISTED and hidden from feeds!"
-      );
+      toast.success(nextVal ? "Seeded posts are showing in feeds" : "Seeded posts are hidden from feeds");
       router.refresh();
     } catch {
       setShowSeededPosts(!nextVal);
-      toast.error("Failed to update seeded visibility toggle");
+      toast.error("Couldn't change this setting. Try again.");
     } finally {
       setIsTogglingSeededVisibility(false);
     }
@@ -203,7 +207,7 @@ export function PostsTable({
         setRevealed((prev) => ({ ...prev, [postId]: identity }));
         setRevealPostId(null);
       },
-      "Anonymous author revealed (audit logged)"
+      "Author revealed. This is in the audit log."
     );
   }
 
@@ -216,160 +220,95 @@ export function PostsTable({
         await deletePost(postId);
         setDeletePostId(null);
       },
-      "Post deleted successfully"
+      "Post deleted"
     );
   }
 
   return (
     <div className="space-y-4">
-      {/* ─── Bulk Moderation Banner ─── */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-2xl border border-border/80 bg-surface">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-success-subtle text-success border border-success/20">
-              <UserCheck className="size-3.5" />
-              <span>{realCount} Authentic Student Posts</span>
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-muted text-muted-foreground border border-border">
-              <Bot className="size-3.5" />
-              <span>{seededCount} Seeded Bot Posts</span>
-            </span>
+      <section
+        aria-label="Seeded posts"
+        className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4 sm:flex-row sm:items-center sm:justify-between"
+      >
+        <div className="space-y-1.5">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="verified">
+              <UserCheck className="size-3.5" aria-hidden />
+              {realCount.toLocaleString("en-IN")} student posts
+            </Badge>
+            <Badge variant="neutral">
+              <Bot className="size-3.5" aria-hidden />
+              {seededCount.toLocaleString("en-IN")} seeded posts
+            </Badge>
           </div>
-          <p className="text-xs text-muted-foreground">
-            Seeded posts are unlisted from public feeds so students only see real peer conversations.
-          </p>
+          <p className="text-sm text-fg-muted">Turn seeded posts off so students only see real posts.</p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 shrink-0">
-          {/* Master Toggle Switch */}
-          <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-primary/20 bg-primary/5">
-            <div className="flex flex-col">
-              <span className="text-[11px] font-bold text-foreground flex items-center gap-1.5">
-                <span
-                  className={`inline-block size-2 rounded-full ${
-                    showSeededPosts ? "bg-success animate-pulse" : "bg-muted-foreground"
-                  }`}
-                />
-                Show Seeded Posts on Website
-              </span>
-              <span className="text-[10px] text-muted-foreground">
-                {showSeededPosts ? "Currently visible on feeds & discover" : "Currently hidden & unlisted"}
-              </span>
-            </div>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={showSeededPosts}
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
+          <label className="flex min-h-11 items-center gap-2.5 rounded-full bg-surface-muted px-3 text-sm font-medium text-fg">
+            <Switch
+              checked={showSeededPosts}
               disabled={isTogglingSeededVisibility}
-              onClick={() => handleToggleGlobalVisibility(!showSeededPosts)}
-              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
-                showSeededPosts ? "bg-primary" : "bg-muted"
-              } ${isTogglingSeededVisibility ? "opacity-50 cursor-not-allowed" : ""}`}
-            >
-              <span
-                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
-                  showSeededPosts ? "translate-x-5" : "translate-x-0"
-                }`}
-              />
-            </button>
-          </div>
-
-          <button
-            type="button"
+              onCheckedChange={(checked) => handleToggleGlobalVisibility(checked)}
+            />
+            {showSeededPosts ? "Seeded posts on" : "Seeded posts off"}
+          </label>
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => setShowUnlistConfirm(true)}
             disabled={actionLoading === "bulk_unlist"}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-warning-subtle text-warning hover:bg-warning-subtle border border-warning/30 text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
           >
-            <EyeOff className="size-3.5" />
-            <span>Unlist All</span>
-          </button>
-
-          <button
-            type="button"
+            <EyeOff aria-hidden />
+            Hide all seeded
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => setShowRestoreConfirm(true)}
             disabled={actionLoading === "bulk_restore"}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground border border-border text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
           >
-            <RotateCcw className="size-3.5" />
-            <span>Publish All</span>
-          </button>
+            <RotateCcw aria-hidden />
+            Show all seeded
+          </Button>
         </div>
-      </div>
+      </section>
 
-      {/* ─── Filters & Search Bar ─── */}
       <div className="flex flex-col gap-3">
-        {/* Origin Tabs (Real vs Seeded) */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-          <span className="text-xs font-bold text-muted-foreground mr-1 shrink-0">Origin:</span>
-          {originTabs.map((tab) => (
-            <button
-              key={tab.value}
-              type="button"
-              onClick={() =>
-                pushParams((p) => {
-                  p.set("origin", tab.value);
-                  p.delete("page");
-                })
-              }
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors shrink-0 cursor-pointer ${
-                activeOrigin === tab.value
-                  ? "bg-primary text-primary-foreground shadow-xs"
-                  : "bg-muted/60 text-muted-foreground hover:text-foreground border border-border/60"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Status Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-          <span className="text-xs font-bold text-muted-foreground mr-1 shrink-0">Status:</span>
-          {statusTabs.map((tab) => (
-            <button
-              key={tab.value}
-              type="button"
-              onClick={() =>
-                pushParams((p) => {
-                  p.set("status", tab.value);
-                  p.delete("page");
-                })
-              }
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors shrink-0 cursor-pointer ${
-                activeStatus === tab.value
-                  ? "bg-foreground text-background shadow-xs"
-                  : "bg-muted/60 text-muted-foreground hover:text-foreground border border-border/60"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Anonymity Filter + Search */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-xs font-bold text-muted-foreground mr-1 shrink-0">Type:</span>
-            {anonTabs.map((tab) => (
-              <button
-                key={tab.value}
-                type="button"
-                onClick={() =>
-                  pushParams((p) => {
-                    p.set("anon", tab.value);
-                    p.delete("page");
-                  })
-                }
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors shrink-0 cursor-pointer ${
-                  activeAnon === tab.value
-                    ? "bg-foreground/90 text-background"
-                    : "bg-muted/40 text-muted-foreground hover:text-foreground border border-border/40"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+        <AdminFilterRow
+          label="Origin"
+          options={originTabs}
+          value={activeOrigin}
+          onChange={(v) =>
+            pushParams((p) => {
+              p.set("origin", v);
+              p.delete("page");
+            })
+          }
+        />
+        <AdminFilterRow
+          label="Status"
+          options={statusTabs}
+          value={activeStatus}
+          onChange={(v) =>
+            pushParams((p) => {
+              p.set("status", v);
+              p.delete("page");
+            })
+          }
+        />
+        <div className="flex flex-col items-stretch justify-between gap-2.5 sm:flex-row sm:items-center">
+          <AdminFilterRow
+            label="Type"
+            options={anonTabs}
+            value={activeAnon}
+            onChange={(v) =>
+              pushParams((p) => {
+                p.set("anon", v);
+                p.delete("page");
+              })
+            }
+          />
 
           <form
             onSubmit={(e) => {
@@ -382,54 +321,65 @@ export function PostsTable({
             }}
             className="relative flex-1 sm:max-w-xs"
           >
-            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+            <SearchIcon
+              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-fg-subtle"
+              aria-hidden
+            />
             <input
-              type="text"
+              type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search post text..."
-              className="w-full h-9 rounded-xl bg-muted/40 border border-border/60 pl-9 pr-3 text-xs outline-none focus:border-primary transition-colors text-foreground"
+              placeholder="Search posts"
+              aria-label="Search posts"
+              className={cn(fieldClassName, "h-11 w-full pl-9 pr-3")}
             />
           </form>
         </div>
       </div>
 
       {/* ─── Posts Table ─── */}
-      <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-xs">
+      <div className="overflow-hidden rounded-lg border border-border bg-surface">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[700px] text-left text-sm">
-            <thead className="bg-muted/50 border-b border-border text-xs text-muted-foreground">
+            <thead className="bg-surface-muted border-b border-border text-xs text-fg-muted">
               <tr>
-                <th className="px-5 py-3 font-bold">Post Content</th>
-                <th className="px-4 py-3 font-bold">Author &amp; Origin</th>
-                <th className="px-4 py-3 font-bold">Status</th>
-                <th className="px-5 py-3 font-bold text-right">Moderation Actions</th>
+                <th scope="col" className="px-5 py-3 font-semibold">
+                  Post
+                </th>
+                <th scope="col" className="px-4 py-3 font-semibold">
+                  Author
+                </th>
+                <th scope="col" className="px-4 py-3 font-semibold">
+                  Status
+                </th>
+                <th scope="col" className="px-5 py-3 text-right font-semibold">
+                  Actions
+                </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border/40 text-xs">
+            <tbody className="divide-y divide-border text-xs">
               {initialPosts.map((post) => {
                 const isReal = !post.isSeeded;
                 return (
                   <tr
                     key={post.id}
-                    className={`hover:bg-muted/20 transition-colors ${
-                      post.status === "HIDDEN" ? "opacity-75 bg-muted/5" : ""
-                    }`}
+                    className={cn(
+                      "transition-ui hover:bg-surface-muted",
+                      post.status === "HIDDEN" && "bg-surface-muted"
+                    )}
                   >
                     {/* Post Content */}
                     <td className="px-5 py-3.5 max-w-sm">
                       <div className="space-y-1">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-muted text-muted-foreground border border-border/60">
-                            {post.type}
-                          </span>
+                          <Badge variant="neutral">{post.type.toLowerCase()}</Badge>
                           {post.isAnonymous && (
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-brand-subtle text-brand-text border border-brand/20 inline-flex items-center gap-1">
-                              <VenetianMask className="size-3 text-brand-text" />
-                              <span>{post.pseudonym || "Anon"}</span>
-                            </span>
+                            <Badge variant="neutral">
+                              <VenetianMask className="size-3" aria-hidden />
+                              {post.pseudonym || "Anonymous"}
+                            </Badge>
                           )}
-                          <span className="text-[10px] text-muted-foreground/70">
+                          <span className="text-xs text-fg-subtle">
                             {new Date(post.createdAt).toLocaleDateString("en-IN", {
                               day: "numeric",
                               month: "short",
@@ -439,13 +389,13 @@ export function PostsTable({
                           </span>
                         </div>
 
-                        <p className="text-xs text-foreground font-medium line-clamp-3 leading-relaxed break-words">
+                        <p className="line-clamp-3 break-words text-sm leading-relaxed text-fg">
                           {post.body}
                         </p>
 
                         {post.institution && (
-                          <p className="text-[10px] text-muted-foreground/80 truncate flex items-center gap-1">
-                            <School className="size-3 shrink-0 text-muted-foreground" />
+                          <p className="text-xs text-fg-muted truncate flex items-center gap-1">
+                            <School className="size-3 shrink-0 text-fg-muted" />
                             <span>{post.institution.name}</span>
                           </p>
                         )}
@@ -456,38 +406,39 @@ export function PostsTable({
                     <td className="px-4 py-3.5 whitespace-nowrap">
                       <div className="space-y-1">
                         {isReal ? (
-                          <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-success-subtle text-success border border-success/30">
-                            <UserCheck className="size-3" />
-                            <span>Real Student</span>
-                          </div>
+                          <Badge variant="verified">
+                            <UserCheck className="size-3" aria-hidden />
+                            Student
+                          </Badge>
                         ) : (
-                          <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-muted text-muted-foreground border border-border">
-                            <Bot className="size-3" />
-                            <span>Seeded Bot</span>
-                          </div>
+                          <Badge variant="neutral">
+                            <Bot className="size-3" aria-hidden />
+                            Seeded
+                          </Badge>
                         )}
 
                         {post.author ? (
-                          <div className="text-[11px]">
-                            <p className="font-bold text-foreground truncate max-w-[150px]">
+                          <div className="text-xs">
+                            <p className="max-w-[150px] truncate font-semibold text-fg">
                               {post.author.displayName}
                             </p>
-                            <p className="text-[10px] text-muted-foreground truncate max-w-[150px]">
+                            <p className="text-xs text-fg-muted truncate max-w-[150px]">
                               @{post.author.username}
                             </p>
                             {post.author.email && (
-                              <p className="text-[9px] text-success font-mono truncate max-w-[150px]">
+                              <p className="max-w-[150px] truncate text-xs text-fg-muted">
                                 {post.author.email}
                               </p>
                             )}
                           </div>
                         ) : (
-                          <p className="text-[10px] text-muted-foreground italic">Anonymous author</p>
+                          <p className="text-xs text-fg-muted italic">Anonymous author</p>
                         )}
 
                         {revealed[post.id] && (
-                          <div className="text-[10px] p-1.5 rounded-lg bg-brand-subtle text-brand-text border border-brand/20 font-mono">
-                            ID: @{revealed[post.id].username} ({revealed[post.id].displayName || "N/A"})
+                          <div className="rounded-sm bg-surface-muted p-1.5 text-xs text-fg">
+                            Real author: @{revealed[post.id].username}
+                            {revealed[post.id].displayName ? ` (${revealed[post.id].displayName})` : ""}
                           </div>
                         )}
                       </div>
@@ -495,85 +446,57 @@ export function PostsTable({
 
                     {/* Status Badge */}
                     <td className="px-4 py-3.5 whitespace-nowrap">
-                      <span
-                        className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
-                          statusBadgeTone[post.status] ?? "bg-muted text-muted-foreground border-border"
-                        }`}
-                      >
-                        {post.status === "HIDDEN" ? (
-                          <span className="inline-flex items-center gap-1">
-                            <EyeOff className="size-3" /> HIDDEN / UNLISTED
-                          </span>
-                        ) : (
-                          post.status
-                        )}
-                      </span>
+                      <Badge variant={statusBadge[post.status]?.variant ?? "neutral"}>
+                        {post.status === "HIDDEN" && <EyeOff className="size-3" aria-hidden />}
+                        {statusBadge[post.status]?.label ?? post.status.toLowerCase()}
+                      </Badge>
                     </td>
 
                     {/* Actions */}
                     <td className="px-5 py-3.5 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-1.5">
-                        {/* Instant Hide / Unhide Toggle */}
-                        {post.status === "PUBLISHED" ? (
-                          <button
-                            type="button"
-                            disabled={actionLoading === post.id}
-                            onClick={() => handleToggleHide(post.id)}
-                            className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-warning-subtle hover:bg-warning-subtle text-warning border border-warning/30 text-[11px] font-bold transition-colors cursor-pointer disabled:opacity-50"
-                            title="Hide / Unlist from website feeds"
-                          >
-                            <EyeOff className="size-3" />
-                            <span>Hide</span>
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            disabled={actionLoading === post.id}
-                            onClick={() => handleToggleHide(post.id)}
-                            className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-success-subtle hover:bg-success-subtle text-success border border-success/30 text-[11px] font-bold transition-colors cursor-pointer disabled:opacity-50"
-                            title="Unhide / Publish to website feeds"
-                          >
-                            <Eye className="size-3" />
-                            <span>Unhide</span>
-                          </button>
-                        )}
-
-                        {/* Toggle Seeded Flag if needed */}
-                        <button
-                          type="button"
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={actionLoading === post.id}
+                          onClick={() => handleToggleHide(post.id)}
+                        >
+                          {post.status === "PUBLISHED" ? <EyeOff aria-hidden /> : <Eye aria-hidden />}
+                          {post.status === "PUBLISHED" ? "Hide" : "Unhide"}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
                           disabled={actionLoading === post.id}
                           onClick={() => handleToggleSeeded(post.id, post.isSeeded)}
-                          className="p-1.5 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                          title={
-                            post.isSeeded ? "Switch to Real Student Content" : "Switch to Seeded Content"
-                          }
+                          aria-label={post.isSeeded ? "Mark as student post" : "Mark as seeded post"}
+                          title={post.isSeeded ? "Mark as student post" : "Mark as seeded post"}
                         >
-                          {post.isSeeded ? <UserCheck className="size-3.5" /> : <Bot className="size-3.5" />}
-                        </button>
-
-                        {/* Reveal Anonymous identity (audit logged) */}
+                          {post.isSeeded ? <UserCheck aria-hidden /> : <Bot aria-hidden />}
+                        </Button>
                         {post.isAnonymous && !revealed[post.id] && (
-                          <button
-                            type="button"
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
                             disabled={actionLoading === post.id}
                             onClick={() => setRevealPostId(post.id)}
-                            title="Reveal anonymous author (audit logged)"
-                            className="p-1.5 rounded-xl hover:bg-muted text-brand-text transition-colors cursor-pointer"
+                            aria-label="Reveal author (logged)"
+                            title="Reveal author (logged)"
                           >
-                            <Eye className="size-3.5" />
-                          </button>
+                            <Eye aria-hidden />
+                          </Button>
                         )}
-
-                        {/* Delete post */}
-                        <button
-                          type="button"
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
                           disabled={actionLoading === post.id}
                           onClick={() => setDeletePostId(post.id)}
-                          title="Delete post permanently"
-                          className="p-1.5 rounded-xl hover:bg-destructive/10 text-destructive transition-colors cursor-pointer"
+                          aria-label="Delete post"
+                          title="Delete post"
+                          className="text-danger hover:bg-danger-subtle"
                         >
-                          <Trash2 className="size-3.5" />
-                        </button>
+                          <Trash2 aria-hidden />
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -582,8 +505,8 @@ export function PostsTable({
 
               {initialPosts.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-muted-foreground">
-                    No posts found matching the selected filters.
+                  <td colSpan={4} className="px-6 py-12 text-center text-fg-muted">
+                    No posts match. Try another search or filter.
                   </td>
                 </tr>
               )}
@@ -591,67 +514,69 @@ export function PostsTable({
           </table>
         </div>
 
-        {/* Pagination Footer */}
-        <div className="flex items-center justify-between px-5 py-3 border-t border-border bg-muted/30">
-          <span className="text-xs text-muted-foreground font-medium">
-            {totalCount.toLocaleString()} posts total · Page {page} of {totalPages}
+        <nav
+          aria-label="Pages"
+          className="flex items-center justify-between border-t border-border bg-surface-muted px-5 py-2"
+        >
+          <span className="text-xs text-fg-muted">
+            {totalCount.toLocaleString("en-IN")} posts · Page {page} of {totalPages}
           </span>
-
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
               disabled={page <= 1}
               onClick={() => pushParams((p) => p.set("page", String(page - 1)))}
-              className="p-1.5 rounded-lg border border-border hover:bg-muted disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
+              aria-label="Previous page"
             >
-              <ChevronLeft className="size-4" />
-            </button>
-            <span className="px-2 text-xs font-bold text-foreground">{page}</span>
-            <button
-              type="button"
+              <ChevronLeft aria-hidden />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
               disabled={page >= totalPages}
               onClick={() => pushParams((p) => p.set("page", String(page + 1)))}
-              className="p-1.5 rounded-lg border border-border hover:bg-muted disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
+              aria-label="Next page"
             >
-              <ChevronRight className="size-4" />
-            </button>
+              <ChevronRight aria-hidden />
+            </Button>
           </div>
-        </div>
+        </nav>
       </div>
 
       {/* ─── Confirm Dialogs ─── */}
       <ConfirmDialog
         isOpen={showUnlistConfirm}
         onClose={() => setShowUnlistConfirm(false)}
-        title="Unlist All Seeded Bot Posts?"
-        description="This will set all 1,350+ seeded bot posts to HIDDEN across the platform without deleting them. Only authentic student posts will remain visible on all feeds."
-        confirmText="Unlist All Seeded"
+        title="Hide all seeded posts?"
+        description="Seeded posts stay saved but are hidden from every feed. Only real student posts stay visible."
+        confirmText="Hide seeded posts"
         onConfirm={handleUnlistAllSeeded}
       />
 
       <ConfirmDialog
         isOpen={showRestoreConfirm}
         onClose={() => setShowRestoreConfirm(false)}
-        title="Restore Seeded Posts?"
-        description="This will set all seeded posts back to PUBLISHED status."
-        confirmText="Restore Seeded"
+        title="Show seeded posts again?"
+        description="Seeded posts will show in feeds again."
+        confirmText="Show seeded posts"
         onConfirm={handleRestoreAllSeeded}
       />
 
       <ConfirmDialog
         isOpen={Boolean(revealPostId)}
         onClose={() => setRevealPostId(null)}
-        title="Reveal Anonymous Author?"
-        description="Dean-level moderation action. This reveals the true author identity and logs an immutable audit event."
-        confirmText="Reveal Identity"
+        title="Reveal the author?"
+        description="Only do this for safety or legal reasons. Your name is saved in the audit log."
+        confirmText="Reveal author"
         onConfirm={confirmReveal}
       />
 
       <ConfirmDialog
         isOpen={Boolean(deletePostId)}
         onClose={() => setDeletePostId(null)}
-        title="Delete Post?"
-        description="This will mark the post as DELETED."
+        title="Delete this post?"
+        description="Students won't see it anymore."
         confirmText="Delete"
         onConfirm={confirmDelete}
       />

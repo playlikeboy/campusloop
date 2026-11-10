@@ -1,43 +1,25 @@
 "use client";
 
-import {
-  Bike,
-  ChevronRight,
-  Droplet,
-  Scissors,
-  ShieldCheck,
-  Shirt,
-  ShoppingBag,
-  SlidersHorizontal,
-  Sparkles,
-  X,
-  Star,
-  Store,
-  Tag,
-  UtensilsCrossed,
-} from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Bike, Droplet, Scissors, Search, Shirt, ShoppingBag, Store, UtensilsCrossed } from "lucide-react";
 import { useMemo, useState } from "react";
 import useSWR from "swr";
+import { BikeRow } from "@/components/marketplace/bike-row";
+import { MarketplaceCartBar } from "@/components/marketplace/cart-bar";
 import { CommunityHubStrip } from "@/components/marketplace/community-hub-strip";
-import { MarketplaceComingSoonOverlay } from "@/components/marketplace/marketplace-coming-soon-overlay";
-import {
-  FilterPills,
-  ListRow,
-  PageHeader,
-  PageList,
-  PageShell,
-  RowSkeleton,
-  SearchField,
-} from "@/components/ui/app-shell";
-import { InstagramIcon } from "@/components/ui/social-icons";
+import { type Deal, DealsRow } from "@/components/marketplace/deals-row";
+import { MarketplaceLaunchNotice } from "@/components/marketplace/launch-notice";
+import { StoreRow, type StoreRowData } from "@/components/marketplace/store-row";
+import { Badge } from "@/components/ui/badge";
+import { Chip } from "@/components/ui/chip";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useMarketplaceCart } from "@/hooks/use-marketplace-cart";
 import { useProfile } from "@/hooks/use-profile";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
+import { isBitMesraCampus } from "@/lib/marketplace/locations";
 import { sounds } from "@/lib/sounds";
-import { cn } from "@/lib/utils";
 
 interface MarketplaceClientProps {
   profileId?: string;
@@ -45,568 +27,175 @@ interface MarketplaceClientProps {
 }
 
 const CATEGORIES = [
-  { id: "all", label: "All Services", icon: Store },
-  { id: "food", label: "Food & Canteens", icon: UtensilsCrossed },
-  { id: "rentals", label: "Bike Rentals", icon: Bike },
-  { id: "barber", label: "Barber & Salon", icon: Scissors },
-  { id: "laundry", label: "Laundry & Wash", icon: Shirt },
-  { id: "water", label: "Water Delivery", icon: Droplet },
-  { id: "essentials", label: "Supermarket & Mart", icon: ShoppingBag },
+  { id: "all", label: "All", icon: Store },
+  { id: "food", label: "Food", icon: UtensilsCrossed },
+  { id: "essentials", label: "Mart", icon: ShoppingBag },
+  { id: "rentals", label: "Bike rentals", icon: Bike },
+  { id: "barber", label: "Barber", icon: Scissors },
+  { id: "laundry", label: "Laundry", icon: Shirt },
+  { id: "water", label: "Water", icon: Droplet },
 ] as const;
 
-const CATEGORY_PILLS = CATEGORIES.map((c) => ({ id: c.id, label: c.label, icon: c.icon }));
+type StoreWithOffers = Omit<StoreRowData, "offers"> & {
+  offers?: Array<{ id: string; title: string; code?: string | null }>;
+};
 
-export function MarketplaceClient({ profileId, collegeName = "Campus Hub" }: MarketplaceClientProps) {
-  const router = useRouter();
+export function MarketplaceClient({ collegeName }: MarketplaceClientProps) {
   const { profile } = useProfile();
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-
-  const isBitMesraStudent = useMemo(() => {
-    const slug = profile?.institution?.slug?.toLowerCase();
-    const name = (profile?.institution?.name || collegeName || "").toLowerCase();
-    return (
-      slug === "bit-mesra" ||
-      slug === "bitmesra" ||
-      name.includes("mesra") ||
-      name.includes("birla institute of technology, mesra")
-    );
-  }, [profile, collegeName]);
-
+  const [category, setCategory] = useState<string>("all");
+  const [query, setQuery] = useState("");
   const { totalItemsCount, overallSubtotal } = useMarketplaceCart();
 
-  const { data, isLoading } = useSWR<{ stores: any[] }>(
-    `/api/marketplace/stores?category=${selectedCategory}&q=${encodeURIComponent(searchQuery)}`,
+  const college = profile?.institution?.name || collegeName;
+  const isLive = useMemo(
+    () =>
+      ["bit-mesra", "bitmesra"].includes(profile?.institution?.slug?.toLowerCase() ?? "") ||
+      (!!college && isBitMesraCampus(college)),
+    [profile, college]
+  );
+
+  const { data, isLoading, error } = useSWR<{ stores: StoreWithOffers[] }>(
+    `/api/marketplace/stores?category=${category}&q=${encodeURIComponent(query)}`,
     fetcher,
     { dedupingInterval: 10000 }
   );
-
-  const stores = data?.stores || [];
-
-  // Filter deals
-  const deals = useMemo(() => {
-    return stores.flatMap((s) =>
-      (s.offers || []).map((o: any) => ({
-        ...o,
-        storeName: s.name,
-        storeId: s.id,
-        storeLogo: s.logoUrl,
-      }))
-    );
-  }, [stores]);
-
-  function handleCategorySelect(catId: string) {
-    sounds.tap();
-    haptics.light();
-    setSelectedCategory(catId);
-  }
+  const stores = useMemo(() => data?.stores || [], [data]);
 
   const { data: bikesData } = useSWR<{ bikes: any[] }>(
-    selectedCategory === "rentals" ? "/api/marketplace/rentals/bikes" : null,
+    category === "rentals" ? "/api/marketplace/rentals/bikes" : null,
     fetcher,
     { dedupingInterval: 10000 }
   );
+  const bikes = bikesData?.bikes || [];
 
-  const rentalBikes = bikesData?.bikes || [];
+  const deals = useMemo<Deal[]>(
+    () =>
+      stores.flatMap((s) =>
+        (s.offers || []).map((o) => ({
+          id: o.id,
+          title: o.title,
+          code: o.code,
+          storeId: s.id,
+          storeName: s.name,
+          storeLogo: s.logoUrl,
+        }))
+      ),
+    [stores]
+  );
 
-  const categoryLabel = CATEGORIES.find((c) => c.id === selectedCategory)?.label ?? "Stores";
+  function pick(id: string) {
+    sounds.tap();
+    haptics.light();
+    setCategory(id);
+  }
+
+  const categoryLabel = CATEGORIES.find((c) => c.id === category)?.label;
 
   return (
-    <>
-      <MarketplaceComingSoonOverlay collegeName={collegeName} />
-      <PageShell maxWidth="6xl">
-      <PageHeader
-        title="Marketplace"
-        subtitle={collegeName}
-        action={
-          <Link
-            href="/marketplace/orders"
-            onClick={() => {
-              sounds.tap();
-              haptics.light();
-            }}
-            className="flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-border/60 px-4 text-xs font-bold text-foreground transition-colors hover:bg-muted/50 active:scale-95"
-          >
-            <ShoppingBag className="size-3.5" />
-            <span>Orders</span>
-          </Link>
-        }
-      />
-
-      <div className="flex items-center gap-2">
-        <div className="min-w-0 flex-1">
-          <SearchField value={searchQuery} onChange={setSearchQuery} placeholder="Search services" bordered={false} className="!px-0 !py-0" />
+    <div className="mx-auto max-w-3xl space-y-6 pb-24">
+      <header className="space-y-1">
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl text-fg sm:text-3xl">Marketplace</h1>
+          <Badge variant="neutral">Beta</Badge>
         </div>
-        <button
-          type="button"
-          onClick={() => { sounds.tap(); haptics.light(); setIsFiltersOpen(true); }}
-          className={cn("relative inline-flex sm:hidden size-10 shrink-0 items-center justify-center rounded-xl transition-colors", selectedCategory !== "all" ? "bg-primary/10 text-primary" : "bg-muted/50 text-muted-foreground")}
-          aria-label={"Filter marketplace categories" + (selectedCategory !== "all" ? ", 1 active" : "")}
-          aria-haspopup="dialog"
-          aria-expanded={isFiltersOpen}
-        >
-          <SlidersHorizontal className="size-5" aria-hidden="true" />
-          {selectedCategory !== "all" && <span className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">1</span>}
-        </button>
+        <p className="text-sm text-fg-muted">
+          Food, essentials and services from shops near {college || "your college"}.
+        </p>
+      </header>
+
+      {!isLive && <MarketplaceLaunchNotice collegeName={college} />}
+
+      <div className="space-y-3">
+        <label className="relative block">
+          <span className="sr-only">Search stores</span>
+          <Search
+            className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-fg-subtle"
+            aria-hidden="true"
+          />
+          <Input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search stores"
+            className="pl-11"
+          />
+        </label>
+        <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4">
+          {CATEGORIES.map((c) => {
+            const Icon = c.icon;
+            return (
+              <Chip key={c.id} selected={category === c.id} onClick={() => pick(c.id)} icon={<Icon />}>
+                {c.label}
+              </Chip>
+            );
+          })}
+        </div>
       </div>
 
-      {/* ─── Dynamic Banner (BIT Mesra vs Other Campuses) ─── */}
-      {isBitMesraStudent ? (
-        <div className="mx-4 my-2.5 rounded-3xl border border-brand-subtle-border bg-brand-subtle p-4 sm:p-5 relative overflow-hidden shadow-xs">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5 relative z-10">
-            <div className="space-y-1">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-warning-subtle text-warning text-xs font-bold">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-warning opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-warning" />
-                </span>
-                <span>LIVE STARTING TODAY · NIGHT CANTEEN</span>
-              </div>
-              <h3 className="text-sm sm:text-base font-black text-foreground flex items-center gap-1.5">
-                <span>Arman&apos;s Night Canteen is Officially LIVE!</span>
-              </h3>
-              <p className="text-xs text-muted-foreground max-w-lg font-medium">
-                Late night Maggi, hot chicken rolls, burgers, thick shakes &amp; combos delivered straight to
-                your hostel room till 4 AM. Use code{" "}
-                <span className="font-bold text-foreground">NIGHTOWL20</span> for 20% OFF!
-              </p>
-            </div>
-            <Link
-              href="/marketplace/store/merch_armans_night_canteen"
-              onClick={() => {
-                sounds.tap();
-                haptics.success();
-              }}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-foreground text-background text-xs font-black shadow-md hover:opacity-90 transition-[opacity,transform] active:scale-95 shrink-0 cursor-pointer"
-            >
-              <span>Order from Arman&apos;s</span>
-              <ChevronRight className="size-3.5" />
-            </Link>
-          </div>
-        </div>
-      ) : (
-        <div className="mx-4 my-2.5 rounded-3xl border border-brand-subtle-border bg-brand-subtle p-4 sm:p-5 relative overflow-hidden shadow-xs">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5 relative z-10">
-            <div className="space-y-1">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/20 text-primary text-xs font-bold">
-                <span className="inline-flex items-center gap-1">
-                  <Sparkles className="size-3" /> 1,000+ STUDENT SIGNUPS REQUIRED TO UNLOCK
-                </span>
-              </div>
-              <h3 className="text-sm sm:text-base font-black text-foreground">
-                Want Night Canteens &amp; Store Delivery at {collegeName}?
-              </h3>
-              <p className="text-xs text-muted-foreground max-w-lg font-medium leading-relaxed">
-                CampusLoop Marketplace is currently live at BIT Mesra. To launch night canteens, laundry, and
-                bike rentals at your campus, your college must have{" "}
-                <span className="font-bold text-foreground">1,000+ verified student signups</span>. Share
-                CampusLoop with your batchmates and DM us to unlock!
-              </p>
-            </div>
-            <a
-              href="https://www.instagram.com/campusloop.space/"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => {
-                sounds.tap();
-                haptics.success();
-              }}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-danger hover:bg-danger text-white text-xs font-bold shadow-xs hover:opacity-95 transition-[opacity,transform] active:scale-95 shrink-0 cursor-pointer"
-            >
-              <InstagramIcon className="size-4 fill-white" />
-              <span>Invite via Instagram DM</span>
-            </a>
-          </div>
-        </div>
-      )}
+      {deals.length > 0 && category === "all" && !query && <DealsRow deals={deals} />}
 
-      {/* ─── 6 Campus Marketplace Vertical Hub Cards ─── */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 px-4 py-2">
-        <Link
-          href="/marketplace/food"
-          onClick={() => {
-            sounds.tap();
-            haptics.light();
-          }}
-          className="group relative rounded-2xl overflow-hidden bg-brand hover:bg-brand-hover p-3.5 text-brand-fg shadow-sm transition-colors flex flex-col justify-between h-28"
-        >
-          <div>
-            <span className="text-xs font-bold bg-white/20 px-2 py-0.5 rounded-full">
-              Zomato Style
-            </span>
-            <h3 className="text-sm sm:text-base font-black mt-1">Food &amp; Canteens</h3>
-          </div>
-          <p className="text-[10px] sm:text-[11px] text-white/90 flex items-center justify-between font-bold">
-            <span>Momos &amp; thalis</span>
-            <ChevronRight className="size-3.5 group-hover:translate-x-0.5 transition-transform" />
-          </p>
-        </Link>
-
-        <Link
-          href="/marketplace/supermarket"
-          onClick={() => {
-            sounds.tap();
-            haptics.light();
-          }}
-          className="group relative rounded-2xl overflow-hidden bg-brand hover:bg-brand-hover p-3.5 text-brand-fg shadow-sm transition-colors flex flex-col justify-between h-28"
-        >
-          <div>
-            <span className="text-xs font-bold bg-white/20 px-2 py-0.5 rounded-full">
-              Flipkart Style
-            </span>
-            <h3 className="text-sm sm:text-base font-black mt-1">Supermarket Mart</h3>
-          </div>
-          <p className="text-[10px] sm:text-[11px] text-white/90 flex items-center justify-between font-bold">
-            <span>Snacks &amp; stationery</span>
-            <ChevronRight className="size-3.5 group-hover:translate-x-0.5 transition-transform" />
-          </p>
-        </Link>
-
-        <Link
-          href="/marketplace/rentals"
-          onClick={() => {
-            sounds.tap();
-            haptics.light();
-          }}
-          className="group relative rounded-2xl overflow-hidden bg-brand hover:bg-brand-hover p-3.5 text-brand-fg shadow-sm transition-colors flex flex-col justify-between h-28"
-        >
-          <div>
-            <span className="text-xs font-bold bg-white/20 px-2 py-0.5 rounded-full">
-              Multi-Depot
-            </span>
-            <h3 className="text-sm sm:text-base font-black mt-1">Bike &amp; EV Rentals</h3>
-          </div>
-          <p className="text-[10px] sm:text-[11px] text-white/90 flex items-center justify-between font-bold">
-            <span>Cycles &amp; scooters</span>
-            <ChevronRight className="size-3.5 group-hover:translate-x-0.5 transition-transform" />
-          </p>
-        </Link>
-
-        <Link
-          href="/marketplace/barber"
-          onClick={() => {
-            sounds.tap();
-            haptics.light();
-          }}
-          className="group relative rounded-2xl overflow-hidden bg-brand hover:bg-brand-hover p-3.5 text-brand-fg shadow-sm transition-colors flex flex-col justify-between h-28"
-        >
-          <div>
-            <span className="text-xs font-bold bg-white/20 px-2 py-0.5 rounded-full">
-              Live Queue
-            </span>
-            <h3 className="text-sm sm:text-base font-black mt-1">Barber &amp; Salon</h3>
-          </div>
-          <p className="text-[10px] sm:text-[11px] text-white/90 flex items-center justify-between font-bold">
-            <span>Haircut &amp; beard</span>
-            <ChevronRight className="size-3.5 group-hover:translate-x-0.5 transition-transform" />
-          </p>
-        </Link>
-
-        <Link
-          href="/marketplace/laundry"
-          onClick={() => {
-            sounds.tap();
-            haptics.light();
-          }}
-          className="group relative rounded-2xl overflow-hidden bg-brand hover:bg-brand-hover p-3.5 text-brand-fg shadow-sm transition-colors flex flex-col justify-between h-28"
-        >
-          <div>
-            <span className="text-xs font-bold bg-white/20 px-2 py-0.5 rounded-full">
-              Doorstep Drop
-            </span>
-            <h3 className="text-sm sm:text-base font-black mt-1">Laundry &amp; Wash</h3>
-          </div>
-          <p className="text-[10px] sm:text-[11px] text-white/90 flex items-center justify-between font-bold">
-            <span>Wash, iron &amp; fold</span>
-            <ChevronRight className="size-3.5 group-hover:translate-x-0.5 transition-transform" />
-          </p>
-        </Link>
-
-        <Link
-          href="/marketplace/water"
-          onClick={() => {
-            sounds.tap();
-            haptics.light();
-          }}
-          className="group relative rounded-2xl overflow-hidden bg-brand hover:bg-brand-hover p-3.5 text-brand-fg shadow-sm transition-colors flex flex-col justify-between h-28"
-        >
-          <div>
-            <span className="text-xs font-bold bg-white/20 px-2 py-0.5 rounded-full">
-              Room Delivery
-            </span>
-            <h3 className="text-sm sm:text-base font-black mt-1">RO Water Supply</h3>
-          </div>
-          <p className="text-[10px] sm:text-[11px] text-white/90 flex items-center justify-between font-bold">
-            <span>20L Chilled Cans</span>
-            <ChevronRight className="size-3.5 group-hover:translate-x-0.5 transition-transform" />
-          </p>
-        </Link>
-      </div>
-
-      {/* ─── Campus Expansion Banner (Only shown to non-BIT Mesra students) ─── */}
-      {!isBitMesraStudent && (
-        <div className="mx-4 my-2 rounded-2xl border border-brand-subtle-border bg-brand-subtle p-4 relative overflow-hidden">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 relative z-10">
-            <div className="space-y-0.5">
-              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-brand-subtle text-brand-text text-xs font-bold">
-                <span className="inline-flex items-center gap-1">
-                  <Sparkles className="size-3" /> Want this at your campus?
-                </span>
-              </div>
-              <h4 className="text-xs sm:text-sm font-black text-foreground">
-                Bring CampusLoop Marketplace to Your College
-              </h4>
-              <p className="text-[11px] text-muted-foreground max-w-md">
-                Local vendors wanted? Message us to bring Marketplace to your campus.
-              </p>
-            </div>
-            <a
-              href="https://www.instagram.com/campusloop.space/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-brand hover:bg-brand-hover text-brand-fg text-xs font-black shadow-sm hover:opacity-95 transition-transform active:scale-95 shrink-0"
-            >
-              <InstagramIcon className="size-3" />
-              <span>DM @campusloop.space</span>
-            </a>
-          </div>
-        </div>
-      )}
-
-      {/* ─── Community-Maintained Campus Utility Hubs (6 Dedicated Services) ─── */}
-      <CommunityHubStrip />
-
-      <FilterPills pills={CATEGORY_PILLS} value={selectedCategory} onChange={handleCategorySelect} className="hidden sm:block" />
-
-      {isFiltersOpen && (
-        <div className="fixed inset-0 z-[100] sm:hidden">
-          <button type="button" className="absolute inset-0 bg-black/55 backdrop-blur-[2px]" onClick={() => setIsFiltersOpen(false)} aria-label="Close marketplace filters" />
-          <section role="dialog" aria-modal="true" aria-labelledby="marketplace-filter-title" className="absolute inset-x-0 bottom-0 max-h-[80dvh] overflow-y-auto rounded-t-3xl border-t border-border/50 bg-card px-4 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl animate-in slide-in-from-bottom duration-200">
-            <div className="mx-auto mb-3 h-1 w-9 rounded-full bg-muted-foreground/25" />
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <div><h2 id="marketplace-filter-title" className="text-base font-bold text-foreground">Categories</h2><p className="text-xs text-muted-foreground">Choose a service</p></div>
-              <button type="button" onClick={() => setIsFiltersOpen(false)} className="flex size-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted" aria-label="Close categories"><X className="size-4" /></button>
-            </div>
-            <div className="space-y-1.5">
-              {CATEGORIES.map((category) => {
-                const Icon = category.icon;
-                const active = selectedCategory === category.id;
-                return (
-                  <button key={category.id} type="button" aria-pressed={active} onClick={() => { handleCategorySelect(category.id); setIsFiltersOpen(false); }} className={cn("flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold transition-colors", active ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted/60")}>
-                    <span className="flex size-9 items-center justify-center rounded-lg bg-muted/50"><Icon className="size-4" /></span>
-                    <span className="flex-1">{category.label}</span>
-                    {active && <span className="size-2 rounded-full bg-primary" />}
-                  </button>
-                );
-              })}
-            </div>
-            <div className="mt-4 border-t border-border/30 pt-3"><button type="button" onClick={() => setIsFiltersOpen(false)} className="min-h-11 w-full rounded-xl bg-primary px-3 text-sm font-semibold text-primary-foreground">Done</button></div>
-          </section>
-        </div>
-      )}
-
-      {/* ─── Student deals ─── */}
-      {deals.length > 0 && selectedCategory === "all" && !searchQuery && (
-        <section className="border-b border-border/30 px-4 py-3">
-          <h2 className="mb-2 text-[13px] font-bold text-foreground">Student deals</h2>
-          <div className="no-scrollbar flex items-center gap-2 overflow-x-auto">
-            {deals.map((deal: any) => (
-              <Link
-                key={deal.id}
-                href={`/marketplace/store/${deal.storeId}`}
-                onClick={() => {
-                  sounds.tap();
-                  haptics.light();
-                }}
-                className="flex w-64 shrink-0 items-center gap-2.5 rounded-xl border border-border/40 p-2.5 transition-colors hover:bg-muted/25"
-              >
-                <div className="size-10 shrink-0 overflow-hidden rounded-lg bg-muted">
-                  <img src={deal.storeLogo} alt="" className="size-full object-cover" />
-                </div>
-                <div className="min-w-0">
-                  <p className="truncate text-[13px] font-bold text-foreground">{deal.title}</p>
-                  <p className="truncate text-[11px] text-muted-foreground">
-                    {deal.storeName}
-                    {deal.code ? ` · ${deal.code}` : ""}
-                  </p>
-                </div>
-              </Link>
+      {category === "rentals" && bikes.length > 0 && (
+        <section aria-labelledby="bikes-title" className="space-y-1">
+          <h2 id="bikes-title" className="font-sans text-base font-semibold text-fg">
+            Bikes you can rent
+          </h2>
+          <ul className="-mx-3">
+            {bikes.map((b) => (
+              <BikeRow key={b.id} bike={b} />
             ))}
-          </div>
+          </ul>
         </section>
       )}
 
-      {/* ─── Bike fleet ─── */}
-      {selectedCategory === "rentals" && rentalBikes.length > 0 && (
-        <PageList>
-          {rentalBikes.map((b) => (
-            <ListRow key={b.id} href={`/marketplace/rentals/bikes/${b.id}`}>
-              <div className="size-20 shrink-0 overflow-hidden rounded-xl bg-muted">
-                <img src={b.imageUrl} alt="" className="size-full object-cover" />
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5">
-                  <h3 className="truncate text-[15px] font-bold text-foreground group-hover:text-primary">
-                    {b.name}
-                  </h3>
-                  <ShieldCheck className="size-3.5 shrink-0 text-primary" />
-                </div>
-                <p className="truncate text-[13px] text-muted-foreground">
-                  {b.pickupLocation}
-                  {b.merchant?.name ? ` · ${b.merchant.name}` : ""}
-                </p>
-                <p className="mt-0.5 text-[13px] text-muted-foreground">
-                  <span className="font-black text-foreground">₹{b.dailyPrice}</span> / day ·{" "}
-                  <span className="inline-flex items-center gap-1">
-                    <Star className="size-3 fill-warning text-warning" />
-                    {b.rating}
-                  </span>
-                  {b.securityDeposit ? ` · ₹${b.securityDeposit} deposit` : ""}
-                </p>
-              </div>
-            </ListRow>
-          ))}
-        </PageList>
-      )}
-
-      {/* ─── Stores ─── */}
-      <PageList>
+      <section aria-labelledby="stores-title" className="space-y-1">
+        <h2 id="stores-title" className="font-sans text-base font-semibold text-fg">
+          {category === "all" ? "Stores" : `${categoryLabel} stores`}
+          {!isLoading && stores.length > 0 && (
+            <span className="ml-1.5 font-normal text-fg-muted tabular-nums">{stores.length}</span>
+          )}
+        </h2>
         {isLoading ? (
-          <RowSkeleton count={5} media="thumb" />
-        ) : stores.length > 0 ? (
-          <>
-            <p className="px-4 py-2.5 text-[13px] text-muted-foreground">
-              <strong className="font-black text-foreground">{stores.length}</strong>{" "}
-              {stores.length === 1 ? "store" : "stores"}
-              {selectedCategory !== "all" ? ` in ${categoryLabel}` : " near you"}
-            </p>
-
-            {stores.map((store) => (
-              <ListRow key={store.id} href={`/marketplace/store/${store.id}`}>
-                <div className="relative size-20 shrink-0 overflow-hidden rounded-xl bg-muted">
-                  <img src={store.coverUrl || store.logoUrl} alt="" className="size-full object-cover" />
-                  {!store.isOpen && (
-                    <span className="absolute inset-0 flex items-center justify-center bg-black/65 text-[11px] font-bold text-white">
-                      Closed
-                    </span>
-                  )}
+          <div className="space-y-3 pt-2" aria-busy="true" aria-label="Loading stores">
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="flex items-center gap-3">
+                <Skeleton className="size-20 rounded-md" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-3 w-3/4" />
                 </div>
-
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-1.5">
-                    <h3 className="truncate text-[15px] font-bold text-foreground group-hover:text-primary">
-                      {store.name}
-                    </h3>
-                    <ShieldCheck className="size-3.5 shrink-0 text-primary" />
-                  </div>
-
-                  <p className="truncate text-[13px] text-muted-foreground">{store.description}</p>
-
-                  {/* One plain meta line, rather than five coloured pills. */}
-                  <p className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[13px] text-muted-foreground">
-                    <span className="inline-flex items-center gap-1">
-                      <Star className="size-3 fill-warning text-warning" />
-                      {store.rating}
-                    </span>
-                    {store.estimatedPrepTime && (
-                      <>
-                        <span aria-hidden>·</span>
-                        <span>{store.estimatedPrepTime}</span>
-                      </>
-                    )}
-                    {store.locationPin && (
-                      <>
-                        <span aria-hidden>·</span>
-                        <span className="truncate">{store.locationPin}</span>
-                      </>
-                    )}
-                    {store.isDeliveryEnabled && (
-                      <>
-                        <span aria-hidden>·</span>
-                        <span>Delivery ₹{store.deliveryFee}</span>
-                      </>
-                    )}
-                    {store.isPickupEnabled && (
-                      <>
-                        <span aria-hidden>·</span>
-                        <span>Pickup</span>
-                      </>
-                    )}
-                  </p>
-
-                  {store.offers?.length > 0 && (
-                    <p className="mt-1 inline-flex items-center gap-1 text-[13px] font-bold text-success">
-                      <Tag className="size-3 shrink-0" />
-                      <span className="truncate">{store.offers[0].title}</span>
-                    </p>
-                  )}
-                </div>
-              </ListRow>
+              </div>
             ))}
-          </>
-        ) : (
-          <div className="mx-4 my-6 p-6 sm:p-8 rounded-3xl bg-card border border-border/60 text-center space-y-4 shadow-xs">
-            <div className="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto font-black text-lg">
-              <Store className="size-6" />
-            </div>
-            <div className="space-y-1">
-              <h3 className="text-base font-black text-foreground">
-                {isBitMesraStudent
-                  ? searchQuery
-                    ? `No stores matching "${searchQuery}"`
-                    : "No stores currently open"
-                  : `Campus Stores Coming Soon to ${collegeName}`}
-              </h3>
-              <p className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed">
-                {isBitMesraStudent
-                  ? "Check back shortly or browse upcoming listings in other categories."
-                  : `CampusLoop Marketplace launches once a college reaches 1,000+ verified student signups. Get your campus batchmates on CampusLoop and DM us on Instagram to prioritize your college!`}
-              </p>
-            </div>
-            {!isBitMesraStudent && (
-              <a
-                href="https://www.instagram.com/campusloop.space/"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => {
-                  sounds.tap();
-                  haptics.success();
-                }}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-foreground text-background text-xs font-black hover:opacity-90 transition-[opacity,transform] shadow-sm active:scale-95 cursor-pointer"
-              >
-                <InstagramIcon className="size-3.5 fill-current" />
-                <span>Invite Us via Instagram DM (1K+ Students)</span>
-              </a>
-            )}
           </div>
+        ) : error ? (
+          <EmptyState
+            size="compact"
+            icon={Store}
+            title="Couldn't load stores"
+            description="Check your internet and pull down to refresh."
+          />
+        ) : stores.length > 0 ? (
+          <ul className="-mx-3">
+            {stores.map((store) => (
+              <StoreRow key={store.id} store={store} />
+            ))}
+          </ul>
+        ) : (
+          <EmptyState
+            size="compact"
+            icon={Store}
+            title={query ? `No stores match "${query}"` : "No stores here yet"}
+            description={
+              query
+                ? "Try a shorter word or pick another service."
+                : "Check back soon, or try another service."
+            }
+          />
         )}
-      </PageList>
+      </section>
 
-      {/* ─── Cart bar ─── */}
-      {totalItemsCount > 0 && (
-        <div className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] md:bottom-6 left-0 right-0 z-50 mx-auto max-w-lg px-4 duration-200 animate-in slide-in-from-bottom-3">
-          <Link
-            href="/marketplace/cart"
-            onClick={() => {
-              sounds.tap();
-              haptics.light();
-            }}
-            className="flex cursor-pointer items-center justify-between rounded-full bg-foreground px-5 py-3.5 text-[13px] font-black text-background shadow-xl transition-opacity hover:opacity-95 active:scale-[0.99]"
-          >
-            <span>
-              {totalItemsCount} {totalItemsCount === 1 ? "item" : "items"} · ₹
-              {overallSubtotal.toLocaleString("en-IN")}
-            </span>
-            <span className="flex items-center gap-1">
-              View cart
-              <ChevronRight className="size-4" />
-            </span>
-          </Link>
-        </div>
-      )}
-    </PageShell>
-    </>
+      <CommunityHubStrip />
+
+      <MarketplaceCartBar count={totalItemsCount} total={overallSubtotal} />
+    </div>
   );
 }

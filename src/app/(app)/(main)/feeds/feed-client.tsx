@@ -3,22 +3,17 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { CampusBroadcastBanner } from "@/components/feed/campus-broadcast-banner";
-import { FeedHeader } from "@/components/feed/feed-header";
-import { FeedQuickComposer } from "@/components/feed/feed-quick-composer";
-import { FeedCourseSpotlight } from "@/components/feed/feed-course-spotlight";
-import { FeedEventSpotlight } from "@/components/feed/feed-event-spotlight";
-import { FeedMarketplaceSpotlight } from "@/components/feed/feed-marketplace-spotlight";
 import { FeedAcademicsSpotlight } from "@/components/feed/feed-academics-spotlight";
-import { FeedEcosystemSpotlight } from "@/components/feed/feed-ecosystem-spotlight";
+import { FeedEventSpotlight } from "@/components/feed/feed-event-spotlight";
+import { FeedHeader } from "@/components/feed/feed-header";
+import { FeedMarketplaceSpotlight } from "@/components/feed/feed-marketplace-spotlight";
+import { FeedQuickComposer } from "@/components/feed/feed-quick-composer";
 import { FeedRecommendedUsers } from "@/components/feed/feed-recommended-users";
 import { FeedCaughtUpCard, FeedEmptyState, FeedErrorState } from "@/components/feed/feed-state-cards";
 import { LocationOptInCard } from "@/components/geo/location-opt-in-card";
+import { Button } from "@/components/ui/button";
 import { FeedCard } from "@/components/ui/feed-card";
-import {
-  InlineCommunitiesWidget,
-  InlineDatingWidget,
-  InlineHashtagsWidget,
-} from "@/components/ui/inline-feed-widgets";
+import { InlineCommunitiesWidget } from "@/components/ui/inline-feed-widgets";
 import { RightSidebar } from "@/components/ui/right-sidebar";
 import { ScrollToTop } from "@/components/ui/scroll-to-top";
 import { FeedLoadingMoreSkeleton, FeedSkeleton } from "@/components/ui/skeleton-card";
@@ -28,6 +23,14 @@ import { useFeedImpressions } from "@/hooks/use-feed-impressions";
 import { useProfile } from "@/hooks/use-profile";
 import { isCollegeVerifiedUser } from "@/lib/user-verification";
 import { getCollegeShortName } from "@/lib/utils";
+
+function readSavedVisibility(): string | null {
+  try {
+    return typeof window !== "undefined" ? localStorage.getItem("campusloop_feed_visibility") : null;
+  } catch {
+    return null;
+  }
+}
 
 export function FeedClient({ forcedType }: { forcedType?: string }) {
   const router = useRouter();
@@ -95,15 +98,12 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
   }
 
   useEffect(() => {
-    const savedMode =
-      typeof window !== "undefined" ? localStorage.getItem("campusloop_feed_visibility") : null;
+    const savedMode = readSavedVisibility();
     const mode = profile?.feedVisibility ?? savedMode ?? "ALL";
     setVisibility(mode === "NON_ANONYMOUS" ? "public" : "all");
 
     function handleSync(e: CustomEvent<string>) {
-      const activeMode =
-        e.detail ||
-        (typeof window !== "undefined" ? localStorage.getItem("campusloop_feed_visibility") : "ALL");
+      const activeMode = e.detail || readSavedVisibility() || "ALL";
       setVisibility(activeMode === "NON_ANONYMOUS" ? "public" : "all");
     }
 
@@ -121,7 +121,11 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
     setVisibility(newVis);
     const newMode = newVis === "public" ? "NON_ANONYMOUS" : "ALL";
     if (typeof window !== "undefined") {
-      localStorage.setItem("campusloop_feed_visibility", newMode);
+      try {
+        localStorage.setItem("campusloop_feed_visibility", newMode);
+      } catch {
+        // Private mode or blocked storage: the choice still applies for this visit.
+      }
       window.dispatchEvent(new CustomEvent("campusloop_feed_visibility_change", { detail: newMode }));
     }
   }
@@ -195,7 +199,7 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
   return (
     <>
       <div className="mx-auto flex w-full max-w-[1020px] items-start justify-center gap-8 pb-28">
-        <main className="flex min-h-screen w-full max-w-[640px] min-w-0 flex-col bg-background text-foreground sm:border-x border-border/40 pb-20 sm:pb-8">
+        <main className="flex min-h-screen w-full max-w-[640px] min-w-0 flex-col bg-bg text-fg sm:border-x border-border pb-20 sm:pb-8">
           <FeedHeader
             scope={scope}
             onScopeChange={handleScopeChange}
@@ -237,53 +241,31 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
                     <div ref={trackImpression} data-feed-post-id={post.id}>
                       <FeedCard post={post} currentUserId={profile?.id} />
                     </div>
-                    {/* Rich, delightful campus discovery slots interleaved between timeline posts */}
-                    {idx === 1 && (
-                      <LocationOptInCard enabled={Boolean(profile?.id)} className="mx-3 my-3" />
-                    )}
+                    {/* A few calm discovery slots between posts, spaced out so the feed stays about people. */}
+                    {idx === 1 && <LocationOptInCard enabled={Boolean(profile?.id)} className="mx-3 my-3" />}
                     {idx === 3 && (
-                      <div className="border-b border-border/40">
+                      <div className="border-b border-border">
                         <FeedEventSpotlight />
                       </div>
                     )}
-                    {idx === 5 && (
-                      <div className="border-b border-border/40 lg:hidden">
+                    {idx === 6 && (
+                      <div className="border-b border-border lg:hidden">
                         <FeedRecommendedUsers />
                       </div>
                     )}
-                    {idx === 7 && (
-                      <div className="border-b border-border/40">
-                        <FeedCourseSpotlight />
-                      </div>
-                    )}
                     {idx === 10 && (
-                      <div className="border-b border-border/40">
-                        <FeedMarketplaceSpotlight />
-                      </div>
-                    )}
-                    {idx === 13 && (
-                      <div className="border-b border-border/40 p-4">
-                        <InlineCommunitiesWidget />
-                      </div>
-                    )}
-                    {idx === 16 && (
-                      <div className="border-b border-border/40">
+                      <div className="border-b border-border">
                         <FeedAcademicsSpotlight />
                       </div>
                     )}
-                    {idx === 19 && (
-                      <div className="border-b border-border/40">
-                        <FeedEcosystemSpotlight />
+                    {idx === 15 && (
+                      <div className="border-b border-border">
+                        <FeedMarketplaceSpotlight />
                       </div>
                     )}
-                    {idx === 22 && (
-                      <div className="border-b border-border/40 p-3">
-                        <InlineDatingWidget />
-                      </div>
-                    )}
-                    {idx === 25 && (
-                      <div className="border-b border-border/40 p-4 lg:hidden">
-                        <InlineHashtagsWidget />
+                    {idx === 21 && (
+                      <div className="border-b border-border p-4">
+                        <InlineCommunitiesWidget />
                       </div>
                     )}
                   </div>
@@ -293,13 +275,9 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
                   <div ref={setLoadMoreRef} className="w-full">
                     {isError ? (
                       <div className="flex justify-center py-6">
-                        <button
-                          type="button"
-                          onClick={() => mutate()}
-                          className="rounded-full px-4 py-2 text-sm font-medium text-primary hover:bg-primary/10 cursor-pointer"
-                        >
-                          Couldn&apos;t load more. Tap to retry
-                        </button>
+                        <Button variant="ghost" size="sm" onClick={() => mutate()}>
+                          Couldn&apos;t load more. Try again
+                        </Button>
                       </div>
                     ) : (
                       <FeedLoadingMoreSkeleton />

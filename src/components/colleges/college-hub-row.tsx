@@ -2,8 +2,8 @@
 
 import { MapPin, Trophy } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { CollegeCrest } from "./college-crest";
 
 export interface CollegeItem {
   id: string;
@@ -22,95 +22,55 @@ export interface CollegeItem {
   postCount?: number;
 }
 
-/**
- * Edge-to-edge directory row, matching the list pattern used by the feed, the
- * branch directory and the follow lists — one column, hairline separators, no
- * card chrome.
- */
+/** One college as a list row: crest, name, place and email domain. */
 export function CollegeHubRow({
   college,
   rank,
   trailing,
 }: {
   college: CollegeItem;
-  /** Optional standings position, shown in place of nothing on the leaderboard. */
+  /** Optional standings position. */
   rank?: number;
   trailing?: React.ReactNode;
 }) {
-  const [imgError, setImgError] = useState(false);
   const location = [college.district, college.state].filter(Boolean).join(", ") || "India";
-
-  // Compute initials for fallback
-  const initials =
-    college.name
-      .split(/\s+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((w) => w[0]?.toUpperCase())
-      .join("") || "CL";
 
   return (
     <Link
       href={`/college/${college.slug || college.id}`}
-      className="group flex items-center gap-3.5 px-3.5 py-3 sm:px-4 sm:py-3.5 transition-colors hover:bg-muted/25"
+      className="group flex min-h-16 items-center gap-3 px-4 py-3 transition-ui hover:bg-surface-muted"
     >
       {typeof rank === "number" && (
         <span
           className={cn(
-            "w-6 shrink-0 text-center text-sm font-black tabular-nums",
-            rank <= 3 ? "text-primary" : "text-muted-foreground"
+            "w-6 shrink-0 text-center font-display font-bold tabular-nums",
+            rank <= 3 ? "text-brand-text" : "text-fg-subtle"
           )}
         >
           {rank}
         </span>
       )}
 
-      {/* Crest */}
-      <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border/50 bg-muted/20 p-1 shadow-2xs">
-        {college.logoUrl && !imgError ? (
-          <img
-            src={college.logoUrl}
-            alt=""
-            referrerPolicy="no-referrer"
-            onError={() => setImgError(true)}
-            className="h-full w-full object-contain"
-          />
-        ) : (
-          <div className="flex size-full items-center justify-center rounded-full bg-brand-subtle">
-            <span className="text-xs font-black text-primary tracking-tight">{initials}</span>
-          </div>
-        )}
-      </div>
+      <CollegeCrest name={college.name} logoUrl={college.logoUrl} size="md" />
 
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
-          <h3 className="truncate text-[15px] font-bold leading-tight text-foreground transition-colors group-hover:text-primary">
+          <h3 className="truncate font-semibold leading-tight text-fg group-hover:text-brand-text">
             {college.name}
           </h3>
           {college.nirfRank ? (
-            <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-surface-muted px-1.5 py-0.5 text-[10px] font-black text-fg-muted">
-              <Trophy className="size-2.5" />
-              {college.nirfRank}
+            <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-surface-muted px-2 py-0.5 text-xs font-semibold text-fg-muted">
+              <Trophy className="size-3" aria-hidden="true" />
+              NIRF {college.nirfRank}
             </span>
           ) : null}
         </div>
 
-        <p className="mt-0.5 flex items-center gap-1.5 truncate text-[13px] text-muted-foreground">
-          <MapPin className="size-3 shrink-0" />
+        <p className="mt-0.5 flex items-center gap-1.5 truncate text-sm text-fg-muted">
+          <MapPin className="size-3.5 shrink-0" aria-hidden="true" />
           <span className="truncate">{location}</span>
           {college.websiteDomain ? (
-            <>
-              <span aria-hidden className="text-muted-foreground/40">·</span>
-              <span className="shrink-0 font-mono text-[11px] font-semibold text-brand-text bg-brand-subtle px-1.5 py-0.2 rounded-md">
-                @{college.websiteDomain}
-              </span>
-            </>
-          ) : null}
-          {college.yearOfEstablishment ? (
-            <>
-              <span aria-hidden className="text-muted-foreground/40">·</span>
-              <span className="shrink-0">Est. {college.yearOfEstablishment}</span>
-            </>
+            <span className="hidden shrink-0 font-mono text-xs sm:inline">@{college.websiteDomain}</span>
           ) : null}
         </p>
       </div>

@@ -1,12 +1,15 @@
 "use client";
 
-import { Eye, Hourglass, KeyRound, Lock, Plus, Unlock } from "lucide-react";
+import { CalendarClock, Eye, EyeOff, Lock, Plus, Unlock } from "lucide-react";
 import { useState } from "react";
 import { CapsuleCountdown } from "@/components/capsule/capsule-countdown";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn, formatTimeAgo, getAvatarUrl } from "@/lib/utils";
+import { MySealedEntries, OpenedEntries } from "./capsule-entry-list";
+import { capsuleCategoryLabel, formatCapsuleDate } from "./capsule-labels";
 
 interface CapsuleCardProps {
   capsule: any;
@@ -15,210 +18,72 @@ interface CapsuleCardProps {
 }
 
 export function CapsuleCard({ capsule, onOpenBuryModal }: CapsuleCardProps) {
-  const [showEntries, setShowEntries] = useState(capsule.isUnlocked);
-  const isUnlocked = capsule.isUnlocked;
-
-  function handleBuryClick() {
-    sounds.tap();
-    haptics.light();
-    onOpenBuryModal(capsule.id, capsule.title);
-  }
-
-  function handleToggleEntries() {
-    sounds.tap();
-    haptics.light();
-    setShowEntries(!showEntries);
-  }
+  const isUnlocked = Boolean(capsule.isUnlocked);
+  const [showEntries, setShowEntries] = useState(isUnlocked);
+  const count: number = capsule.totalEntriesBuried ?? capsule.entriesCount ?? 0;
+  const entries = capsule.entries ?? [];
 
   return (
-    <div className="rounded-3xl border border-border/40 bg-card overflow-hidden shadow-xs hover:border-border/80 transition-colors select-none">
-      {/* Cover Image Banner */}
-      <div className="relative h-44 sm:h-52 w-full overflow-hidden bg-muted">
-        {capsule.coverImage && (
-          <img src={capsule.coverImage} alt={capsule.title} className="w-full h-full object-cover" />
-        )}
-        <div className="absolute inset-0 bg-linear-to-t from-background via-background/60 to-transparent" />
+    <Card className="overflow-hidden">
+      {capsule.coverImage && (
+        <img src={capsule.coverImage} alt="" loading="lazy" className="h-40 w-full object-cover sm:h-48" />
+      )}
 
-        {/* Status Badge */}
-        <div className="absolute top-3.5 right-3.5 z-10 flex items-center gap-1.5">
-          <span
-            className={cn(
-              "px-3 py-1 rounded-full text-xs font-black border shadow-md flex items-center gap-1.5 backdrop-blur-md",
-              isUnlocked
-                ? "bg-success/20 text-success border-success/40"
-                : "bg-warning/20 text-warning border-warning/40"
-            )}
-          >
-            {isUnlocked ? (
-              <>
-                <Unlock className="size-3" />
-                <span>Vault Unlocked</span>
-              </>
-            ) : (
-              <>
-                <Lock className="size-3" />
-                <span>Sealed Vault</span>
-              </>
-            )}
+      <CardHeader>
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant={isUnlocked ? "success" : "neutral"}>
+            {isUnlocked ? <Unlock className="size-3" aria-hidden /> : <Lock className="size-3" aria-hidden />}
+            {isUnlocked ? "Open" : "Closed"}
+          </Badge>
+          <Badge variant="outline">{capsuleCategoryLabel(capsule.category)}</Badge>
+        </div>
+        <CardTitle className="text-lg">{capsule.title}</CardTitle>
+        {capsule.description && <CardDescription>{capsule.description}</CardDescription>}
+      </CardHeader>
+
+      <CardContent className="space-y-4">
+        <p className="flex items-center gap-2 text-sm text-fg-muted">
+          <CalendarClock className="size-4 shrink-0" aria-hidden />
+          {isUnlocked ? "Opened" : "Opens"} {formatCapsuleDate(capsule.targetUnlockDate)}
+          <span aria-hidden>·</span>
+          <span className="tabular-nums">
+            {count} {count === 1 ? "entry" : "entries"}
           </span>
-        </div>
+        </p>
 
-        {/* Category Pill */}
-        <div className="absolute top-3.5 left-3.5 z-10">
-          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-background/80 text-foreground border border-border/40 backdrop-blur-md">
-            {capsule.category.replace("_", " ")}
-          </span>
-        </div>
+        {!isUnlocked && <CapsuleCountdown targetDate={capsule.targetUnlockDate} />}
 
-        {/* Title overlay */}
-        <div className="absolute bottom-3.5 inset-x-4 z-10 space-y-1">
-          <h3 className="text-base sm:text-lg font-black text-foreground drop-shadow-xs leading-snug">
-            {capsule.title}
-          </h3>
-          {capsule.description && (
-            <p className="text-xs text-muted-foreground line-clamp-1 font-medium">{capsule.description}</p>
-          )}
-        </div>
-      </div>
+        {!isUnlocked && entries.length > 0 && <MySealedEntries entries={entries} />}
 
-      {/* Body Info */}
-      <div className="p-4 space-y-4">
-        {/* Countdown Ticker or Unlock Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-2xl bg-muted/20 border border-border/30">
-          <div className="flex items-center gap-2">
-            <Hourglass className="size-4 text-warning shrink-0" />
-            <div className="text-xs">
-              <span className="font-bold text-muted-foreground block text-[10px]">
-                {isUnlocked ? "Unlocked Date" : "Unlocks Automatically On"}
-              </span>
-              <span className="font-black text-foreground">
-                {new Date(capsule.targetUnlockDate).toLocaleDateString("en-IN", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })}
-              </span>
-            </div>
-          </div>
+        {isUnlocked && showEntries && <OpenedEntries entries={entries} />}
 
-          <CapsuleCountdown targetDate={capsule.targetUnlockDate} />
-        </div>
-
-        {/* Buried Count & Action */}
-        <div className="flex items-center justify-between pt-1">
-          <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
-            <KeyRound className="size-3.5 text-primary" />
-            <span>
-              <strong className="text-foreground font-black">
-                {capsule.totalEntriesBuried ?? capsule.entriesCount}
-              </strong>{" "}
-              Memories & Predictions Buried
-            </span>
-          </div>
-
+        <div className="flex justify-end">
           {!isUnlocked ? (
-            <button
-              type="button"
-              onClick={handleBuryClick}
-              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-warning text-white text-xs font-black hover:bg-warning transition-transform cursor-pointer shadow-xs active:scale-95"
+            <Button
+              onClick={() => {
+                sounds.tap();
+                haptics.light();
+                onOpenBuryModal(capsule.id, capsule.title);
+              }}
             >
-              <Plus className="size-3.5" />
-              <span>Bury Memory</span>
-            </button>
+              <Plus aria-hidden />
+              Add to capsule
+            </Button>
           ) : (
-            <button
-              type="button"
-              onClick={handleToggleEntries}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-muted hover:bg-muted/80 text-foreground text-xs font-bold transition-colors cursor-pointer"
+            <Button
+              variant="secondary"
+              aria-expanded={showEntries}
+              onClick={() => {
+                sounds.tap();
+                setShowEntries((v) => !v);
+              }}
             >
-              <Eye className="size-3.5 text-success" />
-              <span>{showEntries ? "Hide Entries" : "View Museum Wall"}</span>
-            </button>
+              {showEntries ? <EyeOff aria-hidden /> : <Eye aria-hidden />}
+              {showEntries ? "Hide entries" : "See entries"}
+            </Button>
           )}
         </div>
-
-        {/* Sealed Vault Private Preview Notice (if locked and user buried a memory) */}
-        {!isUnlocked && capsule.entries && capsule.entries.length > 0 && (
-          <div className="rounded-2xl border border-warning/30 bg-warning/5 p-3 space-y-2">
-            <p className="text-[11px] font-bold text-warning flex items-center gap-1.5">
-              <Lock className="size-3" />
-              <span>You have buried {capsule.entries.length} memory in this sealed vault:</span>
-            </p>
-            <div className="space-y-1.5">
-              {capsule.entries.map((e: any) => (
-                <div
-                  key={e.id}
-                  className="text-xs p-2 rounded-xl bg-card border border-border/30 text-foreground/90 font-medium"
-                >
-                  <p className="font-bold text-foreground">"{e.title}"</p>
-                  <p className="text-muted-foreground line-clamp-1 mt-0.5 text-[11px]">{e.content}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Unlocked Museum Wall Entries */}
-        {isUnlocked && showEntries && capsule.entries && (
-          <div className="space-y-3 pt-2 border-t border-border/20">
-            <h4 className="text-xs font-black text-muted-foreground">
-              Buried Legacy & Predictions Revealed
-            </h4>
-            <div className="space-y-2.5">
-              {capsule.entries.map((entry: any) => {
-                const authorAvatar = entry.author
-                  ? getAvatarUrl(entry.author.avatarUrl, entry.author.username)
-                  : null;
-
-                return (
-                  <div
-                    key={entry.id}
-                    className="p-3.5 rounded-2xl bg-muted/20 border border-border/30 space-y-2"
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        {entry.author ? (
-                          <>
-                            <Avatar className="size-6 rounded-full border">
-                              <AvatarImage src={authorAvatar!} />
-                              <AvatarFallback className="text-[9px]">
-                                {entry.author.displayName[0]}
-                              </AvatarFallback>
-                            </Avatar>
-                            <span className="text-xs font-bold text-foreground">
-                              {entry.author.displayName}
-                            </span>
-                          </>
-                        ) : (
-                          <span className="text-xs font-bold text-warning">
-                            @{entry.pseudonym || "anonymous_student"}
-                          </span>
-                        )}
-                        <span className="text-[10px] text-muted-foreground">
-                          · {formatTimeAgo(entry.createdAt)}
-                        </span>
-                      </div>
-
-                      <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-muted text-muted-foreground">
-                        {entry.entryType}
-                      </span>
-                    </div>
-
-                    <p className="text-xs font-bold text-foreground">{entry.title}</p>
-                    <p className="text-xs text-muted-foreground leading-relaxed">{entry.content}</p>
-
-                    {entry.mediaUrl && (
-                      <div className="rounded-xl overflow-hidden max-h-48 border border-border/30 mt-2">
-                        <img src={entry.mediaUrl} alt={entry.title} className="w-full h-full object-cover" />
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

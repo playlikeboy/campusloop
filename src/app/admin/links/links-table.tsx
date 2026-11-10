@@ -1,11 +1,15 @@
 "use client";
 
-import { Copy, ExternalLink, Laptop, Link2, Loader2, Plus, Smartphone, Trash2 } from "lucide-react";
+import { Copy, ExternalLink, Loader2, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
+import { useEscapeKey } from "@/app/admin/_components/use-escape-key";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { fieldClassName } from "@/components/ui/input";
 import { fetcher } from "@/lib/api";
-import { formatTimeAgo } from "@/lib/utils";
+import { cn, formatTimeAgo } from "@/lib/utils";
+import { AdminStatStrip } from "../_components/admin-stat-strip";
 
 interface ShortLinkItem {
   id: string;
@@ -42,6 +46,7 @@ interface AdminLinksResponse {
 export function AdminLinksClient() {
   const { data, isLoading, mutate } = useSWR<AdminLinksResponse>("/api/admin/links", fetcher);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  useEscapeKey(showCreateModal, () => setShowCreateModal(false));
   const [slug, setSlug] = useState("");
   const [targetUrl, setTargetUrl] = useState("");
   const [title, setTitle] = useState("");
@@ -50,7 +55,7 @@ export function AdminLinksClient() {
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     if (!slug || !targetUrl) {
-      toast.error("Please provide both slug and target URL");
+      toast.error("Add a slug and a link first.");
       return;
     }
 
@@ -66,7 +71,7 @@ export function AdminLinksClient() {
         throw new Error(result.error || "Failed to create short link");
       }
 
-      toast.success(`Created /s/${slug}!`);
+      toast.success(`Created /s/${slug}`);
       setShowCreateModal(false);
       setSlug("");
       setTargetUrl("");
@@ -87,20 +92,20 @@ export function AdminLinksClient() {
       toast.success("Short link deleted");
       mutate();
     } catch {
-      toast.error("Could not delete short link");
+      toast.error("Couldn't delete the link. Try again.");
     }
   }
 
   function copyLink(slug: string) {
     const full = `https://campusloop.space/s/${slug}`;
     navigator.clipboard.writeText(full);
-    toast.success("Short link copied to clipboard!");
+    toast.success("Link copied");
   }
 
   if (isLoading) {
     return (
       <div className="flex h-96 items-center justify-center">
-        <Loader2 className="size-8 animate-spin text-primary" />
+        <Loader2 className="size-8 animate-spin text-brand-text" />
       </div>
     );
   }
@@ -108,84 +113,50 @@ export function AdminLinksClient() {
   const links = data?.links || [];
   const clicks = data?.recentClicks || [];
   const deviceStats = data?.deviceStats || [];
-  const topReferrers = data?.topReferrers || [];
   const totalClicks = data?.totalClicks || 0;
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/40 pb-5">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <Link2 className="size-6 text-primary" />
-            Short Links &amp; Referral Analytics
-          </h1>
-          <p className="text-xs text-muted-foreground mt-1">
-            Create branded redirect links (`/s/slug`), monitor marketing campaigns, and track viral referrals.
-          </p>
-        </div>
-
+      <div className="flex justify-end">
         <button
           type="button"
           onClick={() => setShowCreateModal(true)}
-          className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-primary-foreground shadow-sm hover:opacity-90 transition-colors cursor-pointer select-none shrink-0"
+          className={cn(buttonVariants({ variant: "primary", size: "md" }), "shrink-0")}
         >
           <Plus className="size-4" />
-          Create Short Link
+          New short link
         </button>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="rounded-2xl border border-border/60 bg-card p-4 shadow-2xs">
-          <p className="text-xs font-semibold text-muted-foreground">Total Links</p>
-          <p className="text-2xl font-bold text-foreground mt-1">{data?.totalLinks || 0}</p>
-        </div>
-        <div className="rounded-2xl border border-border/60 bg-card p-4 shadow-2xs">
-          <p className="text-xs font-semibold text-muted-foreground">
-            Total Clicks Recorded
-          </p>
-          <p className="text-2xl font-bold text-primary mt-1">{totalClicks}</p>
-        </div>
-        <div className="rounded-2xl border border-border/60 bg-card p-4 shadow-2xs">
-          <p className="text-xs font-semibold text-muted-foreground">
-            Devices Breakdown
-          </p>
-          <div className="flex items-center gap-3 mt-1.5 text-xs text-muted-foreground">
-            {deviceStats.map((d) => (
-              <span
-                key={d.device || "other"}
-                className="flex items-center gap-1 font-semibold text-foreground"
-              >
-                {d.device === "mobile" ? (
-                  <Smartphone className="size-3.5 text-brand-text" />
-                ) : (
-                  <Laptop className="size-3.5 text-success" />
-                )}
-                {d.count} {d.device}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
+      <AdminStatStrip
+        items={[
+          { label: "Links", value: data?.totalLinks || 0 },
+          { label: "Clicks", value: totalClicks },
+          {
+            label: "Clicks by device",
+            value: deviceStats.length
+              ? deviceStats.map((d) => `${d.count} ${d.device || "other"}`).join(" · ")
+              : "None yet",
+          },
+        ]}
+      />
 
       {/* Short Links Table */}
-      <div className="rounded-2xl border border-border/60 bg-card overflow-hidden shadow-2xs">
-        <div className="p-4 border-b border-border/40 flex items-center justify-between">
-          <h2 className="text-sm font-bold text-foreground">Active Short Links</h2>
-          <span className="text-xs text-muted-foreground">{links.length} links</span>
+      <div className="rounded-lg border border-border bg-surface overflow-hidden ">
+        <div className="p-4 border-b border-border flex items-center justify-between">
+          <h2 className="text-sm font-bold text-fg">Short links</h2>
+          <span className="text-xs text-fg-muted">{links.length} links</span>
         </div>
 
         {links.length === 0 ? (
-          <div className="p-8 text-center text-xs text-muted-foreground">
-            No short links created yet. Click &quot;Create Short Link&quot; above.
-          </div>
+          <div className="p-8 text-center text-xs text-fg-muted">No short links yet.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[700px] text-left text-xs">
-              <thead className="border-b border-border/40 bg-muted/30 text-muted-foreground font-bold">
+              <thead className="border-b border-border bg-surface-muted text-fg-muted font-bold">
                 <tr>
-                  <th className="p-3">Title / Campaign</th>
+                  <th className="p-3">Name</th>
                   <th className="p-3">Short URL</th>
                   <th className="p-3">Target URL</th>
                   <th className="p-3 text-center">Clicks</th>
@@ -193,26 +164,27 @@ export function AdminLinksClient() {
                   <th className="p-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border/20">
+              <tbody className="divide-y divide-border">
                 {links.map((link) => (
-                  <tr key={link.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="p-3 font-bold text-foreground max-w-[180px] truncate">
+                  <tr key={link.id} className="hover:bg-surface-muted transition-colors">
+                    <td className="p-3 font-bold text-fg max-w-[180px] truncate">
                       {link.title || link.slug}
                     </td>
                     <td className="p-3">
                       <div className="flex items-center gap-1.5">
-                        <span className="font-mono text-primary font-bold">/s/{link.slug}</span>
-                        <button
-                          type="button"
+                        <span className="font-mono text-brand-text font-bold">/s/{link.slug}</span>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
                           onClick={() => copyLink(link.slug)}
-                          className="p-1 hover:bg-muted rounded-md text-muted-foreground hover:text-foreground cursor-pointer"
                           title="Copy link"
+                          aria-label="Copy link"
                         >
-                          <Copy className="size-3" />
-                        </button>
+                          <Copy aria-hidden />
+                        </Button>
                       </div>
                     </td>
-                    <td className="p-3 max-w-[220px] truncate text-muted-foreground">
+                    <td className="p-3 max-w-[220px] truncate text-fg-muted">
                       <a
                         href={link.targetUrl}
                         target="_blank"
@@ -224,22 +196,24 @@ export function AdminLinksClient() {
                       </a>
                     </td>
                     <td className="p-3 text-center">
-                      <span className="inline-flex items-center justify-center rounded-full bg-primary/10 px-2.5 py-0.5 font-bold text-primary">
+                      <span className="inline-flex items-center justify-center rounded-full bg-brand-subtle px-2.5 py-0.5 font-bold text-brand-text">
                         {link.clicks}
                       </span>
                     </td>
-                    <td className="p-3 text-muted-foreground whitespace-nowrap">
+                    <td className="p-3 text-fg-muted whitespace-nowrap">
                       {formatTimeAgo(new Date(link.createdAt))}
                     </td>
                     <td className="p-3 text-right">
-                      <button
-                        type="button"
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
                         onClick={() => handleDelete(link.id)}
-                        className="p-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md transition-colors cursor-pointer"
                         title="Delete link"
+                        aria-label="Delete link"
+                        className="hover:bg-danger-subtle hover:text-danger"
                       >
-                        <Trash2 className="size-3.5" />
-                      </button>
+                        <Trash2 aria-hidden />
+                      </Button>
                     </td>
                   </tr>
                 ))}
@@ -250,43 +224,42 @@ export function AdminLinksClient() {
       </div>
 
       {/* Recent Clicks & Referrals Feed */}
-      <div className="rounded-2xl border border-border/60 bg-card overflow-hidden shadow-2xs">
-        <div className="p-4 border-b border-border/40 flex items-center justify-between">
-          <h2 className="text-sm font-bold text-foreground">
-            Recent Traffic Logs (Referrals &amp; Short Links)
-          </h2>
-          <span className="text-xs text-muted-foreground">{clicks.length} recent hits</span>
+      <div className="rounded-lg border border-border bg-surface overflow-hidden ">
+        <div className="p-4 border-b border-border flex items-center justify-between">
+          <h2 className="text-sm font-bold text-fg">Recent clicks</h2>
+          <span className="text-xs text-fg-muted">{clicks.length} recent hits</span>
         </div>
 
         {clicks.length === 0 ? (
-          <div className="p-8 text-center text-xs text-muted-foreground">
-            No visitor clicks logged yet. Traffic with `?ref=...` or `/s/...` will appear here in real-time.
+          <div className="p-8 text-center text-xs text-fg-muted">
+            No clicks yet. Visits from <code className="font-mono">?ref=</code> and{" "}
+            <code className="font-mono">/s/</code> links show up here.
           </div>
         ) : (
           <div className="overflow-x-auto max-h-96">
             <table className="w-full text-left text-xs">
-              <thead className="border-b border-border/40 bg-muted/30 text-muted-foreground font-bold sticky top-0 bg-card">
+              <thead className="border-b border-border bg-surface-muted text-fg-muted font-bold sticky top-0 bg-surface">
                 <tr>
-                  <th className="p-3">Campaign / Ref</th>
-                  <th className="p-3">Device &amp; Browser</th>
-                  <th className="p-3">Referrer Source</th>
+                  <th className="p-3">Link</th>
+                  <th className="p-3">Device</th>
+                  <th className="p-3">Came from</th>
                   <th className="p-3">Country</th>
                   <th className="p-3">Time</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border/20">
+              <tbody className="divide-y divide-border">
                 {clicks.map((click) => (
-                  <tr key={click.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="p-3 font-mono font-bold text-primary">{click.refCode || "direct"}</td>
-                    <td className="p-3 text-foreground">
+                  <tr key={click.id} className="hover:bg-surface-muted transition-colors">
+                    <td className="p-3 font-mono font-bold text-brand-text">{click.refCode || "direct"}</td>
+                    <td className="p-3 text-fg">
                       <span className="capitalize">{click.device || "Desktop"}</span> ·{" "}
                       {click.browser || "Browser"} ({click.os || "OS"})
                     </td>
-                    <td className="p-3 max-w-[200px] truncate text-muted-foreground">
+                    <td className="p-3 max-w-[200px] truncate text-fg-muted">
                       {click.referer || "Direct / App"}
                     </td>
-                    <td className="p-3 text-muted-foreground">{click.country || "IN"}</td>
-                    <td className="p-3 text-muted-foreground whitespace-nowrap">
+                    <td className="p-3 text-fg-muted">{click.country || "IN"}</td>
+                    <td className="p-3 text-fg-muted whitespace-nowrap">
                       {formatTimeAgo(new Date(click.createdAt))}
                     </td>
                   </tr>
@@ -300,51 +273,63 @@ export function AdminLinksClient() {
       {/* Create Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-overlay">
-          <div className="relative w-full max-w-md rounded-2xl border border-border/80 bg-card p-6 shadow-2xl animate-in fade-in zoom-in-95">
-            <h2 className="text-lg font-bold text-foreground">Create Short Link</h2>
-            <p className="text-xs text-muted-foreground mt-1">
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="relative max-h-[90dvh] w-full max-w-md overflow-y-auto rounded-xl border border-border bg-surface-raised p-6 shadow-lg"
+          >
+            <h2 className="text-lg font-bold text-fg">New short link</h2>
+            <p className="text-xs text-fg-muted mt-1">
               Links will be accessible at{" "}
-              <code className="font-mono text-primary font-bold">campusloop.space/s/[slug]</code>
+              <code className="font-mono text-brand-text font-bold">campusloop.space/s/[slug]</code>
             </p>
 
             <form onSubmit={handleCreate} className="space-y-4 mt-4">
               <div>
-                <label className="text-xs font-semibold text-muted-foreground">
-                  Campaign Title (Optional)
+                <label
+                  htmlFor="links-table-campaign-title-optional"
+                  className="text-xs font-semibold text-fg-muted"
+                >
+                  Name (optional)
                 </label>
                 <input
+                  id="links-table-campaign-title-optional"
                   type="text"
-                  placeholder="e.g. Raj LinkedIn Post"
+                  placeholder="e.g. Instagram bio"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  className={cn(fieldClassName, "w-full h-11")}
                 />
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-muted-foreground">Custom Slug</label>
-                <div className="mt-1 flex items-center rounded-xl border border-input bg-background px-3 py-2 text-xs">
-                  <span className="text-muted-foreground select-none">/s/</span>
+                <label className="text-xs font-semibold text-fg-muted">Custom Slug</label>
+                <div className="mt-1 flex items-center rounded-lg border border-input bg-bg px-3 py-2 text-xs">
+                  <span className="text-fg-muted select-none">/s/</span>
                   <input
+                    aria-label="Short link name"
                     type="text"
                     required
                     placeholder="raj-linkedin"
                     value={slug}
                     onChange={(e) => setSlug(e.target.value)}
-                    className="w-full bg-transparent pl-1 font-mono text-foreground focus:outline-none"
+                    className="w-full bg-transparent pl-1 font-mono text-fg focus:outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-muted-foreground">Target URL</label>
+                <label htmlFor="links-table-target-url" className="text-xs font-semibold text-fg-muted">
+                  Target URL
+                </label>
                 <input
+                  id="links-table-target-url"
                   type="text"
                   required
-                  placeholder="https://campusloop.space/academics or /dating"
+                  placeholder="https://campusloop.space/academics or /events"
                   value={targetUrl}
                   onChange={(e) => setTargetUrl(e.target.value)}
-                  className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  className={cn(fieldClassName, "w-full h-11")}
                 />
               </div>
 
@@ -352,16 +337,16 @@ export function AdminLinksClient() {
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="rounded-xl border border-input px-4 py-2 text-xs font-bold text-muted-foreground hover:bg-muted"
+                  className="rounded-lg border border-input px-4 py-2 text-xs font-bold text-fg-muted hover:bg-surface-muted"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground hover:opacity-90 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className={buttonVariants({ variant: "primary", size: "sm" })}
                 >
-                  {isSubmitting ? "Creating..." : "Create Link"}
+                  {isSubmitting ? "Creating link" : "Create link"}
                 </button>
               </div>
             </form>

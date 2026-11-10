@@ -1,9 +1,10 @@
 "use client";
 
-import { Check, Users } from "lucide-react";
 import Link from "next/link";
 import { FollowButton } from "@/components/profile/follow-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { getAvatarUrl } from "@/lib/utils";
 
 export interface FollowListItem {
@@ -31,43 +32,28 @@ export function FollowListRow({
   const subtitle = user.headline || user.bio || user.institutionName;
 
   return (
-    <li className="flex items-start gap-3 px-4 py-3.5 hover:bg-muted/40 transition-colors">
-      <Link href={`/@${user.username}`} className="shrink-0">
-        <Avatar className="size-11 rounded-full border border-border/60">
-          <AvatarImage
-            src={getAvatarUrl(user.avatarUrl, user.username)}
-            className="rounded-full object-cover"
-          />
-          <AvatarFallback className="bg-primary/10 text-primary font-black rounded-full">
+    <li className="flex items-center gap-3 px-4 py-3 transition-ui hover:bg-surface-muted">
+      <Link href={`/@${user.username}`} className="shrink-0" tabIndex={-1} aria-hidden="true">
+        <Avatar className="size-11 border border-border">
+          <AvatarImage src={getAvatarUrl(user.avatarUrl, user.username)} alt="" className="object-cover" />
+          <AvatarFallback className="bg-surface-muted font-semibold text-fg">
             {user.displayName[0]?.toUpperCase()}
           </AvatarFallback>
         </Avatar>
       </Link>
 
       <div className="min-w-0 flex-1">
-        <Link href={`/@${user.username}`} className="block group">
-          <div className="flex items-center gap-1.5">
-            <span className="text-sm font-black text-foreground truncate group-hover:underline">
-              {user.displayName}
-            </span>
-            {user.points >= 150 && (
-              <span className="text-brand-text" title="Verified Campus Star" aria-label="Verified Campus Star">
-                <Check className="size-3.5" aria-hidden="true" />
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs font-semibold text-muted-foreground">@{user.username}</span>
-            {user.isFriendOfViewer && !user.isViewer && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-success-subtle px-1.5 py-0.5 text-xs font-bold text-success">
-                <Users className="size-2.5" /> Friends
-              </span>
-            )}
-          </div>
+        <Link
+          href={`/@${user.username}`}
+          className="block truncate text-sm font-semibold text-fg hover:underline"
+        >
+          {user.displayName}
         </Link>
-        {subtitle && (
-          <p className="text-xs text-muted-foreground leading-snug line-clamp-2 pt-0.5">{subtitle}</p>
-        )}
+        <div className="flex items-center gap-1.5 text-sm text-fg-muted">
+          <span className="truncate">@{user.username}</span>
+          {user.isFriendOfViewer && !user.isViewer && <Badge variant="neutral">Friends</Badge>}
+        </div>
+        {subtitle && <p className="line-clamp-1 text-sm text-fg-subtle">{subtitle}</p>}
       </div>
 
       {!user.isViewer &&
@@ -77,15 +63,14 @@ export function FollowListRow({
             displayName={user.displayName}
             initialIsFollowing={user.isFollowedByViewer}
             size="sm"
-            className="mt-0.5 shrink-0"
+            className="shrink-0"
           />
         ) : (
-          <Link
-            href={`/join?mode=signup&returnUrl=/@${user.username}`}
-            className="mt-0.5 shrink-0 inline-flex items-center justify-center rounded-full bg-primary h-8 px-3.5 text-[11px] font-bold text-primary-foreground shadow-2xs hover:bg-primary/90 transition-colors cursor-pointer"
-          >
-            Follow
-          </Link>
+          <Button asChild size="sm" className="shrink-0">
+            <Link href={`/join?mode=signup&returnUrl=${encodeURIComponent(`/@${user.username}`)}`}>
+              Follow
+            </Link>
+          </Button>
         ))}
     </li>
   );

@@ -1,11 +1,7 @@
-import type { Metadata } from "next";
+import { privateMetadata } from "@/lib/seo";
 import { MerchantFleetClient } from "./merchant-fleet-client";
 
-export const metadata: Metadata = {
-  title: "Fleet Vehicles | Merchant Portal",
-  description: "Manage registered scooters, bikes, and vehicle inventory.",
-  robots: { index: false, follow: false },
-};
+export const metadata = privateMetadata("Your bikes");
 
 export default function MerchantFleetPage() {
   return <MerchantFleetClient />;

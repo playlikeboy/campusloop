@@ -11,13 +11,13 @@ import { cn } from "@/lib/utils";
 export function UsernameStatusHint({ status, className }: { status: UsernameStatus; className?: string }) {
   if (status.state === "idle") return null;
 
-  const base = cn("flex items-center gap-1 text-[11px] font-semibold", className);
+  const base = cn("flex items-center gap-1 text-xs font-semibold", className);
 
   switch (status.state) {
     case "checking":
       return (
-        <span className={cn(base, "text-muted-foreground")}>
-          <Loader2 className="size-3 animate-spin" />
+        <span className={cn(base, "text-fg-muted")}>
+          <Loader2 className="size-3 motion-safe:animate-spin" aria-hidden />
           Checking
         </span>
       );
@@ -32,7 +32,7 @@ export function UsernameStatusHint({ status, className }: { status: UsernameStat
 
     case "taken":
       return (
-        <span className={cn(base, "text-destructive")}>
+        <span className={cn(base, "text-danger")}>
           <X className="size-3" />
           {status.reason}
         </span>
@@ -40,7 +40,7 @@ export function UsernameStatusHint({ status, className }: { status: UsernameStat
 
     case "invalid":
       return (
-        <span className={cn(base, "text-destructive")}>
+        <span className={cn(base, "text-danger")}>
           <AlertCircle className="size-3" />
           {status.reason}
         </span>
@@ -48,7 +48,7 @@ export function UsernameStatusHint({ status, className }: { status: UsernameStat
 
     case "error":
       return (
-        <span className={cn(base, "text-muted-foreground")}>
+        <span className={cn(base, "text-fg-muted")}>
           <AlertCircle className="size-3" />
           Could not check right now
         </span>

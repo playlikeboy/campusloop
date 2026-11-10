@@ -7,9 +7,12 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
 import { CollegeCombobox } from "@/components/common/college-combobox";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { fieldClassName } from "@/components/ui/input";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
+import { cn } from "@/lib/utils";
 
 export function AdminNewMerchantClient() {
   const router = useRouter();
@@ -72,14 +75,14 @@ export function AdminNewMerchantClient() {
     haptics.medium();
     const text = `CampusLoop Merchant Portal Access\nStore: ${name || "Your Store"}\nPortal Login: https://campusloop.space/merchant-portal/login\nUsername: ${loginUsername}\nPassword: ${loginPassword}\n\nInstall on your phone or open in browser to manage your store!`;
     navigator.clipboard.writeText(text);
-    toast.success("Copied credentials to clipboard! Ready to share via WhatsApp/SMS.");
+    toast.success("Login details copied");
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     if (!name.trim() || !address.trim()) {
-      toast.error("Please provide a business name and campus address");
+      toast.error("Add a store name and an address first.");
       return;
     }
 
@@ -112,7 +115,7 @@ export function AdminNewMerchantClient() {
 
       if (!res.ok) throw new Error("Failed to onboard merchant");
 
-      toast.success("Merchant Onboarded Successfully!");
+      toast.success("Merchant added");
       router.push("/admin/marketplace");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to create merchant");
@@ -123,222 +126,229 @@ export function AdminNewMerchantClient() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-3 border-b border-border pb-4">
+      <div className="flex items-center gap-3 border-b border-border pb-5">
         <Link
           href="/admin/marketplace"
-          className="flex size-9 items-center justify-center rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+          aria-label="Back to marketplace"
+          className={buttonVariants({ variant: "ghost", size: "icon" })}
         >
-          <ArrowLeft className="size-4.5" />
+          <ArrowLeft aria-hidden />
         </Link>
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-foreground">Onboard New Campus Merchant</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Register a verified local business and generate direct portal login credentials
-          </p>
+          <h1 className="text-2xl text-fg">Add a merchant</h1>
+          <p className="mt-1 max-w-2xl text-sm text-fg-muted">Add a local store and create its login.</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Section 1: Business Information */}
-        <div className="p-5 rounded-2xl bg-card border border-border space-y-3.5 shadow-xs">
-          <h2 className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
+        <div className="p-5 rounded-lg bg-surface border border-border space-y-3.5">
+          <h2 className="text-xs font-bold text-fg-muted flex items-center gap-1.5">
             <Store className="size-4 text-success" />
             <span>1. Business Information &amp; Vertical</span>
           </h2>
 
           <div className="space-y-1.5">
-            <span className="text-[11px] font-bold text-muted-foreground">Business / Store Name *</span>
+            <span className="text-sm font-medium text-fg">Store name *</span>
             <input
+              aria-label="Store name"
               type="text"
               required
               value={name}
               onChange={(e) => handleNameChange(e.target.value)}
-              placeholder="e.g. Momo House / Campus Wheel Rentals / Classic Cut Barber / Campus Dhobi"
-              className="w-full h-11 rounded-xl bg-muted/40 border border-border px-3.5 text-xs font-bold text-foreground focus:border-foreground outline-none"
+              placeholder="e.g. Momo House"
+              className={cn(fieldClassName, "w-full h-11")}
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <span className="text-[11px] font-bold text-muted-foreground">
-                Business Vertical Category *
-              </span>
+              <span className="text-sm font-medium text-fg">Type *</span>
               <select
+                aria-label="Type"
                 value={categorySlug}
                 onChange={(e) => setCategorySlug(e.target.value)}
-                className="w-full h-11 rounded-xl bg-muted/40 border border-border px-3.5 text-xs font-bold text-foreground outline-none"
+                className={cn(fieldClassName, "w-full h-11")}
               >
-                <option value="food">Food &amp; Canteens (Zomato style)</option>
-                <option value="rentals">Bike &amp; Vehicle Rentals (Bounce style)</option>
-                <option value="barber">Barber &amp; Salon Grooming (Urban Company style)</option>
-                <option value="laundry">Laundry &amp; Dhobi Services (Per-Kg Wash)</option>
+                <option value="food">Food</option>
+                <option value="rentals">Bike rentals</option>
+                <option value="barber">Salon</option>
+                <option value="laundry">Laundry</option>
                 <option value="water">20L Water Can Delivery (Instant &amp; Pass)</option>
-                <option value="essentials">Supermarket &amp; Campus Mart (Blinkit style)</option>
+                <option value="essentials">Grocery</option>
               </select>
             </div>
 
             <div className="space-y-1.5">
-              <span className="text-[11px] font-bold text-muted-foreground">Target College Campus *</span>
+              <span className="text-xs font-bold text-fg-muted">College *</span>
               <CollegeCombobox
                 value={institutionId}
                 initialInstitutions={institutions}
                 onChange={(id) => setInstitutionId(id)}
-                placeholder="Search college campus..."
+                placeholder="Search colleges"
               />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <span className="text-[11px] font-bold text-muted-foreground">Store Description</span>
+            <span className="text-sm font-medium text-fg">About the store</span>
             <textarea
+              aria-label="About the store"
               rows={2}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Specialties, services offered, pricing overview, or operating hours..."
-              className="w-full rounded-xl bg-muted/40 border border-border p-3 text-xs font-medium text-foreground outline-none resize-none"
+              placeholder="What they sell, prices and opening hours"
+              className={cn(fieldClassName, "w-full resize-none py-2.5")}
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <span className="text-[11px] font-bold text-muted-foreground">Logo / DP URL</span>
+              <span className="text-sm font-medium text-fg">Logo link</span>
               <input
+                aria-label="Logo link"
                 type="url"
                 value={logoUrl}
                 onChange={(e) => setLogoUrl(e.target.value)}
-                placeholder="https://..."
-                className="w-full h-11 rounded-xl bg-muted/40 border border-border px-3.5 text-xs font-medium text-foreground outline-none"
+                placeholder="https://"
+                className={cn(fieldClassName, "w-full h-11")}
               />
             </div>
 
             <div className="space-y-1.5">
-              <span className="text-[11px] font-bold text-muted-foreground">Cover / Banner URL</span>
+              <span className="text-sm font-medium text-fg">Banner link</span>
               <input
+                aria-label="Banner link"
                 type="url"
                 value={coverUrl}
                 onChange={(e) => setCoverUrl(e.target.value)}
-                placeholder="https://..."
-                className="w-full h-11 rounded-xl bg-muted/40 border border-border px-3.5 text-xs font-medium text-foreground outline-none"
+                placeholder="https://"
+                className={cn(fieldClassName, "w-full h-11")}
               />
             </div>
           </div>
         </div>
 
         {/* Section 2: Contact & Fulfillment */}
-        <div className="p-5 rounded-2xl bg-card border border-border space-y-3.5 shadow-xs">
-          <h2 className="text-xs font-bold text-muted-foreground">
-            2. Campus Location &amp; Contact
-          </h2>
+        <div className="p-5 rounded-lg bg-surface border border-border space-y-3.5">
+          <h2 className="text-xs font-bold text-fg-muted">2. Campus Location &amp; Contact</h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <span className="text-[11px] font-bold text-muted-foreground">Phone Number (WhatsApp)</span>
+              <span className="text-sm font-medium text-fg">WhatsApp number</span>
               <input
+                aria-label="WhatsApp number"
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="e.g. +91 98765 43210"
-                className="w-full h-11 rounded-xl bg-muted/40 border border-border px-3.5 text-xs font-medium text-foreground outline-none"
+                className={cn(fieldClassName, "w-full h-11")}
               />
             </div>
 
             <div className="space-y-1.5">
-              <span className="text-[11px] font-bold text-muted-foreground">Email Address</span>
+              <span className="text-sm font-medium text-fg">Email</span>
               <input
+                aria-label="Email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="store@domain.com"
-                className="w-full h-11 rounded-xl bg-muted/40 border border-border px-3.5 text-xs font-medium text-foreground outline-none"
+                className={cn(fieldClassName, "w-full h-11")}
               />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <span className="text-[11px] font-bold text-muted-foreground">Physical Campus Address *</span>
+            <span className="text-sm font-medium text-fg">Address *</span>
             <input
+              aria-label="Address"
               type="text"
               required
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              placeholder="e.g. Near Hostel 10 Gate / Student Activity Centre"
-              className="w-full h-11 rounded-xl bg-muted/40 border border-border px-3.5 text-xs font-bold text-foreground outline-none"
+              placeholder="e.g. Near Hostel 10 gate"
+              className={cn(fieldClassName, "w-full h-11")}
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="space-y-1.5">
-              <span className="text-[11px] font-bold text-muted-foreground">Delivery Fee (₹)</span>
+              <span className="text-sm font-medium text-fg">Delivery Fee (₹)</span>
               <input
+                aria-label="Delivery Fee (₹)"
                 type="number"
                 value={deliveryFee}
                 onChange={(e) => setDeliveryFee(e.target.value)}
-                className="w-full h-11 rounded-xl bg-muted/40 border border-border px-3.5 text-xs font-bold text-foreground outline-none"
+                className={cn(fieldClassName, "w-full h-11")}
               />
             </div>
 
             <div className="space-y-1.5">
-              <span className="text-[11px] font-bold text-muted-foreground">Min Order (₹)</span>
+              <span className="text-sm font-medium text-fg">Min Order (₹)</span>
               <input
+                aria-label="Min Order (₹)"
                 type="number"
                 value={minOrderValue}
                 onChange={(e) => setMinOrderValue(e.target.value)}
-                className="w-full h-11 rounded-xl bg-muted/40 border border-border px-3.5 text-xs font-bold text-foreground outline-none"
+                className={cn(fieldClassName, "w-full h-11")}
               />
             </div>
 
             <div className="space-y-1.5">
-              <span className="text-[11px] font-bold text-muted-foreground">Prep / Turnaround</span>
+              <span className="text-sm font-medium text-fg">Prep time</span>
               <input
+                aria-label="Prep time"
                 type="text"
                 value={estimatedPrepTime}
                 onChange={(e) => setEstimatedPrepTime(e.target.value)}
-                className="w-full h-11 rounded-xl bg-muted/40 border border-border px-3.5 text-xs font-bold text-foreground outline-none"
+                className={cn(fieldClassName, "w-full h-11")}
               />
             </div>
           </div>
         </div>
 
         {/* Section 3: Direct Plaintext Credentials Generator */}
-        <div className="p-5 rounded-2xl bg-card border border-primary/30 space-y-3.5 shadow-xs relative overflow-hidden">
+        <div className="p-5 rounded-lg bg-surface border border-brand-subtle-border space-y-3.5 relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <h2 className="text-xs font-bold text-primary flex items-center gap-1.5">
+            <h2 className="text-xs font-bold text-brand-text flex items-center gap-1.5">
               <ShieldCheck className="size-4" />
               <span>3. Direct Portal Login Credentials</span>
             </h2>
             <button
               type="button"
               onClick={handleCopyCredentials}
-              className="text-xs font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer bg-primary/10 px-2.5 py-1 rounded-lg border border-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="text-xs font-bold text-brand-text hover:underline flex items-center gap-1 cursor-pointer bg-brand-subtle px-2.5 py-1 rounded-lg border border-brand-subtle-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <Copy className="size-3" />
               <span>Copy for WhatsApp</span>
             </button>
           </div>
 
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            Stored directly as plaintext so you can copy and share them instantly with local shopkeepers.
+          <p className="text-xs text-fg-muted leading-relaxed">
+            Saved as plain text so you can share it with the shop owner.
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
             <div className="space-y-1.5">
-              <span className="text-[11px] font-bold text-muted-foreground">Login Username</span>
+              <span className="text-sm font-medium text-fg">Username</span>
               <input
+                aria-label="Username"
                 type="text"
                 value={loginUsername}
                 onChange={(e) => setLoginUsername(e.target.value)}
                 placeholder="e.g. momohouse"
-                className="w-full h-11 rounded-xl bg-muted/40 border border-border px-3.5 text-xs font-mono font-bold text-foreground outline-none"
+                className={cn(fieldClassName, "w-full font-mono h-11")}
               />
             </div>
 
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-muted-foreground">Plaintext Password</span>
+                <span className="text-xs font-bold text-fg-muted">Password</span>
                 <button
                   type="button"
                   onClick={handleGeneratePassword}
-                  className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className="text-xs font-bold text-brand-text hover:underline flex items-center gap-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   <RefreshCw className="size-2.5" />
                   <span>Regenerate</span>
@@ -346,20 +356,22 @@ export function AdminNewMerchantClient() {
               </div>
               <div className="relative flex items-center">
                 <input
+                  aria-label="Login password"
                   type="text"
                   value={loginPassword}
                   onChange={(e) => setLoginPassword(e.target.value)}
                   placeholder="e.g. store@k8f2a"
-                  className="w-full h-11 rounded-xl bg-muted/40 border border-border px-3.5 pr-9 text-xs font-mono font-bold text-foreground outline-none"
+                  className={cn(fieldClassName, "w-full pr-9 font-mono h-11")}
                 />
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
                   onClick={handleGeneratePassword}
-                  className="absolute right-2.5 text-muted-foreground hover:text-foreground cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                  title="Generate Password"
+                  title="Make a password"
+                  aria-label="Make a password"
                 >
-                  <KeyRound className="size-4" />
-                </button>
+                  <KeyRound aria-hidden />
+                </Button>
               </div>
             </div>
           </div>
@@ -369,17 +381,17 @@ export function AdminNewMerchantClient() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full h-12 rounded-xl bg-foreground text-background font-bold text-sm hover:opacity-90 active:scale-98 transition-colors flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className={cn(buttonVariants({ variant: "primary", size: "md" }), "w-full")}
         >
           {isSubmitting ? (
             <>
               <Loader2 className="size-4 animate-spin" />
-              <span>Onboarding Merchant...</span>
+              <span>Adding merchant</span>
             </>
           ) : (
             <>
               <Send className="size-4" />
-              <span>Publish &amp; Activate Merchant</span>
+              <span>Add merchant</span>
             </>
           )}
         </button>

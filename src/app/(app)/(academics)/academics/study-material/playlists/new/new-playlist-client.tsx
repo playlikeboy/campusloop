@@ -1,12 +1,16 @@
 "use client";
 
-import { ArrowLeft, Check, FolderPlus, Layers, Loader2, Plus, Search, Sparkles, Trash2 } from "lucide-react";
+import { ArrowLeft, Check, FolderPlus, Layers, Loader2, Plus, Search, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { PLAYLIST_COVER_THEMES, type PlaylistCoverTheme, playlistCoverClass } from "@/components/academics/playlist-cover";
-import { SearchableCombobox, type ComboboxOption } from "@/components/ui/searchable-combobox";
+import {
+  PLAYLIST_COVER_THEMES,
+  type PlaylistCoverTheme,
+  playlistCoverClass,
+} from "@/components/academics/playlist-cover";
+import { type ComboboxOption, SearchableCombobox } from "@/components/ui/searchable-combobox";
 import { useProfile } from "@/hooks/use-profile";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -15,11 +19,11 @@ import { cn } from "@/lib/utils";
 const GRADIENTS = PLAYLIST_COVER_THEMES;
 
 const CATEGORIES = [
-  { value: "SEMESTER_PACK", label: "Semester Survival Pack" },
-  { value: "EXAM_PREP", label: "Midsem / Endsem Cram Stack" },
-  { value: "SUBJECT_BUNDLE", label: "Single Subject Master Bundle" },
-  { value: "GATE", label: "GATE & Competitive Coding" },
-  { value: "CUSTOM", label: "Custom Student Collection" },
+  { value: "SEMESTER_PACK", label: "Full semester" },
+  { value: "EXAM_PREP", label: "Midsem / endsem prep" },
+  { value: "SUBJECT_BUNDLE", label: "One subject" },
+  { value: "GATE", label: "GATE and placements" },
+  { value: "CUSTOM", label: "Other" },
 ];
 
 const BRANCHES = [
@@ -124,12 +128,12 @@ export function NewPlaylistClient() {
   async function handleSubmit(e?: React.FormEvent) {
     if (e) e.preventDefault();
     if (!title.trim()) {
-      toast.error("Please enter a playlist title");
+      toast.error("Add a playlist name first.");
       return;
     }
 
     if (selectedResources.length === 0) {
-      toast.error("Please add at least 1 study material to your stack");
+      toast.error("Add at least one file to your playlist first.");
       return;
     }
 
@@ -158,10 +162,10 @@ export function NewPlaylistClient() {
       const data = (await res.json()) as any;
       sounds.pop();
       haptics.success();
-      toast.success("Study Playlist published successfully!");
+      toast.success("Playlist published");
       router.push(`/academics/study-material/playlists/${data.playlist.slug || data.playlist.id}`);
     } catch (err: unknown) {
-      const errorMsg = err instanceof Error ? err.message : "Failed to publish playlist";
+      const errorMsg = err instanceof Error ? err.message : "Couldn't publish the playlist. Try again.";
       toast.error(errorMsg);
       setIsSubmitting(false);
     }
@@ -174,31 +178,29 @@ export function NewPlaylistClient() {
         <div className="flex items-center gap-2.5">
           <Link
             href="/academics/study-material"
-            className="flex size-8.5 items-center justify-center rounded-full border border-border/60 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            aria-label="Back to study material"
+            className="flex size-11 items-center justify-center rounded-full text-fg-muted transition-ui hover:bg-surface-muted hover:text-fg"
           >
-            <ArrowLeft className="size-4" />
+            <ArrowLeft className="size-5" aria-hidden="true" />
           </Link>
-          <h1 className="text-base sm:text-lg font-black text-foreground tracking-tight flex items-center gap-1.5">
-            <span>Create Study Playlist</span>
-            <Sparkles className="size-3.5 text-primary" />
-          </h1>
+          <h1 className="text-lg text-fg sm:text-xl">New playlist</h1>
         </div>
 
         <button
           type="button"
           onClick={handleSubmit}
           disabled={isSubmitting || !title.trim()}
-          className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black bg-brand hover:bg-brand-hover text-brand-fg shadow-xs disabled:opacity-50 cursor-pointer transition-colors active:scale-95"
+          className="flex min-h-11 items-center gap-1.5 rounded-full bg-brand px-4 text-sm font-semibold text-brand-fg transition-ui hover:bg-brand-hover active:scale-95 disabled:opacity-50 cursor-pointer"
         >
           {isSubmitting ? (
             <>
               <Loader2 className="size-3.5 animate-spin" />
-              <span>Publishing...</span>
+              <span>Publishing…</span>
             </>
           ) : (
             <>
               <FolderPlus className="size-3.5" />
-              <span>Publish Stack</span>
+              <span>Publish playlist</span>
             </>
           )}
         </button>
@@ -214,20 +216,20 @@ export function NewPlaylistClient() {
             )}
           >
             <div className="flex items-center justify-between z-10">
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-black/30 border border-white/15">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-bg/15 border border-current/20">
                 <Layers className="size-2.5" />
                 <span>{CATEGORIES.find((c) => c.value === category)?.label.split(" ")[0] || "Pack"}</span>
               </span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-black/30">
+              <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-bg/15">
                 {selectedResources.length} Materials
               </span>
             </div>
 
             <div className="z-10">
-              <h3 className="font-black text-sm sm:text-base line-clamp-1">
-                {title.trim() || "Untitled Study Playlist"}
+              <h3 className="font-bold text-sm sm:text-base line-clamp-1">
+                {title.trim() || "Untitled playlist"}
               </h3>
-              <p className="text-[11px] opacity-80 font-medium">
+              <p className="text-xs opacity-80 font-medium">
                 {branch} • {semester === "all" ? "All Semesters" : `Semester ${semester}`}
               </p>
             </div>
@@ -235,7 +237,7 @@ export function NewPlaylistClient() {
 
           {/* Sleek Circular Color Swatches */}
           <div className="flex items-center gap-2 pt-0.5 overflow-x-auto pb-1">
-            <span className="text-[11px] font-bold text-muted-foreground mr-1">Theme:</span>
+            <span className="text-xs font-bold text-muted-foreground mr-1">Theme:</span>
             {GRADIENTS.map((g) => (
               <button
                 key={g.value}
@@ -265,7 +267,7 @@ export function NewPlaylistClient() {
             </label>
             <input
               type="text"
-              placeholder="e.g. Sem 4 CSAI Endsem Survival Stack (OS + DBMS + CN)"
+              placeholder="e.g. Sem 4 endsem: OS, DBMS, CN"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
@@ -274,9 +276,9 @@ export function NewPlaylistClient() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-foreground">Curator Notes / Exam Tips (Optional)</label>
+            <label className="text-xs font-bold text-foreground">Tips for your batch (optional)</label>
             <textarea
-              placeholder="Advice for juniors or batchmates: which units to focus on, question predictions, etc."
+              placeholder="Which units to focus on, what usually comes in the exam"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
@@ -304,7 +306,7 @@ export function NewPlaylistClient() {
                 value={branch}
                 onChange={(val) => setBranch(val)}
                 placeholder="Select branch..."
-                searchPlaceholder="Search branch (e.g. CSE, IT)..."
+                searchPlaceholder="Search branch, e.g. CSE"
                 clearable={false}
               />
             </div>
@@ -327,12 +329,10 @@ export function NewPlaylistClient() {
         <div className="rounded-xl border border-border bg-surface p-5 space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-sm font-black text-foreground">Assemble Materials</h2>
-              <p className="text-xs text-muted-foreground">
-                Search our 9,200+ academic paper archive to add notes, PYQs, and cheat sheets
-              </p>
+              <h2 className="text-sm font-bold text-foreground">Assemble Materials</h2>
+              <p className="text-xs text-muted-foreground">Search for notes and PYQs to add</p>
             </div>
-            <span className="px-2.5 py-1 rounded-full text-xs font-black bg-brand-subtle text-brand-text border border-brand-subtle-border">
+            <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-subtle text-brand-text border border-brand-subtle-border">
               {selectedResources.length} Selected
             </span>
           </div>
@@ -342,7 +342,7 @@ export function NewPlaylistClient() {
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Search by subject name or code (e.g. Operating Systems, CS304, DLD, Math)..."
+              placeholder="Subject name or code, e.g. CS304"
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 rounded-2xl text-xs bg-background border border-border focus:outline-hidden focus:border-brand font-medium"
@@ -364,10 +364,10 @@ export function NewPlaylistClient() {
                   >
                     <div className="min-w-0 pr-2">
                       <div className="flex items-center gap-1.5">
-                        <span className="px-1.5 py-0.5 rounded-md bg-brand-subtle text-brand-text font-mono text-[10px] font-bold">
+                        <span className="px-1.5 py-0.5 rounded-md bg-brand-subtle text-brand-text font-mono text-xs font-bold">
                           {res.subjectCode}
                         </span>
-                        <span className="text-[10px] text-muted-foreground">
+                        <span className="text-xs text-muted-foreground">
                           {res.resourceType} • Sem {res.semester}
                         </span>
                       </div>
@@ -406,7 +406,7 @@ export function NewPlaylistClient() {
           {selectedResources.length > 0 ? (
             <div className="space-y-2 pt-2 border-t border-border/40">
               <p className="text-xs font-bold text-muted-foreground">
-                Stack Queue ({selectedResources.length} items)
+                In this playlist ({selectedResources.length})
               </p>
               <div className="space-y-1.5 max-h-64 overflow-y-auto pr-1">
                 {selectedResources.map((item, index) => (
@@ -415,12 +415,12 @@ export function NewPlaylistClient() {
                     className="flex items-center justify-between p-2.5 rounded-xl border border-border/60 bg-muted/20 hover:bg-muted/40 transition-colors"
                   >
                     <div className="flex items-center gap-2.5 min-w-0 pr-2">
-                      <span className="size-5 rounded-full bg-card border border-border font-mono text-[10px] font-bold text-muted-foreground flex items-center justify-center shrink-0">
+                      <span className="size-5 rounded-full bg-card border border-border font-mono text-xs font-bold text-muted-foreground flex items-center justify-center shrink-0">
                         {index + 1}
                       </span>
                       <div className="min-w-0">
                         <p className="text-xs font-bold text-foreground truncate">{item.title}</p>
-                        <p className="text-[10px] text-muted-foreground">
+                        <p className="text-xs text-muted-foreground">
                           {item.subjectCode} • {item.resourceType}
                         </p>
                       </div>
@@ -430,8 +430,7 @@ export function NewPlaylistClient() {
                       type="button"
                       onClick={() => removeResource(item.id)}
                       className="p-1 rounded-lg text-muted-foreground hover:text-danger hover:bg-danger-subtle transition-colors cursor-pointer shrink-0"
-                      title="Remove from stack"
-                      aria-label="Remove from stack"
+                      aria-label="Remove from playlist"
                     >
                       <Trash2 className="size-3.5" />
                     </button>
@@ -443,9 +442,7 @@ export function NewPlaylistClient() {
             <div className="py-6 text-center space-y-1 border border-dashed border-border/60 rounded-2xl">
               <FolderPlus className="size-6 text-muted-foreground mx-auto opacity-50" />
               <p className="text-xs font-bold text-foreground">No materials added yet</p>
-              <p className="text-[11px] text-muted-foreground">
-                Use the search box above to add notes and PYQs to your stack
-              </p>
+              <p className="text-xs text-muted-foreground">Search above to add notes and PYQs.</p>
             </div>
           )}
         </div>
@@ -461,14 +458,14 @@ export function NewPlaylistClient() {
           <button
             type="submit"
             disabled={isSubmitting || !title.trim()}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-black bg-brand hover:bg-brand-hover text-brand-fg shadow-xs disabled:opacity-50 cursor-pointer transition-colors active:scale-95"
+            className="flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-bold bg-brand hover:bg-brand-hover text-brand-fg shadow-xs disabled:opacity-50 cursor-pointer transition-colors active:scale-95"
           >
             {isSubmitting ? (
               <Loader2 className="size-3.5 animate-spin" />
             ) : (
               <FolderPlus className="size-3.5" />
             )}
-            <span>Publish Study Playlist</span>
+            <span>Publish playlist</span>
           </button>
         </div>
       </form>

@@ -1,9 +1,10 @@
 "use client";
 
-import { Flame, Heart, Lock, MessageCircleHeart, SlidersHorizontal } from "lucide-react";
+import { Flame, Heart, Lock, MessageCircleHeart, ShieldCheck, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import useSWR from "swr";
+import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
@@ -14,10 +15,30 @@ interface ProfilesResponse {
 }
 
 const TABS = [
-  { href: "/matching", label: "Discover", icon: Flame, match: (p: string) => p === "/matching" || p === "/matching/discover" },
-  { href: "/matching/likes", label: "Likes", icon: Heart, match: (p: string) => p.startsWith("/matching/likes") },
-  { href: "/matching/matches", label: "Matches", icon: MessageCircleHeart, match: (p: string) => p.startsWith("/matching/matches") },
-  { href: "/matching/requests", label: "Crush", icon: Lock, match: (p: string) => p.startsWith("/matching/requests") },
+  {
+    href: "/matching",
+    label: "Discover",
+    icon: Flame,
+    match: (p: string) => p === "/matching" || p === "/matching/discover",
+  },
+  {
+    href: "/matching/likes",
+    label: "Likes",
+    icon: Heart,
+    match: (p: string) => p.startsWith("/matching/likes"),
+  },
+  {
+    href: "/matching/matches",
+    label: "Matches",
+    icon: MessageCircleHeart,
+    match: (p: string) => p.startsWith("/matching/matches"),
+  },
+  {
+    href: "/matching/requests",
+    label: "Crush",
+    icon: Lock,
+    match: (p: string) => p.startsWith("/matching/requests"),
+  },
   {
     href: "/matching/settings",
     label: "Settings",
@@ -29,7 +50,7 @@ const TABS = [
 /** Campus Match section tabs under the app top bar. Crush pink is fenced to this surface. */
 export function MatchSubHeader({ collegeName }: { collegeName?: string }) {
   const pathname = usePathname() || "/matching";
-  const { data } = useSWR<ProfilesResponse>("/api/dating/profiles", {
+  const { data } = useSWR<ProfilesResponse>("/api/dating/profiles", fetcher, {
     revalidateOnFocus: true,
     dedupingInterval: 10000,
   });
@@ -37,9 +58,15 @@ export function MatchSubHeader({ collegeName }: { collegeName?: string }) {
 
   return (
     <div className="mb-4 border-b border-border">
-      <div className="flex items-baseline justify-between gap-3 pt-4 pb-2">
-        <h1 className="text-xl font-semibold tracking-tight text-fg">Campus Match</h1>
-        {collegeName && <p className="truncate text-sm text-fg-muted">{collegeName}</p>}
+      <div className="pt-4 pb-2">
+        <div className="flex items-baseline justify-between gap-3">
+          <h1 className="text-2xl text-fg">Campus Match</h1>
+          {collegeName && <p className="truncate text-sm text-fg-muted">{collegeName}</p>}
+        </div>
+        <p className="mt-1 flex items-center gap-1.5 text-sm text-fg-muted">
+          <ShieldCheck className="size-4 shrink-0 text-fg-subtle" aria-hidden="true" />
+          18+ only. Only students signed in to CampusLoop can see your profile.
+        </p>
       </div>
       <nav aria-label="Campus Match" className="no-scrollbar -mb-px flex gap-1 overflow-x-auto">
         {TABS.map((tab) => {
@@ -66,7 +93,7 @@ export function MatchSubHeader({ collegeName }: { collegeName?: string }) {
               {showCount && (
                 <span
                   className="flex h-5 min-w-5 items-center justify-center rounded-full bg-crush px-1.5 text-xs font-semibold tabular-nums text-crush-fg"
-                  aria-label={`${likesYouCount} people like you`}
+                  aria-label={`${likesYouCount} new likes`}
                 >
                   {formatCount(likesYouCount)}
                 </span>

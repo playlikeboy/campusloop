@@ -1,108 +1,54 @@
 "use client";
 
 import { Star } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import useSWR from "swr";
+import { LoadError } from "@/components/merchant/load-error";
+import { MerchantListSkeleton, MerchantPage } from "@/components/merchant/merchant-page";
+import { EmptyState } from "@/components/ui/empty-state";
+import { fetcher } from "@/lib/api";
 
-const SAMPLE_REVIEWS = [
-  {
-    id: "rev_1",
-    author: "Shaswat Raj",
-    username: "sh20raj",
-    rating: 5,
-    date: "Yesterday",
-    comment:
-      "Steamed chicken momos were steaming hot and delivered to Hostel 11 in under 15 minutes! The spicy garlic chutney is unbeatable.",
-    reply: "Thank you Shaswat! Glad you loved the extra chutney.",
-  },
-  {
-    id: "rev_2",
-    author: "Ananya Kashyap",
-    username: "ananya_kashyap",
-    rating: 5,
-    date: "2 days ago",
-    comment: "Kurkure momos were super crunchy. Perfect evening snack during exams.",
-    reply: null,
-  },
-  {
-    id: "rev_3",
-    author: "Nikhil Mehta",
-    username: "nikhil_mehta092",
-    rating: 4,
-    date: "3 days ago",
-    comment: "Good taste, would love if cold coffee had slightly less sugar next time.",
-    reply: "Noted Nikhil, we'll keep the sweetness customizable!",
-  },
-];
+interface DashboardMetrics {
+  metrics?: { rating?: number | null; reviewCount?: number | null };
+}
 
+/** Shows the store's real rating. The written reviews list needs its own API (see open issues). */
 export function MerchantReviewsClient() {
+  const { data, error, isLoading, mutate } = useSWR<DashboardMetrics>("/api/merchant/dashboard", fetcher);
+  const rating = Number(data?.metrics?.rating ?? 0);
+  const count = Number(data?.metrics?.reviewCount ?? 0);
+
   return (
-    <main className="max-w-3xl mx-auto p-4 space-y-6 select-none pb-24">
-      <div>
-        <h1 className="text-xl font-bold text-foreground tracking-tight">Student Ratings &amp; Reviews</h1>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          See what verified campus students are saying about your store
-        </p>
-      </div>
-
-      {/* ─── Rating Overview ─── */}
-      <div className="p-5 rounded-3xl bg-card border border-border/40 flex items-center gap-5 shadow-xs">
-        <div className="text-center">
-          <p className="text-3xl font-bold text-foreground">4.8</p>
-          <div className="flex items-center gap-0.5 justify-center text-warning mt-1">
-            <Star className="size-3.5 fill-warning" />
-            <Star className="size-3.5 fill-warning" />
-            <Star className="size-3.5 fill-warning" />
-            <Star className="size-3.5 fill-warning" />
-            <Star className="size-3.5 fill-warning" />
-          </div>
-          <p className="text-[10px] text-muted-foreground mt-1">184 verified reviews</p>
-        </div>
-
-        <div className="h-12 w-px bg-border/40" />
-
-        <div className="flex-1 space-y-1 text-xs font-semibold text-muted-foreground">
-          <p className="text-foreground">96% of students recommend this store</p>
-          <p className="text-[11px]">Ranked #1 Food Partner on BIT Mesra campus</p>
-        </div>
-      </div>
-
-      {/* ─── Reviews List ─── */}
-      <div className="space-y-3.5">
-        <h2 className="text-xs font-bold text-muted-foreground">Recent Reviews</h2>
-
-        {SAMPLE_REVIEWS.map((r) => (
-          <div key={r.id} className="p-4 rounded-2xl bg-card border border-border/40 space-y-2.5 shadow-xs">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Avatar className="size-7 rounded-full">
-                  <AvatarFallback className="text-[10px] font-bold">{r.author[0]}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="text-xs font-bold text-foreground">{r.author}</p>
-                  <p className="text-[10px] text-muted-foreground">
-                    @{r.username} · {r.date}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-0.5 text-warning">
-                {Array.from({ length: r.rating }).map((_, i) => (
-                  <Star key={i} className="size-3 fill-warning" />
-                ))}
-              </div>
+    <MerchantPage width="narrow" title="Reviews" description="What students rate your store.">
+      {isLoading ? (
+        <MerchantListSkeleton rows={1} />
+      ) : error ? (
+        <LoadError what="your rating" onRetry={mutate} />
+      ) : count > 0 ? (
+        <div className="flex items-center gap-4 rounded-lg border border-border bg-surface p-5">
+          <p className="font-display text-4xl font-extrabold tabular-nums text-fg">{rating.toFixed(1)}</p>
+          <div className="space-y-1">
+            <div
+              className="flex gap-0.5 text-fg"
+              role="img"
+              aria-label={`${rating.toFixed(1)} out of 5 stars`}
+            >
+              {[1, 2, 3, 4, 5].map((n) => (
+                <Star key={n} className={n <= Math.round(rating) ? "size-4 fill-current" : "size-4"} />
+              ))}
             </div>
-
-            <p className="text-xs text-foreground leading-relaxed">{r.comment}</p>
-
-            {r.reply && (
-              <div className="p-2.5 rounded-xl bg-muted/40 border border-border/30 text-[11px] text-muted-foreground">
-                <span className="font-bold text-foreground block">Store Reply:</span>
-                <span>{r.reply}</span>
-              </div>
-            )}
+            <p className="text-sm text-fg-muted">
+              From {count} review{count === 1 ? "" : "s"}
+            </p>
           </div>
-        ))}
-      </div>
-    </main>
+        </div>
+      ) : (
+        <EmptyState
+          bordered
+          icon={Star}
+          title="No reviews yet"
+          description="Students can rate your store after an order."
+        />
+      )}
+    </MerchantPage>
   );
 }

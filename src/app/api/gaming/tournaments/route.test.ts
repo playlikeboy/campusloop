@@ -2,6 +2,24 @@ import { describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
 vi.mock("server-only", () => ({}));
+// Never touch a real database from unit tests.
+vi.mock("@/db", async () =>
+  (await import("@/test/mock-db")).mockDbModule({
+    tables: {
+      gamingTournaments: [
+        {
+          id: "tour_test_1",
+          title: "Inter-College Spring Cup",
+          gameName: "Valorant",
+          startsAt: new Date(),
+          organizer: { id: "prof_test_1", username: "org", displayName: "Organizer", avatarUrl: null },
+          institution: null,
+        },
+      ],
+    },
+    selectRows: [{ value: 1 }],
+  }),
+);
 vi.mock("@/hexclave/server", () => ({
   hexclaveServerApp: {
     getUser: vi.fn(),

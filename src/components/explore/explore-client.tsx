@@ -1,16 +1,10 @@
 "use client";
 
-import {
-  BookOpen,
-  Building2,
-  Calendar,
-  GraduationCap,
-  ShoppingBag,
-  Users,
-} from "lucide-react";
+import { BookOpen, Building2, Calendar, GraduationCap, ShoppingBag, Users, WifiOff } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState, useTransition } from "react";
 import useSWR from "swr";
+import { CampusPulseSection } from "@/components/explore/campus-pulse-section";
 import {
   AcademicPreviewCard,
   ArticlePreviewCard,
@@ -24,14 +18,11 @@ import { ExploreHeader } from "@/components/explore/explore-header";
 import { ExploreSection } from "@/components/explore/explore-section";
 import { QuickExploreNav } from "@/components/explore/quick-explore-nav";
 import { UnifiedSearchView } from "@/components/explore/unified-search-view";
-import { CampusPulseSection } from "@/components/explore/campus-pulse-section";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetcher } from "@/lib/api";
-import type {
-  SearchApiResponse,
-  SearchCategoryFilter,
-  SearchScope,
-} from "@/lib/search/types";
+import type { SearchApiResponse, SearchCategoryFilter, SearchScope } from "@/lib/search/types";
 
 interface ExploreHomeData {
   scope: string;
@@ -67,9 +58,9 @@ export function ExploreClient({
 
   // URL state synchronization
   const queryParam = searchParams.get("q") || initialQuery;
-  const scopeParam = (searchParams.get("scope") === "GLOBAL" || searchParams.get("scope") === "INDIA"
-    ? "INDIA"
-    : "CAMPUS") as SearchScope;
+  const scopeParam = (
+    searchParams.get("scope") === "GLOBAL" || searchParams.get("scope") === "INDIA" ? "INDIA" : "CAMPUS"
+  ) as SearchScope;
   const typeParam = (searchParams.get("type") || initialType).toUpperCase() as SearchCategoryFilter;
 
   const [searchQuery, setSearchQuery] = useState(queryParam);
@@ -79,9 +70,8 @@ export function ExploreClient({
   // Sync state with URL params on back/forward navigation
   useEffect(() => {
     const q = searchParams.get("q") || "";
-    const s = searchParams.get("scope") === "GLOBAL" || searchParams.get("scope") === "INDIA"
-      ? "INDIA"
-      : "CAMPUS";
+    const s =
+      searchParams.get("scope") === "GLOBAL" || searchParams.get("scope") === "INDIA" ? "INDIA" : "CAMPUS";
     const t = (searchParams.get("type") || "ALL").toUpperCase() as SearchCategoryFilter;
 
     setSearchQuery(q);
@@ -150,6 +140,7 @@ export function ExploreClient({
     data: homeData,
     isLoading: homeLoading,
     error: homeError,
+    mutate: retryHome,
   } = useSWR<ExploreHomeData>(homeEndpoint, fetcher, {
     dedupingInterval: 20000,
   });
@@ -186,19 +177,35 @@ export function ExploreClient({
           <QuickExploreNav />
 
           {/* Loading Skeletons */}
+          {homeError && !homeData && (
+            <EmptyState
+              role="alert"
+              size="compact"
+              bordered
+              icon={WifiOff}
+              title="Couldn't load Explore"
+              description="Check your internet, then try again."
+              action={
+                <Button variant="secondary" size="sm" onClick={() => retryHome()}>
+                  Try again
+                </Button>
+              }
+            />
+          )}
+
           {homeLoading && !homeData && (
             <div className="space-y-6">
-              <Skeleton className="h-44 w-full rounded-2xl" />
+              <Skeleton className="h-44 w-full rounded-lg" />
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                <Skeleton className="h-28 rounded-xl" />
-                <Skeleton className="h-28 rounded-xl" />
-                <Skeleton className="h-28 rounded-xl" />
-                <Skeleton className="h-28 rounded-xl" />
+                <Skeleton className="h-28 rounded-lg" />
+                <Skeleton className="h-28 rounded-lg" />
+                <Skeleton className="h-28 rounded-lg" />
+                <Skeleton className="h-28 rounded-lg" />
               </div>
             </div>
           )}
 
-          {/* Campus Pulse (Trending & Top Discussions) */}
+          {/* Trending tags and most-discussed posts */}
           {homeData?.pulse && (
             <CampusPulseSection
               trends={homeData.pulse.trends || []}
@@ -210,11 +217,11 @@ export function ExploreClient({
           {homeData?.communities && homeData.communities.length > 0 && (
             <ExploreSection
               id="explore-communities"
-              title="Communities & Clubs"
-              subtitle="Student-run societies, technical chapters and campus clubs"
+              title="Communities"
+              subtitle="Clubs and groups run by students"
               icon={Users}
               viewAllHref="/communities"
-              viewAllLabel="Explore all clubs"
+              viewAllLabel="See all"
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {homeData.communities.map((c: any) => (
@@ -228,11 +235,11 @@ export function ExploreClient({
           {homeData?.events && homeData.events.length > 0 && (
             <ExploreSection
               id="explore-events"
-              title="Upcoming Campus Events"
-              subtitle="Hackathons, fests, recruitments and workshops across colleges"
+              title="Upcoming events"
+              subtitle="Fests, hackathons and workshops"
               icon={Calendar}
               viewAllHref="/events"
-              viewAllLabel="View all events"
+              viewAllLabel="See all"
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {homeData.events.map((ev: any) => (
@@ -242,15 +249,15 @@ export function ExploreClient({
             </ExploreSection>
           )}
 
-          {/* Academic Vault Section */}
+          {/* Study material section */}
           {homeData?.academics && homeData.academics.length > 0 && (
             <ExploreSection
               id="explore-academics"
-              title="Academic Vault"
-              subtitle="Top syllabus notes, verified PYQs, and semester study guides"
+              title="Study material"
+              subtitle="Notes, past papers and guides shared by students"
               icon={GraduationCap}
               viewAllHref="/academics"
-              viewAllLabel="Open vault"
+              viewAllLabel="See all"
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {homeData.academics.map((res: any) => (
@@ -264,11 +271,11 @@ export function ExploreClient({
           {homeData?.articles && homeData.articles.length > 0 && (
             <ExploreSection
               id="explore-articles"
-              title="Articles & Long Reads"
-              subtitle="Placement roadmaps, tech deep-dives, and campus perspectives"
+              title="Articles"
+              subtitle="Guides and stories written by students"
               icon={BookOpen}
               viewAllHref="/articles"
-              viewAllLabel="Read more"
+              viewAllLabel="See all"
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {homeData.articles.map((art: any) => (
@@ -282,11 +289,11 @@ export function ExploreClient({
           {homeData?.colleges && homeData.colleges.length > 0 && (
             <ExploreSection
               id="explore-colleges"
-              title="Colleges Across India"
-              subtitle="Browse 1,350+ indexed Indian college hubs and rankings"
+              title="Colleges"
+              subtitle="Find your college and others near you"
               icon={Building2}
               viewAllHref="/colleges"
-              viewAllLabel="All 1,350+ hubs"
+              viewAllLabel="See all"
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {homeData.colleges.map((col: any) => (
@@ -300,11 +307,11 @@ export function ExploreClient({
           {homeData?.people && homeData.people.length > 0 && (
             <ExploreSection
               id="explore-people"
-              title="Students & Creators to Follow"
-              subtitle="Connect with verified peers and top contributors on campus"
+              title="People to follow"
+              subtitle="Students who post a lot on CampusLoop"
               icon={Users}
               viewAllHref="/colleges"
-              viewAllLabel="Find more peers"
+              viewAllLabel="See more"
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {homeData.people.map((p: any) => (
@@ -318,11 +325,11 @@ export function ExploreClient({
           {homeData?.marketplace && homeData.marketplace.length > 0 && (
             <ExploreSection
               id="explore-marketplace"
-              title="Campus Marketplace"
-              subtitle="Order from campus canteens, night cafes, and essential stores"
+              title="Marketplace"
+              subtitle="Canteens and shops near campus"
               icon={ShoppingBag}
               viewAllHref="/marketplace"
-              viewAllLabel="Visit marketplace"
+              viewAllLabel="See all"
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {homeData.marketplace.map((m: any) => (

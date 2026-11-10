@@ -3,13 +3,10 @@
 import {
   ArrowLeft,
   Bookmark,
-  BookmarkCheck,
   BookOpen,
   ChevronRight,
   FileQuestion,
   FlaskConical,
-  HardDrive,
-  Loader2,
   Search,
   Trash2,
   Zap,
@@ -20,11 +17,17 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
 import { AcademicAiStudyBar } from "@/components/academics/academic-ai-study-bar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Chip } from "@/components/ui/chip";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useProfile } from "@/hooks/use-profile";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn } from "@/lib/utils";
 
 interface AcademicResourceItem {
   id: string;
@@ -124,7 +127,7 @@ export function SavedMaterialsClient() {
         body: JSON.stringify({ action: "UNSAVE" }),
       });
       if (res.ok) {
-        toast.success("Removed from semester locker");
+        toast.success("Removed from Saved");
         mutate(
           (prev) =>
             prev
@@ -138,7 +141,7 @@ export function SavedMaterialsClient() {
         );
       }
     } catch {
-      toast.error("Failed to remove item");
+      toast.error("Couldn't remove it. Check your internet and try again.");
     }
   }
 
@@ -158,284 +161,220 @@ export function SavedMaterialsClient() {
       if (res.ok && resData.success) {
         sounds.pop();
         haptics.success();
-        toast.success(resData.message || `Saved Semester ${sem} pack to your locker!`);
+        toast.success(resData.message || `Saved semester ${sem} files`);
         mutate();
       } else {
-        toast.error(resData.message || "No materials found for this semester pack.");
+        toast.error(resData.message || `No files for semester ${sem} yet.`);
       }
     } catch {
-      toast.error("Network error while saving semester pack.");
+      toast.error("Couldn't save. Check your connection and try again.");
     } finally {
       setSavingPackSem(null);
     }
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-3 sm:px-6 lg:px-8 pt-2 sm:pt-4 pb-28 select-none space-y-6">
-      {/* ─── Top Header & Stats ─── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border/30 pb-5">
+    <div className="mx-auto w-full max-w-6xl space-y-6 px-3 pt-2 pb-28 sm:px-6 sm:pt-4 lg:px-8">
+      <header className="space-y-1">
+        <Link
+          href="/academics/study-material"
+          className="-ml-1 inline-flex min-h-11 items-center gap-1.5 px-1 text-sm text-fg-muted transition-ui hover:text-fg"
+        >
+          <ArrowLeft className="size-4" aria-hidden="true" />
+          Study material
+        </Link>
+        <h1 className="text-2xl text-fg sm:text-3xl">Saved</h1>
+        <p className="text-sm text-fg-muted">
+          {savedItems.length === 1 ? "1 file" : `${savedItems.length} files`} you bookmarked, sorted by
+          semester.
+        </p>
+      </header>
+
+      <section
+        className="space-y-3 rounded-lg border border-border bg-surface p-4 sm:p-5"
+        aria-labelledby="sem-pack-title"
+      >
         <div className="space-y-1">
-          <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-            <Link
-              href="/academics/study-material"
-              className="flex items-center gap-1 hover:text-foreground transition-colors cursor-pointer"
-            >
-              <ArrowLeft className="size-3.5" />
-              <span>Academic Vault</span>
-            </Link>
-            <span>/</span>
-            <span className="text-foreground">Semester Locker</span>
-          </div>
-
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground flex items-center gap-2.5">
-            <span>Saved Semester Locker</span>
-            <span className="flex size-7 items-center justify-center rounded-xl bg-muted text-foreground border border-border/40">
-              <BookmarkCheck className="size-4" />
-            </span>
-          </h1>
-
-          <p className="text-xs sm:text-sm text-muted-foreground max-w-xl">
-            Auto-organized cloud vault for all your course notes, PYQs, and cheat sheets. Study instantly on
-            any device without filling phone storage.
+          <h2 id="sem-pack-title" className="text-base text-fg">
+            Save a whole semester
+          </h2>
+          <p className="text-sm text-fg-muted">
+            Adds the notes, PYQs and cheat sheets for that semester to Saved.
           </p>
         </div>
-
-        {/* Locker Stats Badge */}
-        <div className="flex items-center gap-2.5 shrink-0 self-start md:self-auto">
-          <div className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-muted/40 border border-border/40 text-foreground">
-            <HardDrive className="size-4 text-muted-foreground shrink-0" />
-            <div className="text-left">
-              <p className="text-xs font-black">{savedItems.length} Materials Saved</p>
-              <p className="text-[10px] text-muted-foreground">0 MB phone storage used</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ─── 1-Click "Save Semester Pack" Banner ─── */}
-      <div className="rounded-2xl border border-border/40 bg-card/60 p-4 sm:p-5 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="flex size-6 items-center justify-center rounded-lg bg-muted border border-border/40 text-foreground font-bold text-xs">
-              <Zap className="size-3.5 text-foreground" />
-            </span>
-            <h3 className="text-sm font-black text-foreground">1-Click Save Full Semester Pack</h3>
-          </div>
-          <p className="text-xs text-muted-foreground max-w-md leading-relaxed">
-            Need all study materials for your semester at once? Save the entire syllabus pack (Notes, PYQs,
-            Formula Sheets) directly to your locker.
-          </p>
-        </div>
-
-        {/* Quick Semester Buttons */}
-        <div className="flex items-center gap-1.5 flex-wrap">
+        <div className="flex flex-wrap gap-2">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((sem) => (
-            <button
+            <Button
               key={sem}
-              type="button"
+              variant="pill"
+              size="sm"
               disabled={savingPackSem !== null}
+              loading={savingPackSem === sem}
               onClick={() => handleSaveSemesterPack(sem)}
-              className="px-2.5 py-1.5 rounded-xl border border-border/40 bg-muted/30 hover:bg-muted text-foreground text-xs font-semibold transition-ui cursor-pointer disabled:opacity-50 active:scale-95"
-              title={`Save all materials for Semester ${sem}`}
+              aria-label={`Save all files for semester ${sem}`}
             >
-              {savingPackSem === sem ? <Loader2 className="size-3 animate-spin mx-auto" /> : `+ Sem ${sem}`}
-            </button>
+              Sem {sem}
+            </Button>
           ))}
         </div>
-      </div>
+      </section>
 
-      {/* ─── Filter & Search Bar ─── */}
       <div className="space-y-3">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-          {/* Semester Selector Tabs */}
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
-            <button
-              type="button"
-              onClick={() => {
-                sounds.tap();
-                setSelectedSemester("ALL");
-              }}
-              className={cn(
-                "px-3 py-1.5 rounded-xl text-xs font-black transition-ui cursor-pointer shrink-0 border",
-                selectedSemester === "ALL"
-                  ? "bg-foreground text-background border-foreground shadow-xs"
-                  : "bg-muted/30 text-muted-foreground border-border/40 hover:text-foreground"
-              )}
-            >
-              All Semesters
-            </button>
-
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((sem) => (
-              <button
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="-mx-3 flex gap-2 overflow-x-auto px-3 pb-1 no-scrollbar sm:mx-0 sm:px-0">
+            {(["ALL", 1, 2, 3, 4, 5, 6, 7, 8] as const).map((sem) => (
+              <Chip
                 key={sem}
-                type="button"
-                onClick={() => {
+                size="sm"
+                selected={selectedSemester === sem}
+                onSelectedChange={() => {
                   sounds.tap();
                   setSelectedSemester(sem);
                 }}
-                className={cn(
-                  "px-3 py-1.5 rounded-xl text-xs font-black transition-ui cursor-pointer shrink-0 border",
-                  selectedSemester === sem
-                    ? "bg-foreground text-background border-foreground shadow-xs"
-                    : "bg-muted/30 text-muted-foreground border-border/40 hover:text-foreground"
-                )}
               >
-                Sem {sem}
-              </button>
+                {sem === "ALL" ? "All" : `Sem ${sem}`}
+              </Chip>
             ))}
           </div>
-
-          {/* Search Input */}
-          <div className="relative min-w-[200px] sm:w-64">
-            <Search className="absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search saved materials..."
+          <div className="relative w-full sm:w-64">
+            <Search
+              className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-fg-subtle"
+              aria-hidden="true"
+            />
+            <Input
+              type="search"
+              aria-label="Search saved files"
+              placeholder="Search saved"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-9 w-full rounded-2xl border border-border/40 bg-muted/30 pl-9 pr-3 text-xs font-medium text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:bg-background transition-colors"
+              className="pl-10"
             />
           </div>
         </div>
-
-        {/* Format Selector Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
-          {MATERIAL_TYPES.map((type) => {
-            const isSelected = selectedType === type.id;
-            return (
-              <button
-                key={type.id}
-                type="button"
-                onClick={() => {
-                  sounds.tap();
-                  setSelectedType(type.id);
-                }}
-                className={cn(
-                  "px-3 py-1 rounded-full text-xs font-bold transition-ui cursor-pointer border shrink-0",
-                  isSelected
-                    ? "bg-foreground text-background border-foreground shadow-2xs"
-                    : "bg-muted/20 text-muted-foreground border-border/40 hover:text-foreground"
-                )}
-              >
-                {type.label}
-              </button>
-            );
-          })}
+        <div className="-mx-3 flex gap-2 overflow-x-auto px-3 pb-1 no-scrollbar sm:mx-0 sm:px-0">
+          {MATERIAL_TYPES.map((type) => (
+            <Chip
+              key={type.id}
+              size="sm"
+              selected={selectedType === type.id}
+              onSelectedChange={() => {
+                sounds.tap();
+                setSelectedType(type.id);
+              }}
+            >
+              {type.label}
+            </Chip>
+          ))}
         </div>
       </div>
 
-      {/* ─── Auto-Organized Subject Sections ─── */}
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-8">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2" role="status">
+          <span className="sr-only">Loading saved files</span>
           {[1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
-              className="h-36 rounded-3xl border border-border/30 bg-card/40 animate-pulse p-4 space-y-3"
-            />
+            <Skeleton key={i} className="h-36 rounded-lg" />
           ))}
         </div>
       ) : groupedBySubject.length > 0 ? (
-        <div className="space-y-6">
+        <div className="space-y-8">
           {groupedBySubject.map((group) => (
-            <div
-              key={group.code}
-              className="rounded-3xl border border-border/40 bg-card/40 p-4 sm:p-5 space-y-3 shadow-xs"
-            >
-              {/* Subject Group Header */}
-              <div className="flex items-center justify-between border-b border-border/30 pb-2.5">
-                <div className="flex items-center gap-2.5">
-                  <span className="px-2.5 py-0.5 rounded-lg bg-primary/15 text-primary text-xs font-black uppercase tracking-wider">
-                    {group.code}
-                  </span>
-                  <h2 className="text-sm sm:text-base font-black text-foreground">{group.name}</h2>
-                </div>
-
-                <span className="text-[11px] font-bold text-muted-foreground">
-                  Sem {group.semester} • {group.items.length} {group.items.length === 1 ? "file" : "files"}
+            <section key={group.code} className="space-y-3" aria-label={group.name}>
+              <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                <h2 className="flex items-center gap-2 text-base text-fg sm:text-lg">
+                  <Badge variant="outline">{group.code}</Badge>
+                  {group.name}
+                </h2>
+                <span className="text-sm text-fg-muted">
+                  Sem {group.semester} · {group.items.length} {group.items.length === 1 ? "file" : "files"}
                 </span>
               </div>
-
-              {/* Items in Subject Group */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 {group.items.map((item) => (
-                  <div
-                    key={item.id}
-                    className="rounded-2xl border border-border/40 bg-muted/20 hover:bg-muted/40 p-3.5 transition-ui flex flex-col justify-between space-y-3"
-                  >
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-muted text-muted-foreground border border-border/40 uppercase">
-                          {item.resourceType}
-                        </span>
-
-                        <button
-                          type="button"
-                          onClick={() => handleRemove(item.id)}
-                          className="size-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-danger hover:bg-danger-subtle transition-colors cursor-pointer"
-                          title="Remove from locker"
-                          aria-label="Remove from locker"
-                        >
-                          <Trash2 className="size-3.5" />
-                        </button>
-                      </div>
-
-                      <h3 className="text-xs sm:text-sm font-black text-foreground line-clamp-2 leading-snug">
-                        {item.title}
-                      </h3>
-
-                      {item.moduleOrChapter && (
-                        <p className="text-[11px] font-medium text-muted-foreground">
-                          {item.moduleOrChapter}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Action Bar */}
-                    <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/30">
-                      <AcademicAiStudyBar
-                        title={item.title}
-                        subjectCode={item.subjectCode}
-                        materialUrl={
-                          item.fileUrl || item.driveUrl || `https://campusloop.space/academics/study-material/${item.id}`
-                        }
-                        pageUrl={`https://campusloop.space/academics/study-material/${item.id}`}
-                        compact={true}
-                      />
-
-                      <Link
-                        href={`/academics/study-material/${item.id}`}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-foreground text-background hover:opacity-90 transition-opacity cursor-pointer shrink-0"
-                      >
-                        <span>Study</span>
-                        <ChevronRight className="size-3" />
-                      </Link>
-                    </div>
-                  </div>
+                  <li key={item.id}>
+                    <Card size="sm" className="h-full">
+                      <CardContent className="flex flex-1 flex-col gap-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <Badge variant="neutral">{item.resourceType}</Badge>
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            onClick={() => handleRemove(item.id)}
+                            aria-label={`Remove ${item.title} from saved`}
+                          >
+                            <Trash2 className="size-4" aria-hidden="true" />
+                          </Button>
+                        </div>
+                        <h3 className="line-clamp-2 font-sans text-sm font-semibold text-fg">{item.title}</h3>
+                        {item.moduleOrChapter && (
+                          <p className="text-sm text-fg-muted">{item.moduleOrChapter}</p>
+                        )}
+                      </CardContent>
+                      <CardFooter className="justify-between gap-2">
+                        <AcademicAiStudyBar
+                          title={item.title}
+                          subjectCode={item.subjectCode}
+                          materialUrl={
+                            item.fileUrl ||
+                            item.driveUrl ||
+                            `https://campusloop.space/academics/study-material/${item.id}`
+                          }
+                          pageUrl={`https://campusloop.space/academics/study-material/${item.id}`}
+                          compact={true}
+                        />
+                        <Button asChild size="sm">
+                          <Link href={`/academics/study-material/${item.id}`}>
+                            Open
+                            <ChevronRight className="size-4" aria-hidden="true" />
+                          </Link>
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  </li>
                 ))}
-              </div>
-            </div>
+              </ul>
+            </section>
           ))}
         </div>
+      ) : error ? (
+        <EmptyState
+          icon={Bookmark}
+          title="Couldn't load your saved files"
+          description="Check your connection and try again."
+          action={
+            <Button variant="secondary" onClick={() => mutate()}>
+              Try again
+            </Button>
+          }
+        />
+      ) : savedItems.length > 0 ? (
+        <EmptyState
+          icon={Search}
+          title="Nothing matches"
+          description="Try another semester, type or search."
+          action={
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setSelectedSemester("ALL");
+                setSelectedType("ALL");
+                setSearchQuery("");
+              }}
+            >
+              Clear filters
+            </Button>
+          }
+        />
       ) : (
-        <div className="py-20 text-center space-y-4 max-w-sm mx-auto">
-          <div className="flex size-14 items-center justify-center rounded-full bg-muted text-muted-foreground border border-border/40 mx-auto">
-            <Bookmark className="size-6" />
-          </div>
-          <div className="space-y-1">
-            <p className="text-sm font-black text-foreground">Your semester locker is empty</p>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Bookmark notes and PYQs directly while exploring the Academic Vault, or click any of the
-              semester pack buttons above to save your entire semester syllabus in one go.
-            </p>
-          </div>
-          <Link
-            href="/academics/study-material"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground font-black text-xs hover:bg-primary/90 transition-colors shadow-xs"
-          >
-            <span>Explore Academic Vault</span>
-            <ChevronRight className="size-3.5" />
-          </Link>
-        </div>
+        <EmptyState
+          icon={Bookmark}
+          title="Nothing saved yet"
+          description="Tap the bookmark on any note or PYQ to keep it here."
+          action={
+            <Button asChild>
+              <Link href="/academics/study-material">Browse study material</Link>
+            </Button>
+          }
+        />
       )}
     </div>
   );

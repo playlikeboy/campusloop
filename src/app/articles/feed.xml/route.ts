@@ -1,6 +1,6 @@
 import { desc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { ARTICLES_CANONICAL_HOST, ARTICLES_SUBTITLE } from "@/constants/articles";
+import { ARTICLES_CANONICAL_HOST, ARTICLES_SUBTITLE, getCategoryMeta } from "@/constants/articles";
 import { getDb } from "@/db";
 import { articles } from "@/db/schema";
 
@@ -17,7 +17,7 @@ function escapeXml(value: string): string {
 
 function rssDocument(items: string): string {
   return `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
   <channel>
     <title>CampusLoop Articles</title>
     <link>${ARTICLES_CANONICAL_HOST}/articles</link>
@@ -47,7 +47,7 @@ export async function GET() {
       const description = escapeXml(item.excerpt || item.subtitle || item.title);
       const pubDate = (item.publishedAt || item.createdAt).toUTCString();
       const author = escapeXml(item.author?.displayName || `@${item.author?.username || "writer"}`);
-      const category = escapeXml(item.category || "GENERAL");
+      const category = escapeXml(getCategoryMeta(item.category).label);
 
       items += `
     <item>
@@ -55,7 +55,7 @@ export async function GET() {
       <link>${link}</link>
       <guid isPermaLink="true">${link}</guid>
       <pubDate>${pubDate}</pubDate>
-      <author>${author}</author>
+      <dc:creator>${author}</dc:creator>
       <category>${category}</category>
       <description>${description}</description>
     </item>`;

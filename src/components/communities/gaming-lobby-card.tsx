@@ -6,21 +6,18 @@ import {
   Copy,
   ExternalLink,
   Gamepad2,
-  Loader2,
   MessageSquare,
   Play,
   Share2,
-  ShieldAlert,
-  ShieldCheck,
   Sword,
   Users,
   XCircle,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useSWRConfig } from "swr";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import type { GamingLobby } from "@/db/schema";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -56,7 +53,12 @@ interface GamingLobbyCardProps {
   onRefresh?: () => void;
 }
 
-export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRefresh }: GamingLobbyCardProps) {
+export function GamingLobbyCard({
+  item,
+  currentUserId,
+  highlighted = false,
+  onRefresh,
+}: GamingLobbyCardProps) {
   // Determine if current user is member from item or parsed players
   const initialIsJoined = (() => {
     if (item.isJoined !== undefined) return item.isJoined;
@@ -138,7 +140,7 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRe
     sounds.tap();
     haptics.light();
     navigator.clipboard.writeText(item.gamerTag);
-    toast.success(`Copied Riot/Gamer ID: ${item.gamerTag}`);
+    toast.success(`Copied ID: ${item.gamerTag}`);
   }
 
   async function handleJoinLobby() {
@@ -151,7 +153,7 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRe
 
     if (joined) {
       if (isHost) {
-        toast.info("As host, you can start, complete, or cancel the lobby below.");
+        toast.info("You're the host. Start or cancel the match below.");
         return;
       }
 
@@ -167,13 +169,13 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRe
 
         const data = (await res.json()) as any;
         if (!res.ok) {
-          throw new Error(data.error || "Failed to leave lobby");
+          throw new Error(data.error || "Couldn't leave the lobby. Try again.");
         }
 
         setJoined(false);
         setSlotsFilled(data.slotsFilled);
         setStatus(data.status);
-        toast.info("Left squad lobby");
+        toast.info("You left the lobby");
         onRefresh?.();
       } catch (err: any) {
         toast.error(err.message || "Could not leave lobby");
@@ -182,7 +184,7 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRe
       }
     } else {
       if (isFull) {
-        toast.error("Lobby is currently full!");
+        toast.error("This lobby is full");
         return;
       }
 
@@ -199,13 +201,13 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRe
 
         const data = (await res.json()) as any;
         if (!res.ok) {
-          throw new Error(data.error || "Failed to join lobby");
+          throw new Error(data.error || "Couldn't join the lobby. Try again.");
         }
 
         setJoined(true);
         setSlotsFilled(data.slotsFilled);
         setStatus(data.status);
-        toast.success("Joined squad! Coordinate via voice or CampusLoop chat.");
+        toast.success("You joined. Message the host to plan the match.");
         onRefresh?.();
       } catch (err: any) {
         toast.error(err.message || "Could not join lobby");
@@ -230,16 +232,16 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRe
 
       const data = (await res.json()) as any;
       if (!res.ok) {
-        throw new Error(data.error || "Failed to update lobby");
+        throw new Error(data.error || "Couldn't update the lobby. Try again.");
       }
 
       setStatus(nextStatus);
-      if (nextStatus === "IN_GAME") toast.success("Match marked as in progress!");
-      else if (nextStatus === "COMPLETED") toast.success("Lobby marked completed!");
+      if (nextStatus === "IN_GAME") toast.success("Marked as playing");
+      else if (nextStatus === "COMPLETED") toast.success("Marked as done");
       else if (nextStatus === "CANCELLED") toast.info("Lobby cancelled.");
       onRefresh?.();
     } catch (err: any) {
-      toast.error(err.message || "Failed to update status");
+      toast.error(err.message || "Couldn't update the lobby. Try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -263,15 +265,15 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRe
         .catch(() => {});
     } else {
       navigator.clipboard.writeText(shareUrl);
-      toast.success("Gaming lobby link copied!");
+      toast.success("Link copied");
     }
   }
 
   return (
     <div
-      id={"gaming-lobby-" + item.id}
+      id={`gaming-lobby-${item.id}`}
       className={cn(
-        "rounded-2xl border border-border/70 bg-card/60 p-4 transition-colors hover:border-primary/30 hover:bg-card/90 shadow-2xs scroll-mt-24",
+        "rounded-2xl border border-border/70 bg-surface p-4 transition-colors hover:border-primary/30 hover:bg-surface shadow-2xs scroll-mt-24",
         highlighted ? "ring-2 ring-primary/40 bg-primary/5" : ""
       )}
     >
@@ -293,13 +295,12 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRe
               >
                 {item.host.displayName}
               </Link>
-              {(item.host.points || 0) >= 150 && <ShieldCheck className="size-3.5 shrink-0 text-primary" />}
             </div>
-            <p className="mt-0.5 truncate text-[10px] text-muted-foreground/80">
+            <p className="mt-0.5 truncate text-xs text-muted-foreground/80">
               @{item.host.username} · {formatTimeAgo(item.createdAt)}
             </p>
             {item.institution && (
-              <p className="mt-0.5 truncate text-[10px] font-medium text-muted-foreground">
+              <p className="mt-0.5 truncate text-xs font-medium text-muted-foreground">
                 {item.institution.name.split(",")[0]}
               </p>
             )}
@@ -335,21 +336,21 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRe
             </span>
           )}
 
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon"
             onClick={handleShare}
-            className="size-7 rounded-full bg-muted/50 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-            title="Share or Copy Link"
             aria-label="Share lobby link"
           >
-            <Share2 className="size-3.5" />
-          </button>
+            <Share2 />
+          </Button>
         </div>
       </div>
 
       {/* Lobby Title & Description */}
       <div className="space-y-1.5">
-        <h3 className="text-sm font-black text-foreground leading-snug">{item.title}</h3>
+        <h3 className="text-sm font-bold text-foreground leading-snug">{item.title}</h3>
         {item.description && (
           <p className="text-xs text-muted-foreground/90 leading-relaxed font-normal">{item.description}</p>
         )}
@@ -357,19 +358,19 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRe
 
       {/* Details Bar (Mode, Rank, Schedule, GamerTag) */}
       <div className="flex flex-wrap items-center gap-2 pt-3">
-        <div className="flex items-center gap-1 text-[11px] font-bold text-foreground/80 px-2.5 py-1 rounded-xl bg-muted/40 border border-border/40">
+        <div className="flex items-center gap-1 text-xs font-bold text-foreground/80 px-2.5 py-1 rounded-xl bg-muted/40 border border-border/40">
           <Sword className="size-3 text-primary shrink-0" />
           <span>{item.mode}</span>
         </div>
 
         {item.rankTier && (
-          <div className="flex items-center gap-1 text-[11px] font-semibold text-muted-foreground px-2.5 py-1 rounded-xl bg-muted/30 border border-border/30">
+          <div className="flex items-center gap-1 text-xs font-semibold text-muted-foreground px-2.5 py-1 rounded-xl bg-muted/30 border border-border/30">
             <span>Tier: {item.rankTier}</span>
           </div>
         )}
 
         {item.scheduledAt && (
-          <div className="flex items-center gap-1 text-[11px] font-semibold text-muted-foreground px-2.5 py-1 rounded-xl bg-muted/30 border border-border/30">
+          <div className="flex items-center gap-1 text-xs font-semibold text-muted-foreground px-2.5 py-1 rounded-xl bg-muted/30 border border-border/30">
             <Clock className="size-3 text-warning shrink-0" />
             <span>{item.scheduledAt}</span>
           </div>
@@ -379,11 +380,11 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRe
           <button
             type="button"
             onClick={handleCopyGamerTag}
-            className="flex items-center gap-1 text-[11px] font-bold text-foreground/90 px-2.5 py-1 rounded-xl bg-muted/40 hover:bg-muted/70 border border-border/40 transition-colors cursor-pointer"
-            title="Click to copy in-game ID"
+            className="inline-flex min-h-9 cursor-pointer items-center gap-1.5 rounded-full bg-surface-muted px-3 text-xs font-semibold text-fg transition-ui hover:bg-surface-sunken"
+            aria-label={`Copy in-game ID ${item.gamerTag}`}
           >
-            <span>Tag: {item.gamerTag}</span>
-            <Copy className="size-2.5 text-muted-foreground" />
+            <span>ID: {item.gamerTag}</span>
+            <Copy className="size-3 text-fg-muted" aria-hidden="true" />
           </button>
         )}
       </div>
@@ -391,17 +392,15 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRe
       {/* Roster Squad Members Preview */}
       {rosterPlayers.length > 0 && (
         <div className="mt-3 flex flex-wrap items-center gap-1.5">
-          <span className="text-xs font-bold text-muted-foreground mr-1">
-            Squad:
-          </span>
+          <span className="text-xs font-bold text-muted-foreground mr-1">Squad:</span>
           {rosterPlayers.map((p, idx) => (
             <span
               key={p.userId || idx}
-              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-muted/35 text-[11px] font-medium text-foreground border border-border/40"
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-muted/35 text-xs font-medium text-foreground border border-border/40"
             >
               <span className="size-1.5 rounded-full bg-success" />
               <span>{p.displayName || p.username}</span>
-              {p.role && <span className="text-[9px] text-muted-foreground">({p.role})</span>}
+              {p.role && <span className="text-xs text-muted-foreground">({p.role})</span>}
             </span>
           ))}
         </div>
@@ -412,17 +411,17 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRe
         <div className="flex items-center justify-between text-xs">
           <span className="font-bold text-muted-foreground flex items-center gap-1">
             <Users className="size-3.5" />
-            <span>Lobby Squad</span>
+            <span>Players</span>
           </span>
-          <span className="font-black text-foreground tabular-nums">
-            {slotsFilled} / {item.slotsTotal} Players
+          <span className="font-bold text-foreground tabular-nums">
+            {slotsFilled}/{item.slotsTotal}
           </span>
         </div>
-        <div className="h-2 w-full rounded-full bg-muted/50 overflow-hidden">
+        <div className="h-2 w-full overflow-hidden rounded-full bg-poll-track">
           <div
             className={cn(
-              "h-full rounded-full transition-colors duration-500",
-              isFull ? "bg-warning" : "bg-primary"
+              "h-full rounded-full transition-ui",
+              isFull ? "bg-poll-fill-chosen" : "bg-poll-fill"
             )}
             style={{ width: `${Math.min(100, (slotsFilled / item.slotsTotal) * 100)}%` }}
           />
@@ -432,75 +431,58 @@ export function GamingLobbyCard({ item, currentUserId, highlighted = false, onRe
       {/* Action Footer */}
       <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-border/15 mt-3">
         <div className="flex items-center gap-2">
-          {/* Main Join / Leave Button */}
           {status !== "COMPLETED" && status !== "CANCELLED" && (
-            <button
+            <Button
               type="button"
-              disabled={isSubmitting || (isFull && !joined)}
+              size="sm"
+              variant={joined ? "secondary" : "primary"}
+              loading={isSubmitting}
+              disabled={isFull && !joined}
               onClick={handleJoinLobby}
-              className={cn(
-                "flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black transition-[opacity,transform] cursor-pointer shadow-xs active:scale-95 disabled:opacity-60",
-                joined
-                  ? isHost
-                    ? "bg-primary/10 text-primary border border-primary/20"
-                    : "bg-muted text-foreground hover:bg-muted/80 border border-border"
-                  : isFull
-                    ? "bg-muted text-muted-foreground cursor-not-allowed"
-                    : "bg-primary text-primary-foreground hover:bg-primary/90"
-              )}
             >
-              {isSubmitting ? (
-                <Loader2 className="size-3.5 animate-spin" />
-              ) : (
-                <Gamepad2 className="size-3.5" />
-              )}
-              <span>
-                {joined
-                  ? isHost
-                    ? "Host (You)"
-                    : "Leave Squad"
-                  : isFull
-                    ? "Squad Full"
-                    : "Join Squad"}
-              </span>
-            </button>
+              {!isSubmitting && <Gamepad2 />}
+              {joined ? (isHost ? "You're hosting" : "Leave") : isFull ? "Full" : "Join"}
+            </Button>
           )}
 
-          {/* Host Controls */}
           {isHost && status === "OPEN" && (
-            <button
+            <Button
               type="button"
+              size="sm"
+              variant="outline"
               disabled={isSubmitting}
               onClick={() => handleHostAction("IN_GAME")}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-success-subtle text-success hover:bg-success-subtle border border-success transition-colors cursor-pointer"
             >
-              <Play className="size-3" />
-              <span>Start Match</span>
-            </button>
+              <Play />
+              Start match
+            </Button>
           )}
 
           {isHost && status === "IN_GAME" && (
-            <button
+            <Button
               type="button"
+              size="sm"
+              variant="outline"
               disabled={isSubmitting}
               onClick={() => handleHostAction("COMPLETED")}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-brand-subtle text-brand-text hover:bg-brand-subtle border border-brand transition-colors cursor-pointer"
             >
-              <CheckCircle2 className="size-3" />
-              <span>Complete</span>
-            </button>
+              <CheckCircle2 />
+              Mark done
+            </Button>
           )}
 
           {isHost && status !== "CANCELLED" && status !== "COMPLETED" && (
-            <button
+            <Button
               type="button"
+              size="sm"
+              variant="ghost"
               disabled={isSubmitting}
               onClick={() => handleHostAction("CANCELLED")}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold text-muted-foreground hover:text-danger transition-colors cursor-pointer"
+              className="hover:text-danger"
             >
-              <XCircle className="size-3" />
-              <span>Cancel</span>
-            </button>
+              <XCircle />
+              Cancel
+            </Button>
           )}
         </div>
 

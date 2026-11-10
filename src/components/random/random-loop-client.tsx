@@ -1,49 +1,18 @@
 "use client";
 
-import {
-  AlertTriangle,
-  ArrowLeft,
-  ArrowRight,
-  BookOpen,
-  Brain,
-  Check,
-  Code2,
-  Film,
-  Gamepad2,
-  Globe,
-  Heart,
-  Loader2,
-  Lock,
-  MessageSquare,
-  Moon,
-  MoreVertical,
-  Music,
-  Rocket,
-  School,
-  Send,
-  Shield,
-  ShieldAlert,
-  ShieldCheck,
-  Smile,
-  Sparkles,
-  Trophy,
-  UserCheck,
-  Video,
-  X,
-  Zap,
-} from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
 import { ActiveCallOverlay } from "@/components/calls/active-call-overlay";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { RANDOM_LOOP_STARTERS } from "@/lib/random-loop-safety";
 import { sounds } from "@/lib/sounds";
-import { cn, formatTimeAgo } from "@/lib/utils";
+import { RandomChatView } from "./random-chat-view";
+import { ChatOptionsDialog, ReportDialog, SafetyDialog, VideoConsentDialog } from "./random-dialogs";
+import { MAX_INTERESTS, type RandomMode, RandomSetupView } from "./random-setup-view";
+import { RandomEndedView, RandomSearchingView } from "./random-status-views";
 
 interface RandomLoopClientProps {
   currentProfile: {
@@ -57,66 +26,53 @@ interface RandomLoopClientProps {
   };
 }
 
-const INTEREST_CHIPS = [
-  { id: "fun", label: "Just for fun", icon: Smile },
-  { id: "tech", label: "Tech & Dev", icon: Code2 },
-  { id: "study", label: "Study & Exams", icon: BookOpen },
-  { id: "gaming", label: "Gaming", icon: Gamepad2 },
-  { id: "music", label: "Music & Vibe", icon: Music },
-  { id: "sports", label: "Sports", icon: Trophy },
-  { id: "movies", label: "Movies & Anime", icon: Film },
-  { id: "startups", label: "Startups", icon: Rocket },
-  { id: "relationships", label: "Relationships", icon: Heart },
-  { id: "latenight", label: "Late night talks", icon: Moon },
-  { id: "life", label: "Life & Career", icon: Brain },
-  { id: "surprise", label: "Surprise me", icon: Sparkles },
-];
+type ViewState = "CONFIGURING" | "QUEUED" | "ACTIVE" | "ENDED";
+
+async function postAction(sessionId: string, body: Record<string, unknown>) {
+  return fetch(`/api/random/session/${sessionId}/action`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
 
 export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
   const router = useRouter();
 
-  // State Machine: "CONFIGURING" | "QUEUED" | "ACTIVE" | "ENDED"
-  const [viewState, setViewState] = useState<"CONFIGURING" | "QUEUED" | "ACTIVE" | "ENDED">("CONFIGURING");
-  const [selectedMode, setSelectedMode] = useState<"MY_CAMPUS" | "ANY_CAMPUS">("MY_CAMPUS");
-  const [selectedInterests, setSelectedInterests] = useState<string[]>(["fun"]);
+  const [viewState, setViewState] = useState<ViewState>("CONFIGURING");
+  const [mode, setMode] = useState<RandomMode>("MY_CAMPUS");
+  const [interests, setInterests] = useState<string[]>(["fun"]);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
 
-  // In-session chat state
   const [inputText, setInputText] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [starterIndex, setStarterIndex] = useState(0);
-  const [showOptionsModal, setShowOptionsModal] = useState(false);
-  const [showSafetyModal, setShowSafetyModal] = useState(false);
-  const [showReportModal, setShowReportModal] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
+  const [showSafety, setShowSafety] = useState(false);
+  const [showReport, setShowReport] = useState(false);
   const [reportReason, setReportReason] = useState("HARASSMENT");
-  const [ratedReaction, setRatedReaction] = useState<string | null>(null);
+  const [isReporting, setIsReporting] = useState(false);
+  const [isBlocking, setIsBlocking] = useState(false);
+  const [rating, setRating] = useState<string | null>(null);
 
-  // Video calling state in Random Loop
   const [isVideoActive, setIsVideoActive] = useState(false);
-  const [showVideoConsentModal, setShowVideoConsentModal] = useState(false);
-  const [showAllInterests, setShowAllInterests] = useState(false);
+  const [showVideoConsent, setShowVideoConsent] = useState(false);
+  // "Not now" on a video request: don't ask again for this session
+  const [videoDeclined, setVideoDeclined] = useState(false);
 
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
-
-  // Poll active session details and message feed
   const { data: sessionData, mutate: mutateSession } = useSWR<{
     session: any;
     partner: any;
     messages: any[];
   }>(activeSessionId ? `/api/random/session/${activeSessionId}` : null, fetcher, {
-    refreshInterval: 2500, // Frequent enough for chat, lighter on mobile data
+    refreshInterval: 2500, // Often enough for chat, light on mobile data
   });
 
   const session = sessionData?.session;
   const partner = sessionData?.partner;
   const messages = sessionData?.messages || [];
 
-  // Auto-scroll messages
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages.length]);
-
-  // Handle session status updates
+  // The other person left or the session closed
   useEffect(() => {
     if (session?.status && session.status !== "ACTIVE" && viewState === "ACTIVE") {
       setViewState("ENDED");
@@ -124,48 +80,78 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
     }
   }, [session?.status, viewState]);
 
-  // Video session trigger effect: when both users accept, launch video
+  // Video starts only when both people said yes
   useEffect(() => {
     if (session?.isBothVideoAccepted && !isVideoActive) {
       sounds.ting();
-      toast.success("Mutual video accepted! Connecting camera...");
+      toast.success("You both said yes. Starting video…");
       setIsVideoActive(true);
-      setShowVideoConsentModal(false);
+      setShowVideoConsent(false);
     } else if (
       session?.partnerVideoRequested &&
       !session?.myVideoRequested &&
-      !showVideoConsentModal &&
+      !showVideoConsent &&
+      !videoDeclined &&
       !isVideoActive
     ) {
       sounds.pop();
-      setShowVideoConsentModal(true);
+      setShowVideoConsent(true);
     }
   }, [
     session?.isBothVideoAccepted,
     session?.partnerVideoRequested,
     session?.myVideoRequested,
-    showVideoConsentModal,
+    showVideoConsent,
+    videoDeclined,
     isVideoActive,
   ]);
 
-  function handleToggleInterest(id: string) {
+  // Poll the queue while waiting for a match
+  useEffect(() => {
+    if (viewState !== "QUEUED") return;
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch("/api/random/queue");
+        const data = (await res.json()) as any;
+        if (data.status === "MATCHED" && data.sessionId) {
+          sounds.ting();
+          haptics.success();
+          setActiveSessionId(data.sessionId);
+          setViewState("ACTIVE");
+        }
+      } catch {
+        // Try again on the next tick
+      }
+    }, 2500);
+    return () => clearInterval(interval);
+  }, [viewState]);
+
+  function toggleInterest(id: string) {
     sounds.tap();
     haptics.light();
-    if (selectedInterests.includes(id)) {
-      setSelectedInterests(selectedInterests.filter((i) => i !== id));
+    if (interests.includes(id)) {
+      setInterests(interests.filter((i) => i !== id));
+    } else if (interests.length >= MAX_INTERESTS) {
+      toast.info(`Pick up to ${MAX_INTERESTS} topics.`);
     } else {
-      if (selectedInterests.length >= 3) {
-        toast.info("You can choose up to 3 interests to keep matching fast.");
-        return;
-      }
-      setSelectedInterests([...selectedInterests, id]);
+      setInterests([...interests, id]);
     }
   }
 
-  // Join Matchmaking Queue
-  async function handleFindSomeone() {
+  function resetSession() {
+    setActiveSessionId(null);
+    setShowOptions(false);
+    setRating(null);
+    setInputText("");
+    setIsVideoActive(false);
+    setShowVideoConsent(false);
+    setVideoDeclined(false);
+  }
+
+  async function findSomeone() {
     sounds.pop();
     haptics.medium();
+    resetSession();
     setViewState("QUEUED");
 
     try {
@@ -173,17 +159,14 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          mode: selectedMode,
-          interests: selectedInterests,
+          mode,
+          interests,
           year: currentProfile.year,
           department: currentProfile.branch,
         }),
       });
-
       const data = (await res.json().catch(() => ({}))) as any;
-      if (!res.ok || data.error) {
-        throw new Error(data.error || "Could not enter the matching queue. Try again.");
-      }
+      if (!res.ok || data.error) throw new Error(data.error || "Couldn't start searching. Try again.");
       if (data.status === "MATCHED" && data.sessionId) {
         sounds.ting();
         haptics.success();
@@ -191,819 +174,260 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
         setViewState("ACTIVE");
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not enter matching queue. Try again.");
+      toast.error(err instanceof Error ? err.message : "Couldn't start searching. Try again.");
       setViewState("CONFIGURING");
     }
   }
 
-  // Poll queue if still waiting
-  useEffect(() => {
-    let interval: any;
-    if (viewState === "QUEUED") {
-      interval = setInterval(async () => {
-        try {
-          const res = await fetch("/api/random/queue");
-          const data = (await res.json()) as any;
-          if (data.status === "MATCHED" && data.sessionId) {
-            sounds.ting();
-            haptics.success();
-            setActiveSessionId(data.sessionId);
-            setViewState("ACTIVE");
-          }
-        } catch {
-          // Poll retry
-        }
-      }, 2500);
-    }
-    return () => clearInterval(interval);
-  }, [viewState]);
-
-  // Cancel Queue
-  async function handleCancelQueue() {
+  async function cancelQueue() {
     sounds.tap();
-    try {
-      await fetch("/api/random/queue", { method: "DELETE" });
-    } catch {}
+    await fetch("/api/random/queue", { method: "DELETE" }).catch(() => {});
     setViewState("CONFIGURING");
   }
 
-  // Send Chat Message
-  async function handleSendMessage(e?: React.FormEvent) {
+  async function sendMessage(e?: React.FormEvent) {
     e?.preventDefault();
     if (!inputText.trim() || !activeSessionId || isSending) return;
 
     sounds.send();
     haptics.light();
     setIsSending(true);
-
     try {
       const res = await fetch(`/api/random/session/${activeSessionId}/message`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: inputText }),
       });
-
-      const data = (await res.json()) as any;
-
+      const data = (await res.json().catch(() => ({}))) as any;
       if (!res.ok) {
         if (data.piiDetected) {
-          sounds.pop();
           haptics.heavy();
-          toast.warning(data.error);
+          toast.warning(data.error || "Remove phone numbers, emails or handles, then send again.");
         } else {
-          toast.error(data.error || "Failed to send message");
+          toast.error(data.error || "Couldn't send. Try again.");
         }
         return;
       }
-
       setInputText("");
       mutateSession();
     } catch {
-      toast.error("Message could not be sent");
+      toast.error("Couldn't send. Check your connection and try again.");
     } finally {
       setIsSending(false);
     }
   }
 
-  // Action: Next Person
-  async function handleNextPerson() {
-    sounds.pop();
-    haptics.medium();
-    if (!activeSessionId) return;
-
-    try {
-      await fetch(`/api/random/session/${activeSessionId}/action`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "NEXT" }),
-      });
-    } catch {}
-
-    setActiveSessionId(null);
-    setShowOptionsModal(false);
-    setRatedReaction(null);
-    handleFindSomeone();
+  async function nextPerson() {
+    if (activeSessionId) await postAction(activeSessionId, { action: "NEXT" }).catch(() => {});
+    findSomeone();
   }
 
-  // Action: Leave Chat
-  async function handleLeaveChat() {
+  async function leaveChat() {
     sounds.tap();
-    if (activeSessionId) {
-      try {
-        await fetch(`/api/random/session/${activeSessionId}/action`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "LEAVE" }),
-        });
-      } catch {}
-    }
-    setActiveSessionId(null);
-    setShowOptionsModal(false);
+    if (activeSessionId) await postAction(activeSessionId, { action: "LEAVE" }).catch(() => {});
+    resetSession();
     setViewState("CONFIGURING");
   }
 
-  // Action: Mutual Video Request
-  async function handleRequestVideo(peerId?: string) {
+  async function requestVideo() {
     sounds.tap();
     haptics.medium();
     if (!activeSessionId) return;
-
     try {
       const res = await fetch(`/api/random/session/${activeSessionId}/video`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ peerId }),
+        body: JSON.stringify({}),
       });
+      if (!res.ok) throw new Error();
       const data = (await res.json()) as any;
       mutateSession();
-
       if (data.isBothVideoAccepted) {
         sounds.ting();
         haptics.success();
         setIsVideoActive(true);
-        setShowVideoConsentModal(false);
+        setShowVideoConsent(false);
       } else {
-        toast.info("Video request sent! Waiting for consent.");
+        setShowVideoConsent(false);
+        toast.info("Asked for video. It starts if they say yes.");
       }
     } catch {
-      toast.error("Could not request video");
+      toast.error("Couldn't ask for video. Try again.");
     }
   }
 
-  // Action: Mutual Reveal
-  async function handleRequestReveal() {
+  async function requestReveal() {
     sounds.tap();
     haptics.medium();
     if (!activeSessionId) return;
-
     try {
-      const res = await fetch(`/api/random/session/${activeSessionId}/reveal`, {
-        method: "POST",
-      });
+      const res = await fetch(`/api/random/session/${activeSessionId}/reveal`, { method: "POST" });
+      if (!res.ok) throw new Error();
       const data = (await res.json()) as any;
       mutateSession();
       if (data.isBothRevealed) {
         sounds.ting();
         haptics.success();
-        toast.success("You both revealed your identities!");
+        toast.success("You can both see each other's names now.");
       } else {
-        toast.info("Reveal request sent! Waiting for your partner to agree.");
+        toast.info("Your name shows only if they choose to show theirs too.");
       }
     } catch {
-      toast.error("Could not request identity reveal");
+      toast.error("Couldn't send that. Try again.");
     }
   }
 
-  // Action: Continue Conversation in Messages
-  async function handleContinueInMessages() {
+  async function keepTalking() {
     sounds.tap();
     haptics.medium();
     if (!activeSessionId) return;
-
     try {
-      const res = await fetch(`/api/random/session/${activeSessionId}/continue`, {
-        method: "POST",
-      });
+      const res = await fetch(`/api/random/session/${activeSessionId}/continue`, { method: "POST" });
+      if (!res.ok) throw new Error();
       const data = (await res.json()) as any;
       mutateSession();
-
       if (data.bothContinued && data.conversationId) {
         sounds.ting();
         haptics.success();
-        toast.success("Conversation saved to Messages!");
-        router.push(`/chat`);
+        toast.success("Moved to your chats.");
+        router.push("/chat");
       } else {
-        toast.info("Connection saved! Waiting for partner to also click Keep Talking.");
+        toast.info("Saved. It moves to Chat if they tap it too.");
       }
     } catch {
-      toast.error("Could not save conversation");
+      toast.error("Couldn't save this chat. Try again.");
     }
   }
 
-  // Action: Submit Safety Report
-  async function handleSubmitReport() {
+  async function submitReport() {
     if (!activeSessionId) return;
+    setIsReporting(true);
     try {
-      await fetch(`/api/random/session/${activeSessionId}/action`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "REPORT", reason: reportReason }),
-      });
-      toast.success("Report submitted. You have been disconnected safely.");
-    } catch {}
-    setShowReportModal(false);
-    setViewState("CONFIGURING");
+      const res = await postAction(activeSessionId, { action: "REPORT", reason: reportReason });
+      if (!res.ok) throw new Error();
+      toast.success("Report sent. You've left the chat.");
+      setShowReport(false);
+      resetSession();
+      setViewState("CONFIGURING");
+    } catch {
+      toast.error("Couldn't send the report. Try again.");
+    } finally {
+      setIsReporting(false);
+    }
   }
 
-  // Rate Conversation
-  async function handleRateConversation(rating: string) {
-    setRatedReaction(rating);
+  async function blockPartner() {
+    if (!activeSessionId) return;
+    setIsBlocking(true);
+    try {
+      const res = await postAction(activeSessionId, { action: "BLOCK" });
+      if (!res.ok) throw new Error();
+      toast.success("Blocked. You won't be matched again.");
+      findSomeone();
+    } catch {
+      toast.error("Couldn't block. Try again, or leave the chat.");
+    } finally {
+      setIsBlocking(false);
+    }
+  }
+
+  async function rateChat(value: string) {
+    setRating(value);
     sounds.tap();
     haptics.light();
-    if (activeSessionId) {
-      try {
-        await fetch(`/api/random/session/${activeSessionId}/action`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "RATE", rating }),
-        });
-      } catch {}
-    }
+    if (activeSessionId) await postAction(activeSessionId, { action: "RATE", rating: value }).catch(() => {});
   }
 
-  // ─── 1. CONFIGURING VIEW ───
+  const safety = <SafetyDialog open={showSafety} onOpenChange={setShowSafety} />;
+
   if (viewState === "CONFIGURING") {
-    const visibleInterests = showAllInterests
-      ? INTEREST_CHIPS
-      : [
-          ...INTEREST_CHIPS.slice(0, 6),
-          ...INTEREST_CHIPS.slice(6).filter((chip) => selectedInterests.includes(chip.id)),
-        ].filter((chip, index, arr) => arr.findIndex((item) => item.id === chip.id) === index);
-
     return (
-      <main className="mx-auto min-h-[calc(100dvh-3.5rem)] w-full max-w-xl px-3 pb-28 pt-3 sm:px-4 sm:pt-4 select-none">
-        <div className="space-y-5">
-          <header className="flex items-start justify-between gap-3">
-            <div className="flex min-w-0 items-center gap-2.5">
-              <Link
-                href="/more"
-                className="flex size-9 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground active:scale-95 transition-transform"
-                aria-label="Back to more"
-              >
-                <ArrowLeft className="size-4.5" />
-              </Link>
-              <div className="min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <Zap className="size-4.5 text-warning fill-warning shrink-0" />
-                  <h1 className="truncate text-lg font-black tracking-tight text-foreground">Random Loop</h1>
-                </div>
-                <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
-                  Meet a verified student without seeing their identity first.
-                </p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setShowSafetyModal(true)}
-              className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-primary/8 px-3 text-[10px] font-black text-primary hover:bg-primary/12 transition-colors cursor-pointer"
-              aria-label="View anonymity and safety details"
-            >
-              <ShieldCheck className="size-3.5" />
-              <span>Protected</span>
-            </button>
-          </header>
-
-          <section className="space-y-2.5" aria-labelledby="loop-audience">
-            <div className="flex items-end justify-between gap-2">
-              <div>
-                <p
-                  id="loop-audience"
-                  className="text-xs font-black uppercase tracking-[0.08em] text-muted-foreground"
-                >
-                  1 · Who do you want to meet?
-                </p>
-                <p className="mt-1 text-[11px] text-muted-foreground">Choose the size of the pool.</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2.5">
-              {[
-                {
-                  id: "MY_CAMPUS" as const,
-                  icon: School,
-                  title: "My Campus",
-                  description: "Someone from your college",
-                },
-                {
-                  id: "ANY_CAMPUS" as const,
-                  icon: Globe,
-                  title: "Campus Hopper",
-                  description: "Someone from anywhere in India",
-                },
-              ].map((mode) => {
-                const selected = selectedMode === mode.id;
-                const ModeIcon = mode.icon;
-                return (
-                  <button
-                    key={mode.id}
-                    type="button"
-                    onClick={() => {
-                      sounds.tap();
-                      haptics.light();
-                      setSelectedMode(mode.id);
-                    }}
-                    className={cn(
-                      "min-h-[108px] rounded-2xl px-3.5 py-3 text-left transition-colors cursor-pointer shadow-xs",
-                      selected ? "bg-primary/8 ring-2 ring-primary" : "bg-card hover:bg-muted/50"
-                    )}
-                    aria-pressed={selected}
-                  >
-                    <div className="flex items-center justify-between">
-                      <ModeIcon
-                        className={cn("size-5", selected ? "text-primary" : "text-muted-foreground")}
-                      />
-                      <span
-                        className={cn(
-                          "flex size-5 items-center justify-center rounded-full text-[10px] font-black",
-                          selected ? "bg-primary text-primary-foreground" : "bg-muted text-transparent"
-                        )}
-                        aria-hidden="true"
-                      >
-                        <Check className="size-3" strokeWidth={3} />
-                      </span>
-                    </div>
-                    <p className="mt-3 text-sm font-black text-foreground">{mode.title}</p>
-                    <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
-                      {mode.description}
-                    </p>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-
-          <section className="space-y-2.5" aria-labelledby="loop-topics">
-            <div className="flex items-end justify-between gap-2">
-              <div>
-                <p
-                  id="loop-topics"
-                  className="text-xs font-black uppercase tracking-[0.08em] text-muted-foreground"
-                >
-                  2 · Pick a conversation vibe
-                </p>
-                <p className="mt-1 text-[11px] text-muted-foreground">
-                  Up to 3 topics help us find a better match.
-                </p>
-              </div>
-              <span className="shrink-0 text-[11px] font-black tabular-nums text-foreground">
-                {selectedInterests.length}/3
-              </span>
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              {visibleInterests.map((chip) => {
-                const isSelected = selectedInterests.includes(chip.id);
-                const Icon = chip.icon;
-                return (
-                  <button
-                    key={chip.id}
-                    type="button"
-                    onClick={() => handleToggleInterest(chip.id)}
-                    className={cn(
-                      "inline-flex min-h-9 items-center gap-1.5 rounded-full px-3 text-[11px] font-bold transition-colors cursor-pointer",
-                      isSelected
-                        ? "bg-foreground text-background shadow-xs"
-                        : "bg-muted/55 text-muted-foreground hover:bg-muted hover:text-foreground"
-                    )}
-                    aria-pressed={isSelected}
-                  >
-                    <Icon className="size-3.5" />
-                    <span>{chip.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setShowAllInterests((value) => !value)}
-              className="text-[11px] font-bold text-primary hover:underline cursor-pointer"
-            >
-              {showAllInterests ? "Show fewer topics" : "Show all 12 topics"}
-            </button>
-          </section>
-
-          <div className="flex items-start gap-3 rounded-2xl bg-primary/5 px-3.5 py-3">
-            <Shield className="mt-0.5 size-4 shrink-0 text-primary" />
-            <div>
-              <p className="text-xs font-black text-foreground">Anonymous + verified</p>
-              <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
-                Your identity stays private. Campus verification protects the Loop.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="sticky bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 mt-5 rounded-3xl bg-background/88 p-1.5 backdrop-blur-xl">
-          <button
-            type="button"
-            onClick={handleFindSomeone}
-            disabled={selectedInterests.length === 0}
-            className="h-12 w-full rounded-2xl bg-primary text-primary-foreground font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-primary/18 transition-transform hover:bg-primary/90 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <Zap className="size-4.5" />
-            <span>Find Someone</span>
-          </button>
-          <p className="pt-1.5 text-center text-[10px] text-muted-foreground">
-            Anonymous by default · leave or skip at any time
-          </p>
-        </div>
-      </main>
-    );
-  }
-
-  // ─── 2. QUEUED / MATCHING VIEW ───
-  if (viewState === "QUEUED") {
-    return (
-      <main className="max-w-md mx-auto min-h-[calc(100dvh-5rem)] p-4 flex flex-col items-center justify-center text-center space-y-6 select-none">
-        <div className="relative size-32 flex items-center justify-center">
-          <div className="absolute inset-0 rounded-full border-2 border-primary/30 animate-ping opacity-50" />
-          <div className="absolute inset-2 rounded-full border border-primary/50 animate-pulse" />
-          <div className="size-20 rounded-full bg-primary/15 border-2 border-primary flex items-center justify-center shadow-lg">
-            <Zap className="size-8 text-primary fill-primary transition-transform duration-300 ease-out" />
-          </div>
-        </div>
-
-        <div className="space-y-1.5">
-          <h2 className="text-xl font-black text-foreground">Finding someone in the Loop...</h2>
-          <p className="text-xs text-muted-foreground max-w-xs">
-            Matching interests, checking campus eligibility, and finding a verified peer for you.
-          </p>
-          <p className="text-[11px] font-bold text-primary pt-2">Someone is probably waiting right now</p>
-        </div>
-
-        <button
-          type="button"
-          onClick={handleCancelQueue}
-          className="px-5 py-2 rounded-full bg-muted/60 hover:bg-muted text-xs font-bold text-muted-foreground hover:text-foreground border border-border/50 transition-colors cursor-pointer"
-        >
-          Cancel Search
-        </button>
-      </main>
-    );
-  }
-
-  // ─── 3. ACTIVE CHAT VIEW ───
-  return (
-    <div className="fixed inset-0 z-50 bg-background flex flex-col h-[100dvh] max-w-2xl mx-auto border-x border-border/30 select-none">
-      {/* Top Chat Bar */}
-      <header className="flex items-center justify-between px-4 py-3 border-b border-border/30 bg-background/95 backdrop-blur-xl shrink-0">
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={handleLeaveChat}
-            className="size-8 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-            title="Leave Conversation"
-          >
-            <ArrowLeft className="size-4.5" />
-          </button>
-
-          <div className="flex items-center gap-2.5">
-            <Avatar className="size-9 border border-border/50 bg-muted">
-              {partner?.avatarUrl ? (
-                <AvatarImage src={partner.avatarUrl} alt={partner.displayName} />
-              ) : (
-                <AvatarFallback className="font-bold text-xs bg-brand-subtle text-brand-text">
-                  {partner?.displayName?.slice(0, 2).toUpperCase() || "AN"}
-                </AvatarFallback>
-              )}
-            </Avatar>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-sm font-black text-foreground leading-tight">
-                  {partner?.displayName || "Anonymous Student"}
-                </span>
-                <span className="size-2 rounded-full bg-success animate-pulse" />
-              </div>
-              <p className="text-[11px] text-muted-foreground flex items-center gap-1">
-                <span>{partner?.collegeName?.split(",")[0] || "Campus Student"}</span>
-                {partner?.year && <span>· {partner.year}</span>}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => setShowSafetyModal(true)}
-            className="flex items-center gap-1 text-[11px] font-bold text-muted-foreground hover:text-foreground px-2.5 py-1 rounded-full bg-muted/40 hover:bg-muted transition-colors cursor-pointer"
-            title="Privacy status"
-          >
-            <ShieldCheck className="size-3.5 text-primary" />
-            <span className="hidden sm:inline">Protected</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setShowOptionsModal(true)}
-            className="size-8 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
-          >
-            <MoreVertical className="size-4" />
-          </button>
-        </div>
-      </header>
-
-      {/* Conversation Starters Carousel */}
-      <div className="bg-muted/20 border-b border-border/20 px-4 py-2 flex items-center justify-between gap-3 shrink-0">
-        <div className="flex items-center gap-2 min-w-0">
-          <Sparkles className="size-3.5 text-primary shrink-0" />
-          <p className="text-xs font-semibold text-foreground/90 truncate">
-            {RANDOM_LOOP_STARTERS[starterIndex % RANDOM_LOOP_STARTERS.length]}
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => {
-            sounds.pop();
-            setStarterIndex((i) => i + 1);
+      <>
+        <RandomSetupView
+          mode={mode}
+          onModeChange={(m) => {
+            sounds.tap();
+            setMode(m);
           }}
-          className="text-[11px] font-bold text-primary shrink-0 hover:underline cursor-pointer"
-        >
-          Shuffle
-        </button>
-      </div>
+          interests={interests}
+          onToggleInterest={toggleInterest}
+          onFind={findSomeone}
+          onShowSafety={() => setShowSafety(true)}
+        />
+        {safety}
+      </>
+    );
+  }
 
-      {/* Messages Stream */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
-        {messages.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3">
-            <div className="size-12 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
-              <MessageSquare className="size-6" />
-            </div>
-            <div className="space-y-1 max-w-xs">
-              <p className="text-sm font-black text-foreground">You are now connected!</p>
-              <p className="text-xs text-muted-foreground">
-                Say hello or answer the prompt above. Keep the vibe friendly and respectful.
-              </p>
-            </div>
-          </div>
-        ) : (
-          messages.map((m) => (
-            <div
-              key={m.id}
-              className={cn("flex flex-col max-w-[82%]", m.isMine ? "ml-auto items-end" : "items-start")}
-            >
-              <div
-                className={cn(
-                  "p-3 rounded-2xl text-xs font-medium leading-relaxed break-words",
-                  m.isMine
-                    ? "bg-primary text-primary-foreground rounded-br-xs shadow-xs"
-                    : "bg-muted text-foreground rounded-bl-xs border border-border/40"
-                )}
-              >
-                {m.body}
-              </div>
-              <span className="text-[9px] text-muted-foreground/60 px-1 pt-0.5">
-                {formatTimeAgo(m.createdAt)}
-              </span>
-            </div>
-          ))
-        )}
-        <div ref={messagesEndRef} />
-      </div>
+  if (viewState === "QUEUED") return <RandomSearchingView onCancel={cancelQueue} />;
 
-      {/* Bottom Bar: Action Toolbar & Input Composer */}
-      <div className="border-t border-border/30 bg-background/95 p-3 space-y-2.5 shrink-0">
-        {/* Quick Action Pills: Next, Reveal, Keep Talking */}
-        <div className="flex items-center justify-between gap-2">
-          <button
-            type="button"
-            onClick={handleNextPerson}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/60 hover:bg-muted text-xs font-bold text-foreground transition-colors cursor-pointer border border-border/40"
-          >
-            <span>Next Person</span>
-            <ArrowRight className="size-3" />
-          </button>
+  if (viewState === "ENDED") {
+    return (
+      <RandomEndedView
+        rating={rating}
+        onRate={rateChat}
+        onFindNext={findSomeone}
+        onDone={() => {
+          resetSession();
+          setViewState("CONFIGURING");
+        }}
+      />
+    );
+  }
 
-          <div className="flex items-center gap-2">
-            {/* Request Video Pill */}
-            {!session?.isBothVideoAccepted && (
-              <button
-                type="button"
-                onClick={() => handleRequestVideo()}
-                className={cn(
-                  "flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer border",
-                  session?.myVideoRequested
-                    ? "bg-brand/15 text-brand-text border-brand-subtle-border/30"
-                    : "bg-muted/40 hover:bg-muted border-border/40 text-muted-foreground hover:text-foreground"
-                )}
-                title="Switch conversation to video with mutual consent"
-              >
-                <Video className="size-3.5" />
-                <span>{session?.myVideoRequested ? "Video Sent" : "Video"}</span>
-              </button>
-            )}
+  return (
+    <>
+      <RandomChatView
+        session={session}
+        partner={partner}
+        messages={messages}
+        starter={RANDOM_LOOP_STARTERS[starterIndex % RANDOM_LOOP_STARTERS.length]}
+        onShuffleStarter={() => {
+          sounds.pop();
+          setStarterIndex((i) => i + 1);
+        }}
+        inputText={inputText}
+        onInputChange={setInputText}
+        onSend={sendMessage}
+        isSending={isSending}
+        onLeave={leaveChat}
+        onNext={nextPerson}
+        onVideo={requestVideo}
+        onReveal={requestReveal}
+        onKeepTalking={keepTalking}
+        onShowSafety={() => setShowSafety(true)}
+        onShowOptions={() => setShowOptions(true)}
+      />
 
-            {!session?.isBothRevealed && (
-              <button
-                type="button"
-                onClick={handleRequestReveal}
-                className={cn(
-                  "flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer border",
-                  session?.myReveal
-                    ? "bg-primary/15 text-primary border-primary/30"
-                    : "bg-muted/40 hover:bg-muted border-border/40 text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <UserCheck className="size-3.5" />
-                <span>{session?.myReveal ? "Reveal Sent" : "Reveal Me"}</span>
-              </button>
-            )}
+      {safety}
+      <ChatOptionsDialog
+        open={showOptions}
+        onOpenChange={setShowOptions}
+        onReport={() => {
+          setShowOptions(false);
+          setShowReport(true);
+        }}
+        onBlock={blockPartner}
+        blocking={isBlocking}
+      />
+      <ReportDialog
+        open={showReport}
+        onOpenChange={setShowReport}
+        reason={reportReason}
+        onReasonChange={setReportReason}
+        onSubmit={submitReport}
+        submitting={isReporting}
+      />
+      <VideoConsentDialog
+        open={showVideoConsent}
+        onOpenChange={(open) => {
+          setShowVideoConsent(open);
+          if (!open) setVideoDeclined(true);
+        }}
+        partnerName={partner?.displayName || "They"}
+        onAccept={requestVideo}
+      />
 
-            <button
-              type="button"
-              onClick={handleContinueInMessages}
-              className={cn(
-                "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer border",
-                session?.myContinue
-                  ? "bg-danger/15 text-danger border-danger/30 font-black"
-                  : "bg-muted/40 hover:bg-muted border-border/40 text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <Heart className="size-3 text-danger fill-danger shrink-0" />
-              <span>{session?.myContinue ? "Keep Talking (Waiting)" : "Keep Talking"}</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Message Input */}
-        <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-          <input
-            type="text"
-            value={inputText}
-            maxLength={1000}
-            aria-label="Send an anonymous message"
-            onChange={(e) => setInputText(e.target.value)}
-            placeholder="Type a safe anonymous message..."
-            className="flex-1 h-11 rounded-2xl bg-muted/40 border border-border/60 px-4 text-xs font-medium text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/60"
-          />
-          <button
-            type="submit"
-            disabled={!inputText.trim() || isSending}
-            className="size-11 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center shrink-0 hover:opacity-90 active:scale-95 transition-transform disabled:opacity-40 cursor-pointer shadow-xs"
-          >
-            {isSending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
-          </button>
-        </form>
-      </div>
-
-      {/* Safety & Privacy Drawer Modal */}
-      {showSafetyModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-card border border-border/40 max-w-sm w-full p-5 rounded-3xl space-y-4 shadow-xl">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm font-black text-foreground">
-                <ShieldCheck className="size-5 text-primary" />
-                <span>Your Privacy &amp; Protection</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowSafetyModal(false)}
-                className="size-7 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground cursor-pointer"
-              >
-                <X className="size-4" />
-              </button>
-            </div>
-
-            <ul className="text-xs text-muted-foreground space-y-2">
-              <li className="flex items-start gap-2">
-                <ShieldCheck className="size-4 text-success shrink-0 mt-0.5" />
-                <span>Your identity and profile picture remain hidden unless both agree to reveal.</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Lock className="size-4 text-primary shrink-0 mt-0.5" />
-                <span>Sharing phone numbers, emails, and social handles is restricted.</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <AlertTriangle className="size-4 text-danger shrink-0 mt-0.5" />
-                <span>You can disconnect, block, or report at any moment.</span>
-              </li>
-            </ul>
-
-            <button
-              type="button"
-              onClick={() => setShowSafetyModal(false)}
-              className="w-full h-10 rounded-xl bg-foreground text-background font-bold text-xs cursor-pointer"
-            >
-              Got it
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Options Dropdown Modal */}
-      {showOptionsModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-card border border-border/40 max-w-xs w-full p-4 rounded-3xl space-y-2 shadow-xl">
-            <button
-              type="button"
-              onClick={() => {
-                setShowOptionsModal(false);
-                setShowReportModal(true);
-              }}
-              className="w-full text-left p-3 rounded-2xl hover:bg-muted text-xs font-bold text-danger flex items-center gap-2 cursor-pointer"
-            >
-              <ShieldAlert className="size-4" />
-              <span>Report Student</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={async () => {
-                if (confirm("Block this student? You will never be matched with them again.")) {
-                  await fetch(`/api/random/session/${activeSessionId}/action`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ action: "BLOCK" }),
-                  });
-                  toast.success("Student blocked.");
-                  handleNextPerson();
-                }
-              }}
-              className="w-full text-left p-3 rounded-2xl hover:bg-muted text-xs font-bold text-danger flex items-center gap-2 cursor-pointer"
-            >
-              <X className="size-4" />
-              <span>Block Student</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setShowOptionsModal(false)}
-              className="w-full h-10 rounded-xl bg-muted text-foreground font-bold text-xs cursor-pointer mt-2"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Report Modal */}
-      {showReportModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-card border border-border/40 max-w-sm w-full p-5 rounded-3xl space-y-3.5 shadow-xl">
-            <h3 className="text-sm font-black text-foreground">Report Student</h3>
-            <p className="text-xs text-muted-foreground">
-              Why are you reporting this conversation? Our campus safety team reviews flagged interactions.
-            </p>
-
-            <select
-              value={reportReason}
-              onChange={(e) => setReportReason(e.target.value)}
-              className="w-full h-10 rounded-xl bg-muted border border-border/50 px-3 text-xs font-bold text-foreground outline-none"
-            >
-              <option value="HARASSMENT">Harassment or Insults</option>
-              <option value="SEXUAL">Inappropriate or Sexual Content</option>
-              <option value="THREAT">Threatening Behavior</option>
-              <option value="PII_ASK">Asking for Personal Contact Info</option>
-              <option value="SPAM">Spam or Scams</option>
-              <option value="OTHER">Other Violation</option>
-            </select>
-
-            <div className="flex items-center gap-2 pt-2">
-              <button
-                type="button"
-                onClick={() => setShowReportModal(false)}
-                className="flex-1 h-10 rounded-xl bg-muted text-xs font-bold cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleSubmitReport}
-                className="flex-1 h-10 rounded-xl bg-danger hover:bg-danger text-white text-xs font-black cursor-pointer shadow-xs"
-              >
-                Submit Report
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Video Request Consent Modal */}
-      {showVideoConsentModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-surface border border-white/15 max-w-sm w-full p-6 rounded-3xl space-y-4 text-center shadow-2xl">
-            <div className="size-14 rounded-2xl bg-brand/20 border border-brand-subtle-border/30 text-brand-text flex items-center justify-center mx-auto">
-              <Video className="size-7" />
-            </div>
-            <div className="space-y-1">
-              <h3 className="text-base font-black text-white">Video Request</h3>
-              <p className="text-xs text-fg-subtle">
-                {partner?.displayName || "Anonymous Student"} wants to switch this conversation to video.
-              </p>
-            </div>
-            <div className="flex items-center gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => setShowVideoConsentModal(false)}
-                className="flex-1 h-11 rounded-2xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-colors cursor-pointer"
-              >
-                Not Now
-              </button>
-              <button
-                type="button"
-                onClick={() => handleRequestVideo()}
-                className="flex-1 h-11 rounded-2xl bg-brand hover:bg-brand-hover text-white text-xs font-black transition-colors shadow-lg cursor-pointer"
-              >
-                Accept Video
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Active Random Loop Video Stream Overlay */}
       {isVideoActive && partner && activeSessionId && (
         <ActiveCallOverlay
           callId={activeSessionId}
@@ -1019,6 +443,6 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
           onCallEnded={() => setIsVideoActive(false)}
         />
       )}
-    </div>
+    </>
   );
 }

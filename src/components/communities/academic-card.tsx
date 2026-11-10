@@ -19,13 +19,11 @@ import { useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { VerifiedBadge } from "@/components/ui/verified-badge";
+import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
+import { Input } from "@/components/ui/input";
 import { checkAndRecordDownload } from "@/lib/academic-download-limiter";
-import {
-  trackAcademicDownload,
-  trackAcademicLimitReached,
-  trackAcademicShare,
-} from "@/lib/analytics/ga4";
+import { trackAcademicDownload, trackAcademicLimitReached, trackAcademicShare } from "@/lib/analytics/ga4";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -127,7 +125,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
     haptics.light();
 
     if (!currentUserId) {
-      toast.info("Sign in with college email to upvote helpful notes!", {
+      toast.info("Sign in to upvote notes", {
         action: {
           label: "Sign In",
           onClick: () => {
@@ -151,7 +149,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
         if (userVote === "DOWN") setDownvotes((c) => Math.max(0, c - 1));
         setUpvotes((c) => c + 1);
         setUserVote("UP");
-        toast.success("Marked as helpful!");
+        toast.success("Marked as helpful");
         fetch(`/api/academics/${item.id}/analytics`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -188,7 +186,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
     haptics.medium();
 
     if (!currentUserId) {
-      toast.info("Sign in with college email to save to your cloud locker!", {
+      toast.info("Sign in to save notes", {
         action: {
           label: "Sign In",
           onClick: () => {
@@ -210,10 +208,10 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
         body: JSON.stringify({ action: nextState ? "SAVE" : "UNSAVE" }),
       });
       if (res.ok) {
-        toast.success(nextState ? "Saved to your study locker!" : "Removed from locker");
+        toast.success(nextState ? "Saved" : "Removed from saved");
       } else {
         setIsSaved(!nextState);
-        toast.error("Failed to update saved status");
+        toast.error("Couldn't save. Try again.");
       }
     } catch {
       setIsSaved(!nextState);
@@ -291,7 +289,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
         .catch(() => {});
     } else {
       navigator.clipboard.writeText(shareUrl);
-      toast.success("Resource link copied to clipboard!");
+      toast.success("Link copied");
     }
   }
 
@@ -301,7 +299,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
     if (!commentText.trim()) return;
 
     if (!currentUserId) {
-      toast.info("Sign in to post comments!");
+      toast.info("Sign in to comment");
       return;
     }
 
@@ -317,11 +315,11 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
       });
       const data = (await res.json()) as { comment?: any; error?: string };
       if (res.ok && data.comment) {
-        toast.success("Review posted!");
+        toast.success("Comment posted");
         setCommentText("");
         mutateComments();
       } else {
-        toast.error(data.error || "Failed to post comment");
+        toast.error(data.error || "Couldn't post your review. Try again.");
       }
     } catch {
       toast.error("Network error posting comment");
@@ -348,7 +346,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
   return (
     <article
       id={`academic-${item.id}`}
-      role="article"
+      // biome-ignore lint/a11y/noNoninteractiveTabindex: the whole card opens the resource, so it takes focus and Enter
       tabIndex={0}
       onClick={handleCardClick}
       onKeyDown={handleKeyDown}
@@ -370,13 +368,13 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
             >
               <Avatar className="size-6.5 sm:size-7 rounded-full border border-border/40 hover:opacity-90 transition-opacity">
                 <AvatarImage src={avatar} alt={item.uploader.displayName} />
-                <AvatarFallback className="text-[10px] font-bold bg-primary/10 text-primary">
+                <AvatarFallback className="text-xs font-semibold">
                   {item.uploader.displayName?.[0] || "U"}
                 </AvatarFallback>
               </Avatar>
             </Link>
 
-            <div className="flex items-center gap-1.5 min-w-0 truncate text-[11px] sm:text-xs">
+            <div className="flex items-center gap-1.5 min-w-0 truncate text-xs sm:text-xs">
               <Link
                 href={`/@${item.uploader.username}?tab=academics`}
                 onClick={(e) => e.stopPropagation()}
@@ -384,44 +382,40 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
               >
                 {item.uploader.displayName}
               </Link>
-              {(item.uploader.points || 0) >= 150 && (
-                <VerifiedBadge size="sm" />
-              )}
               <span className="text-muted-foreground/40 shrink-0">·</span>
               <span className="text-muted-foreground truncate max-w-[130px] sm:max-w-[220px]">
                 {getCollegeShortName(item.institution) || "Campus"}
               </span>
               <span className="text-muted-foreground/40 shrink-0">·</span>
-              <span className="text-muted-foreground/70 shrink-0 text-[10px] tabular-nums">
+              <span className="text-muted-foreground/70 shrink-0 text-xs tabular-nums">
                 {formatTimeAgo(item.createdAt)}
               </span>
             </div>
           </div>
 
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon"
             onClick={handleShare}
-            className="flex size-7.5 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors cursor-pointer shrink-0"
-            title="Share resource"
             aria-label="Share resource"
+            className="shrink-0"
           >
-            <Share2 className="size-3.5" />
-          </button>
+            <Share2 />
+          </Button>
         </div>
 
         {/* ── 2. Academic Context Lines: Course Code · Subject / Sem · Branch · Type ── */}
         <div className="space-y-0.5">
-          <div className="flex items-center gap-2 flex-wrap text-xs sm:text-[13px]">
-            <span className="font-mono font-bold text-primary tracking-tight">
-              {item.subjectCode}
-            </span>
+          <div className="flex items-center gap-2 flex-wrap text-xs">
+            <span className="font-semibold text-fg">{item.subjectCode}</span>
             <span className="text-muted-foreground/40">·</span>
             <span className="font-semibold text-foreground/90 truncate max-w-[280px] sm:max-w-[420px]">
               {item.subjectName}
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5 flex-wrap text-[11px] sm:text-xs text-muted-foreground">
+          <div className="flex items-center gap-1.5 flex-wrap text-xs sm:text-xs text-muted-foreground">
             <span>Sem {item.semester}</span>
             <span className="text-muted-foreground/40">·</span>
             <span>{item.branch}</span>
@@ -430,9 +424,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
             {item.moduleOrChapter && (
               <>
                 <span className="text-muted-foreground/40">·</span>
-                <span className="text-warning font-medium truncate max-w-[140px]">
-                  {item.moduleOrChapter}
-                </span>
+                <span className="max-w-[140px] truncate font-medium">{item.moduleOrChapter}</span>
               </>
             )}
           </div>
@@ -440,9 +432,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
 
         {/* ── 3. Document Title ── */}
         <div className="pt-0.5">
-          <h2 className="text-[15px] sm:text-[16.5px] font-bold leading-snug tracking-tight text-foreground group-hover:text-primary transition-colors line-clamp-2">
-            {item.title}
-          </h2>
+          <h2 className="line-clamp-2 text-base leading-snug font-semibold text-fg">{item.title}</h2>
         </div>
 
         {/* Keep long descriptions available without crowding every card by default. */}
@@ -455,8 +445,8 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
                 setShowDescription((current) => !current);
               }}
               aria-expanded={showDescription}
-              aria-controls={"academic-description-" + item.id}
-              className="inline-flex min-h-7 items-center gap-1 rounded-md pr-1 text-[11px] font-semibold text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+              aria-controls={`academic-description-${item.id}`}
+              className="inline-flex min-h-11 items-center gap-1 rounded-md pr-1 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
             >
               {showDescription ? "Hide details" : "Details"}
               <ChevronDown
@@ -466,8 +456,8 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
             </button>
             {showDescription && (
               <p
-                id={"academic-description-" + item.id}
-                className="pt-1 text-xs sm:text-[13px] leading-relaxed text-muted-foreground/80 whitespace-pre-line"
+                id={`academic-description-${item.id}`}
+                className="pt-1 text-sm leading-relaxed text-fg-muted whitespace-pre-line"
               >
                 {item.description}
               </p>
@@ -476,7 +466,7 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
         )}
 
         {/* ── 5. Quality & Community Feedback ── */}
-        <div className="flex items-center gap-2 flex-wrap pt-0.5 text-[11px]">
+        <div className="flex items-center gap-2 flex-wrap pt-0.5 text-xs">
           {item.isTrending && (
             <span className="inline-flex items-center gap-1 font-semibold text-warning">
               <TrendingUp className="size-3.5" />
@@ -498,97 +488,75 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
             </>
           )}
           {reliability === null && !item.isVerified && (
-            <span className="font-medium text-muted-foreground">Awaiting community feedback</span>
+            <span className="font-medium text-muted-foreground">No reviews yet</span>
           )}
         </div>
 
-        {/* ── 6. Footer Actions: [↑ 76 ↓] [💬 4] ... [Save] [View →] ── */}
+        {/* Footer: votes, comments, save and open */}
         <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/15 text-xs text-muted-foreground w-full">
           {/* Left: Voting & Comments */}
           <div className="flex items-center gap-1 shrink-0">
-            {/* Vote Group */}
-            <div className="inline-flex items-center rounded-xl bg-muted/30 border border-border/30 p-0.5 text-xs">
-              <button
+            <div className="inline-flex items-center rounded-full bg-surface-muted">
+              <Button
                 type="button"
+                variant="ghost"
+                size="sm"
                 onClick={(e) => handleVote(e, "UP")}
-                className={cn(
-                  "flex items-center gap-1 px-2 py-1 rounded-lg hover:text-primary transition-colors cursor-pointer",
-                  userVote === "UP" && "text-primary font-bold bg-primary/10"
-                )}
-                title="Upvote"
-                aria-label="Upvote this resource"
+                aria-pressed={userVote === "UP"}
+                aria-label={`Helpful, ${upvotes} votes`}
+                className={cn("min-h-11", userVote === "UP" && "text-brand-text")}
               >
-                <ArrowUp className={cn("size-3.5", userVote === "UP" && "stroke-[2.5]")} />
-                <span className="tabular-nums font-semibold text-[11px]">{upvotes}</span>
-              </button>
-              <div className="h-3 w-px bg-border/40 mx-0.5" />
-              <button
+                <ArrowUp />
+                <span className="tabular-nums">{upvotes}</span>
+              </Button>
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon"
                 onClick={(e) => handleVote(e, "DOWN")}
-                className={cn(
-                  "p-1 rounded-lg hover:text-danger transition-colors cursor-pointer",
-                  userVote === "DOWN" && "text-danger bg-danger-subtle"
-                )}
-                title="Report issue"
-                aria-label="Report issue with resource"
+                aria-pressed={userVote === "DOWN"}
+                aria-label="Not helpful"
+                className={cn(userVote === "DOWN" && "text-danger")}
               >
-                <ArrowDown className="size-3.5" />
-              </button>
+                <ArrowDown />
+              </Button>
             </div>
 
-            {/* Comments Toggle */}
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="sm"
               onClick={(e) => {
                 e.stopPropagation();
                 setShowComments(!showComments);
               }}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-muted/30 hover:bg-muted/60 text-muted-foreground hover:text-foreground transition-colors cursor-pointer border border-border/30 text-xs"
-              title="Discussion & comments"
-              aria-label="Comments"
+              aria-expanded={showComments}
+              aria-label={`Reviews, ${commentsList.length || item.commentsCount || 0}`}
+              className="min-h-11"
             >
-              <MessageSquare className="size-3.5" />
-              <span className="tabular-nums font-semibold text-[11px]">
-                {commentsList.length || item.commentsCount || 0}
-              </span>
-            </button>
+              <MessageSquare />
+              <span className="tabular-nums">{commentsList.length || item.commentsCount || 0}</span>
+            </Button>
           </div>
 
-          {/* Right: Save & View Actions */}
-          <div className="flex items-center gap-1.5 shrink-0">
-            {/* Save Button */}
-            <button
+          <div className="flex shrink-0 items-center gap-1.5">
+            <Button
               type="button"
+              variant="ghost"
+              size="icon"
               onClick={handleToggleSave}
               disabled={isSaving}
-              className={cn(
-                "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer border",
-                isSaved
-                  ? "border-warning bg-warning-subtle text-warning"
-                  : "border-border/40 bg-muted/30 hover:bg-muted/60 text-muted-foreground hover:text-foreground"
-              )}
-              title={isSaved ? "Saved to locker" : "Save to semester locker"}
-              aria-label="Save to semester locker"
+              aria-pressed={isSaved}
+              aria-label={isSaved ? "Saved" : "Save"}
+              className={cn(isSaved && "text-brand-text")}
             >
-              <Bookmark className={cn("size-3.5", isSaved && "fill-current")} />
-              <span>{isSaved ? "Saved" : "Save"}</span>
-            </button>
+              <Bookmark className={cn(isSaved && "fill-current")} />
+            </Button>
 
-            {/* View / Open Resource */}
-            <button
-              type="button"
-              onClick={handleOpenResource}
-              className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold transition-colors cursor-pointer border border-primary/20 hover:border-primary/40"
-              title="Open document"
-              aria-label="Open document"
-            >
-              <span>{isDriveFolder ? "Folder" : "View"}</span>
-              {isDriveFolder ? (
-                <ExternalLink className="size-3" />
-              ) : (
-                <ArrowRight className="size-3" />
-              )}
-            </button>
+            <Button type="button" variant="secondary" onClick={handleOpenResource}>
+              {isDriveFolder ? "Open folder" : "Open"}
+              {isDriveFolder ? <ExternalLink /> : <ArrowRight />}
+            </Button>
           </div>
         </div>
       </div>
@@ -601,81 +569,70 @@ export function AcademicCard({ item, currentUserId, isHighlighted }: AcademicCar
         >
           {/* Comment Composer */}
           <form onSubmit={handleSubmitComment} className="flex flex-col gap-2">
-            <div className="flex items-center justify-between text-[11px]">
-              <span className="text-muted-foreground font-medium">Material verification review:</span>
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={() => setIsHelpful(true)}
-                  className={cn(
-                    "px-2 py-0.5 rounded-full text-[10px] font-bold transition-colors cursor-pointer inline-flex items-center gap-1",
-                    isHelpful
-                      ? "bg-success-subtle text-success border border-success"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  <CheckCircle2 className="size-2.5 shrink-0" />
-                  <span>Accurate</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsHelpful(false)}
-                  className={cn(
-                    "px-2 py-0.5 rounded-full text-[10px] font-bold transition-colors cursor-pointer inline-flex items-center gap-1",
-                    !isHelpful
-                      ? "bg-warning-subtle text-warning border border-warning"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  <AlertTriangle className="size-2.5 shrink-0" />
-                  <span>Errata Notice</span>
-                </button>
-              </div>
-            </div>
+            <fieldset className="flex flex-wrap items-center gap-2">
+              <legend className="sr-only">Is this material accurate?</legend>
+              <Chip
+                size="sm"
+                selected={isHelpful}
+                onSelectedChange={() => setIsHelpful(true)}
+                icon={<CheckCircle2 />}
+              >
+                Accurate
+              </Chip>
+              <Chip
+                size="sm"
+                selected={!isHelpful}
+                onSelectedChange={() => setIsHelpful(false)}
+                icon={<AlertTriangle />}
+              >
+                Has mistakes
+              </Chip>
+            </fieldset>
 
             <div className="flex items-center gap-2">
-              <input
-                type="text"
-                placeholder="Post your verification or exam feedback..."
+              <Input
+                aria-label="Your review"
+                placeholder="Was it useful for your exam?"
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
-                className="flex-1 bg-muted/30 px-3.5 py-1.5 rounded-full text-xs text-foreground placeholder:text-muted-foreground/60 border border-border/30 outline-none focus:border-primary transition-colors"
+                className="flex-1"
               />
-              <button
+              <Button
                 type="submit"
-                disabled={isSubmittingComment || !commentText.trim()}
-                className="px-3.5 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold disabled:opacity-40 hover:opacity-90 transition-[opacity,transform] cursor-pointer shrink-0 shadow-2xs"
+                loading={isSubmittingComment}
+                disabled={!commentText.trim()}
+                className="shrink-0"
               >
                 Post
-              </button>
+              </Button>
             </div>
           </form>
 
           {/* Comments List */}
           <div className="space-y-2 max-h-56 overflow-y-auto pr-1 no-scrollbar divide-y divide-border/15">
             {commentsList.length === 0 ? (
-              <p className="text-[11px] text-muted-foreground italic py-1 text-center">
+              <p className="text-xs text-muted-foreground italic py-1 text-center">
                 No peer reviews yet. Be the first to verify!
               </p>
             ) : (
               commentsList.map((c: any) => (
                 <div key={c.id} className="pt-2 first:pt-0 space-y-1">
-                  <div className="flex items-center justify-between text-[11px]">
+                  <div className="flex items-center justify-between text-xs">
                     <div className="flex items-center gap-1.5 font-bold text-foreground">
                       <span>{c.author?.displayName || "Student"}</span>
                       {c.author?.username && (
-                        <span className="text-[10px] text-muted-foreground font-normal">
+                        <span className="text-xs text-muted-foreground font-normal">
                           @{c.author.username}
                         </span>
                       )}
                       <span className="text-muted-foreground/50">·</span>
-                      <span className="text-[10px] text-muted-foreground/75 font-normal">
+                      <span className="text-xs text-muted-foreground/75 font-normal">
                         {formatTimeAgo(c.createdAt)}
                       </span>
                     </div>
                     <span
                       className={cn(
-                        "text-[9px] font-black px-1.5 py-0.2 rounded-full",
+                        "text-xs font-bold px-1.5 py-0.2 rounded-full",
                         c.isHelpful ? "bg-success-subtle text-success" : "bg-warning-subtle text-warning"
                       )}
                     >

@@ -1,36 +1,16 @@
-import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
 import { eq, or } from "drizzle-orm";
+import { notFound, redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { events, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { privateMetadata } from "@/lib/seo";
 import { EditEventClient } from "./edit-event-client";
 
 interface EditEventPageProps {
   params: Promise<{ id: string }>;
 }
 
-export async function generateMetadata({ params }: EditEventPageProps): Promise<Metadata> {
-  const { id } = await params;
-  try {
-    const db = getDb();
-    const event = await db.query.events.findFirst({
-      where: or(eq(events.id, id), eq(events.slug, id)),
-    });
-
-    if (!event) {
-      return { title: "Edit Event" };
-    }
-
-    return {
-      title: `Edit: ${event.title}`,
-      description: `Edit schedule, venue, prizes, and registration rules for ${event.title}.`,
-      robots: { index: false, follow: false },
-    };
-  } catch {
-    return { title: "Edit Event" };
-  }
-}
+export const metadata = privateMetadata("Edit event");
 
 export default async function EditEventPage({ params }: EditEventPageProps) {
   const { id } = await params;

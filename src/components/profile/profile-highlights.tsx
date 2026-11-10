@@ -1,10 +1,10 @@
 "use client";
 
+import { Bookmark, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
-import { AnimateBookmark, AnimatePlus } from "@/components/ui/animated-icon";
 import { StoryArchiveModal } from "./story-archive-modal";
 
 interface HighlightItem {
@@ -26,7 +26,7 @@ interface ProfileHighlightsProps {
   isOwnProfile: boolean;
 }
 
-export function ProfileHighlights({ userId, username, isOwnProfile }: ProfileHighlightsProps) {
+export function ProfileHighlights({ userId, isOwnProfile }: ProfileHighlightsProps) {
   const router = useRouter();
   const [showArchiveModal, setShowArchiveModal] = useState(false);
 
@@ -39,11 +39,10 @@ export function ProfileHighlights({ userId, username, isOwnProfile }: ProfileHig
     if (h.stories && h.stories.length > 0) {
       router.push(`/story/${h.stories[0].id}`);
     } else {
-      toast.info(`Highlight "${h.title}" has no active stories.`);
+      toast.info(`"${h.title}" has no stories yet.`);
     }
   }
 
-  // Only show real user highlights; never inject fake purple emoji circles
   const hasHighlights = highlights && highlights.length > 0;
 
   if (!hasHighlights && !isOwnProfile) {
@@ -51,58 +50,43 @@ export function ProfileHighlights({ userId, username, isOwnProfile }: ProfileHig
   }
 
   return (
-    <div className="space-y-2 select-none px-4 py-1">
-      <div className="flex items-center gap-3 overflow-x-auto no-scrollbar py-1">
-        {/* + New Highlight (Owner Only) */}
+    <div className="px-4 py-2">
+      <ul className="no-scrollbar flex items-start gap-3 overflow-x-auto py-1" aria-label="Highlights">
         {isOwnProfile && (
-          <div className="flex flex-col items-center gap-1 shrink-0">
+          <li className="flex shrink-0 flex-col items-center gap-1">
             <button
               type="button"
               onClick={() => setShowArchiveModal(true)}
-              className="size-14 sm:size-15 rounded-full border border-dashed border-border/80 hover:border-foreground/80 bg-muted/20 hover:bg-muted/40 flex items-center justify-center text-muted-foreground hover:text-foreground transition-[opacity,transform] cursor-pointer group shadow-2xs active:scale-95"
-              title="Create new Highlight from stories"
+              className="flex size-16 cursor-pointer items-center justify-center rounded-full border border-dashed border-border-strong text-fg-muted transition-ui hover:border-brand hover:text-brand-text active:scale-95"
+              aria-label="Make a new highlight"
             >
-              <AnimatePlus size={18} className="transition-transform group-hover:scale-110" />
+              <Plus aria-hidden="true" className="size-5" />
             </button>
-            <span className="font-mono text-[10px] font-bold text-muted-foreground group-hover:text-foreground truncate max-w-[64px]">
-              New
-            </span>
-          </div>
+            <span className="text-xs text-fg-muted">New</span>
+          </li>
         )}
 
-        {/* Existing Real Highlights */}
         {hasHighlights &&
-          highlights.map((h) => {
-            const count = h.storiesCount || (h.stories ? h.stories.length : 0);
-
-            return (
-              <div key={h.id} className="flex flex-col items-center gap-1 shrink-0 group">
-                <button
-                  type="button"
-                  onClick={() => handleOpenHighlight(h)}
-                  className="relative size-14 sm:size-15 rounded-full p-0.5 border border-border/70 hover:border-brand transition-[opacity,transform] group-hover:scale-105 active:scale-95 cursor-pointer bg-card"
-                >
-                  <div className="size-full rounded-full bg-muted/40 overflow-hidden flex items-center justify-center">
-                    {h.coverUrl ? (
-                      <img src={h.coverUrl} alt={h.title} className="size-full object-cover" />
-                    ) : (
-                      <AnimateBookmark size={16} className="text-muted-foreground" />
-                    )}
-                  </div>
-
-                  {count > 0 && (
-                    <span className="absolute -bottom-0.5 -right-0.5 min-w-4 h-4 px-1 rounded-full bg-foreground text-background font-mono text-[9px] font-bold flex items-center justify-center border border-background">
-                      {count}
-                    </span>
+          highlights.map((h) => (
+            <li key={h.id} className="flex shrink-0 flex-col items-center gap-1">
+              <button
+                type="button"
+                onClick={() => handleOpenHighlight(h)}
+                className="size-16 cursor-pointer rounded-full border-2 border-brand p-0.5 transition-ui active:scale-95"
+                aria-label={`Open highlight ${h.title}`}
+              >
+                <span className="flex size-full items-center justify-center overflow-hidden rounded-full bg-surface-muted">
+                  {h.coverUrl ? (
+                    <img src={h.coverUrl} alt="" className="size-full object-cover" />
+                  ) : (
+                    <Bookmark aria-hidden="true" className="size-5 text-fg-muted" />
                   )}
-                </button>
-                <span className="font-mono text-[10px] font-medium text-muted-foreground group-hover:text-foreground truncate max-w-[68px] text-center">
-                  {h.title}
                 </span>
-              </div>
-            );
-          })}
-      </div>
+              </button>
+              <span className="max-w-16 truncate text-center text-xs text-fg">{h.title}</span>
+            </li>
+          ))}
+      </ul>
 
       {/* Story Archive & New Highlight Modal */}
       {showArchiveModal && (

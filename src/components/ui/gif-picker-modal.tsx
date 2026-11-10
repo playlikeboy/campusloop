@@ -171,7 +171,7 @@ export function GifPickerModal({ isOpen, onClose, onSelectGif }: GifPickerModalP
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-0 backdrop-blur-md sm:items-center sm:p-4 animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-overlay p-0 sm:items-center sm:p-4 animate-in fade-in duration-200"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
@@ -191,7 +191,7 @@ export function GifPickerModal({ isOpen, onClose, onSelectGif }: GifPickerModalP
             <div className="min-w-0">
               <h2
                 id="gif-picker-title"
-                className="truncate text-sm font-black tracking-tight text-foreground sm:text-[15px]"
+                className="truncate text-sm font-bold tracking-tight text-foreground sm:text-[15px]"
               >
                 Choose a GIF
               </h2>
@@ -214,7 +214,7 @@ export function GifPickerModal({ isOpen, onClose, onSelectGif }: GifPickerModalP
           </button>
         </div>
 
-        <div className="shrink-0 border-b border-border/40 bg-card/95 px-3 py-3 backdrop-blur-xl sm:px-4">
+        <div className="shrink-0 border-b border-border/40 bg-card px-3 py-3 sm:px-4">
           <div className="relative">
             <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4.5 -translate-y-1/2 text-muted-foreground" />
             <input
@@ -298,7 +298,7 @@ export function GifPickerModal({ isOpen, onClose, onSelectGif }: GifPickerModalP
               <div className="grid size-14 place-items-center rounded-2xl border border-destructive/15 bg-destructive/10 text-destructive">
                 <RefreshCw className="size-6" />
               </div>
-              <h3 className="mt-4 text-sm font-black text-foreground">GIFs couldn&apos;t load</h3>
+              <h3 className="mt-4 text-sm font-bold text-foreground">GIFs couldn&apos;t load</h3>
               <p className="mt-1 max-w-xs text-xs leading-5 text-muted-foreground">
                 {errorMessage || "Something went wrong while reaching GIPHY."}
               </p>
@@ -316,7 +316,7 @@ export function GifPickerModal({ isOpen, onClose, onSelectGif }: GifPickerModalP
               <div className="grid size-14 place-items-center rounded-2xl bg-muted text-muted-foreground/70">
                 <ImageIcon className="size-6" />
               </div>
-              <h3 className="mt-4 text-sm font-black text-foreground">No GIFs found</h3>
+              <h3 className="mt-4 text-sm font-bold text-foreground">No GIFs found</h3>
               <p className="mt-1 max-w-xs text-xs leading-5 text-muted-foreground">
                 Try another search such as &quot;reaction&quot;, &quot;exam&quot;, or &quot;crush&quot;.
               </p>
@@ -340,7 +340,7 @@ export function GifPickerModal({ isOpen, onClose, onSelectGif }: GifPickerModalP
                   <button
                     type="button"
                     onClick={handleRetry}
-                    className="shrink-0 cursor-pointer font-black text-destructive hover:underline focus-visible:outline-none"
+                    className="shrink-0 cursor-pointer font-bold text-destructive hover:underline focus-visible:outline-none"
                   >
                     Retry
                   </button>
@@ -370,7 +370,7 @@ export function GifPickerModal({ isOpen, onClose, onSelectGif }: GifPickerModalP
                       decoding="async"
                     />
                     <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-end bg-gradient-to-t from-black/55 via-black/10 to-transparent p-2 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
-                      <span className="rounded-full bg-black/45 px-2 py-1 text-[9px] font-bold text-white backdrop-blur-sm">
+                      <span className="rounded-full bg-black/45 px-2 py-1 text-[9px] font-bold text-white">
                         Send
                       </span>
                     </div>

@@ -1,126 +1,91 @@
 "use client";
 
-import {
-  Building2,
-  Car,
-  MapPin,
-  PackageSearch,
-  Plus,
-  ShoppingBag,
-  Sparkles,
-} from "lucide-react";
+import { Building2, Car, LayoutGrid, Map as MapIcon, PackageSearch, Plus, Tag } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { haptics } from "@/lib/haptics";
-import { sounds } from "@/lib/sounds";
+import { isPathActive, navPress } from "@/components/shells/nav-utils";
+import { ROUTES } from "@/constants/navigation";
 import { cn } from "@/lib/utils";
 
 interface LivingNavItem {
   href: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
-  accentColor?: string;
   createHref?: string;
   createLabel?: string;
 }
 
 const LIVING_TABS: LivingNavItem[] = [
+  { href: ROUTES.living, label: "All", icon: LayoutGrid },
   {
-    href: "/campus",
-    label: "Overview",
-    icon: Sparkles,
-  },
-  {
-    href: "/buy-and-sell",
-    label: "Buy & Sell",
-    icon: ShoppingBag,
+    href: ROUTES.buySell,
+    label: "Buy and sell",
+    icon: Tag,
     createHref: "/buy-and-sell/new",
-    createLabel: "+ Sell Item",
+    createLabel: "Sell something",
   },
   {
-    href: "/housing",
-    label: "Housing & Flats",
+    href: ROUTES.housing,
+    label: "Housing",
     icon: Building2,
     createHref: "/housing/new",
-    createLabel: "+ List Room",
+    createLabel: "List a room",
   },
   {
-    href: "/lost-and-found",
-    label: "Lost & Found",
+    href: ROUTES.lostFound,
+    label: "Lost and found",
     icon: PackageSearch,
     createHref: "/lost-and-found/new",
-    createLabel: "+ Report Item",
+    createLabel: "Report an item",
   },
   {
-    href: "/rideshare",
-    label: "Ride Share",
+    href: ROUTES.rideshare,
+    label: "Ride share",
     icon: Car,
     createHref: "/rideshare/new",
-    createLabel: "+ Offer Ride",
+    createLabel: "Offer a ride",
   },
-  {
-    href: "/atlas",
-    label: "Campus Atlas",
-    icon: MapPin,
-  },
+  { href: ROUTES.atlas, label: "Campus Atlas", icon: MapIcon },
 ];
 
+/** Sub-navigation for the campus living utilities, with the matching "create" button. */
 export function ContextualLivingNav() {
-  const pathname = usePathname() || "/campus";
-
-  const currentTab = LIVING_TABS.find((tab) =>
-    tab.href === "/campus"
-      ? pathname === "/campus" || pathname === "/living" || pathname === "/utilities"
-      : pathname === tab.href || pathname.startsWith(tab.href + "/")
-  );
+  const pathname = usePathname() || ROUTES.living;
+  const currentTab = LIVING_TABS.find((tab) => isPathActive(pathname, tab.href));
 
   return (
-    <div className="sticky top-14 sm:top-0 z-20 border-b border-[var(--border)] bg-[var(--surface)] px-3 py-2 sm:px-6 select-none">
+    <div className="sticky top-14 z-20 border-b border-border bg-surface px-3 py-1.5 select-none sm:px-6 lg:top-16">
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-3">
-        {/* Horizontal scrollable navigation pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+        <nav aria-label="Campus living" className="no-scrollbar flex items-center gap-1.5 overflow-x-auto">
           {LIVING_TABS.map((tab) => {
-            const isActive =
-              tab.href === "/campus"
-                ? pathname === "/campus" || pathname === "/living" || pathname === "/utilities"
-                : pathname === tab.href || pathname.startsWith(tab.href + "/");
-
+            const active = isPathActive(pathname, tab.href);
             const Icon = tab.icon;
-
             return (
               <Link
                 key={tab.href}
                 href={tab.href}
-                onClick={() => {
-                  sounds.tap();
-                  haptics.light();
-                }}
+                onClick={navPress}
+                aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-ui cursor-pointer shrink-0 border",
-                  isActive
-                    ? "bg-[var(--primary-soft)] text-[var(--primary)] border-[var(--primary-soft-border)] font-semibold shadow-2xs"
-                    : "text-[var(--text-secondary)] hover:bg-[var(--surface-sunken)] hover:text-[var(--text)] bg-[var(--surface)] border-[var(--border)]"
+                  "flex h-11 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 text-sm font-medium transition-ui focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  active ? "bg-brand text-brand-fg" : "text-fg-muted hover:bg-surface-muted hover:text-fg"
                 )}
               >
-                <Icon className="size-3.5 shrink-0" />
+                <Icon className="size-4 shrink-0" />
                 <span>{tab.label}</span>
               </Link>
             );
           })}
-        </div>
+        </nav>
 
-        {/* Dynamic Contextual Create CTA */}
         {currentTab?.createHref && (
           <Link
             href={currentTab.createHref}
-            onClick={() => {
-              sounds.tap();
-              haptics.light();
-            }}
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-bold transition-ui shadow-xs active:scale-[0.98] shrink-0"
+            onClick={navPress}
+            className="hidden h-11 shrink-0 items-center gap-1.5 rounded-full bg-brand px-4 text-sm font-semibold text-brand-fg transition-ui hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-[0.98] sm:inline-flex"
           >
-            <Plus className="size-3.5" />
-            <span>{currentTab.createLabel || "+ New"}</span>
+            <Plus className="size-4" strokeWidth={2.5} aria-hidden="true" />
+            <span>{currentTab.createLabel}</span>
           </Link>
         )}
       </div>

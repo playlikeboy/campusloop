@@ -102,20 +102,20 @@ export function CodeBlock({
       {/* ─── Mac Terminal Header ─── */}
       <div className="flex h-9 items-center justify-between border-b border-border bg-surface-muted px-3.5 select-none">
         <div className="flex items-center gap-2">
-          <span className="flex items-center gap-1 text-[11px] font-mono font-semibold text-fg-muted">
+          <span className="flex items-center gap-1 text-xs font-mono font-semibold text-fg-muted">
             <Terminal className="size-3" />
             <span>{cleanLang || "code"}</span>
           </span>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-mono text-fg-muted">
+          <span className="text-xs font-mono text-fg-muted">
             {lines.length} {lines.length === 1 ? "line" : "lines"}
           </span>
           <button
             type="button"
             onClick={handleCopy}
-            className="flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold text-fg-muted hover:bg-surface hover:text-fg transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold text-fg-muted hover:bg-surface hover:text-fg transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             title="Copy code"
           >
             {copied ? (
@@ -139,7 +139,7 @@ export function CodeBlock({
           <div className="flex gap-4">
             {/* Line Numbers Gutter */}
             <div
-              className="select-none text-right font-mono text-[11px] text-fg-subtle space-y-0"
+              className="select-none text-right font-mono text-xs text-fg-subtle space-y-0"
               aria-hidden="true"
             >
               {lines.map((_, i) => (

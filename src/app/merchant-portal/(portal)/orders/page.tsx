@@ -1,11 +1,7 @@
-import type { Metadata } from "next";
+import { privateMetadata } from "@/lib/seo";
 import { MerchantOrdersClient } from "./merchant-orders-client";
 
-export const metadata: Metadata = {
-  title: "Merchant Orders Pipeline",
-  description: "Track and fulfill campus orders in real time.",
-  robots: { index: false, follow: false },
-};
+export const metadata = privateMetadata("Orders");
 
 export default function MerchantOrdersPage() {
   return <MerchantOrdersClient />;

@@ -13,6 +13,12 @@ import {
 } from "@/components/ui/animated-icon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   detectMentionTrigger,
   MentionSuggestions,
   type TriggerContext,
@@ -143,7 +149,7 @@ export function CommentItem({
       // Revert on failure
       setLiked(liked);
       setLikesCount(likesCount);
-      toast.error("Failed to update reaction");
+      toast.error("Couldn't react. Try again.");
     }
   }
 
@@ -169,28 +175,28 @@ export function CommentItem({
     try {
       const res = await pinComment(targetPostId, comment.id);
       setIsPinned(res.isPinned);
-      toast.success(res.isPinned ? "Comment pinned to top" : "Comment unpinned");
+      toast.success(res.isPinned ? "Pinned to top" : "Unpinned");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to toggle pin state");
+      toast.error(err instanceof Error ? err.message : "Couldn't pin. Try again.");
     }
   }
 
   async function handleCopyCommentLink() {
     const targetPostId = postId || comment.postId;
     if (!targetPostId) {
-      toast.error("Unable to find post identifier");
+      toast.error("Couldn't make a link for this comment.");
       return;
     }
     const commentUrl = `https://campusloop.space/post/${targetPostId}/comment/${comment.id}`;
     if (typeof navigator !== "undefined" && navigator.clipboard) {
       try {
         await navigator.clipboard.writeText(commentUrl);
-        toast.success("Comment link copied to clipboard");
+        toast.success("Link copied");
       } catch {
-        toast.error("Failed to copy comment link");
+        toast.error("Couldn't copy the link.");
       }
     } else {
-      toast.error("Clipboard not supported");
+      toast.error("Copying isn't supported in this browser.");
     }
   }
 
@@ -220,9 +226,9 @@ export function CommentItem({
     <div className="relative group select-text" onClick={handleDoubleTap}>
       {/* Pinned indicator banner */}
       {isPinned && depth === 0 && (
-        <div className="flex items-center gap-1.5 px-3 py-1 mb-1 text-[11px] font-semibold text-warning bg-warning/10 rounded-lg w-fit border border-warning/20">
+        <div className="flex items-center gap-1.5 px-3 py-1 mb-1 text-xs font-semibold text-warning bg-warning/10 rounded-lg w-fit border border-warning/20">
           <Pin className="size-3 fill-warning/30 rotate-45 shrink-0" />
-          <span>Pinned by author</span>
+          <span>Pinned</span>
         </div>
       )}
 
@@ -241,7 +247,7 @@ export function CommentItem({
         {/* Double-tap heart burst effect */}
         {showHeartBurst && (
           <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none animate-in fade-in zoom-in-50 duration-200">
-            <div className="p-3 bg-black/40 backdrop-blur-md rounded-full shadow-2xl">
+            <div className="p-3 bg-black/40 rounded-full shadow-lg">
               <AnimatedIcon
                 icon={AnimateHeart}
                 animation="beat"
@@ -256,7 +262,7 @@ export function CommentItem({
         <div className="shrink-0 relative z-10">
           {!isAnon ? (
             <Link href={`/@${handle}`}>
-              <Avatar className="size-9 rounded-full border border-border/40 hover:opacity-90 transition-opacity">
+              <Avatar className="size-9 rounded-full border border-border hover:opacity-90 transition-opacity">
                 <AvatarImage src={avatarUrl || ""} />
                 <AvatarFallback className="text-xs font-bold bg-muted text-foreground">
                   {fallback}
@@ -264,7 +270,7 @@ export function CommentItem({
               </Avatar>
             </Link>
           ) : (
-            <Avatar className="size-9 rounded-full border border-border/40 bg-muted">
+            <Avatar className="size-9 rounded-full border border-border bg-muted">
               <AvatarFallback className="text-xs font-bold">{fallback}</AvatarFallback>
             </Avatar>
           )}
@@ -294,7 +300,7 @@ export function CommentItem({
 
               {/* OP / Author Badge */}
               {isPostAuthor && (
-                <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-black text-primary border border-primary/20">
+                <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-xs font-bold text-primary border border-primary/20">
                   OP
                 </span>
               )}
@@ -309,83 +315,47 @@ export function CommentItem({
             </div>
 
             {/* Options Menu */}
-            <div className="relative">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowMenu((prev) => !prev);
-                }}
-                className="size-7 rounded-full hover:bg-muted text-muted-foreground/50 hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
+            <DropdownMenu open={showMenu} onOpenChange={setShowMenu}>
+              <DropdownMenuTrigger
+                onClick={(e) => e.stopPropagation()}
+                className="-my-2 size-10 rounded-full hover:bg-surface-muted text-fg-subtle hover:text-fg flex items-center justify-center transition-ui cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 aria-label="Comment options"
               >
-                <MoreHorizontal className="size-3.5" />
-              </button>
-
-              {showMenu && (
-                <>
-                  <div
-                    className="fixed inset-0 z-20"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowMenu(false);
-                    }}
-                  />
-                  <div
-                    className="absolute right-0 mt-1 w-48 rounded-xl border border-border/50 bg-popover text-popover-foreground shadow-xl z-30 py-1 animate-in fade-in zoom-in-95"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {/* Pin/Unpin option for author/admin */}
-                    {canPin && depth === 0 && (
-                      <button
-                        type="button"
-                        onClick={handleTogglePin}
-                        className="w-full text-left px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer flex items-center gap-2"
-                      >
-                        <Pin className="size-3.5 text-warning rotate-45" />
-                        <span>{isPinned ? "Unpin comment" : "Pin comment to top"}</span>
-                      </button>
-                    )}
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowMenu(false);
-                        handleCopyCommentLink();
-                      }}
-                      className="w-full text-left px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer flex items-center gap-2"
-                    >
-                      <Link2 className="size-3.5 text-brand" />
-                      <span>Copy link to comment</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        setShowMenu(false);
-                        if (typeof navigator !== "undefined" && navigator.clipboard) {
-                          try {
-                            await navigator.clipboard.writeText(comment.body || "");
-                            toast.success("Comment text copied to clipboard");
-                          } catch {
-                            toast.error("Failed to copy text");
-                          }
-                        }
-                      }}
-                      className="w-full text-left px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer flex items-center gap-2"
-                    >
-                      <Copy className="size-3.5 text-muted-foreground" />
-                      <span>Copy text</span>
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
+                <MoreHorizontal className="size-4" aria-hidden />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                {canPin && depth === 0 && (
+                  <DropdownMenuItem onClick={handleTogglePin}>
+                    <Pin className="rotate-45" aria-hidden />
+                    {isPinned ? "Unpin comment" : "Pin to top"}
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem onClick={handleCopyCommentLink}>
+                  <Link2 aria-hidden />
+                  Copy link
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={async () => {
+                    if (typeof navigator !== "undefined" && navigator.clipboard) {
+                      try {
+                        await navigator.clipboard.writeText(comment.body || "");
+                        toast.success("Text copied");
+                      } catch {
+                        toast.error("Couldn't copy the text.");
+                      }
+                    }
+                  }}
+                >
+                  <Copy aria-hidden />
+                  Copy text
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Replying to indicator */}
           {comment.replyToUser && (
-            <div className="text-[11px] text-muted-foreground font-medium flex items-center gap-1">
+            <div className="text-xs text-muted-foreground font-medium flex items-center gap-1">
               <span>Replying to</span>
               <span className="text-primary font-semibold">@{comment.replyToUser.username}</span>
             </div>
@@ -398,7 +368,7 @@ export function CommentItem({
 
           {/* Attached Image Preview */}
           {comment.imageUrl && (
-            <div className="mt-2 max-w-sm rounded-xl overflow-hidden border border-border/50 bg-black/5">
+            <div className="mt-2 max-w-sm rounded-xl overflow-hidden border border-border bg-black/5">
               <img
                 src={comment.imageUrl}
                 alt="Comment attachment"
@@ -440,7 +410,7 @@ export function CommentItem({
                   animateOnHover={false}
                 />
               </div>
-              <span className="text-[11px] font-semibold">Reply</span>
+              <span className="text-xs font-semibold">Reply</span>
             </button>
 
             {/* Like / Heart Button */}
@@ -466,13 +436,11 @@ export function CommentItem({
                   playKey={liked}
                   iconClassName={cn(
                     "transition-colors",
-                    liked
-                      ? "fill-danger text-danger"
-                      : "text-muted-foreground group-hover/like:text-danger"
+                    liked ? "fill-danger text-danger" : "text-muted-foreground group-hover/like:text-danger"
                   )}
                 />
               </div>
-              {likesCount > 0 && <span className="text-[11px] font-semibold">{likesCount}</span>}
+              {likesCount > 0 && <span className="text-xs font-semibold">{likesCount}</span>}
             </button>
 
             {/* Copy link to comment / Share Button */}
@@ -489,7 +457,7 @@ export function CommentItem({
               <div className="size-7 rounded-full group-hover/share:bg-brand/10 flex items-center justify-center transition-colors">
                 <Link2 className="size-3.5 text-muted-foreground group-hover/share:text-brand transition-colors" />
               </div>
-              <span className="text-[11px] font-semibold">Share</span>
+              <span className="text-xs font-semibold">Share</span>
             </button>
           </div>
 
@@ -503,8 +471,8 @@ export function CommentItem({
                 className="bottom-full mb-2 left-0"
               />
 
-              <div className="rounded-2xl border border-border/60 bg-muted/30 p-3 space-y-2.5">
-                <p className="text-[11px] text-muted-foreground font-medium">
+              <div className="rounded-2xl border border-border bg-muted/30 p-3 space-y-2.5">
+                <p className="text-xs text-muted-foreground font-medium">
                   Replying to <span className="text-primary font-bold">@{handle}</span>
                 </p>
 
@@ -512,18 +480,18 @@ export function CommentItem({
                   ref={replyInputRef}
                   value={replyBody}
                   onChange={handleReplyInputChange}
-                  placeholder="Post your reply..."
+                  placeholder="Write a reply…"
                   rows={2}
                   className="w-full bg-transparent text-xs text-foreground placeholder:text-muted-foreground/60 outline-none resize-none leading-relaxed"
                   autoFocus
                 />
 
-                <div className="flex items-center justify-between pt-1 border-t border-border/30">
+                <div className="flex items-center justify-between pt-1 border-t border-border">
                   <button
                     type="button"
                     onClick={() => setReplyIsAnon(!replyIsAnon)}
                     className={cn(
-                      "text-[10px] font-bold px-2 py-0.5 rounded-full transition-colors cursor-pointer inline-flex items-center gap-1",
+                      "text-xs font-bold px-2 py-0.5 rounded-full transition-colors cursor-pointer inline-flex items-center gap-1",
                       replyIsAnon
                         ? "bg-brand/15 text-brand-text border border-brand-subtle-border/30"
                         : "bg-muted/60 text-muted-foreground"
@@ -532,7 +500,7 @@ export function CommentItem({
                     {replyIsAnon ? (
                       <>
                         <VenetianMask className="size-3 text-brand-text" />
-                        <span>Anon</span>
+                        <span>Anonymous</span>
                       </>
                     ) : (
                       <>
@@ -558,7 +526,7 @@ export function CommentItem({
                         haptics.medium();
                         submitReply(comment.id);
                       }}
-                      className="px-3.5 py-1 rounded-full bg-foreground text-background text-xs font-black disabled:opacity-40 hover:opacity-90 transition-transform cursor-pointer shadow-2xs active:scale-95"
+                      className="px-3.5 py-1 rounded-full bg-foreground text-background text-xs font-bold disabled:opacity-40 hover:opacity-90 transition-transform cursor-pointer shadow-2xs active:scale-95"
                     >
                       Reply
                     </button>

@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { ExploreClient } from "@/components/explore/explore-client";
 import type { SearchCategoryFilter, SearchScope } from "@/lib/search/types";
+import { breadcrumbJsonLd, buildMetadata } from "@/lib/seo";
+import { JsonLd } from "@/lib/seo/json-ld-script";
 import ExploreLoading from "./loading";
 
 interface ExplorePageProps {
@@ -16,73 +18,21 @@ interface ExplorePageProps {
 }
 
 export async function generateMetadata({ searchParams }: ExplorePageProps): Promise<Metadata> {
-  const params = await searchParams;
-  const q = params.q?.trim();
-
+  const q = (await searchParams).q?.trim();
   if (q) {
-    const title = `Search results for "${q}"`;
-    const description = `Explore verified student profiles, clubs, notes, and discussions matching "${q}" on CampusLoop.`;
-
-    return {
-      title,
-      description,
-      alternates: {
-        canonical: `https://campusloop.space/explore?q=${encodeURIComponent(q)}`,
-      },
-      robots: {
-        index: false,
-        follow: true,
-      },
-      openGraph: {
-        title: `${title}`,
-        description,
-        url: `https://campusloop.space/explore?q=${encodeURIComponent(q)}`,
-        siteName: "CampusLoop",
-        locale: "en_IN",
-        images: [{ url: "https://campusloop.space/og-image.png", width: 1200, height: 630 }],
-      },
-    };
+    return buildMetadata({
+      title: `"${q.slice(0, 40)}" on CampusLoop`,
+      description: `People, communities, posts and study material that match "${q.slice(0, 60)}".`,
+      path: "/explore",
+      noindex: true,
+    });
   }
-
-  const title = "Explore Campuses, Clubs & Student Vibes Across India";
-  const description =
-    "CampusLoop discovery hub — find student clubs, upcoming hackathons, semester study notes, placement roadmaps, and trending campus pulse across India.";
-
-  return {
-    title,
-    description,
-    keywords: [
-      "CampusLoop Explore",
-      "Discover Indian Campuses",
-      "College Clubs and Events",
-      "Engineering Notes and PYQs",
-      "Campus Discussions",
-    ],
-    alternates: { canonical: "https://campusloop.space/explore" },
-    robots: { index: true, follow: true },
-    openGraph: {
-      title,
-      description,
-      url: "https://campusloop.space/explore",
-      siteName: "CampusLoop",
-      locale: "en_IN",
-      type: "website",
-      images: [
-        {
-          url: "https://campusloop.space/og-image.png",
-          width: 1200,
-          height: 630,
-          alt: "CampusLoop Explore",
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: ["https://campusloop.space/og-image.png"],
-    },
-  };
+  return buildMetadata({
+    title: "Explore",
+    description:
+      "Search for students, communities, events, posts and study material from colleges across India.",
+    path: "/explore",
+  });
 }
 
 export default async function ExplorePage({ searchParams }: ExplorePageProps) {
@@ -100,37 +50,11 @@ export default async function ExplorePage({ searchParams }: ExplorePageProps) {
   const scope: SearchScope = rawScope === "GLOBAL" || rawScope === "INDIA" ? "INDIA" : "CAMPUS";
   const type = (params.type?.toUpperCase() || "ALL") as SearchCategoryFilter;
 
-  const jsonLd = q
-    ? {
-        "@context": "https://schema.org",
-        "@type": "SearchResultsPage",
-        name: `Search results for "${q}"`,
-        url: `https://campusloop.space/explore?q=${encodeURIComponent(q)}`,
-        description: `Explore student profiles, clubs, notes, and discussions matching "${q}" on CampusLoop.`,
-      }
-    : {
-        "@context": "https://schema.org",
-        "@type": "CollectionPage",
-        name: "CampusLoop Explore",
-        url: "https://campusloop.space/explore",
-        description: "CampusLoop discovery hub — student clubs, upcoming hackathons, and notes across India.",
-        publisher: {
-          "@type": "Organization",
-          name: "CampusLoop",
-          url: "https://campusloop.space",
-          logo: "https://campusloop.space/logo.png",
-        },
-      };
-
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      {q ? null : <JsonLd data={breadcrumbJsonLd([{ name: "Explore", path: "/explore" }])} />}
       <Suspense fallback={<ExploreLoading />}>
-        <ExploreClient
-          initialQuery={q}
-          initialScope={scope}
-          initialType={type}
-        />
+        <ExploreClient initialQuery={q} initialScope={scope} initialType={type} />
       </Suspense>
     </>
   );

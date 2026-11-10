@@ -27,10 +27,10 @@ export function BrandLogoIcon({
   return (
     <img
       src="/logo.png"
-      alt="CampusLoop Logo"
+      alt="CampusLoop"
       className={cn(
         sizeMap[size],
-        "object-contain shrink-0 transition-transform duration-300 hover:scale-105 select-none",
+        "shrink-0 select-none object-contain",
         className
       )}
       loading="eager"
@@ -38,14 +38,14 @@ export function BrandLogoIcon({
   );
 }
 
-export function BrandLogo({ className, size = "md", showWordmark = true, href = "/app" }: BrandLogoProps) {
+export function BrandLogo({ className, size = "md", showWordmark = true, href = "/feeds" }: BrandLogoProps) {
   const content = (
     <div className={cn("inline-flex items-center gap-2.5 select-none group shrink-0", className)}>
       <BrandLogoIcon size={size} />
       {showWordmark && (
         <span
           className={cn(
-            "font-heading font-bold tracking-[-0.04em] text-foreground transition-colors group-hover:text-primary leading-none shrink-0",
+            "shrink-0 font-display font-extrabold leading-none tracking-tight text-fg",
             size === "sm" && "text-sm",
             size === "md" && "text-[17px]",
             size === "lg" && "text-xl",

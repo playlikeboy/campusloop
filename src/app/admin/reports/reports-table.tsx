@@ -15,8 +15,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { cn } from "@/lib/utils";
 import { type RevealedIdentity, revealAnonymousAuthor } from "../anonymity-actions";
 import { deletePost, dismissReport, hidePost, keepPost } from "./actions";
 
@@ -120,58 +121,40 @@ export function ReportsTable({ initialReports }: { initialReports: ReportRow[] }
   return (
     <div className="space-y-4">
       {/* Search & Reason Filter Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl bg-card border border-border/60 shadow-2xs">
-        <div className="flex items-center gap-2 flex-1 max-w-sm bg-muted/40 border border-border/50 rounded-lg px-2.5 py-1.5">
-          <Search className="size-3.5 text-muted-foreground shrink-0" />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-lg bg-surface border border-border ">
+        <div className="flex items-center gap-2 flex-1 max-w-sm bg-surface-muted border border-border rounded-lg px-2.5 py-1.5">
+          <Search className="size-3.5 text-fg-muted shrink-0" />
           <input
+            aria-label="Search reports"
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search report reason, content, or author..."
-            className="w-full bg-transparent text-xs text-foreground placeholder:text-muted-foreground outline-none"
+            placeholder="Search reason, post or author"
+            className="w-full bg-transparent text-xs text-fg placeholder:text-fg-muted outline-none"
           />
         </div>
 
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-[11px] font-bold text-muted-foreground mr-1 flex items-center gap-1">
+          <span className="text-xs font-bold text-fg-muted mr-1 flex items-center gap-1">
             <Filter className="size-3" /> Reason:
           </span>
-          <button
-            type="button"
-            onClick={() => setReasonFilter("ALL")}
-            className={cn(
-              "px-2.5 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer",
-              reasonFilter === "ALL"
-                ? "bg-primary text-primary-foreground shadow-2xs"
-                : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground"
-            )}
-          >
+          <Chip size="sm" selected={reasonFilter === "ALL"} onClick={() => setReasonFilter("ALL")}>
             All ({reports.length})
-          </button>
+          </Chip>
           {reasons.map((r) => (
-            <button
-              key={r}
-              type="button"
-              onClick={() => setReasonFilter(r)}
-              className={cn(
-                "px-2.5 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer",
-                reasonFilter === r
-                  ? "bg-primary text-primary-foreground shadow-2xs"
-                  : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground"
-              )}
-            >
+            <Chip size="sm" selected={reasonFilter === r} key={r} onClick={() => setReasonFilter(r)}>
               {r}
-            </button>
+            </Chip>
           ))}
         </div>
       </div>
 
       {/* Reports List */}
       {filteredReports.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border/80 bg-card/40 p-12 text-center space-y-2">
+        <div className="rounded-lg border border-dashed border-border bg-surface p-12 text-center space-y-2">
           <ShieldAlert className="size-8 text-success mx-auto" />
-          <h3 className="text-sm font-bold text-foreground">No Reports Found</h3>
-          <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+          <h3 className="text-sm font-bold text-fg">No open reports</h3>
+          <p className="text-xs text-fg-muted max-w-sm mx-auto">
             {reports.length === 0
               ? "All reports have been triaged. No outstanding user complaints."
               : "No reports match the active filter query."}
@@ -180,61 +163,61 @@ export function ReportsTable({ initialReports }: { initialReports: ReportRow[] }
       ) : (
         <>
           {/* Desktop Table View (Hidden on mobile) */}
-          <div className="hidden md:block rounded-xl border border-border/60 bg-card/70 overflow-hidden shadow-2xs">
+          <div className="hidden md:block rounded-lg border border-border bg-surface overflow-hidden ">
             <div className="w-full overflow-x-auto">
-              <table className="w-full text-left text-xs text-muted-foreground">
-                <thead className="bg-muted/50 text-[10px] font-bold text-foreground border-b border-border/50">
+              <table className="w-full text-left text-xs text-fg-muted">
+                <thead className="bg-surface-muted text-xs font-bold text-fg border-b border-border">
                   <tr>
-                    <th className="px-4 py-3">Reason / Details</th>
-                    <th className="px-4 py-3">Reported Content</th>
+                    <th className="px-4 py-3">Reason</th>
+                    <th className="px-4 py-3">Post</th>
                     <th className="px-4 py-3">Author</th>
-                    <th className="px-4 py-3 text-right">Triage Actions</th>
+                    <th className="px-4 py-3 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border/40">
+                <tbody className="divide-y divide-border">
                   {filteredReports.map((report) => (
-                    <tr key={report.id} className="hover:bg-muted/20 transition-colors">
+                    <tr key={report.id} className="hover:bg-surface-muted transition-colors">
                       {/* Reason Column */}
                       <td className="px-4 py-3.5 align-top max-w-[200px]">
-                        <span className="font-bold text-foreground text-[10px] px-1.5 py-0.5 rounded bg-destructive/10 text-destructive border border-destructive/20 inline-block">
+                        <span className="font-bold text-fg text-xs px-1.5 py-0.5 rounded bg-danger-subtle text-danger border border-danger/30 inline-block">
                           {report.reason}
                         </span>
                         {report.details && (
-                          <p className="text-[11px] text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
+                          <p className="text-xs text-fg-muted mt-1 line-clamp-2 leading-relaxed">
                             {report.details}
                           </p>
                         )}
-                        <span className="text-[10px] text-muted-foreground/60 block mt-1">
+                        <span className="text-xs text-fg-subtle block mt-1">
                           {new Date(report.createdAt).toLocaleDateString()}
                         </span>
                       </td>
 
                       {/* Content Column */}
                       <td className="px-4 py-3.5 align-top max-w-md">
-                        <p className="text-xs text-foreground font-normal leading-relaxed line-clamp-3 whitespace-pre-wrap">
+                        <p className="text-xs text-fg font-normal leading-relaxed line-clamp-3 whitespace-pre-wrap">
                           {report.postBody}
                         </p>
                         <Link
                           href={`/post/${report.postId}`}
                           target="_blank"
-                          className="text-[10px] font-semibold text-primary hover:underline mt-1 inline-block"
+                          className="text-xs font-semibold text-brand-text hover:underline mt-1 inline-block"
                         >
-                          View post thread →
+                          Open post
                         </Link>
                       </td>
 
                       {/* Author Column */}
                       <td className="px-4 py-3.5 align-top whitespace-nowrap">
                         <div className="flex flex-col">
-                          <span className="font-bold text-foreground text-xs flex items-center gap-1.5">
+                          <span className="font-bold text-fg text-xs flex items-center gap-1.5">
                             {report.authorDisplayName ?? revealed[report.postId]?.displayName ?? (
-                              <span className="inline-flex items-center gap-1 text-muted-foreground">
-                                <VenetianMask className="size-3 text-primary" />
+                              <span className="inline-flex items-center gap-1 text-fg-muted">
+                                <VenetianMask className="size-3 text-brand-text" />
                                 <span>Anonymous</span>
                               </span>
                             )}
                           </span>
-                          <span className="text-[10px] text-muted-foreground">
+                          <span className="text-xs text-fg-muted">
                             {report.authorUsername
                               ? `@${report.authorUsername}`
                               : revealed[report.postId]
@@ -248,52 +231,61 @@ export function ReportsTable({ initialReports }: { initialReports: ReportRow[] }
                       <td className="px-4 py-3.5 align-top text-right">
                         <div className="flex items-center justify-end gap-1">
                           {report.authorUsername === null && !revealed[report.postId] && (
-                            <button
-                              type="button"
+                            <Button
+                              variant="ghost"
+                              size="icon-sm"
                               onClick={() => setRevealPostId(report.postId)}
                               disabled={isLoading}
-                              title="Reveal author (strictly audit logged)"
-                              className="size-7 rounded-lg hover:bg-brand-subtle text-brand-text flex items-center justify-center transition-colors cursor-pointer"
+                              title="Reveal author (logged)"
+                              aria-label="Reveal author (logged)"
+                              className="text-brand-text"
                             >
-                              <Eye className="size-3.5" />
-                            </button>
+                              <Eye aria-hidden />
+                            </Button>
                           )}
-                          <button
-                            type="button"
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
                             onClick={() => setKeepPostId(report.postId)}
                             disabled={isLoading}
-                            title="Keep post & dismiss report"
-                            className="size-7 rounded-lg hover:bg-success-subtle text-success flex items-center justify-center transition-colors cursor-pointer"
+                            title="Keep post and close report"
+                            aria-label="Keep post and close report"
+                            className="text-success hover:bg-success-subtle"
                           >
-                            <CheckIcon className="size-3.5" />
-                          </button>
-                          <button
-                            type="button"
+                            <CheckIcon aria-hidden />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
                             onClick={() => handleHide(report.postId)}
                             disabled={isLoading}
                             title="Hide post"
-                            className="size-7 rounded-lg hover:bg-warning-subtle text-warning flex items-center justify-center transition-colors cursor-pointer"
+                            aria-label="Hide post"
+                            className="text-warning hover:bg-warning-subtle"
                           >
-                            <EyeOff className="size-3.5" />
-                          </button>
-                          <button
-                            type="button"
+                            <EyeOff aria-hidden />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
                             onClick={() => setDeletePostId(report.postId)}
                             disabled={isLoading}
-                            title="Delete post permanently"
-                            className="size-7 rounded-lg hover:bg-destructive/15 text-destructive flex items-center justify-center transition-colors cursor-pointer"
+                            title="Delete post"
+                            aria-label="Delete post"
+                            className="text-danger hover:bg-danger-subtle"
                           >
-                            <Trash2 className="size-3.5" />
-                          </button>
-                          <button
-                            type="button"
+                            <Trash2 aria-hidden />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
                             onClick={() => handleDismiss(report.id)}
                             disabled={isLoading}
-                            title="Dismiss report only"
-                            className="size-7 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
+                            title="Close report only"
+                            aria-label="Close report only"
                           >
-                            <XCircle className="size-3.5" />
-                          </button>
+                            <XCircle aria-hidden />
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -306,33 +298,30 @@ export function ReportsTable({ initialReports }: { initialReports: ReportRow[] }
           {/* Mobile Stacked Card View (Clean 100% width on phone screens) */}
           <div className="space-y-3 md:hidden">
             {filteredReports.map((report) => (
-              <div
-                key={report.id}
-                className="rounded-xl border border-border/60 bg-card p-4 shadow-2xs space-y-3"
-              >
+              <div key={report.id} className="rounded-lg border border-border bg-surface p-4  space-y-3">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="font-bold text-foreground text-[10px] px-2 py-0.5 rounded bg-destructive/10 text-destructive border border-destructive/20">
+                  <span className="font-bold text-fg text-xs px-2 py-0.5 rounded bg-danger-subtle text-danger border border-danger/30">
                     {report.reason}
                   </span>
-                  <span className="text-[10px] text-muted-foreground">
+                  <span className="text-xs text-fg-muted">
                     {new Date(report.createdAt).toLocaleDateString()}
                   </span>
                 </div>
 
-                <p className="text-xs text-foreground leading-relaxed whitespace-pre-wrap line-clamp-4">
+                <p className="text-xs text-fg leading-relaxed whitespace-pre-wrap line-clamp-4">
                   {report.postBody}
                 </p>
 
                 {report.details && (
-                  <p className="text-[11px] text-muted-foreground bg-muted/30 p-2 rounded-lg border border-border/40">
-                    <span className="font-bold text-foreground">Note:</span> {report.details}
+                  <p className="text-xs text-fg-muted bg-surface-muted p-2 rounded-lg border border-border">
+                    <span className="font-bold text-fg">Note:</span> {report.details}
                   </p>
                 )}
 
-                <div className="flex items-center justify-between pt-2 border-t border-border/40 text-xs">
-                  <div className="text-[11px] text-muted-foreground">
+                <div className="flex items-center justify-between pt-2 border-t border-border text-xs">
+                  <div className="text-xs text-fg-muted">
                     Author:{" "}
-                    <span className="font-bold text-foreground">
+                    <span className="font-bold text-fg">
                       {report.authorDisplayName ?? (report.postPseudonym || "Anonymous")}
                     </span>
                   </div>
@@ -342,7 +331,7 @@ export function ReportsTable({ initialReports }: { initialReports: ReportRow[] }
                       type="button"
                       onClick={() => setKeepPostId(report.postId)}
                       disabled={isLoading}
-                      className="px-2.5 py-1 rounded-lg bg-success hover:opacity-90 text-success-fg text-xs font-bold flex items-center gap-1"
+                      className={buttonVariants({ variant: "primary", size: "sm" })}
                     >
                       <CheckIcon className="size-3" />
                       <span>Keep</span>
@@ -351,19 +340,21 @@ export function ReportsTable({ initialReports }: { initialReports: ReportRow[] }
                       type="button"
                       onClick={() => handleHide(report.postId)}
                       disabled={isLoading}
-                      className="px-2.5 py-1 rounded-lg bg-warning hover:opacity-90 text-warning-fg text-xs font-bold flex items-center gap-1"
+                      className={buttonVariants({ variant: "outline", size: "sm" })}
                     >
                       <EyeOff className="size-3" />
                       <span>Hide</span>
                     </button>
-                    <button
-                      type="button"
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label="Delete"
                       onClick={() => setDeletePostId(report.postId)}
                       disabled={isLoading}
-                      className="p-1 rounded-lg bg-destructive/15 text-destructive hover:bg-destructive/25"
+                      className="text-danger hover:bg-danger-subtle"
                     >
-                      <Trash2 className="size-3.5" />
-                    </button>
+                      <Trash2 aria-hidden />
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -375,9 +366,9 @@ export function ReportsTable({ initialReports }: { initialReports: ReportRow[] }
       {/* Confirmation Dialogs */}
       <ConfirmDialog
         isOpen={Boolean(revealPostId)}
-        title="Reveal Anonymous Author?"
-        description="Are you sure you want to reveal the author of this reported post? This action is permanently audit-logged with your admin ID."
-        confirmText="Reveal Identity"
+        title="Reveal the author?"
+        description="Only do this for safety or legal reasons. Your name is saved in the audit log."
+        confirmText="Reveal author"
         variant="info"
         isLoading={isLoading}
         onClose={() => setRevealPostId(null)}
@@ -386,9 +377,9 @@ export function ReportsTable({ initialReports }: { initialReports: ReportRow[] }
 
       <ConfirmDialog
         isOpen={Boolean(keepPostId)}
-        title="Keep & Publish Post?"
-        description="Keep this post published and dismiss all associated active user reports?"
-        confirmText="Keep Post"
+        title="Keep this post?"
+        description="The post stays up and all its open reports are closed."
+        confirmText="Keep post"
         variant="success"
         isLoading={isLoading}
         onClose={() => setKeepPostId(null)}
@@ -397,9 +388,9 @@ export function ReportsTable({ initialReports }: { initialReports: ReportRow[] }
 
       <ConfirmDialog
         isOpen={Boolean(deletePostId)}
-        title="Permanently Delete Post?"
-        description="This action will permanently delete this post from CampusLoop. It cannot be recovered."
-        confirmText="Delete Post"
+        title="Delete this post?"
+        description="It will be deleted for good."
+        confirmText="Delete post"
         variant="danger"
         isLoading={isLoading}
         onClose={() => setDeletePostId(null)}

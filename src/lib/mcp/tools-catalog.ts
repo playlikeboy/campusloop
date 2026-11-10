@@ -445,7 +445,7 @@ export const CAMPUSLOOP_MCP_TOOLS: McpToolDefinition[] = [
   {
     name: "campusloop_search_colleges",
     description:
-      "Search through 1,350+ indexed Indian college hubs, institutes of national importance, and universities.",
+      "Search Indian colleges, institutes and universities in the CampusLoop directory.",
     category: "Colleges & Campuses",
     inputSchema: {
       type: "object",

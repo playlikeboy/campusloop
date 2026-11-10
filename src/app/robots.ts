@@ -1,9 +1,12 @@
 import type { MetadataRoute } from "next";
+import { SITE_URL } from "@/lib/seo/constants";
 
 /**
  * Everything not listed here is crawlable by default, so there are no Allow
  * rules. Each Disallow below is a route whose pages also carry meta noindex
  * and are absent from every sitemap — see docs/fix/SEO_MATRIX.md.
+ * When a page uses `buildMetadata({ noindex: true })` or `privateMetadata()`
+ * from "@/lib/seo", add its path prefix here too.
  */
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -40,8 +43,19 @@ export default function robots(): MetadataRoute.Robots {
         "/invalid-email",
         "/logout",
         "/oauth/",
+        "/search",
+        "/explore?q=",
+        "/birthdays",
+        "/story/",
+        "/courses/my",
+        "/courses/new",
+        "/developer/apps",
+        "/communities/new",
+        "/buy-and-sell/new",
+        "/events/manage/",
       ],
     },
-    sitemap: "https://campusloop.space/sitemap.xml",
+    sitemap: `${SITE_URL}/sitemap.xml`,
+    host: SITE_URL,
   };
 }

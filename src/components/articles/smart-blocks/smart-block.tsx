@@ -26,12 +26,12 @@ export function SmartBlock({ type, body }: { type: string; body: string }) {
 
   if (!result.ok) {
     return (
-      <div className="not-prose my-6 rounded-2xl bg-muted/50 p-4">
+      <div className="not-prose my-6 rounded-lg bg-surface-muted p-4">
         <p className="flex items-center gap-1.5 text-xs font-semibold text-warning">
           <AlertTriangle className="size-3.5" aria-hidden />
           This {type} block could not be displayed: {result.error}
         </p>
-        <pre className="mt-2 overflow-x-auto whitespace-pre-wrap text-sm text-foreground">{body}</pre>
+        <pre className="mt-2 overflow-x-auto whitespace-pre-wrap text-sm text-fg">{body}</pre>
       </div>
     );
   }

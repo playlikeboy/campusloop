@@ -214,8 +214,8 @@ export function usePushNotifications() {
       }
 
       // Trigger a celebratory welcome notification
-      await triggerBrowserNotification("CampusLoop Notifications Enabled! 🎉", {
-        body: "You'll now receive alerts for campus replies, secret crushes, and direct chats.",
+      await triggerBrowserNotification("Notifications are on", {
+        body: "You'll get alerts for replies, Secret Crush matches and messages.",
         url: "/notifications",
       });
 
@@ -237,8 +237,8 @@ export function usePushNotifications() {
 
     sounds.ting();
     haptics.success();
-    await triggerBrowserNotification("CampusLoop: New Notification 🔔", {
-      body: "Test ping: Your browser notifications and PWA alerts are working perfectly!",
+    await triggerBrowserNotification("Test notification", {
+      body: "Notifications are working on this device.",
       url: "/notifications",
     });
     toast.success("Test notification sent! Check your system banner.");

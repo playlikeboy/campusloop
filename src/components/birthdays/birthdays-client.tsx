@@ -1,406 +1,198 @@
 "use client";
 
-import {
-  ArrowLeft,
-  Cake,
-  Calendar,
-  Globe,
-  Loader2,
-  Lock,
-  PartyPopper,
-  Plus,
-  School,
-  Search,
-  Unlock,
-  X,
-  Zap,
-} from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Cake, Calendar, Globe, School, Search } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
+import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Input } from "@/components/ui/input";
+import { SegmentedControl } from "@/components/ui/segmented-control";
+import { Skeleton } from "@/components/ui/skeleton";
 import { fetcher } from "@/lib/api";
-import { cn } from "@/lib/utils";
-import { BirthdayCard } from "./birthday-card";
+import { BirthdayCard, type BirthdayStudent } from "./birthday-card";
+import { BirthdayPrivacyCard } from "./birthday-privacy-card";
 
 interface BirthdayResponse {
-  today: Array<{
-    id: string;
-    userId: string;
-    username: string;
-    displayName: string;
-    avatarUrl?: string | null;
-    course?: string | null;
-    branch?: string | null;
-    gender?: string | null;
-    dob?: string | null;
-    institution?: { id: string; name: string } | null;
-  }>;
-  upcoming: Array<{
-    id: string;
-    userId: string;
-    username: string;
-    displayName: string;
-    avatarUrl?: string | null;
-    course?: string | null;
-    branch?: string | null;
-    gender?: string | null;
-    dob?: string | null;
-    daysUntil: number;
-    birthMonth: number;
-    birthDay: number;
-    institution?: { id: string; name: string } | null;
-  }>;
-  byMonth?: Array<{
-    id: string;
-    userId: string;
-    username: string;
-    displayName: string;
-    avatarUrl?: string | null;
-    course?: string | null;
-    branch?: string | null;
-    dob?: string | null;
-    institution?: { id: string; name: string } | null;
-  }>;
+  today: BirthdayStudent[];
+  upcoming: BirthdayStudent[];
+  byMonth?: BirthdayStudent[];
   currentUserDob?: string | null;
   currentUserIsPrivate?: boolean;
 }
 
-const MONTHS = [
-  { value: "", label: "All" },
-  { value: "1", label: "Jan" },
-  { value: "2", label: "Feb" },
-  { value: "3", label: "Mar" },
-  { value: "4", label: "Apr" },
-  { value: "5", label: "May" },
-  { value: "6", label: "Jun" },
-  { value: "7", label: "Jul" },
-  { value: "8", label: "Aug" },
-  { value: "9", label: "Sep" },
-  { value: "10", label: "Oct" },
-  { value: "11", label: "Nov" },
-  { value: "12", label: "Dec" },
-];
+type Scope = "CAMPUS" | "GLOBAL";
 
-export function BirthdaysClient() {
-  const router = useRouter();
-  const [scope, setScope] = useState<"CAMPUS" | "GLOBAL">("CAMPUS");
-  const [searchDate] = useState("");
-  const [selectedMonth, setSelectedMonth] = useState<string>("");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isUpdatingPrivacy, setIsUpdatingPrivacy] = useState(false);
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-  const queryParams = new URLSearchParams();
-  queryParams.set("scope", scope);
-  if (searchDate) queryParams.set("date", searchDate);
-  if (selectedMonth) queryParams.set("month", selectedMonth);
+function matches(s: BirthdayStudent, q: string) {
+  if (!q) return true;
+  return s.displayName.toLowerCase().includes(q) || s.username.toLowerCase().includes(q);
+}
 
-  const { data, isLoading, mutate } = useSWR<BirthdayResponse>(
-    `/api/birthdays?${queryParams.toString()}`,
-    fetcher,
-    { revalidateOnFocus: true }
+function List({ people, isToday = false }: { people: BirthdayStudent[]; isToday?: boolean }) {
+  return (
+    <ul className="space-y-2">
+      {people.map((s) => (
+        <BirthdayCard key={s.id} student={s} isToday={isToday} />
+      ))}
+    </ul>
   );
+}
 
-  async function handleTogglePrivacy() {
+/** Today's birthdays, the next few weeks, and a month filter. */
+export function BirthdaysClient() {
+  const [scope, setScope] = useState<Scope>("CAMPUS");
+  const [month, setMonth] = useState("");
+  const [query, setQuery] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+
+  const params = new URLSearchParams({ scope });
+  if (month) params.set("month", month);
+  const { data, error, isLoading, mutate } = useSWR<BirthdayResponse>(`/api/birthdays?${params}`, fetcher, {
+    revalidateOnFocus: true,
+  });
+
+  async function togglePrivacy() {
     if (!data) return;
-    setIsUpdatingPrivacy(true);
-    const newStatus = !data.currentUserIsPrivate;
-
-    // Flip the switch right away; revalidate once the server agrees.
-    mutate((prev) => (prev ? { ...prev, currentUserIsPrivate: newStatus } : prev), false);
-
+    setIsSaving(true);
+    const next = !data.currentUserIsPrivate;
+    mutate((prev) => (prev ? { ...prev, currentUserIsPrivate: next } : prev), false);
     try {
       const res = await fetch("/api/profile/me", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isDobPrivate: newStatus }),
+        body: JSON.stringify({ isDobPrivate: next }),
       });
-
-      if (!res.ok) throw new Error("Failed to update birthday privacy");
-
-      toast.success(newStatus ? "Birthday set to Private" : "Birthday is now Public to peers");
+      if (!res.ok) throw new Error();
+      toast.success(next ? "Your birthday is hidden" : "Your birthday is visible");
       mutate();
-    } catch (err) {
-      mutate((prev) => (prev ? { ...prev, currentUserIsPrivate: !newStatus } : prev), false);
-      toast.error(err instanceof Error ? err.message : "Error updating privacy");
+    } catch {
+      mutate((prev) => (prev ? { ...prev, currentUserIsPrivate: !next } : prev), false);
+      toast.error("Couldn't save that. Try again.");
     } finally {
-      setIsUpdatingPrivacy(false);
+      setIsSaving(false);
     }
   }
 
-  const todayList = (data?.today || []).filter((s) => {
-    if (!searchQuery.trim()) return true;
-    const q = searchQuery.toLowerCase();
-    return s.displayName.toLowerCase().includes(q) || s.username.toLowerCase().includes(q);
-  });
-
-  const upcomingList = (data?.upcoming || []).filter((s) => {
-    if (!searchQuery.trim()) return true;
-    const q = searchQuery.toLowerCase();
-    return s.displayName.toLowerCase().includes(q) || s.username.toLowerCase().includes(q);
-  });
-
-  const monthList = (data?.byMonth || []).filter((s) => {
-    if (!searchQuery.trim()) return true;
-    const q = searchQuery.toLowerCase();
-    return s.displayName.toLowerCase().includes(q) || s.username.toLowerCase().includes(q);
-  });
+  const q = query.trim().toLowerCase();
+  const today = (data?.today ?? []).filter((s) => matches(s, q));
+  const upcoming = (data?.upcoming ?? []).filter((s) => matches(s, q));
+  const byMonth = (data?.byMonth ?? []).filter((s) => matches(s, q));
+  const monthName = month ? MONTHS[Number(month) - 1] : "";
 
   return (
-    <div className="max-w-2xl mx-auto flex flex-col min-h-screen pb-24 select-none">
-      {/* ─── Sticky Minimal Top Bar ─── */}
-      <header className="sticky top-0 z-40 bg-background/85 px-4 py-3 backdrop-blur-xl border-b border-border/5 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="flex items-center justify-center size-8 rounded-full bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-          >
-            <ArrowLeft className="size-4" />
-          </button>
-          <h1 className="text-base font-black tracking-tight text-foreground flex items-center gap-1.5">
-            <span>Campus Birthdays</span>
-            <span className="size-1.5 rounded-full bg-danger" />
-          </h1>
-        </div>
-
-        {/* Scope Pill Toggle */}
-        <div className="flex rounded-full bg-muted/50 p-0.5 border-0 shadow-2xs">
-          <button
-            type="button"
-            onClick={() => setScope("CAMPUS")}
-            className={cn(
-              "flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-bold transition-colors cursor-pointer",
-              scope === "CAMPUS"
-                ? "bg-card text-foreground shadow-2xs font-black"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            <School className="size-3" />
-            <span>Campus</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setScope("GLOBAL")}
-            className={cn(
-              "flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-bold transition-colors cursor-pointer",
-              scope === "GLOBAL"
-                ? "bg-card text-foreground shadow-2xs font-black"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            <Globe className="size-3" />
-            <span>All India</span>
-          </button>
-        </div>
+    <div className="mx-auto w-full max-w-2xl space-y-5 px-4 pt-4 pb-28">
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl text-fg">Birthdays</h1>
+        <SegmentedControl<Scope>
+          size="sm"
+          value={scope}
+          onChange={setScope}
+          options={[
+            { value: "CAMPUS", label: "My college", icon: <School aria-hidden="true" className="size-4" /> },
+            { value: "GLOBAL", label: "All India", icon: <Globe aria-hidden="true" className="size-4" /> },
+          ]}
+        />
       </header>
 
-      <main className="px-3 sm:px-4 pt-3.5 space-y-4">
-        {/* ─── Minimal Birthday & Privacy Capsule ─── */}
-        {data && (
-          <div className="rounded-3xl bg-card/60 p-4 space-y-2.5 shadow-2xs border-0">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="size-9 rounded-full bg-danger/10 text-danger flex items-center justify-center shrink-0">
-                  <Cake className="size-4.5" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-xs font-bold text-foreground truncate">
-                    {data.currentUserDob
-                      ? `Your Birthday: ${data.currentUserDob}`
-                      : "Add your birthday to celebrate with classmates"}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-                    {data.currentUserIsPrivate ? (
-                      <>
-                        <Lock className="size-2.5 text-warning" />
-                        <span>Private · Hidden from campus feed</span>
-                      </>
-                    ) : (
-                      <>
-                        <Unlock className="size-2.5 text-success" />
-                        <span>Public · Classmates can wish you</span>
-                      </>
-                    )}
-                  </p>
-                </div>
-              </div>
+      {data && (
+        <BirthdayPrivacyCard
+          dob={data.currentUserDob}
+          isPrivate={data.currentUserIsPrivate}
+          isSaving={isSaving}
+          onToggle={togglePrivacy}
+        />
+      )}
 
-              <div className="flex items-center gap-2">
-                {data.currentUserDob ? (
-                  <button
-                    type="button"
-                    disabled={isUpdatingPrivacy}
-                    onClick={handleTogglePrivacy}
-                    className="rounded-full border-0 bg-muted/60 hover:bg-muted px-3.5 py-1 text-[11px] font-bold text-foreground transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
-                  >
-                    {isUpdatingPrivacy && <Loader2 className="size-3 animate-spin text-primary" />}
-                    <span>{data.currentUserIsPrivate ? "Make Public" : "Set Private"}</span>
-                  </button>
-                ) : (
-                  <Link
-                    href="/profile/edit"
-                    className="rounded-full bg-primary px-3.5 py-1 text-[11px] font-bold text-white hover:opacity-90 transition-colors cursor-pointer flex items-center gap-1 shadow-xs border-0"
-                  >
-                    <Plus className="size-3" />
-                    <span>Add DOB</span>
-                  </Link>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ─── Search & Month Filter Pills ─── */}
-        <div className="space-y-2.5">
-          {/* Instant Search Bar */}
-          <div className="relative">
-            <Search className="absolute left-3.5 top-2.5 size-3.5 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search classmate by name or @handle..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-8 py-2 rounded-full border-0 bg-muted/30 text-xs font-semibold text-foreground placeholder:text-muted-foreground/70 focus:bg-muted/50 outline-none transition-colors shadow-2xs"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground cursor-pointer"
-              >
-                <X className="size-3.5" />
-              </button>
-            )}
-          </div>
-
-          {/* Month Pills Carousel */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
-            {MONTHS.map((m) => {
-              const isSelected = selectedMonth === m.value;
-              return (
-                <button
-                  key={m.value}
-                  type="button"
-                  onClick={() => setSelectedMonth(m.value)}
-                  className={cn(
-                    "px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-colors cursor-pointer shrink-0 shadow-2xs",
-                    isSelected
-                      ? "bg-foreground text-background font-black"
-                      : "bg-card text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                  )}
-                >
-                  {m.label}
-                </button>
-              );
-            })}
-          </div>
+      <div className="space-y-3">
+        <div className="relative">
+          <Search
+            aria-hidden="true"
+            className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-fg-subtle"
+          />
+          <Input
+            type="search"
+            aria-label="Search by name or username"
+            placeholder="Search by name or @username"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="pl-9"
+          />
         </div>
+        <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4" aria-label="Filter by month">
+          <Chip size="sm" selected={!month} onSelectedChange={() => setMonth("")} className="shrink-0">
+            Next 60 days
+          </Chip>
+          {MONTHS.map((label, i) => {
+            const value = String(i + 1);
+            return (
+              <Chip
+                key={value}
+                size="sm"
+                selected={month === value}
+                onSelectedChange={() => setMonth(value)}
+                className="shrink-0"
+              >
+                {label}
+              </Chip>
+            );
+          })}
+        </div>
+      </div>
 
-        {/* ─── Main Birthday Content ─── */}
-        {isLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="size-6 animate-spin text-primary" />
-          </div>
-        ) : (
-          <>
-            {/* ─── Today's Celebrations Section ─── */}
-            {!selectedMonth && (
-              <section className="space-y-2.5">
-                <div className="flex items-center justify-between px-1">
-                  <h2 className="text-xs font-black text-foreground flex items-center gap-1.5">
-                    <PartyPopper className="size-3.5 text-danger" />
-                    <span>Today&apos;s Campus Celebrations</span>
-                  </h2>
-                  <span className="text-[10px] font-black text-danger bg-danger/10 px-2 py-0.5 rounded-full">
-                    {todayList.length} Celebrant{todayList.length === 1 ? "" : "s"}
-                  </span>
-                </div>
-
-                {todayList.length > 0 ? (
-                  <div className="grid grid-cols-1 gap-2">
-                    {todayList.map((student) => (
-                      <BirthdayCard key={student.id} student={student} isToday={true} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="rounded-3xl bg-card p-6 text-center space-y-2 shadow-2xs">
-                    <div className="size-10 rounded-full bg-danger/10 flex items-center justify-center mx-auto text-danger">
-                      <Cake className="size-5" />
-                    </div>
-                    <p className="text-xs font-bold text-foreground">No campus birthdays today</p>
-                    <p className="text-[11px] text-muted-foreground max-w-xs mx-auto leading-relaxed">
-                      {scope === "CAMPUS"
-                        ? "None of your college batchmates have a public birthday today. Switch to All India or check upcoming dates!"
-                        : "No students indexed with a public birthday today."}
-                    </p>
-                  </div>
-                )}
-              </section>
+      {error ? (
+        <EmptyState
+          icon={Cake}
+          title="Couldn't load birthdays"
+          description="Check your connection and try again."
+          action={
+            <Button variant="outline" onClick={() => mutate()}>
+              Try again
+            </Button>
+          }
+        />
+      ) : isLoading ? (
+        <div className="space-y-2" aria-busy="true">
+          {["a", "b", "c", "d"].map((k) => (
+            <Skeleton key={k} className="h-20 w-full rounded-lg" />
+          ))}
+        </div>
+      ) : month ? (
+        <section className="space-y-3">
+          <h2 className="text-base text-fg">Born in {monthName}</h2>
+          {byMonth.length > 0 ? (
+            <List people={byMonth} />
+          ) : (
+            <EmptyState size="compact" icon={Calendar} title={`No birthdays in ${monthName}`} />
+          )}
+        </section>
+      ) : (
+        <>
+          <section className="space-y-3">
+            <h2 className="text-base text-fg">Today</h2>
+            {today.length > 0 ? (
+              <List people={today} isToday />
+            ) : (
+              <EmptyState
+                size="compact"
+                icon={Cake}
+                title="No birthdays today"
+                description={scope === "CAMPUS" ? "Try All India to see more people." : undefined}
+              />
             )}
-
-            {/* ─── Filtered Month View ─── */}
-            {selectedMonth && (
-              <section className="space-y-2.5">
-                <div className="flex items-center justify-between px-1">
-                  <h2 className="text-xs font-black text-foreground flex items-center gap-1.5">
-                    <Calendar className="size-3.5 text-primary" />
-                    <span>
-                      Born in {MONTHS.find((m) => m.value === selectedMonth)?.label} ({monthList.length})
-                    </span>
-                  </h2>
-                </div>
-
-                {monthList.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {monthList.map((student) => (
-                      <BirthdayCard key={student.id} student={student} isToday={false} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="rounded-3xl bg-card p-6 text-center space-y-2 shadow-2xs">
-                    <p className="text-xs font-bold text-foreground">No students found for this month</p>
-                    <p className="text-[11px] text-muted-foreground">
-                      Try selecting another month or invite classmates to add their DOB.
-                    </p>
-                  </div>
-                )}
-              </section>
+          </section>
+          <section className="space-y-3">
+            <h2 className="text-base text-fg">Coming up</h2>
+            {upcoming.length > 0 ? (
+              <List people={upcoming} />
+            ) : (
+              <EmptyState size="compact" icon={Calendar} title="No birthdays in the next 60 days" />
             )}
-
-            {/* ─── Upcoming Celebrations (Next 60 Days) ─── */}
-            {!selectedMonth && (
-              <section className="space-y-2.5 pt-2">
-                <div className="flex items-center justify-between px-1">
-                  <h2 className="text-xs font-black text-foreground flex items-center gap-1.5">
-                    <Zap className="size-3.5 text-warning" />
-                    <span>Upcoming Celebrations (Next 60 Days)</span>
-                  </h2>
-                  <span className="text-[10px] font-bold text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-full">
-                    {upcomingList.length} Upcoming
-                  </span>
-                </div>
-
-                {upcomingList.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {upcomingList.map((student) => (
-                      <BirthdayCard key={student.id} student={student} isToday={false} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="rounded-3xl bg-card p-6 text-center space-y-2 shadow-2xs">
-                    <p className="text-xs font-bold text-foreground">No upcoming birthdays indexed</p>
-                    <p className="text-[11px] text-muted-foreground max-w-xs mx-auto">
-                      Encourage batchmates to add their Date of Birth in their profile to celebrate together!
-                    </p>
-                  </div>
-                )}
-              </section>
-            )}
-          </>
-        )}
-      </main>
+          </section>
+        </>
+      )}
     </div>
   );
 }

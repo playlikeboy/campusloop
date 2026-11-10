@@ -212,10 +212,10 @@ describe("Streak counts derived from qualifying-day journal", () => {
     ).toEqual({ currentStreak: 2, isSafeToday: false });
   });
 
-  it("resets the active count after a missed day while preserving longest history separately (floor is 1)", () => {
+  it("resets the active count after a missed day while preserving longest history separately (no fake floor)", () => {
     expect(
       calculateCurrentStreakFromDates(["2026-10-08", "2026-10-07"], "2026-10-12")
-    ).toEqual({ currentStreak: 1, isSafeToday: false });
+    ).toEqual({ currentStreak: 0, isSafeToday: false });
     expect(calculateLongestStreakFromDates([
       "2026-10-05", "2026-10-06", "2026-10-07",
       "2026-10-10", "2026-10-11",

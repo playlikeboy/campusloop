@@ -1,36 +1,16 @@
-import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
 import { eq, or } from "drizzle-orm";
+import { notFound, redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { events, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { privateMetadata } from "@/lib/seo";
 import { AttendeesClient } from "./attendees-client";
 
 interface AttendeesPageProps {
   params: Promise<{ id: string }>;
 }
 
-export async function generateMetadata({ params }: AttendeesPageProps): Promise<Metadata> {
-  const { id } = await params;
-  try {
-    const db = getDb();
-    const event = await db.query.events.findFirst({
-      where: or(eq(events.id, id), eq(events.slug, id)),
-    });
-
-    if (!event) {
-      return { title: "Attendee Roster" };
-    }
-
-    return {
-      title: `Attendees: ${event.title}`,
-      description: `View confirmed registrations and export CSV for ${event.title}.`,
-      robots: { index: false, follow: false },
-    };
-  } catch {
-    return { title: "Attendee Roster" };
-  }
-}
+export const metadata = privateMetadata("Attendees");
 
 export default async function AttendeesPage({ params }: AttendeesPageProps) {
   const { id } = await params;

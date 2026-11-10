@@ -31,7 +31,10 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
+import { useEscapeKey } from "@/app/admin/_components/use-escape-key";
 import { CampusQrCode } from "@/components/common/campus-qr-code";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { fieldClassName } from "@/components/ui/input";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -116,6 +119,7 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
 
   // Product Add / Edit modal states
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  useEscapeKey(isProductModalOpen, () => setIsProductModalOpen(false));
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
   const [prodName, setProdName] = useState("");
   const [prodDesc, setProdDesc] = useState("");
@@ -147,7 +151,7 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
       rand += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     setLoginPassword(`cl_${rand}!`);
-    toast.success("Generated new password! Click 'Save Credentials' to apply.");
+    toast.success("New password made. Select Save login to apply it.");
   }
 
   function handleCopyCredentials() {
@@ -159,13 +163,13 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
       : "\nPassword: (unchanged — set a new one above to share it)";
     const text = `CampusLoop Merchant Portal Credentials\nStore: ${name}\nLogin URL: https://campusloop.space/merchant-portal/login\nUsername: ${loginUsername}${passwordLine}`;
     navigator.clipboard.writeText(text);
-    toast.success("Credentials copied to clipboard!");
+    toast.success("Login details copied");
   }
 
   async function handleSaveCredentials(e: React.FormEvent) {
     e.preventDefault();
     if (!loginUsername.trim()) {
-      toast.error("Username cannot be empty");
+      toast.error("Add a username first.");
       return;
     }
 
@@ -188,7 +192,7 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
 
       sounds.ting();
       haptics.success();
-      toast.success("Merchant login credentials updated successfully!");
+      toast.success("Login saved");
       mutate();
     } catch (err: any) {
       toast.error(err.message || "Failed to update credentials");
@@ -230,7 +234,7 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
 
       sounds.ting();
       haptics.success();
-      toast.success("Merchant profile updated successfully!");
+      toast.success("Store saved");
       mutate();
     } catch (err: any) {
       toast.error(err.message || "Failed to update");
@@ -268,7 +272,7 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
   async function handleSaveProduct(e: React.FormEvent) {
     e.preventDefault();
     if (!prodName.trim() || !prodPrice.trim()) {
-      toast.error("Product name and price are required");
+      toast.error("Add a product name and price first.");
       return;
     }
 
@@ -293,7 +297,7 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
         });
 
         if (!res.ok) throw new Error("Failed to update product");
-        toast.success("Product updated!");
+        toast.success("Product saved");
       } else {
         const res = await fetch("/api/admin/marketplace/products", {
           method: "POST",
@@ -311,7 +315,7 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
         });
 
         if (!res.ok) throw new Error("Failed to create product");
-        toast.success("Product added to menu!");
+        toast.success("Product added");
       }
 
       mutate();
@@ -346,18 +350,18 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
     haptics.heavy();
     try {
       await fetch(`/api/merchant/products?id=${p.id}`, { method: "DELETE" });
-      toast.success("Product removed from menu");
+      toast.success("Product removed");
       mutate();
     } catch {
-      toast.error("Failed to delete product");
+      toast.error("Couldn't delete the product. Try again.");
     }
   }
 
   if (isLoading) {
     return (
       <div className="max-w-4xl mx-auto space-y-6 animate-pulse">
-        <div className="h-10 w-48 bg-muted rounded-xl" />
-        <div className="h-64 w-full bg-muted rounded-3xl" />
+        <div className="h-10 w-48 bg-surface-muted rounded-lg" />
+        <div className="h-64 w-full bg-surface-muted rounded-lg" />
       </div>
     );
   }
@@ -365,12 +369,9 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
   if (!merchant) {
     return (
       <div className="max-w-md mx-auto text-center py-20 space-y-4">
-        <p className="text-sm font-bold text-foreground">Merchant not found</p>
-        <Link
-          href="/admin/marketplace"
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-foreground text-background text-xs font-bold"
-        >
-          Back to Marketplace
+        <p className="text-sm font-bold text-fg">Merchant not found</p>
+        <Link href="/admin/marketplace" className={buttonVariants({ variant: "primary", size: "sm" })}>
+          Back to marketplace
         </Link>
       </div>
     );
@@ -379,24 +380,25 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
   return (
     <div className="max-w-4xl mx-auto space-y-6 pb-20 select-none">
       {/* ─── Top Store Header Bar ─── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-5">
         <div className="flex items-center gap-3">
           <Link
             href="/admin/marketplace"
-            className="size-9 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors"
+            aria-label="Back to marketplace"
+            className={buttonVariants({ variant: "ghost", size: "icon" })}
           >
-            <ArrowLeft className="size-4.5" />
+            <ArrowLeft aria-hidden />
           </Link>
           <div className="flex items-center gap-3">
-            <div className="size-12 rounded-2xl border border-border bg-muted overflow-hidden shrink-0">
+            <div className="size-12 rounded-lg border border-border bg-surface-muted overflow-hidden shrink-0">
               <img src={merchant.logoUrl} alt={merchant.name} className="size-full object-cover" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h1 className="text-lg font-bold text-foreground truncate">{merchant.name}</h1>
+                <h1 className="text-lg font-bold text-fg truncate">{merchant.name}</h1>
                 <span
                   className={cn(
-                    "px-2 py-0.5 rounded-full text-[10px] font-bold",
+                    "px-2 py-0.5 rounded-full text-xs font-bold",
                     merchant.status === "ACTIVE"
                       ? "bg-success-subtle text-success border border-success/30"
                       : "bg-danger-subtle text-danger border border-danger/30"
@@ -405,9 +407,10 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
                   {merchant.status}
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground font-medium truncate">
+              <p className="text-xs text-fg-muted font-medium truncate">
                 {merchant.institution?.name?.split(",")[0] || "BIT Mesra"} · {merchant.categorySlug} ·{" "}
-                <Star className="inline size-3 fill-warning text-warning" aria-hidden="true" /> {merchant.rating} ({merchant.reviewCount} reviews)
+                <Star className="inline size-3 fill-warning text-warning" aria-hidden="true" />{" "}
+                {merchant.rating} ({merchant.reviewCount} reviews)
               </p>
             </div>
           </div>
@@ -417,19 +420,19 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
           <Link
             href={`/marketplace/store/${merchant.id}`}
             target="_blank"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border bg-card text-xs font-bold text-muted-foreground hover:text-foreground transition-colors"
+            className={buttonVariants({ variant: "outline", size: "sm" })}
           >
-            <span>Live Storefront</span>
+            <span>View store</span>
             <ExternalLink className="size-3" />
           </Link>
 
           <Link
             href="/merchant-portal/login"
             target="_blank"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-success/30 bg-success-subtle text-success text-xs font-bold hover:bg-success-subtle transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-success/30 bg-success-subtle text-success text-xs font-bold hover:bg-success-subtle transition-colors"
           >
             <KeyRound className="size-3.5" />
-            <span>Login as Merchant</span>
+            <span>Open merchant login</span>
           </Link>
         </div>
       </div>
@@ -459,10 +462,10 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
                 setActiveTab(tab.id as any);
               }}
               className={cn(
-                "flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer shrink-0",
+                "flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold transition-colors cursor-pointer shrink-0",
                 isActive
-                  ? "bg-foreground text-background font-bold shadow-xs"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  ? "bg-brand text-brand-fg font-bold"
+                  : "text-fg-muted hover:text-fg hover:bg-surface-muted"
               )}
             >
               <Icon className="size-3.5" />
@@ -476,29 +479,27 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
       {activeTab === "profile" && (
         <form onSubmit={handleSaveMerchant} className="space-y-4">
           {/* Visual Assets Preview Card */}
-          <div className="p-5 rounded-2xl bg-card border border-border space-y-4 shadow-xs">
-            <h2 className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
-              <ImageIcon className="size-3.5 text-primary" />
-              <span>Visual Branding (Profile Picture &amp; Cover Banner)</span>
+          <div className="p-5 rounded-lg bg-surface border border-border space-y-4">
+            <h2 className="text-xs font-bold text-fg-muted flex items-center gap-1.5">
+              <ImageIcon className="size-3.5 text-brand-text" />
+              <span>Logo and banner</span>
             </h2>
 
             {/* Live Visual Preview */}
-            <div className="relative rounded-2xl border border-border overflow-hidden bg-muted/40 h-36 sm:h-44 flex items-end p-4">
+            <div className="relative rounded-lg border border-border overflow-hidden bg-surface-muted h-36 sm:h-44 flex items-end p-4">
               {coverUrl ? (
-                <img src={coverUrl} alt="Cover Preview" className="absolute inset-0 size-full object-cover" />
+                <img src={coverUrl} alt="" className="absolute inset-0 size-full object-cover" />
               ) : null}
-              <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/30 to-transparent" />
+              <div aria-hidden className="absolute inset-0 bg-linear-to-t from-overlay to-transparent" />
 
               <div className="relative z-10 flex items-center gap-3">
-                <div className="size-16 rounded-2xl border-2 border-background bg-card overflow-hidden shrink-0 shadow-lg">
-                  <img src={logoUrl} alt="Logo Preview" className="size-full object-cover" />
+                <div className="size-16 shrink-0 overflow-hidden rounded-lg border-2 border-surface bg-surface">
+                  <img src={logoUrl} alt="" className="size-full object-cover" />
                 </div>
-                <div className="text-white">
-                  <h3 className="text-base font-bold leading-tight drop-shadow-sm">
-                    {name || "Store Name"}
-                  </h3>
-                  <p className="text-xs text-white/80 font-medium drop-shadow-sm">
-                    {categorySlug} · {address || "Campus Location"}
+                <div className="text-story-field-fg">
+                  <h3 className="text-base font-bold leading-tight">{name || "Store name"}</h3>
+                  <p className="text-xs font-medium text-story-field-muted">
+                    {categorySlug} · {address || "Campus location"}
                   </p>
                 </div>
               </div>
@@ -506,184 +507,192 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
               <div className="space-y-1.5">
-                <span className="text-[11px] font-bold text-muted-foreground">
-                  Logo / Profile Picture URL
-                </span>
+                <span className="text-sm font-medium text-fg">Logo link</span>
                 <input
+                  aria-label="Logo link"
                   type="url"
                   value={logoUrl}
                   onChange={(e) => setLogoUrl(e.target.value)}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full h-10 rounded-xl bg-muted/40 border border-border px-3 text-xs font-medium text-foreground outline-none focus:border-foreground"
+                  placeholder="https://images.unsplash.com/"
+                  className={cn(fieldClassName, "w-full h-11")}
                 />
               </div>
 
               <div className="space-y-1.5">
-                <span className="text-[11px] font-bold text-muted-foreground">
-                  Cover / Background Banner URL
-                </span>
+                <span className="text-sm font-medium text-fg">Banner link</span>
                 <input
+                  aria-label="Banner link"
                   type="url"
                   value={coverUrl}
                   onChange={(e) => setCoverUrl(e.target.value)}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full h-10 rounded-xl bg-muted/40 border border-border px-3 text-xs font-medium text-foreground outline-none focus:border-foreground"
+                  placeholder="https://images.unsplash.com/"
+                  className={cn(fieldClassName, "w-full h-11")}
                 />
               </div>
             </div>
           </div>
 
-          <div className="p-5 rounded-2xl bg-card border border-border space-y-4 shadow-xs">
-            <h2 className="text-xs font-bold text-muted-foreground">
-              General Store Details
-            </h2>
+          <div className="p-5 rounded-lg bg-surface border border-border space-y-4">
+            <h2 className="text-xs font-bold text-fg-muted">Store details</h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <span className="text-[11px] font-bold text-muted-foreground">Store Name *</span>
+                <span className="text-sm font-medium text-fg">Store Name *</span>
                 <input
+                  aria-label="Store Name"
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full h-11 rounded-xl bg-muted/40 border border-border px-3.5 text-xs font-bold text-foreground outline-none focus:border-foreground"
+                  className={cn(fieldClassName, "w-full h-11")}
                 />
               </div>
 
               <div className="space-y-1.5">
-                <span className="text-[11px] font-bold text-muted-foreground">Category *</span>
+                <span className="text-sm font-medium text-fg">Category *</span>
                 <select
+                  aria-label="Category"
                   value={categorySlug}
                   onChange={(e) => setCategorySlug(e.target.value)}
-                  className="w-full h-11 rounded-xl bg-muted/40 border border-border px-3.5 text-xs font-bold text-foreground outline-none"
+                  className={cn(fieldClassName, "w-full h-11")}
                 >
-                  <option value="food">Food &amp; Canteens</option>
-                  <option value="rentals">Bike &amp; Vehicle Rentals</option>
-                  <option value="barber">Barber &amp; Salon</option>
-                  <option value="laundry">Laundry &amp; Wash</option>
+                  <option value="food">Food</option>
+                  <option value="rentals">Bike rentals</option>
+                  <option value="barber">Salon</option>
+                  <option value="laundry">Laundry</option>
                   <option value="water">20L Water Delivery</option>
-                  <option value="essentials">Supermarket &amp; Mart</option>
+                  <option value="essentials">Grocery</option>
                 </select>
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <span className="text-[11px] font-bold text-muted-foreground">Description</span>
+              <span className="text-sm font-medium text-fg">Description</span>
               <textarea
+                aria-label="Description"
                 rows={2}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full rounded-xl bg-muted/40 border border-border p-3 text-xs font-medium text-foreground outline-none resize-none"
+                className={cn(fieldClassName, "w-full resize-none py-2.5")}
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <span className="text-[11px] font-bold text-muted-foreground">Campus Address *</span>
+                <span className="text-sm font-medium text-fg">Address *</span>
                 <input
+                  aria-label="Address"
                   type="text"
                   required
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  className="w-full h-11 rounded-xl bg-muted/40 border border-border px-3.5 text-xs font-bold text-foreground outline-none"
+                  className={cn(fieldClassName, "w-full h-11")}
                 />
               </div>
 
               <div className="space-y-1.5">
-                <span className="text-[11px] font-bold text-muted-foreground">Location Pin / Landmark</span>
+                <span className="text-sm font-medium text-fg">Landmark</span>
                 <input
+                  aria-label="Landmark"
                   type="text"
                   value={locationPin}
                   onChange={(e) => setLocationPin(e.target.value)}
-                  className="w-full h-11 rounded-xl bg-muted/40 border border-border px-3.5 text-xs font-bold text-foreground outline-none"
+                  className={cn(fieldClassName, "w-full h-11")}
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="space-y-1.5">
-                <span className="text-[11px] font-bold text-muted-foreground">Phone</span>
+                <span className="text-sm font-medium text-fg">Phone</span>
                 <input
+                  aria-label="Phone"
                   type="text"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full h-10 rounded-xl bg-muted/40 border border-border px-3 text-xs font-medium text-foreground outline-none"
+                  className={cn(fieldClassName, "w-full h-11")}
                 />
               </div>
 
               <div className="space-y-1.5">
-                <span className="text-[11px] font-bold text-muted-foreground">Email</span>
+                <span className="text-sm font-medium text-fg">Email</span>
                 <input
+                  aria-label="Email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full h-10 rounded-xl bg-muted/40 border border-border px-3 text-xs font-medium text-foreground outline-none"
+                  className={cn(fieldClassName, "w-full h-11")}
                 />
               </div>
 
               <div className="space-y-1.5">
-                <span className="text-[11px] font-bold text-muted-foreground">Merchant UPI ID</span>
+                <span className="text-sm font-medium text-fg">UPI ID</span>
                 <input
+                  aria-label="UPI ID"
                   type="text"
                   value={upiId}
                   onChange={(e) => setUpiId(e.target.value)}
                   placeholder="paytm@upi"
-                  className="w-full h-10 rounded-xl bg-muted/40 border border-border px-3 text-xs font-mono font-medium text-foreground outline-none"
+                  className={cn(fieldClassName, "w-full font-mono h-11")}
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="space-y-1.5">
-                <span className="text-[11px] font-bold text-muted-foreground">Delivery Fee (₹)</span>
+                <span className="text-sm font-medium text-fg">Delivery Fee (₹)</span>
                 <input
+                  aria-label="Delivery Fee (₹)"
                   type="number"
                   min="0"
                   value={deliveryFee}
                   onChange={(e) => setDeliveryFee(e.target.value)}
-                  className="w-full h-10 rounded-xl bg-muted/40 border border-border px-3 text-xs font-bold text-foreground outline-none"
+                  className={cn(fieldClassName, "w-full h-11")}
                 />
               </div>
 
               <div className="space-y-1.5">
-                <span className="text-[11px] font-bold text-muted-foreground">Min Order Value (₹)</span>
+                <span className="text-sm font-medium text-fg">Minimum order (₹)</span>
                 <input
+                  aria-label="Minimum order (₹)"
                   type="number"
                   min="0"
                   value={minOrderValue}
                   onChange={(e) => setMinOrderValue(e.target.value)}
-                  className="w-full h-10 rounded-xl bg-muted/40 border border-border px-3 text-xs font-bold text-foreground outline-none"
+                  className={cn(fieldClassName, "w-full h-11")}
                 />
               </div>
 
               <div className="space-y-1.5">
-                <span className="text-[11px] font-bold text-muted-foreground">Est. Prep Time</span>
+                <span className="text-sm font-medium text-fg">Prep time</span>
                 <input
+                  aria-label="Prep time"
                   type="text"
                   value={estimatedPrepTime}
                   onChange={(e) => setEstimatedPrepTime(e.target.value)}
-                  className="w-full h-10 rounded-xl bg-muted/40 border border-border px-3 text-xs font-medium text-foreground outline-none"
+                  className={cn(fieldClassName, "w-full h-11")}
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3 pt-2">
-              <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30 border border-border">
-                <span className="text-xs font-bold text-foreground">Operational Status</span>
+              <div className="flex items-center justify-between p-3 rounded-lg bg-surface-muted border border-border">
+                <span className="text-xs font-bold text-fg">Status</span>
                 <select
+                  aria-label="Store status"
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
-                  className="rounded-lg bg-card border border-border px-2 py-1 text-xs font-bold"
+                  className={cn(fieldClassName, "h-11")}
                 >
-                  <option value="ACTIVE">ACTIVE</option>
-                  <option value="PAUSED">PAUSED</option>
-                  <option value="CLOSED">CLOSED</option>
-                  <option value="SUSPENDED">SUSPENDED</option>
+                  <option value="ACTIVE">Active</option>
+                  <option value="PAUSED">Paused</option>
+                  <option value="CLOSED">Closed</option>
+                  <option value="SUSPENDED">Suspended</option>
                 </select>
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30 border border-border">
-                <span className="text-xs font-bold text-foreground">Store Open Toggle</span>
+              <div className="flex items-center justify-between p-3 rounded-lg bg-surface-muted border border-border">
+                <span className="text-xs font-bold text-fg">Store is open</span>
                 <button
                   type="button"
                   onClick={() => setIsOpen((prev) => !prev)}
@@ -703,17 +712,17 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
           <button
             type="submit"
             disabled={isSaving}
-            className="w-full h-12 rounded-xl bg-foreground text-background font-bold text-sm hover:opacity-90 active:scale-98 transition-colors flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className={cn(buttonVariants({ variant: "primary", size: "md" }), "w-full")}
           >
             {isSaving ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                <span>Saving Changes...</span>
+                <span>Saving</span>
               </>
             ) : (
               <>
                 <Save className="size-4" />
-                <span>Save Store Profile</span>
+                <span>Save store</span>
               </>
             )}
           </button>
@@ -723,47 +732,45 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
       {/* ─── TAB 2: Credentials & Portal Login (Username + Password) ─── */}
       {activeTab === "credentials" && (
         <div className="space-y-5">
-          <div className="p-5 rounded-2xl bg-card border border-success/30 space-y-4 shadow-xs">
+          <div className="p-5 rounded-lg bg-surface border border-success/30 space-y-4">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-1.5">
                 <ShieldCheck className="size-4 text-success" />
-                <h2 className="text-xs font-bold text-foreground">
-                  Direct Merchant Portal Credentials
-                </h2>
+                <h2 className="text-xs font-bold text-fg">Merchant login</h2>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={handleCopyCredentials}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted hover:bg-muted/80 text-xs font-bold text-foreground cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className={buttonVariants({ variant: "secondary", size: "sm" })}
                 >
                   <Copy className="size-3.5" />
-                  <span>Copy Credentials</span>
+                  <span>Copy login details</span>
                 </button>
               </div>
             </div>
 
             {/* Quick Access Details Box */}
-            <div className="p-4 rounded-xl bg-muted/40 border border-border space-y-2 text-xs">
-              <div className="flex items-center justify-between border-b border-border/40 pb-2">
-                <span className="text-muted-foreground font-medium">Merchant Portal Login URL:</span>
+            <div className="p-4 rounded-lg bg-surface-muted border border-border space-y-2 text-xs">
+              <div className="flex items-center justify-between border-b border-border pb-2">
+                <span className="text-fg-muted font-medium">Login page:</span>
                 <Link
                   href="/merchant-portal/login"
                   target="_blank"
-                  className="font-mono font-bold text-primary hover:underline flex items-center gap-1"
+                  className="font-mono font-bold text-brand-text hover:underline flex items-center gap-1"
                 >
                   <span>https://campusloop.space/merchant-portal/login</span>
                   <ExternalLink className="size-3" />
                 </Link>
               </div>
-              <div className="flex items-center justify-between border-b border-border/40 pb-2">
-                <span className="text-muted-foreground font-medium">Active Username:</span>
-                <span className="font-mono font-bold text-foreground bg-card px-2 py-0.5 rounded-md border border-border">
+              <div className="flex items-center justify-between border-b border-border pb-2">
+                <span className="text-fg-muted font-medium">Username:</span>
+                <span className="font-mono font-bold text-fg bg-surface px-2 py-0.5 rounded-md border border-border">
                   @{loginUsername || merchant?.loginUsername || merchant?.slug || "arman"}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground font-medium">Default Test Password:</span>
+                <span className="text-fg-muted font-medium">Default password:</span>
                 <span className="font-mono font-bold text-success bg-success-subtle px-2 py-0.5 rounded-md border border-success/20">
                   canteen@password123
                 </span>
@@ -773,24 +780,25 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
             <form onSubmit={handleSaveCredentials} className="space-y-4 pt-2">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <span className="text-[11px] font-bold text-muted-foreground flex items-center gap-1">
+                  <span className="text-xs font-bold text-fg-muted flex items-center gap-1">
                     <User className="size-3" />
-                    <span>Merchant Login Username</span>
+                    <span>Username</span>
                   </span>
                   <input
+                    aria-label="Login username"
                     type="text"
                     required
                     value={loginUsername}
                     onChange={(e) => setLoginUsername(e.target.value)}
-                    className="w-full h-11 rounded-xl bg-muted/40 border border-border px-3.5 text-xs font-mono font-bold text-foreground outline-none focus:border-foreground"
+                    className={cn(fieldClassName, "w-full font-mono h-11")}
                   />
                 </div>
 
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between flex-wrap gap-1">
-                    <span className="text-[11px] font-bold text-muted-foreground flex items-center gap-1">
+                    <span className="text-xs font-bold text-fg-muted flex items-center gap-1">
                       <Lock className="size-3" />
-                      <span>Set / Change Password</span>
+                      <span>New password</span>
                     </span>
                     <div className="flex items-center gap-2">
                       <button
@@ -800,17 +808,17 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
                           haptics.light();
                           setLoginPassword("canteen@password123");
                           setShowPassword(true);
-                          toast.info("Password set to 'canteen@password123'. Click Save to apply!");
+                          toast.info("Password set to the default. Select Save login to apply it.");
                         }}
-                        className="text-[10px] font-bold text-success hover:underline cursor-pointer"
+                        className="text-xs font-bold text-success hover:underline cursor-pointer"
                       >
                         Set Default (canteen@password123)
                       </button>
-                      <span className="text-muted-foreground text-[10px]">·</span>
+                      <span className="text-fg-muted text-xs">·</span>
                       <button
                         type="button"
                         onClick={handleGeneratePassword}
-                        className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        className="text-xs font-bold text-brand-text hover:underline flex items-center gap-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       >
                         <RefreshCw className="size-2.5" />
                         <span>Random</span>
@@ -819,22 +827,24 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
                   </div>
                   <div className="relative flex items-center">
                     <input
+                      aria-label="New password"
                       type={showPassword ? "text" : "password"}
                       value={loginPassword}
                       onChange={(e) => setLoginPassword(e.target.value)}
-                      placeholder="Type a new password or leave blank to keep existing"
+                      placeholder="Leave blank to keep the current password"
                       autoComplete="new-password"
-                      className="w-full h-11 rounded-xl bg-muted/40 border border-border px-3.5 pr-20 text-xs font-mono font-bold text-foreground outline-none focus:border-foreground placeholder:font-sans placeholder:font-medium placeholder:text-muted-foreground"
+                      className={cn(fieldClassName, "w-full pr-20 font-mono h-11")}
                     />
                     <div className="absolute right-2 flex items-center gap-1">
-                      <button
-                        type="button"
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
                         onClick={() => setShowPassword((p) => !p)}
-                        className="size-7 rounded-lg hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
-                        tabIndex={-1}
+                        aria-pressed={showPassword}
+                        aria-label={showPassword ? "Hide password" : "Show password"}
                       >
-                        {showPassword ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
-                      </button>
+                        {showPassword ? <EyeOff aria-hidden /> : <Eye aria-hidden />}
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -844,23 +854,23 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
                 <Link
                   href="/merchant-portal/login"
                   target="_blank"
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-text hover:underline"
                 >
-                  <span>Open Merchant Login Page</span>
+                  <span>Open merchant login</span>
                   <ExternalLink className="size-3" />
                 </Link>
 
                 <button
                   type="submit"
                   disabled={isSavingCredentials}
-                  className="px-5 py-2.5 rounded-xl bg-foreground text-background font-bold text-xs hover:opacity-90 transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className={buttonVariants({ variant: "primary", size: "md" })}
                 >
                   {isSavingCredentials ? (
                     <Loader2 className="size-3.5 animate-spin" />
                   ) : (
                     <KeyRound className="size-3.5" />
                   )}
-                  <span>Save Credentials</span>
+                  <span>Save login</span>
                 </button>
               </div>
             </form>
@@ -873,71 +883,68 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-fg-muted" />
               <input
+                aria-label="Search menu items"
                 type="text"
                 value={productSearch}
                 onChange={(e) => setProductSearch(e.target.value)}
-                placeholder="Search menu items..."
-                className="w-full h-10 rounded-xl bg-card border border-border pl-9 pr-3 text-xs font-bold text-foreground outline-none focus:border-foreground"
+                placeholder="Search menu items"
+                className={cn(fieldClassName, "w-full pl-9 pr-3 h-11")}
               />
             </div>
 
             <button
               type="button"
               onClick={handleOpenAddProduct}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-foreground text-background text-xs font-bold hover:opacity-90 active:scale-95 transition-colors shadow-xs cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className={cn(buttonVariants({ variant: "primary", size: "sm" }), "shrink-0")}
             >
               <Plus className="size-3.5 stroke-2" />
-              <span>Add Menu Item</span>
+              <span>Add item</span>
             </button>
           </div>
 
-          <div className="rounded-2xl bg-card border border-border overflow-hidden divide-y divide-border/30">
+          <div className="rounded-lg bg-surface border border-border overflow-hidden divide-y divide-border">
             {productsList.length === 0 ? (
               <div className="text-center py-12 space-y-2">
-                <Package className="size-8 mx-auto text-muted-foreground" />
-                <p className="text-xs font-bold text-foreground">No menu items found</p>
-                <p className="text-[11px] text-muted-foreground">
-                  Add products to make them available to students.
-                </p>
+                <Package className="size-8 mx-auto text-fg-muted" />
+                <p className="text-xs font-bold text-fg">No items yet</p>
+                <p className="text-xs text-fg-muted">Add items so students can order them.</p>
               </div>
             ) : (
               productsList.map((p: any) => (
                 <div
                   key={p.id}
-                  className="p-4 flex items-center justify-between gap-3 hover:bg-muted/10 transition-colors"
+                  className="p-4 flex items-center justify-between gap-3 hover:bg-surface-muted transition-colors"
                 >
                   <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <div className="size-12 rounded-xl bg-muted overflow-hidden shrink-0 border border-border">
+                    <div className="size-12 rounded-lg bg-surface-muted overflow-hidden shrink-0 border border-border">
                       {p.imageUrl ? (
                         <img src={p.imageUrl} alt={p.name} className="size-full object-cover" />
                       ) : (
-                        <div className="size-full flex items-center justify-center text-muted-foreground">
+                        <div className="size-full flex items-center justify-center text-fg-muted">
                           <UtensilsCrossed className="size-4" />
                         </div>
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-foreground truncate">{p.name}</span>
-                        <span className="text-[10px] font-bold text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                        <span className="text-xs font-bold text-fg truncate">{p.name}</span>
+                        <span className="text-xs font-bold text-fg-muted bg-surface-muted px-1.5 py-0.5 rounded">
                           {p.categoryName}
                         </span>
                       </div>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-                        <span className="font-bold text-foreground">₹{p.price}</span>
-                        {p.originalPrice && (
-                          <span className="line-through text-[11px]">₹{p.originalPrice}</span>
-                        )}
+                      <div className="flex items-center gap-2 text-xs text-fg-muted mt-0.5">
+                        <span className="font-bold text-fg">₹{p.price}</span>
+                        {p.originalPrice && <span className="line-through text-xs">₹{p.originalPrice}</span>}
                         <span>
                           ·{" "}
                           {p.isAvailable ? (
-                            <span className="inline-flex items-center gap-1 text-success font-bold text-[11px]">
+                            <span className="inline-flex items-center gap-1 text-success font-bold text-xs">
                               <span className="size-1.5 rounded-full bg-success inline-block" /> In Stock
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 text-danger font-bold text-[11px]">
+                            <span className="inline-flex items-center gap-1 text-danger font-bold text-xs">
                               <span className="size-1.5 rounded-full bg-danger inline-block" /> Out of Stock
                             </span>
                           )}
@@ -951,7 +958,7 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
                       type="button"
                       onClick={() => handleToggleStock(p)}
                       className={cn(
-                        "px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-colors cursor-pointer",
+                        "px-2.5 py-1 rounded-lg text-xs font-bold border transition-colors cursor-pointer",
                         p.isAvailable
                           ? "bg-success-subtle text-success border-success/30 hover:bg-success-subtle"
                           : "bg-danger-subtle text-danger border-danger/30 hover:bg-danger-subtle"
@@ -959,22 +966,25 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
                     >
                       {p.isAvailable ? "In Stock" : "Out of Stock"}
                     </button>
-                    <button
-                      type="button"
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
                       onClick={() => handleOpenEditProduct(p)}
-                      className="size-8 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center cursor-pointer"
-                      title="Edit Item"
+                      title="Edit item"
+                      aria-label="Edit item"
                     >
-                      <Edit2 className="size-3.5" />
-                    </button>
-                    <button
-                      type="button"
+                      <Edit2 aria-hidden />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
                       onClick={() => handleDeleteProduct(p)}
-                      className="size-8 rounded-lg hover:bg-danger-subtle text-muted-foreground hover:text-danger flex items-center justify-center cursor-pointer"
-                      title="Delete Item"
+                      title="Delete item"
+                      aria-label="Delete item"
+                      className="hover:bg-danger-subtle hover:text-danger"
                     >
-                      <Trash2 className="size-3.5" />
-                    </button>
+                      <Trash2 aria-hidden />
+                    </Button>
                   </div>
                 </div>
               ))
@@ -985,25 +995,23 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
 
       {/* ─── TAB 4: Live Orders ─── */}
       {activeTab === "orders" && (
-        <div className="rounded-2xl bg-card border border-border overflow-hidden divide-y divide-border/30">
+        <div className="rounded-lg bg-surface border border-border overflow-hidden divide-y divide-border">
           {(merchant.orders || []).length === 0 ? (
             <div className="text-center py-12 space-y-2">
-              <ShoppingBag className="size-8 mx-auto text-muted-foreground" />
-              <p className="text-xs font-bold text-foreground">No orders recorded yet</p>
+              <ShoppingBag className="size-8 mx-auto text-fg-muted" />
+              <p className="text-xs font-bold text-fg">No orders yet</p>
             </div>
           ) : (
             merchant.orders.map((o: any) => (
               <div key={o.id} className="p-4 flex items-center justify-between gap-3">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-foreground">
-                      #{o.orderNumber || o.id.slice(0, 8)}
-                    </span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20">
+                    <span className="text-xs font-bold text-fg">#{o.orderNumber || o.id.slice(0, 8)}</span>
+                    <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-brand-subtle text-brand-text border border-brand-subtle-border">
                       {o.status}
                     </span>
                   </div>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                  <p className="mt-1 max-w-2xl text-sm text-fg-muted">
                     ₹{o.total} · {o.paymentMethod || "COD"} · {formatTimeAgo(o.createdAt)}
                   </p>
                 </div>
@@ -1017,15 +1025,15 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
       {activeTab === "reviews" && (
         <div className="space-y-5">
           {/* Summary Card */}
-          <div className="p-5 rounded-2xl bg-card border border-border shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="p-5 rounded-lg bg-surface border border-border flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="size-16 rounded-2xl bg-warning-subtle border border-warning/30 flex flex-col items-center justify-center text-warning">
+              <div className="size-16 rounded-lg bg-warning-subtle border border-warning/30 flex flex-col items-center justify-center text-warning">
                 <span className="text-2xl font-bold">{reviewsData?.averageRating || merchant.rating}</span>
-                <span className="text-[10px] font-bold">/ 5.0</span>
+                <span className="text-xs font-bold">/ 5.0</span>
               </div>
               <div>
-                <h3 className="text-sm font-bold text-foreground">Student Store Rating</h3>
-                <p className="text-xs text-muted-foreground">
+                <h3 className="text-sm font-bold text-fg">Rating</h3>
+                <p className="text-xs text-fg-muted">
                   Based on {reviewsData?.totalCount || merchant.reviewCount || 0} verified student reviews
                 </p>
                 <div className="flex items-center gap-1 mt-1 text-warning">
@@ -1036,7 +1044,7 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
                         "size-3.5",
                         s <= Math.round(Number(reviewsData?.averageRating || merchant.rating))
                           ? "fill-warning stroke-warning"
-                          : "fill-transparent stroke-muted-foreground/40"
+                          : "fill-transparent stroke-fg-subtle"
                       )}
                     />
                   ))}
@@ -1047,29 +1055,27 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
             <Link
               href={`/marketplace/store/${merchant.id}`}
               target="_blank"
-              className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
+              className="text-xs font-bold text-brand-text hover:underline flex items-center gap-1"
             >
-              <span>View Reviews on Public Storefront</span>
+              <span>See reviews on the store page</span>
               <ExternalLink className="size-3" />
             </Link>
           </div>
 
           {/* Reviews List */}
-          <div className="rounded-2xl bg-card border border-border overflow-hidden divide-y divide-border/30">
+          <div className="rounded-lg bg-surface border border-border overflow-hidden divide-y divide-border">
             {(reviewsData?.reviews || []).length === 0 ? (
               <div className="text-center py-12 space-y-2">
-                <Star className="size-8 mx-auto text-muted-foreground" />
-                <p className="text-xs font-bold text-foreground">No student reviews yet</p>
-                <p className="text-[11px] text-muted-foreground">
-                  Students can review this store from the store page.
-                </p>
+                <Star className="size-8 mx-auto text-fg-muted" />
+                <p className="text-xs font-bold text-fg">No student reviews yet</p>
+                <p className="text-xs text-fg-muted">Students can review this store from the store page.</p>
               </div>
             ) : (
               reviewsData?.reviews.map((r: any) => (
                 <div key={r.id} className="p-4 space-y-2">
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2.5">
-                      <div className="size-7 rounded-full bg-muted overflow-hidden border border-border">
+                      <div className="size-7 rounded-full bg-surface-muted overflow-hidden border border-border">
                         <img
                           src={getAvatarUrl(r.student?.avatarUrl, r.student?.username ?? "student")}
                           alt={r.student?.displayName || "Student"}
@@ -1078,12 +1084,10 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
                       </div>
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-bold text-foreground">
+                          <span className="text-xs font-bold text-fg">
                             {r.student?.displayName || "Student"}
                           </span>
-                          <span className="text-[10px] text-muted-foreground">
-                            @{r.student?.username || "student"}
-                          </span>
+                          <span className="text-xs text-fg-muted">@{r.student?.username || "student"}</span>
                         </div>
                         <div className="flex items-center gap-0.5 text-warning">
                           {[1, 2, 3, 4, 5].map((s) => (
@@ -1093,18 +1097,18 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
                                 "size-2.5",
                                 s <= r.rating
                                   ? "fill-warning stroke-warning"
-                                  : "fill-transparent stroke-muted-foreground/30"
+                                  : "fill-transparent stroke-fg-subtle/30"
                               )}
                             />
                           ))}
                         </div>
                       </div>
                     </div>
-                    <span className="text-[10px] text-muted-foreground">{formatTimeAgo(r.createdAt)}</span>
+                    <span className="text-xs text-fg-muted">{formatTimeAgo(r.createdAt)}</span>
                   </div>
 
                   {r.comment && (
-                    <p className="text-xs text-foreground/90 leading-relaxed font-medium pl-9">{r.comment}</p>
+                    <p className="text-xs text-fg leading-relaxed font-medium pl-9">{r.comment}</p>
                   )}
                 </div>
               ))
@@ -1115,7 +1119,7 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
 
       {/* ─── TAB 6: Table QR Stand ─── */}
       {activeTab === "qr" && (
-        <div className="p-8 rounded-2xl bg-card border border-border text-center space-y-4 max-w-sm mx-auto shadow-xs">
+        <div className="p-8 rounded-lg bg-surface border border-border text-center space-y-4 max-w-sm mx-auto">
           <div className="mx-auto flex items-center justify-center">
             <CampusQrCode
               value={`https://campusloop.space/marketplace/store/${merchant.id}`}
@@ -1125,14 +1129,14 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
             />
           </div>
           <div>
-            <h3 className="text-base font-bold text-foreground">{merchant.name}</h3>
-            <p className="text-xs text-muted-foreground">Branded Table Ordering QR Stand</p>
+            <h3 className="text-base font-bold text-fg">{merchant.name}</h3>
+            <p className="text-xs text-fg-muted">Table QR code</p>
           </div>
           <Link
             href="/merchant-portal/store/qr"
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-foreground text-background text-xs font-bold hover:opacity-90 transition-opacity shadow-xs"
+            className={buttonVariants({ variant: "primary", size: "md" })}
           >
-            <span>Print Official A4 Table Stand</span>
+            <span>Print A4 QR stand</span>
           </Link>
         </div>
       )}
@@ -1140,76 +1144,86 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
       {/* ─── Add/Edit Product Modal ─── */}
       {isProductModalOpen && (
         <div className="fixed inset-0 z-50 bg-overlay flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-card border border-border rounded-2xl p-5 shadow-2xl space-y-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="max-h-[90dvh] w-full max-w-md space-y-4 overflow-y-auto rounded-xl border border-border bg-surface-raised p-5 shadow-lg"
+          >
             <div className="flex items-center justify-between border-b border-border pb-3">
-              <h3 className="text-sm font-bold text-foreground">
+              <h3 className="text-sm font-bold text-fg">
                 {editingProduct ? "Edit Menu Item" : "Add New Menu Item"}
               </h3>
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label="Close"
                 onClick={() => setIsProductModalOpen(false)}
-                className="size-7 rounded-lg hover:bg-muted flex items-center justify-center text-muted-foreground"
               >
-                <X className="size-4" />
-              </button>
+                <X aria-hidden />
+              </Button>
             </div>
 
             <form onSubmit={handleSaveProduct} className="space-y-3.5">
               <div className="space-y-1">
-                <span className="text-[11px] font-bold text-muted-foreground">Item Name *</span>
+                <span className="text-sm font-medium text-fg">Item Name *</span>
                 <input
+                  aria-label="Item Name"
                   type="text"
                   required
                   value={prodName}
                   onChange={(e) => setProdName(e.target.value)}
-                  placeholder="e.g. Steamed Chicken Momos (8 Pcs)"
-                  className="w-full h-10 rounded-xl bg-muted/40 border border-border px-3 text-xs font-bold text-foreground outline-none focus:border-foreground"
+                  placeholder="e.g. Chicken momos (8 pcs)"
+                  className={cn(fieldClassName, "w-full h-11")}
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-muted-foreground">Selling Price (₹) *</span>
+                  <span className="text-sm font-medium text-fg">Price (₹) *</span>
                   <input
+                    aria-label="Price (₹)"
                     type="number"
                     required
                     value={prodPrice}
                     onChange={(e) => setProdPrice(e.target.value)}
                     placeholder="120"
-                    className="w-full h-10 rounded-xl bg-muted/40 border border-border px-3 text-xs font-bold text-foreground outline-none"
+                    className={cn(fieldClassName, "w-full h-11")}
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-muted-foreground">MRP / Original (₹)</span>
+                  <span className="text-sm font-medium text-fg">MRP (₹)</span>
                   <input
+                    aria-label="MRP (₹)"
                     type="number"
                     value={prodOriginalPrice}
                     onChange={(e) => setProdOriginalPrice(e.target.value)}
                     placeholder="150"
-                    className="w-full h-10 rounded-xl bg-muted/40 border border-border px-3 text-xs font-bold text-foreground outline-none"
+                    className={cn(fieldClassName, "w-full h-11")}
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-muted-foreground">Category Name</span>
+                  <span className="text-sm font-medium text-fg">Category</span>
                   <input
+                    aria-label="Category"
                     type="text"
                     value={prodCategory}
                     onChange={(e) => setProdCategory(e.target.value)}
-                    placeholder="Momos / Burgers / Beverages"
-                    className="w-full h-10 rounded-xl bg-muted/40 border border-border px-3 text-xs font-bold text-foreground outline-none"
+                    placeholder="e.g. Momos"
+                    className={cn(fieldClassName, "w-full h-11")}
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-muted-foreground">Diet Preference</span>
+                  <span className="text-sm font-medium text-fg">Diet</span>
                   <select
+                    aria-label="Diet"
                     value={prodIsVeg ? "veg" : "nonveg"}
                     onChange={(e) => setProdIsVeg(e.target.value === "veg")}
-                    className="w-full h-10 rounded-xl bg-muted/40 border border-border px-3 text-xs font-bold text-foreground outline-none"
+                    className={cn(fieldClassName, "w-full h-11")}
                   >
                     <option value="veg">Pure Veg</option>
                     <option value="nonveg">Non-Veg</option>
@@ -1218,24 +1232,26 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
               </div>
 
               <div className="space-y-1">
-                <span className="text-[11px] font-bold text-muted-foreground">Image URL</span>
+                <span className="text-sm font-medium text-fg">Image URL</span>
                 <input
+                  aria-label="Image URL"
                   type="url"
                   value={prodImageUrl}
                   onChange={(e) => setProdImageUrl(e.target.value)}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full h-10 rounded-xl bg-muted/40 border border-border px-3 text-xs font-bold text-foreground outline-none"
+                  placeholder="https://images.unsplash.com/"
+                  className={cn(fieldClassName, "w-full h-11")}
                 />
               </div>
 
               <div className="space-y-1">
-                <span className="text-[11px] font-bold text-muted-foreground">Description</span>
+                <span className="text-sm font-medium text-fg">Description</span>
                 <textarea
+                  aria-label="Description"
                   rows={2}
                   value={prodDesc}
                   onChange={(e) => setProdDesc(e.target.value)}
-                  placeholder="Ingredients, spice level, serving size..."
-                  className="w-full p-2.5 rounded-xl bg-muted/40 border border-border text-xs font-medium text-foreground outline-none resize-none"
+                  placeholder="Ingredients, spice level, serving size"
+                  className={cn(fieldClassName, "w-full resize-none py-2.5")}
                 />
               </div>
 
@@ -1243,14 +1259,14 @@ export function AdminMerchantEditClient({ merchantId }: AdminMerchantEditClientP
                 <button
                   type="button"
                   onClick={() => setIsProductModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-muted-foreground hover:bg-muted"
+                  className="px-4 py-2 rounded-lg text-xs font-bold text-fg-muted hover:bg-surface-muted"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmittingProduct}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-foreground text-background text-xs font-bold hover:opacity-90 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className={buttonVariants({ variant: "primary", size: "sm" })}
                 >
                   {isSubmittingProduct && <Loader2 className="size-3 animate-spin" />}
                   <span>{editingProduct ? "Save Item" : "Add Item"}</span>

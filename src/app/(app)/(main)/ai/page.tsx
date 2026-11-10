@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import { CampusAiClient } from "@/components/ai/campus-ai-client";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Campus AI",
+export const metadata: Metadata = buildMetadata({
+  title: "Ask Campus AI",
   description:
-    "Ask your campus. Find notes, study tips, marketplace listings, events, and student discussions.",
-};
+    "Ask questions about your campus and get answers from notes, events, listings and student posts.",
+  path: "/ai",
+  noindex: true,
+});
 
 export default function CampusAiPage() {
   return <CampusAiClient />;

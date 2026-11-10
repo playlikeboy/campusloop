@@ -1,322 +1,138 @@
 "use client";
 
-import { ArrowRight, Check, Package, Plus, Power, RefreshCw, ShoppingBag, Truck } from "lucide-react";
+import { PackageCheck, Plus } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
-import { toast } from "sonner";
 import useSWR from "swr";
+import { LoadError } from "@/components/merchant/load-error";
+import {
+  MerchantListSkeleton,
+  MerchantPage,
+  MerchantSectionTitle,
+} from "@/components/merchant/merchant-page";
+import { rupees } from "@/components/merchant/merchant-utils";
+import { OrderCard } from "@/components/merchant/orders/order-card";
+import type { MerchantOrder } from "@/components/merchant/orders/order-types";
+import { useNewOrderAlert } from "@/components/merchant/orders/use-new-order-alert";
+import { useOrderActions } from "@/components/merchant/orders/use-order-actions";
+import { StatList } from "@/components/merchant/stat-list";
+import { StoreOpenSwitch } from "@/components/merchant/store-open-switch";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { fetcher } from "@/lib/api";
-import { haptics } from "@/lib/haptics";
-import { sounds } from "@/lib/sounds";
-import { cn } from "@/lib/utils";
+
+interface DashboardData {
+  merchant: { id: string; name: string; address?: string | null; isOpen?: boolean | null };
+  metrics: { totalRevenue: number; completedOrdersCount: number };
+  activeOrders: MerchantOrder[];
+}
 
 export function SupermarketDashboardClient() {
-  const [updatingStoreOpen, setUpdatingStoreOpen] = useState(false);
-  const [actioningOrderId, setActioningOrderId] = useState<string | null>(null);
-
-  const { data, isLoading, mutate } = useSWR<{
-    merchant: any;
-    stats: any;
-    incomingOrders: any[];
-    recentOrders: any[];
-  }>("/api/merchant/dashboard", fetcher, {
+  const { data, error, isLoading, mutate } = useSWR<DashboardData>("/api/merchant/dashboard", fetcher, {
     refreshInterval: 6000,
   });
-
-  const { data: productsData, mutate: mutateProducts } = useSWR<{ products: any[] }>(
-    "/api/merchant/products",
-    fetcher
-  );
+  const { data: productsData } = useSWR<{ products: any[] }>("/api/merchant/products", fetcher);
+  const { busyId, advance, reject, rejectDialog } = useOrderActions(mutate);
+  useNewOrderAlert(data?.activeOrders, true);
 
   const merchant = data?.merchant;
-  const stats = data?.stats || {
-    todayRevenue: 0,
-    todayOrdersCount: 0,
-    pendingCount: 0,
-    activeCount: 0,
-  };
-  const incomingOrders = data?.incomingOrders || [];
   const products = productsData?.products || [];
-
-  const outOfStockCount = products.filter((p) => !p.isAvailable).length;
-
-  async function handleToggleStoreOpen() {
-    if (!merchant || updatingStoreOpen) return;
-    sounds.tap();
-    haptics.light();
-    setUpdatingStoreOpen(true);
-
-    try {
-      const res = await fetch("/api/merchant/store", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isOpen: !merchant.isOpen }),
-      });
-      if (!res.ok) throw new Error();
-      mutate();
-      toast.success(merchant.isOpen ? "Mart marked as CLOSED" : "Mart is now OPEN for hostel orders!");
-    } catch {
-      toast.error("Failed to update store status");
-    } finally {
-      setUpdatingStoreOpen(false);
-    }
-  }
-
-  async function handleUpdateOrderStatus(orderId: string, nextStatus: string) {
-    sounds.tap();
-    haptics.medium();
-    setActioningOrderId(orderId);
-
-    try {
-      const res = await fetch(`/api/merchant/orders/${orderId}/status`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: nextStatus }),
-      });
-
-      if (!res.ok) throw new Error();
-      sounds.ting();
-      haptics.success();
-      mutate();
-      toast.success(`Order moved to ${nextStatus.replace(/_/g, " ")}!`);
-    } catch {
-      toast.error("Failed to update order status");
-    } finally {
-      setActioningOrderId(null);
-    }
-  }
+  const outOfStock = products.filter((p) => !p.isAvailable);
+  const toPack = data?.activeOrders || [];
 
   return (
-    <main className="max-w-6xl mx-auto p-4 space-y-6 pb-20 select-none">
-      {/* ─── Top Mart Store Status & Actions ─── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-3xl bg-card border border-border shadow-xs">
-        <div className="flex items-center gap-3.5">
-          <div className="size-12 rounded-2xl bg-warning-subtle text-warning flex items-center justify-center font-bold">
-            <ShoppingBag className="size-6" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-lg font-bold text-foreground">{merchant?.name || "Campus Supermarket"}</h1>
-              <span className="px-2 py-0.5 rounded-full bg-warning-subtle text-warning text-[10px] font-bold">
-                Mart Mode
-              </span>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {merchant?.address || "Hostel Sector Mart"} · Inventory &amp; 15-Min Packing Desk
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            disabled={updatingStoreOpen}
-            onClick={handleToggleStoreOpen}
-            className={cn(
-              "flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-bold transition-colors cursor-pointer shadow-xs disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-              merchant?.isOpen
-                ? "bg-success text-black hover:opacity-90"
-                : "bg-danger text-danger-fg hover:opacity-90"
-            )}
-          >
-            <Power className="size-3.5 stroke-3" />
-            <span>{merchant?.isOpen ? "MART OPEN" : "MART PAUSED"}</span>
-          </button>
-
-          <Link
-            href="/merchant-portal/products/new"
-            className="flex items-center gap-1 px-3.5 py-2 rounded-2xl bg-foreground text-background text-xs font-bold hover:opacity-90 transition-opacity"
-          >
-            <Plus className="size-3.5 stroke-3" />
-            <span>Add Item</span>
+    <MerchantPage
+      width="wide"
+      title={merchant?.name || "Your mart"}
+      description={merchant?.address || undefined}
+      primaryAction={
+        merchant ? <StoreOpenSwitch isOpen={Boolean(merchant.isOpen)} onChanged={mutate} /> : undefined
+      }
+      secondaryActions={
+        <Button asChild variant="outline">
+          <Link href="/merchant-portal/products/new">
+            <Plus />
+            Add item
           </Link>
-        </div>
-      </div>
+        </Button>
+      }
+    >
+      {isLoading ? (
+        <MerchantListSkeleton rows={3} rowClassName="h-28" />
+      ) : error || !data ? (
+        <LoadError what="your mart" onRetry={mutate} />
+      ) : (
+        <>
+          <StatList
+            items={[
+              { label: "Total sales", value: rupees(data.metrics?.totalRevenue) },
+              { label: "Orders done", value: data.metrics?.completedOrdersCount ?? 0 },
+              { label: "Items", value: products.length },
+              { label: "Out of stock", value: outOfStock.length, attention: outOfStock.length > 0 },
+            ]}
+          />
 
-      {/* ─── Metric Highlights ─── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-        <div className="p-4 rounded-2xl bg-card border border-border space-y-1 shadow-xs">
-          <p className="text-[11px] font-bold text-muted-foreground">
-            Today&apos;s Revenue
-          </p>
-          <p className="text-2xl font-bold text-success">₹{stats.todayRevenue || 0}</p>
-        </div>
-        <div className="p-4 rounded-2xl bg-card border border-border space-y-1 shadow-xs">
-          <p className="text-[11px] font-bold text-muted-foreground">
-            Orders Packed
-          </p>
-          <p className="text-2xl font-bold text-foreground">{stats.todayOrdersCount || 0}</p>
-        </div>
-        <div className="p-4 rounded-2xl bg-card border border-border space-y-1 shadow-xs">
-          <p className="text-[11px] font-bold text-muted-foreground">
-            Total Mart SKUs
-          </p>
-          <p className="text-2xl font-bold text-foreground">{products.length}</p>
-        </div>
-        <div className="p-4 rounded-2xl bg-card border border-border space-y-1 shadow-xs">
-          <p className="text-[11px] font-bold text-muted-foreground">Out of Stock</p>
-          <p className={cn("text-2xl font-bold", outOfStockCount > 0 ? "text-danger" : "text-foreground")}>
-            {outOfStockCount}
-          </p>
-        </div>
-      </div>
+          <section className="space-y-3">
+            <MerchantSectionTitle>
+              To pack{toPack.length > 0 ? ` (${toPack.length})` : ""}
+            </MerchantSectionTitle>
+            {toPack.length > 0 ? (
+              <div className="grid gap-4 md:grid-cols-2">
+                {toPack.map((order) => (
+                  <OrderCard
+                    key={order.id}
+                    order={order}
+                    flow="mart"
+                    busy={busyId === order.id}
+                    onAdvance={advance}
+                    onReject={reject}
+                  />
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                bordered
+                size="compact"
+                icon={PackageCheck}
+                title="Nothing to pack"
+                description="New orders show up here with a sound."
+              />
+            )}
+          </section>
 
-      {/* ─── Live Mart Order Fulfillment Flow ─── */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between px-1">
-          <div className="flex items-center gap-2">
-            <Package className="size-4.5 text-warning" />
-            <h2 className="text-sm font-bold text-foreground">
-              Pending Orders for Packing ({incomingOrders.length})
-            </h2>
-          </div>
-          <button
-            type="button"
-            onClick={() => mutate()}
-            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground font-bold cursor-pointer"
-          >
-            <RefreshCw className="size-3" />
-            <span>Refresh</span>
-          </button>
-        </div>
-
-        {incomingOrders.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {incomingOrders.map((order) => {
-              const isActioning = actioningOrderId === order.id;
-
-              return (
-                <div
-                  key={order.id}
-                  className="p-5 rounded-3xl border border-warning/30 bg-card shadow-md space-y-4 relative overflow-hidden"
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-xs font-bold text-foreground">Order #{order.orderNumber}</span>
-                      <p className="text-[11px] text-muted-foreground">
-                        {order.deliveryAddress?.hostelName
-                          ? `${order.deliveryAddress.hostelName} · Room ${order.deliveryAddress.roomNumber}`
-                          : "Hostel Delivery"}
+          <section className="space-y-3">
+            <MerchantSectionTitle
+              action={
+                <Button asChild variant="link">
+                  <Link href="/merchant-portal/products">All items</Link>
+                </Button>
+              }
+            >
+              Stock
+            </MerchantSectionTitle>
+            {products.length > 0 ? (
+              <ul className="divide-y divide-border rounded-lg border border-border bg-surface">
+                {products.slice(0, 6).map((p) => (
+                  <li key={p.id} className="flex items-center justify-between gap-3 px-4 py-3 text-sm">
+                    <div className="min-w-0">
+                      <p className="truncate font-semibold text-fg">{p.name}</p>
+                      <p className="truncate text-fg-muted">
+                        {rupees(p.price)} · {p.categoryName || "General"}
                       </p>
                     </div>
-
-                    <span className="px-2.5 py-0.5 rounded-full bg-warning-subtle text-warning font-bold text-[10px] animate-pulse">
-                      {order.status}
-                    </span>
-                  </div>
-
-                  {/* Item Checklist for Mart Picker */}
-                  <div className="bg-muted/40 p-3 rounded-2xl border border-border/60 space-y-1.5 text-xs">
-                    <p className="text-[10px] font-bold text-muted-foreground">
-                      Pick &amp; Bag Checklist:
-                    </p>
-                    {(order.items || []).map((item: any) => (
-                      <div key={item.id} className="flex items-center justify-between font-medium">
-                        <span>
-                          <strong className="font-bold text-foreground">{item.quantity}x</strong> {item.name}
-                        </span>
-                        <span className="text-muted-foreground">₹{item.price * item.quantity}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="flex items-center justify-between pt-1">
-                    <span className="text-sm font-bold text-foreground">Total: ₹{order.total}</span>
-
-                    {/* Step Transitions: PLACED -> PREPARING (PACKING) -> READY -> OUT_FOR_DELIVERY */}
-                    <div className="flex items-center gap-2">
-                      {order.status === "PLACED" && (
-                        <button
-                          type="button"
-                          disabled={isActioning}
-                          onClick={() => handleUpdateOrderStatus(order.id, "PREPARING")}
-                          className="px-3.5 py-1.5 rounded-xl bg-warning text-black text-xs font-bold hover:opacity-90 cursor-pointer disabled:opacity-50"
-                        >
-                          Start Packing
-                        </button>
-                      )}
-
-                      {order.status === "PREPARING" && (
-                        <button
-                          type="button"
-                          disabled={isActioning}
-                          onClick={() => handleUpdateOrderStatus(order.id, "READY")}
-                          className="px-3.5 py-1.5 rounded-xl bg-brand text-brand-fg text-xs font-bold hover:bg-brand-hover cursor-pointer disabled:opacity-50"
-                        >
-                          Bag Packed
-                        </button>
-                      )}
-
-                      {order.status === "READY" && (
-                        <button
-                          type="button"
-                          disabled={isActioning}
-                          onClick={() => handleUpdateOrderStatus(order.id, "OUT_FOR_DELIVERY")}
-                          className="px-3.5 py-1.5 rounded-xl bg-success text-black text-xs font-bold hover:opacity-90 cursor-pointer disabled:opacity-50 flex items-center gap-1"
-                        >
-                          <Truck className="size-3" />
-                          <span>Dispatch</span>
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="p-8 rounded-3xl border border-dashed border-border bg-card/40 text-center space-y-2">
-            <Check className="size-8 text-success mx-auto" />
-            <h3 className="text-xs font-bold text-foreground">All Mart Orders Packed!</h3>
-            <p className="text-[11px] text-muted-foreground">
-              New incoming customer orders will appear here automatically with instant audio alerts.
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* ─── Inventory Matrix Shortcut ─── */}
-      <div className="p-5 rounded-3xl border border-border bg-card space-y-3 shadow-xs">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-sm font-bold text-foreground">Mart Inventory Matrix</h3>
-            <p className="text-xs text-muted-foreground">Quickly view or toggle out-of-stock items</p>
-          </div>
-
-          <Link
-            href="/merchant-portal/products"
-            className="flex items-center gap-1 text-xs font-bold text-primary hover:underline"
-          >
-            <span>Full Inventory</span>
-            <ArrowRight className="size-3.5" />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
-          {products.slice(0, 6).map((p) => (
-            <div
-              key={p.id}
-              className="p-3 rounded-2xl border border-border bg-muted/20 flex items-center justify-between gap-2"
-            >
-              <div className="min-w-0">
-                <p className="text-xs font-bold text-foreground truncate">{p.name}</p>
-                <p className="text-[11px] text-muted-foreground">
-                  ₹{p.price} · {p.categoryName || "General"}
-                </p>
-              </div>
-
-              <span
-                className={cn(
-                  "px-2 py-0.5 rounded-md text-[10px] font-bold",
-                  p.isAvailable ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger"
-                )}
-              >
-                {p.isAvailable ? "IN STOCK" : "OUT"}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </main>
+                    <Badge variant={p.isAvailable ? "success" : "danger"}>
+                      {p.isAvailable ? "In stock" : "Sold out"}
+                    </Badge>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-fg-muted">No items yet. Add your first one to start selling.</p>
+            )}
+          </section>
+        </>
+      )}
+      {rejectDialog}
+    </MerchantPage>
   );
 }

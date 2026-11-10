@@ -5,9 +5,9 @@ import { cn } from "@/lib/utils";
 
 /** Shared field chrome; Textarea and the Select trigger reuse it. */
 export const fieldClassName = cn(
-  "w-full min-w-0 rounded-sm border border-border bg-surface px-3 text-base text-fg",
-  "transition-colors outline-none placeholder:text-fg-subtle",
-  "focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-ring/30",
+  "w-full min-w-0 rounded-md border border-border-strong bg-surface px-3.5 text-base text-fg",
+  "transition-ui outline-none placeholder:text-fg-subtle",
+  "focus-visible:border-brand focus-visible:ring-3 focus-visible:ring-ring/25",
   "disabled:cursor-not-allowed disabled:bg-surface-muted disabled:opacity-60",
   "aria-invalid:border-danger aria-invalid:ring-2 aria-invalid:ring-danger/20"
 );

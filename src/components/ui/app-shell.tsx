@@ -18,10 +18,10 @@ import { cn } from "@/lib/utils";
  * The scale they encode, taken from the existing feed and sidebar:
  *
  *   Column      max-w-2xl, `border-x border-border/20`
- *   Header      sticky, `bg-background/90 backdrop-blur-xl`, `px-4 py-3.5`
+ *   Header      sticky, solid `bg-bg`, `px-4 py-3.5`
  *   Separator   `divide-y divide-border/30`
  *   Row         `px-4 py-3.5`, `gap-3.5`, `hover:bg-muted/25`
- *   Title       `text-lg font-black tracking-tight`
+ *   Title       `text-lg font-bold tracking-tight`
  *   Body        `text-[15px]`
  *   Meta        `text-[13px] text-muted-foreground`
  *   Micro       `text-[11px] font-bold`
@@ -80,7 +80,7 @@ export function PageHeader({
   className?: string;
 }) {
   return (
-    <header className={cn("sticky top-0 z-(--z-sticky) border-b border-border bg-bg/90 backdrop-blur-xl", className)}>
+    <header className={cn("sticky top-0 z-(--z-sticky) border-b border-border bg-bg", className)}>
       <SharedPageHeader
         title={title}
         description={subtitle}

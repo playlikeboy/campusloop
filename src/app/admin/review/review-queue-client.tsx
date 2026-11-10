@@ -1,18 +1,12 @@
 "use client";
 
-import {
-  CheckCircle2,
-  ExternalLink,
-  Filter,
-  Ghost,
-  Keyboard,
-  Trash2,
-  XCircle,
-} from "lucide-react";
+import { CheckCircle2, ExternalLink, Filter, Ghost, Keyboard, Trash2, XCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { buttonVariants } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { cn } from "@/lib/utils";
 import type { PendingPost } from "../_lib/queries";
@@ -45,7 +39,7 @@ export function ReviewQueueClient({ initialPosts }: ReviewQueueClientProps) {
     try {
       await approvePendingPost(postId);
       setPosts((prev) => prev.filter((p) => p.id !== postId));
-      toast.success("Post approved and published to campus feed");
+      toast.success("Post approved");
       router.refresh();
     } catch (err: any) {
       toast.error(err.message || "Failed to approve post");
@@ -59,7 +53,7 @@ export function ReviewQueueClient({ initialPosts }: ReviewQueueClientProps) {
     try {
       await rejectPendingPost(postId);
       setPosts((prev) => prev.filter((p) => p.id !== postId));
-      toast.success("Post rejected and quarantined (status set to HIDDEN)");
+      toast.success("Post hidden");
       router.refresh();
     } catch (err: any) {
       toast.error(err.message || "Failed to reject post");
@@ -74,7 +68,7 @@ export function ReviewQueueClient({ initialPosts }: ReviewQueueClientProps) {
     try {
       await deletePost(deleteTargetId);
       setPosts((prev) => prev.filter((p) => p.id !== deleteTargetId));
-      toast.success("Post permanently removed from CampusLoop");
+      toast.success("Post deleted");
       setDeleteTargetId(null);
       router.refresh();
     } catch (err: any) {
@@ -91,9 +85,7 @@ export function ReviewQueueClient({ initialPosts }: ReviewQueueClientProps) {
       const target = e.target as HTMLElement | null;
       if (
         target &&
-        (target.tagName === "INPUT" ||
-          target.tagName === "TEXTAREA" ||
-          target.isContentEditable)
+        (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)
       ) {
         return;
       }
@@ -120,20 +112,20 @@ export function ReviewQueueClient({ initialPosts }: ReviewQueueClientProps) {
   function riskBadge(score: number) {
     if (score >= 70) {
       return (
-        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-destructive/15 text-destructive border border-destructive/25">
+        <span className="px-2 py-0.5 rounded text-xs font-bold bg-danger-subtle text-danger border border-danger/30">
           High Risk · {score}
         </span>
       );
     }
     if (score >= 40) {
       return (
-        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-warning-subtle text-warning border border-warning/25">
+        <span className="px-2 py-0.5 rounded text-xs font-bold bg-warning-subtle text-warning border border-warning/25">
           Medium Risk · {score}
         </span>
       );
     }
     return (
-      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-muted text-muted-foreground border border-border/40">
+      <span className="px-2 py-0.5 rounded text-xs font-bold bg-surface-muted text-fg-muted border border-border">
         Low Risk · {score}
       </span>
     );
@@ -142,55 +134,46 @@ export function ReviewQueueClient({ initialPosts }: ReviewQueueClientProps) {
   return (
     <div className="space-y-4">
       {/* Filter and Keyboard Help Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl bg-card border border-border/60 shadow-2xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-lg bg-surface border border-border ">
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-[11px] font-bold text-muted-foreground mr-1 flex items-center gap-1">
+          <span className="text-xs font-bold text-fg-muted mr-1 flex items-center gap-1">
             <Filter className="size-3" /> Filter:
           </span>
           {(["ALL", "HIGH", "MEDIUM", "LOW"] as const).map((filter) => (
-            <button
+            <Chip
+              size="sm"
+              selected={riskFilter === filter}
               key={filter}
-              type="button"
               onClick={() => {
                 setRiskFilter(filter);
                 setSelectedIndex(0);
               }}
-              className={cn(
-                "px-2.5 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer",
-                riskFilter === filter
-                  ? "bg-primary text-primary-foreground shadow-2xs"
-                  : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground"
-              )}
             >
-              {filter === "ALL" ? "All Items" : `${filter} Risk`}
-            </button>
+              {filter === "ALL" ? "All" : `${filter.charAt(0)}${filter.slice(1).toLowerCase()} risk`}
+            </Chip>
           ))}
-          <span className="text-xs font-semibold text-muted-foreground ml-2">
-            ({filteredPosts.length} posts)
-          </span>
+          <span className="text-xs font-semibold text-fg-muted ml-2">({filteredPosts.length} posts)</span>
         </div>
 
         {/* Keyboard shortcut tips */}
-        <div className="hidden lg:flex items-center gap-2 text-[11px] text-muted-foreground font-mono">
-          <Keyboard className="size-3 text-muted-foreground" />
+        <div className="hidden lg:flex items-center gap-2 text-xs text-fg-muted font-mono">
+          <Keyboard className="size-3 text-fg-muted" />
           <span>Shortcuts:</span>
-          <span className="px-1.5 py-0.5 bg-muted rounded border border-border/40 text-[10px]">A</span>
+          <span className="px-1.5 py-0.5 bg-surface-muted rounded border border-border text-xs">A</span>
           <span>Publish</span>
-          <span className="px-1.5 py-0.5 bg-muted rounded border border-border/40 text-[10px]">R</span>
+          <span className="px-1.5 py-0.5 bg-surface-muted rounded border border-border text-xs">R</span>
           <span>Hide</span>
-          <span className="px-1.5 py-0.5 bg-muted rounded border border-border/40 text-[10px]">J/K</span>
+          <span className="px-1.5 py-0.5 bg-surface-muted rounded border border-border text-xs">J/K</span>
           <span>Next/Prev</span>
         </div>
       </div>
 
       {/* Queue Stream */}
       {filteredPosts.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border/80 bg-card/40 p-12 text-center space-y-2">
+        <div className="rounded-lg border border-dashed border-border bg-surface p-12 text-center space-y-2">
           <CheckCircle2 className="size-8 text-success mx-auto" />
-          <h3 className="text-sm font-bold text-foreground">Review Queue is Clear</h3>
-          <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-            No posts match the current filter. All student posts have been verified or triaged.
-          </p>
+          <h3 className="text-sm font-bold text-fg">Nothing to review</h3>
+          <p className="text-xs text-fg-muted max-w-sm mx-auto">No held posts match this filter.</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -201,44 +184,40 @@ export function ReviewQueueClient({ initialPosts }: ReviewQueueClientProps) {
                 key={post.id}
                 onClick={() => setSelectedIndex(index)}
                 className={cn(
-                  "rounded-xl border p-4 sm:p-5 shadow-2xs transition-colors space-y-3 cursor-pointer",
+                  "rounded-lg border p-4 sm:p-5  transition-colors space-y-3 cursor-pointer",
                   isSelected
-                    ? "bg-card border-primary/60 ring-1 ring-primary/30"
-                    : "bg-card/70 border-border/60 hover:border-border"
+                    ? "bg-surface border-brand ring-1 ring-ring"
+                    : "bg-surface border-border hover:border-border"
                 )}
               >
                 {/* Meta Row */}
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2 flex-wrap">
                     {riskBadge(post.riskScore)}
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-muted text-foreground border border-border/40">
+                    <span className="px-2 py-0.5 rounded text-xs font-bold bg-surface-muted text-fg border border-border">
                       {post.type}
                     </span>
                     {post.isAnonymous ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold text-muted-foreground bg-muted/40 border border-border/30">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold text-fg-muted bg-surface-muted border border-border">
                         <Ghost className="size-3" />
                         <span>{post.pseudonym || "Anonymous"}</span>
                       </span>
                     ) : (
-                      <span className="text-xs font-semibold text-muted-foreground">
-                        Public Post
-                      </span>
+                      <span className="text-xs font-semibold text-fg-muted">Public Post</span>
                     )}
                   </div>
 
-                  <span className="text-[11px] text-muted-foreground font-medium">
+                  <span className="text-xs text-fg-muted font-medium">
                     {post.institutionName?.split(",")[0] || "Campus Hub"} ·{" "}
                     {new Date(post.createdAt).toLocaleString()}
                   </span>
                 </div>
 
                 {/* Body Content */}
-                <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
-                  {post.body}
-                </p>
+                <p className="text-sm text-fg leading-relaxed whitespace-pre-wrap">{post.body}</p>
 
                 {/* Actions Row */}
-                <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/40 flex-wrap">
+                <div className="flex items-center justify-between gap-2 pt-2 border-t border-border flex-wrap">
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
@@ -247,7 +226,7 @@ export function ReviewQueueClient({ initialPosts }: ReviewQueueClientProps) {
                         e.stopPropagation();
                         handleApprove(post.id);
                       }}
-                      className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-success hover:opacity-90 text-success-fg text-xs font-bold transition-colors cursor-pointer shadow-2xs disabled:opacity-50"
+                      className={buttonVariants({ variant: "primary", size: "sm" })}
                     >
                       <CheckCircle2 className="size-3.5" />
                       <span>Publish</span>
@@ -260,7 +239,7 @@ export function ReviewQueueClient({ initialPosts }: ReviewQueueClientProps) {
                         e.stopPropagation();
                         handleReject(post.id);
                       }}
-                      className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-destructive hover:bg-destructive/90 text-destructive-foreground text-xs font-bold transition-colors cursor-pointer shadow-2xs disabled:opacity-50"
+                      className={buttonVariants({ variant: "danger", size: "sm" })}
                     >
                       <XCircle className="size-3.5" />
                       <span>Hide</span>
@@ -273,7 +252,7 @@ export function ReviewQueueClient({ initialPosts }: ReviewQueueClientProps) {
                         e.stopPropagation();
                         setDeleteTargetId(post.id);
                       }}
-                      className="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg bg-muted/50 hover:bg-destructive/15 text-muted-foreground hover:text-destructive border border-border/40 text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
+                      className={buttonVariants({ variant: "outline", size: "sm" })}
                     >
                       <Trash2 className="size-3.5" />
                       <span>Delete</span>
@@ -284,7 +263,7 @@ export function ReviewQueueClient({ initialPosts }: ReviewQueueClientProps) {
                     href={`/post/${post.id}`}
                     target="_blank"
                     onClick={(e) => e.stopPropagation()}
-                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline ml-auto"
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-brand-text hover:underline ml-auto"
                   >
                     <span>View post</span>
                     <ExternalLink className="size-3" />
@@ -300,9 +279,9 @@ export function ReviewQueueClient({ initialPosts }: ReviewQueueClientProps) {
       <ConfirmDialog
         isOpen={Boolean(deleteTargetId)}
         onClose={() => setDeleteTargetId(null)}
-        title="Permanently remove post?"
-        description="This action will permanently delete the post and cannot be undone. Are you sure you want to proceed?"
-        confirmText="Delete Post"
+        title="Delete this post?"
+        description="It will be deleted for good."
+        confirmText="Delete post"
         variant="danger"
         isLoading={isLoading}
         onConfirm={confirmDelete}

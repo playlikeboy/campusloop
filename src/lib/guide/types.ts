@@ -19,7 +19,14 @@ export type GuideCategory =
   | "Account & safety"
   | "Platform";
 
-export type GuideAudience = "Students" | "Aspirants" | "Clubs" | "Merchants" | "Admins" | "Developers" | "Investors";
+export type GuideAudience =
+  | "Students"
+  | "Aspirants"
+  | "Clubs"
+  | "Merchants"
+  | "Admins"
+  | "Developers"
+  | "Investors";
 
 export interface GuideRoute {
   path: string;

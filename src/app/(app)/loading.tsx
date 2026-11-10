@@ -1,6 +1,5 @@
-import { AppShellSkeleton } from "@/components/ui/skeleton-card";
+import { AppPageSkeleton } from "@/components/shells/page-loading";
 
 export default function AppLoading() {
-  return <AppShellSkeleton />;
+  return <AppPageSkeleton />;
 }
-

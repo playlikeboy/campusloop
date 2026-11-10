@@ -1,39 +1,24 @@
 import type { Metadata } from "next";
+import { breadcrumbJsonLd, buildMetadata } from "@/lib/seo";
+import { JsonLd } from "@/lib/seo/json-ld-script";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 import { MarketplaceClient } from "./marketplace-client";
 
-export const metadata: Metadata = {
-  title: "Campus Marketplace | Food, Essentials, Rentals & Services",
+export const metadata: Metadata = buildMetadata({
+  title: "Campus Marketplace",
   description:
-    "Discover local canteens, momos, campus essentials, vehicle rentals, and laundry services from verified businesses near your college.",
-  keywords: [
-    "Campus Marketplace",
-    "College Food Delivery",
-    "Campus Canteens",
-    "Hostel Essentials",
-    "Scooter Rentals College",
-    "College Laundry Services",
-  ],
-  alternates: { canonical: "https://campusloop.space/marketplace" },
-  openGraph: {
-    title: "Campus Marketplace",
-    description: "Shop from verified local businesses, canteens, and services around your college campus.",
-    url: "https://campusloop.space/marketplace",
-    siteName: "CampusLoop",
-    locale: "en_IN",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Campus Marketplace",
-    description: "Shop from verified local businesses, canteens, and services around your college campus.",
-  },
-  robots: { index: true, follow: true },
-};
+    "Order food, groceries and water cans, or book bike rentals, barber slots and laundry from shops near your college.",
+  path: "/marketplace",
+});
 
 export default async function MarketplacePage() {
   const user = await getCachedAuthUser();
   const profile = user ? await getCachedUserProfile(user.id) : null;
 
-  return <MarketplaceClient profileId={profile?.id || ""} collegeName={profile?.institution?.name} />;
+  return (
+    <>
+      <JsonLd data={[breadcrumbJsonLd([{ name: "Marketplace", path: "/marketplace" }])]} />
+      <MarketplaceClient profileId={profile?.id || ""} collegeName={profile?.institution?.name} />
+    </>
+  );
 }

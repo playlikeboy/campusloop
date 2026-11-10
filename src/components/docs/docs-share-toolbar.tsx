@@ -1,76 +1,51 @@
 "use client";
 
-import { Check, Copy } from "lucide-react";
+import { Check, Link2, Share2 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import { haptics } from "@/lib/haptics";
-import { sounds } from "@/lib/sounds";
 
 interface DocsShareToolbarProps {
   title: string;
+  /** Kept for callers; the quote is used as the share text. */
   viralQuote: string;
   url: string;
 }
 
+/** Share and copy-link buttons for a docs page. */
 export function DocsShareToolbar({ title, viralQuote, url }: DocsShareToolbarProps) {
   const [copied, setCopied] = useState(false);
 
-  function handleCopy() {
-    sounds.pop();
+  function copyLink() {
     haptics.light();
-    navigator.clipboard.writeText(`"${viralQuote}" — ${title} via ${url}`);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    navigator.clipboard
+      .writeText(url)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch(() => toast.error("Couldn't copy the link. Copy it from the address bar."));
   }
 
-  const tweetText = encodeURIComponent(
-    `"${viralQuote}"\n\nRead the architecture breakdown on CampusLoop:\n${url}`
-  );
-  const twitterShareUrl = `https://twitter.com/intent/tweet?text=${tweetText}`;
-  const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+  function share() {
+    if (navigator.share) {
+      navigator.share({ title, text: viralQuote, url }).catch(() => {});
+    } else {
+      copyLink();
+    }
+  }
 
   return (
-    <div className="flex flex-wrap items-center gap-2 pt-2 border-y border-border/40 py-3">
-      <span className="font-mono text-[11px] font-bold text-muted-foreground uppercase mr-2">
-        Share Essay:
-      </span>
-
-      <a
-        href={twitterShareUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-border/60 bg-muted/20 hover:bg-muted/60 text-foreground font-mono text-xs font-semibold transition-colors"
-      >
-        <span className="font-bold">𝕏</span>
-        <span>Share on X</span>
-      </a>
-
-      <a
-        href={linkedinShareUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-border/60 bg-muted/20 hover:bg-muted/60 text-foreground font-mono text-xs font-semibold transition-colors"
-      >
-        <span className="font-bold text-brand-text">in</span>
-        <span>Post to LinkedIn</span>
-      </a>
-
-      <button
-        type="button"
-        onClick={handleCopy}
-        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-border/60 bg-muted/20 hover:bg-muted/60 text-foreground font-mono text-xs font-semibold transition-colors cursor-pointer ml-auto"
-      >
-        {copied ? (
-          <>
-            <Check className="size-3 text-success" />
-            <span className="text-success">Quote Copied</span>
-          </>
-        ) : (
-          <>
-            <Copy className="size-3 text-muted-foreground" />
-            <span>Copy Viral Quote</span>
-          </>
-        )}
-      </button>
+    <div className="flex flex-wrap items-center gap-2 border-y border-border py-3">
+      <Button variant="secondary" size="sm" onClick={share}>
+        <Share2 className="size-4" />
+        Share
+      </Button>
+      <Button variant="ghost" size="sm" onClick={copyLink}>
+        {copied ? <Check className="size-4 text-verified-text" /> : <Link2 className="size-4" />}
+        {copied ? "Link copied" : "Copy link"}
+      </Button>
     </div>
   );
 }

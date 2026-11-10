@@ -3,645 +3,301 @@
 import {
   Bell,
   BellOff,
-  Calendar,
   Eraser,
-  ExternalLink,
   GraduationCap,
-  Image as ImageIcon,
   Link2,
   Phone,
   School,
   Search,
   ShieldAlert,
-  ShieldCheck,
   Trash2,
   User,
-  Users2,
   Video,
-  X,
 } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import type { UserProfile } from "@/db/schema";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetBody,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { LoopPointsSticker } from "@/components/ui/stickers";
+import { VerifiedBadge } from "@/components/ui/verified-badge";
 import type { CachedMessage } from "@/lib/chat-cache";
 import { isOnline, presenceLabel } from "@/lib/presence";
 import { cn } from "@/lib/utils";
+import { ChatAvatar } from "./chat-avatar";
+import { type ChatParticipant, formatMemberCount } from "./chat-format";
+import { ChatSharedContent } from "./chat-shared-content";
+
+const QUICK =
+  "flex min-h-16 flex-1 cursor-pointer flex-col items-center justify-center gap-1 rounded-md bg-surface-muted text-xs font-medium text-fg transition-ui outline-none hover:bg-surface-sunken focus-visible:ring-2 focus-visible:ring-ring";
+const ROW =
+  "flex min-h-12 w-full cursor-pointer items-center gap-3 rounded-md px-3 text-left text-base font-medium text-fg transition-ui outline-none hover:bg-surface-muted focus-visible:bg-surface-muted disabled:opacity-60";
 
 interface ChatUserInfoDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  otherParticipant:
-    | (UserProfile & {
-        isGroup?: boolean;
-        isCommunity?: boolean;
-        membersCount?: number;
-        category?: string;
-        participants?: UserProfile[];
-      })
-    | null;
+  otherParticipant: ChatParticipant | null;
   conversationId: string | null;
   messages: CachedMessage[];
   currentUserId: string;
+  /** Current mute state of this chat. */
+  isMuted?: boolean;
   onSearchClick?: () => void;
   onClearChat?: () => void;
   onDeleteChat?: () => void;
   onStartCall?: (type: "audio" | "video") => void;
 }
 
+/** Side panel with who you're chatting with, shared photos and links, and chat settings. */
 export function ChatUserInfoDrawer({
   isOpen,
   onClose,
-  otherParticipant,
+  otherParticipant: p,
   conversationId,
   messages,
   currentUserId,
+  isMuted: mutedProp = false,
   onSearchClick,
   onClearChat,
   onDeleteChat,
   onStartCall,
 }: ChatUserInfoDrawerProps) {
-  const [activeTab, setActiveTab] = useState<"media" | "links">("media");
-  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
-  const [isMuted, setIsMuted] = useState(false);
-  const [isClearing, setIsClearing] = useState(false);
-  const [showClearConfirm, setShowClearConfirm] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isMuted, setIsMuted] = useState(mutedProp);
+  const [busy, setBusy] = useState(false);
+  const [confirm, setConfirm] = useState<"clear" | "delete" | null>(null);
 
-  // Extract shared images/media from messages
-  const sharedMedia = useMemo(() => {
-    const media: { id: string; url: string; createdAt: string | Date }[] = [];
-    const imageRegex = /(https?:\/\/[^\s]+?\.(?:png|jpg|jpeg|gif|webp)(?:\?[^\s]*)?)/gi;
-    const hostedImageRegex = /(https?:\/\/(?:images\.unsplash\.com|i\.ibb\.co|res\.cloudinary\.com)[^\s]+)/gi;
+  // Re-read the real mute state each time the panel opens.
+  useEffect(() => {
+    if (isOpen) {
+      setIsMuted(mutedProp);
+      setConfirm(null);
+    }
+  }, [isOpen, mutedProp]);
 
-    messages.forEach((m) => {
-      if (!m.body) return;
-      const matches = m.body.match(imageRegex) || m.body.match(hostedImageRegex);
-      if (matches) {
-        matches.forEach((url) => {
-          media.push({ id: m.id + url, url, createdAt: m.createdAt });
-        });
-      }
+  if (!p) return null;
+  const isGroup = Boolean(p.isGroup || p.isCommunity);
+  const online = isOnline(p.lastSeenAt);
+
+  async function patch(action: string) {
+    const res = await fetch(`/api/chat/${conversationId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action }),
     });
+    if (!res.ok) throw new Error(action);
+  }
 
-    return media.reverse();
-  }, [messages]);
-
-  // Extract shared URLs / links from messages
-  const sharedLinks = useMemo(() => {
-    const links: { id: string; url: string; domain: string; createdAt: string | Date }[] = [];
-    const urlRegex = /(https?:\/\/[^\s]+)/gi;
-
-    messages.forEach((m) => {
-      if (!m.body) return;
-      const matches = m.body.match(urlRegex);
-      if (matches) {
-        matches.forEach((url) => {
-          // Skip if it's already in pure media list
-          if (/\.(png|jpg|jpeg|gif|webp)(\?.*)?$/i.test(url)) return;
-          try {
-            const parsed = new URL(url);
-            links.push({
-              id: m.id + url,
-              url,
-              domain: parsed.hostname.replace(/^www\./, ""),
-              createdAt: m.createdAt,
-            });
-          } catch {
-            links.push({ id: m.id + url, url, domain: "link", createdAt: m.createdAt });
-          }
-        });
-      }
-    });
-
-    return links.reverse();
-  }, [messages]);
-
-  if (!isOpen || !otherParticipant) return null;
-
-  const online = isOnline(otherParticipant.lastSeenAt);
-  const presenceText = presenceLabel(otherParticipant.lastSeenAt);
-  const institutionName = otherParticipant.institutionId ? "Verified Campus Hub" : null;
-
-  async function handleToggleMute() {
+  async function toggleMute() {
     if (!conversationId) return;
-    const nextState = !isMuted;
     try {
-      const res = await fetch(`/api/chat/${conversationId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: nextState ? "mute" : "unmute" }),
-      });
-      if (res.ok) {
-        setIsMuted(nextState);
-        toast.success(nextState ? "Chat muted" : "Notifications unmuted");
-      }
+      await patch(isMuted ? "unmute" : "mute");
+      setIsMuted(!isMuted);
+      toast.success(isMuted ? "Notifications on" : "Muted");
     } catch {
-      toast.error("Failed to update notification settings");
+      toast.error("Couldn't change notifications. Try again.");
     }
   }
 
-  async function handleClearHistory() {
-    if (!conversationId) return;
-    setIsClearing(true);
+  async function confirmAction() {
+    if (!conversationId || !confirm) return;
+    setBusy(true);
     try {
-      const res = await fetch(`/api/chat/${conversationId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "clear" }),
-      });
-      if (res.ok) {
-        toast.success("Chat history cleared");
-        setShowClearConfirm(false);
-        if (onClearChat) onClearChat();
-      }
-    } catch {
-      toast.error("Failed to clear chat");
-    } finally {
-      setIsClearing(false);
-    }
-  }
-
-  async function handleDelete() {
-    if (!conversationId) return;
-    try {
-      const res = await fetch(`/api/chat/${conversationId}`, {
-        method: "DELETE",
-      });
-      if (res.ok) {
-        toast.success("Conversation deleted");
-        setShowDeleteConfirm(false);
+      if (confirm === "clear") {
+        await patch("clear");
+        toast.success("Messages cleared");
+        onClearChat?.();
+      } else {
+        const res = await fetch(`/api/chat/${conversationId}`, { method: "DELETE" });
+        if (!res.ok) throw new Error("delete");
+        toast.success(isGroup ? "You left the group" : "Chat deleted");
         onClose();
-        if (onDeleteChat) onDeleteChat();
+        onDeleteChat?.();
       }
+      setConfirm(null);
     } catch {
-      toast.error("Failed to delete conversation");
+      toast.error("That didn't work. Check your connection and try again.");
+    } finally {
+      setBusy(false);
     }
   }
+
+  const quick = (label: string, icon: React.ReactNode, onClick: () => void) => (
+    <button type="button" className={QUICK} onClick={onClick}>
+      {icon}
+      {label}
+    </button>
+  );
 
   return (
-    <>
-      {/* Lightbox Modal for Shared Photos */}
-      {lightboxUrl && (
-        <div
-          className="fixed inset-0 z-60 flex items-center justify-center bg-black/90 p-4 animate-in fade-in"
-          onClick={() => setLightboxUrl(null)}
-        >
-          <button
-            type="button"
-            onClick={() => setLightboxUrl(null)}
-            className="absolute top-4 right-4 size-10 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-colors cursor-pointer"
-          >
-            <X className="size-5" />
-          </button>
-          <img
-            src={lightboxUrl}
-            alt="Shared Media"
-            className="max-h-[90vh] max-w-[90vw] object-contain rounded-2xl shadow-2xl"
-          />
-        </div>
-      )}
-
-      {/* Main Drawer Overlay */}
-      <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-xs md:hidden" onClick={onClose} />
-
-      {/* Slide-over Panel (Instagram / WhatsApp Style) */}
-      <aside className="fixed inset-y-0 right-0 z-50 w-full sm:w-88 md:w-96 bg-card border-l border-border/30 shadow-2xl flex flex-col h-full overflow-y-auto animate-in slide-in-from-right duration-250 select-none">
-        {/* Drawer Header */}
-        <div className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-border/30 bg-card/90 px-4 backdrop-blur-sm shrink-0">
-          <h2 className="text-sm font-black text-foreground">Contact Info</h2>
-          <button
-            aria-label="Close"
-            type="button"
-            onClick={onClose}
-            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 size-8 min-h-11 min-w-11 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
-          >
-            <X className="size-4" />
-          </button>
-        </div>
-
-        {/* Profile Card Block */}
-        <div className="p-5 flex flex-col items-center text-center border-b border-border/30 space-y-3 bg-muted/10">
-          {/* Avatar with Presence */}
-          <div className="relative">
-            <Avatar className="size-20 sm:size-24 rounded-full border-4 border-card shadow-lg bg-background">
-              <AvatarImage src={otherParticipant.avatarUrl || ""} className="object-cover" />
-              <AvatarFallback className="text-2xl font-black bg-primary/10 text-primary">
-                {(otherParticipant.displayName?.[0] || "S").toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <span
-              className={cn(
-                "absolute bottom-1 right-1 size-4 rounded-full border-2 border-card",
-                online ? "bg-success" : "bg-muted-foreground/50"
-              )}
+    <Sheet side="right" open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <SheetContent className="w-full max-w-md sm:w-[26rem]">
+        <SheetHeader className="sr-only">
+          <SheetTitle>{isGroup ? "Group info" : "Chat info"}</SheetTitle>
+          <SheetDescription>Profile, shared photos and links, and chat settings.</SheetDescription>
+        </SheetHeader>
+        <SheetBody className="space-y-6 pt-12">
+          <section className="flex flex-col items-center gap-2 text-center">
+            <ChatAvatar
+              name={p.displayName}
+              src={p.avatarUrl}
+              lastSeenAt={p.lastSeenAt}
+              showPresence={!isGroup}
+              className="size-24"
             />
-          </div>
-
-          <div className="space-y-1">
-            <h3 className="text-base font-black text-foreground flex items-center justify-center gap-1.5">
-              <span>{otherParticipant.displayName}</span>
-              {(otherParticipant.points || 0) >= 150 && (
-                <ShieldCheck className="size-4 text-brand shrink-0" />
-              )}
-            </h3>
-            <p className="text-xs text-muted-foreground">@{otherParticipant.username}</p>
-            <p className="text-[11px] font-semibold text-success">
-              {online ? "Active Now" : presenceText || "Offline"}
+            <h2 className="flex items-center gap-1.5 font-display text-2xl font-bold text-fg">
+              {p.displayName}
+              {!isGroup && p.isCollegeVerified && <VerifiedBadge size="md" />}
+            </h2>
+            <p className="text-sm text-fg-muted">
+              {isGroup
+                ? formatMemberCount(p.membersCount || p.participants?.length || 2)
+                : [`@${p.username}`, online ? "Online" : presenceLabel(p.lastSeenAt)]
+                    .filter(Boolean)
+                    .join(" · ")}
             </p>
-          </div>
-
-          {/* Bio */}
-          {otherParticipant.bio && (
-            <p className="text-xs text-foreground/90 leading-relaxed font-normal pt-1 max-w-xs break-words">
-              &ldquo;{otherParticipant.bio}&rdquo;
-            </p>
-          )}
-
-          {/* Academic Meta or Group Category */}
-          {otherParticipant.isGroup ? (
-            <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-muted-foreground pt-1">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-bold text-primary">
-                <Users2 className="size-3.5" />
-                <span>
-                  {otherParticipant.membersCount || otherParticipant.participants?.length || 2} Campus Members
-                </span>
-              </span>
-            </div>
-          ) : (
-            <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-muted-foreground pt-1">
-              {otherParticipant.institutionId && (
-                <Link
-                  href={`/college/${otherParticipant.institutionId}`}
-                  className="text-primary hover:underline font-semibold inline-flex items-center gap-1"
-                >
-                  <School className="size-3.5" />
-                  <span>Campus Hub</span>
-                </Link>
-              )}
-              {otherParticipant.branch && (
-                <span className="inline-flex items-center gap-1 text-foreground/80 font-medium">
-                  <GraduationCap className="size-3.5 text-primary/70" />
-                  <span>
-                    {otherParticipant.course ? `${otherParticipant.course} · ` : ""}
-                    {otherParticipant.branch}
-                  </span>
-                </span>
-              )}
-              {otherParticipant.year && (
-                <span className="inline-flex items-center gap-1">
-                  <Calendar className="size-3.5" /> Year {otherParticipant.year}
-                </span>
-              )}
-            </div>
-          )}
-
-          {/* LP Clout Badge (Only for individual students) */}
-          {!otherParticipant.isGroup && (
-            <div className="pt-1">
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-warning-subtle border border-warning text-xs font-bold text-warning">
-                {otherParticipant.points || 0} LP Clout
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Quick Action Grid */}
-        <div className="grid grid-cols-4 gap-2 p-4 border-b border-border/30 text-center bg-card">
-          {!otherParticipant.isGroup ? (
-            <>
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  if (onStartCall) onStartCall("audio");
-                }}
-                className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-muted/60 transition-colors group cursor-pointer"
-              >
-                <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors shadow-2xs">
-                  <Phone className="size-4.5" />
-                </div>
-                <span className="text-[10px] font-bold text-muted-foreground group-hover:text-foreground">
-                  Voice Call
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  if (onStartCall) onStartCall("video");
-                }}
-                className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-muted/60 transition-colors group cursor-pointer"
-              >
-                <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors shadow-2xs">
-                  <Video className="size-4.5" />
-                </div>
-                <span className="text-[10px] font-bold text-muted-foreground group-hover:text-foreground">
-                  Video Call
-                </span>
-              </button>
-
-              <Link
-                href={`/@${otherParticipant.username}`}
-                className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-muted/60 transition-colors group cursor-pointer"
-              >
-                <div className="size-10 rounded-full bg-muted flex items-center justify-center text-foreground group-hover:text-primary transition-colors">
-                  <User className="size-4.5" />
-                </div>
-                <span className="text-[10px] font-bold text-muted-foreground group-hover:text-foreground">
-                  Profile
-                </span>
-              </Link>
-            </>
-          ) : (
-            <>
-              <button
-                type="button"
-                onClick={() => {
-                  if (typeof navigator !== "undefined" && navigator.clipboard) {
-                    navigator.clipboard.writeText(`https://campusloop.space/chat/${conversationId}`);
-                    toast.success("Group link copied to clipboard!");
-                  }
-                }}
-                className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-muted/60 transition-colors group cursor-pointer"
-              >
-                <div className="size-10 rounded-full bg-muted flex items-center justify-center text-foreground group-hover:text-primary transition-colors">
-                  <Link2 className="size-4.5" />
-                </div>
-                <span className="text-[10px] font-bold text-muted-foreground group-hover:text-foreground">
-                  Invite Link
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => toast.info("To add members, share the group link or tap + Group")}
-                className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-muted/60 transition-colors group cursor-pointer"
-              >
-                <div className="size-10 rounded-full bg-muted flex items-center justify-center text-foreground group-hover:text-primary transition-colors">
-                  <Users2 className="size-4.5" />
-                </div>
-                <span className="text-[10px] font-bold text-muted-foreground group-hover:text-foreground">
-                  Members
-                </span>
-              </button>
-            </>
-          )}
-
-          <button
-            type="button"
-            onClick={handleToggleMute}
-            className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-muted/60 transition-colors group cursor-pointer"
-          >
-            <div className="size-10 rounded-full bg-muted flex items-center justify-center text-foreground group-hover:text-danger transition-colors">
-              {isMuted ? <Bell className="size-4.5" /> : <BellOff className="size-4.5" />}
-            </div>
-            <span className="text-[10px] font-bold text-muted-foreground group-hover:text-foreground">
-              {isMuted ? "Unmute" : "Mute"}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              onClose();
-              if (onSearchClick) onSearchClick();
-            }}
-            className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-muted/60 transition-colors group cursor-pointer"
-          >
-            <div className="size-10 rounded-full bg-muted flex items-center justify-center text-foreground group-hover:text-primary transition-colors">
-              <Search className="size-4.5" />
-            </div>
-            <span className="text-[10px] font-bold text-muted-foreground group-hover:text-foreground">
-              Search
-            </span>
-          </button>
-        </div>
-
-        {/* Group Participants List (If Group Chat) */}
-        {otherParticipant.isGroup &&
-          otherParticipant.participants &&
-          otherParticipant.participants.length > 0 && (
-            <div className="p-4 border-b border-border/30 space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-black text-foreground">
-                  Group Members ({otherParticipant.participants.length})
-                </span>
-              </div>
-              <div className="space-y-1.5 max-h-48 overflow-y-auto">
-                {otherParticipant.participants.map((p) => (
+            {p.bio && !isGroup && <p className="max-w-xs text-base text-fg">{p.bio}</p>}
+            {!isGroup && (p.branch || p.year || p.institutionId) && (
+              <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm text-fg-muted">
+                {p.institutionId && (
                   <Link
-                    key={p.id}
-                    href={`/@${p.username}`}
-                    onClick={onClose}
-                    className="flex items-center justify-between p-2 rounded-xl hover:bg-muted/40 transition-colors"
+                    href={`/college/${p.institutionId}`}
+                    className="inline-flex items-center gap-1 font-medium text-brand-text hover:underline"
                   >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <Avatar className="size-8 border border-border/40 shrink-0">
-                        <AvatarImage src={p.avatarUrl || ""} />
-                        <AvatarFallback className="text-[10px] font-black bg-primary/10 text-primary">
-                          {p.displayName?.[0] || "U"}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="min-w-0">
-                        <p className="text-xs font-bold text-foreground truncate hover:underline">
-                          {p.displayName} {p.id === currentUserId ? "(You)" : ""}
-                        </p>
-                        <p className="text-[10px] text-muted-foreground truncate">@{p.username}</p>
-                      </div>
-                    </div>
+                    <School className="size-4" aria-hidden="true" /> College page
                   </Link>
-                ))}
-              </div>
-            </div>
-          )}
-
-        {/* Media, Links Tabs (Instagram / WhatsApp Style) */}
-        <div className="border-b border-border/30">
-          <div className="flex border-b border-border/30 bg-background text-xs font-bold">
-            <button
-              type="button"
-              onClick={() => setActiveTab("media")}
-              className={cn(
-                "flex-1 py-2.5 text-center relative transition-colors cursor-pointer inline-flex items-center justify-center gap-1.5",
-                activeTab === "media" ? "text-foreground" : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <ImageIcon className="size-3.5" />
-              <span>Media ({sharedMedia.length})</span>
-              {activeTab === "media" && (
-                <span className="absolute bottom-0 inset-x-8 h-0.5 bg-primary rounded-full" />
-              )}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab("links")}
-              className={cn(
-                "flex-1 py-2.5 text-center relative transition-colors cursor-pointer inline-flex items-center justify-center gap-1.5",
-                activeTab === "links" ? "text-foreground" : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <Link2 className="size-3.5" />
-              <span>Links ({sharedLinks.length})</span>
-              {activeTab === "links" && (
-                <span className="absolute bottom-0 inset-x-8 h-0.5 bg-primary rounded-full" />
-              )}
-            </button>
-          </div>
-
-          <div className="p-3 max-h-56 overflow-y-auto">
-            {activeTab === "media" ? (
-              sharedMedia.length > 0 ? (
-                <div className="grid grid-cols-3 gap-1.5">
-                  {sharedMedia.map((item) => (
-                    <div
-                      key={item.id}
-                      onClick={() => setLightboxUrl(item.url)}
-                      className="aspect-square rounded-xl overflow-hidden bg-muted cursor-pointer hover:opacity-90 transition-opacity border border-border/40"
-                    >
-                      <img
-                        src={item.url}
-                        alt="Shared"
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                      />
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="py-8 text-center text-xs text-muted-foreground space-y-1">
-                  <ImageIcon className="size-6 mx-auto text-muted-foreground/50" />
-                  <p>No photos or media shared yet.</p>
-                </div>
-              )
-            ) : sharedLinks.length > 0 ? (
-              <div className="space-y-1.5">
-                {sharedLinks.map((item) => (
-                  <a
-                    key={item.id}
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 p-2 rounded-xl bg-muted/30 hover:bg-muted/70 transition-colors text-xs font-semibold text-foreground group"
-                  >
-                    <div className="size-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                      <ExternalLink className="size-3.5" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-bold truncate text-primary group-hover:underline">{item.domain}</p>
-                      <p className="text-[10px] text-muted-foreground truncate">{item.url}</p>
-                    </div>
-                  </a>
-                ))}
-              </div>
-            ) : (
-              <div className="py-8 text-center text-xs text-muted-foreground space-y-1">
-                <Link2 className="size-6 mx-auto text-muted-foreground/50" />
-                <p>No links shared in this conversation.</p>
+                )}
+                {p.branch && (
+                  <span className="inline-flex items-center gap-1">
+                    <GraduationCap className="size-4" aria-hidden="true" />
+                    {p.course ? `${p.course} · ` : ""}
+                    {p.branch}
+                  </span>
+                )}
+                {p.year && <span>Year {p.year}</span>}
               </div>
             )}
-          </div>
-        </div>
+            {!isGroup && (p.points || 0) > 0 && (
+              <LoopPointsSticker points={p.points || 0} size="sm" className="shadow-none" />
+            )}
+          </section>
 
-        {/* Chat Settings & Safety Options */}
-        <div className="p-4 space-y-2">
-          <p className="text-xs font-bold text-muted-foreground px-2">
-            Chat Settings & Privacy
-          </p>
+          <section className="flex gap-2">
+            {!isGroup ? (
+              <>
+                {quick("Call", <Phone className="size-5" />, () => {
+                  onClose();
+                  onStartCall?.("audio");
+                })}
+                {quick("Video", <Video className="size-5" />, () => {
+                  onClose();
+                  onStartCall?.("video");
+                })}
+                <Link href={`/@${p.username}`} onClick={onClose} className={QUICK}>
+                  <User className="size-5" />
+                  Profile
+                </Link>
+              </>
+            ) : (
+              quick("Copy link", <Link2 className="size-5" />, () => {
+                void navigator.clipboard?.writeText(`${window.location.origin}/chat/${conversationId}`).then(
+                  () => toast.success("Link copied. Only members can open it."),
+                  () => toast.error("Couldn't copy the link. Try again.")
+                );
+              })
+            )}
+            {quick("Search", <Search className="size-5" />, () => {
+              onClose();
+              onSearchClick?.();
+            })}
+          </section>
 
-          <button
-            type="button"
-            onClick={handleToggleMute}
-            className="flex w-full items-center justify-between px-3 py-2.5 rounded-xl hover:bg-muted text-xs font-semibold text-foreground transition-colors cursor-pointer"
-          >
-            <div className="flex items-center gap-2.5">
-              {isMuted ? (
-                <BellOff className="size-4 text-danger" />
-              ) : (
-                <Bell className="size-4 text-muted-foreground" />
-              )}
-              <span>Mute Notifications</span>
-            </div>
-            <span className="text-[11px] text-muted-foreground font-bold">{isMuted ? "Muted" : "On"}</span>
-          </button>
-
-          {showClearConfirm ? (
-            <div className="p-3 rounded-2xl border border-border/60 bg-muted/20 space-y-2 text-center">
-              <p className="text-xs font-bold text-foreground">Clear all messages?</p>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowClearConfirm(false)}
-                  className="flex-1 py-1.5 rounded-xl border border-border/50 text-xs font-bold text-muted-foreground hover:bg-muted"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  disabled={isClearing}
-                  onClick={handleClearHistory}
-                  className="flex-1 py-1.5 rounded-xl bg-destructive text-destructive-foreground text-xs font-bold hover:opacity-90"
-                >
-                  Clear
-                </button>
-              </div>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setShowClearConfirm(true)}
-              className="flex w-full items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-muted text-xs font-semibold text-foreground transition-colors cursor-pointer"
-            >
-              <Eraser className="size-4 text-muted-foreground" />
-              <span>Clear message history</span>
-            </button>
+          {isGroup && p.participants && p.participants.length > 0 && (
+            <section className="space-y-2">
+              <h3 className="text-sm font-semibold text-fg">Members ({p.participants.length})</h3>
+              <ul className="space-y-0.5">
+                {p.participants.map((m) => (
+                  <li key={m.id}>
+                    <Link
+                      href={`/@${m.username}`}
+                      onClick={onClose}
+                      className="flex min-h-12 items-center gap-3 rounded-md px-2 transition-ui hover:bg-surface-muted"
+                    >
+                      <ChatAvatar name={m.displayName} src={m.avatarUrl} className="size-9" />
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm font-semibold text-fg">
+                          {m.displayName}
+                          {m.id === currentUserId ? " (you)" : ""}
+                        </span>
+                        <span className="block truncate text-xs text-fg-muted">@{m.username}</span>
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
           )}
 
-          {showDeleteConfirm ? (
-            <div className="p-3 rounded-2xl border border-destructive/30 bg-destructive/5 space-y-2 text-center">
-              <p className="text-xs font-bold text-destructive">Delete this entire chat?</p>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowDeleteConfirm(false)}
-                  className="flex-1 py-1.5 rounded-xl border border-border/50 text-xs font-bold text-muted-foreground hover:bg-muted"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleDelete}
-                  className="flex-1 py-1.5 rounded-xl bg-destructive text-destructive-foreground text-xs font-bold hover:opacity-90"
-                >
-                  Delete
-                </button>
+          <ChatSharedContent messages={messages} />
+
+          <section className="space-y-0.5 border-t border-border pt-4">
+            {confirm ? (
+              <div className="space-y-3 rounded-md bg-surface-muted p-4">
+                <p className="text-base font-medium text-fg">
+                  {confirm === "clear"
+                    ? "Clear all messages? This only clears them for you."
+                    : isGroup
+                      ? "Leave this group? You'll stop getting its messages."
+                      : "Delete this chat? It goes from your inbox. They keep their copy."}
+                </p>
+                <div className="flex gap-2">
+                  <Button variant="ghost" className="flex-1" onClick={() => setConfirm(null)}>
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="danger"
+                    className="flex-1"
+                    loading={busy}
+                    onClick={() => void confirmAction()}
+                  >
+                    {confirm === "clear" ? "Clear" : isGroup ? "Leave" : "Delete"}
+                  </Button>
+                </div>
               </div>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setShowDeleteConfirm(true)}
-              className="flex w-full items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-destructive/10 text-xs font-bold text-destructive transition-colors cursor-pointer"
-            >
-              <Trash2 className="size-4 text-destructive" />
-              <span>Delete Conversation</span>
-            </button>
-          )}
-
-          <hr className="border-border/30 my-2" />
-
-          <Link
-            href="/settings"
-            className="flex w-full items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-muted text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-          >
-            <ShieldAlert className="size-4" />
-            <span>Report or Block student</span>
-          </Link>
-        </div>
-      </aside>
-    </>
+            ) : (
+              <>
+                <button type="button" className={ROW} onClick={() => void toggleMute()}>
+                  {isMuted ? (
+                    <Bell className="size-5 text-fg-muted" />
+                  ) : (
+                    <BellOff className="size-5 text-fg-muted" />
+                  )}
+                  {isMuted ? "Unmute notifications" : "Mute notifications"}
+                </button>
+                <button type="button" className={ROW} onClick={() => setConfirm("clear")}>
+                  <Eraser className="size-5 text-fg-muted" /> Clear messages
+                </button>
+                <button
+                  type="button"
+                  className={cn(ROW, "text-danger hover:bg-danger-subtle")}
+                  onClick={() => setConfirm("delete")}
+                >
+                  <Trash2 className="size-5" /> {isGroup ? "Leave group" : "Delete chat"}
+                </button>
+                <Link href="/safety" className={ROW} onClick={onClose}>
+                  <ShieldAlert className="size-5 text-fg-muted" /> Report a problem
+                </Link>
+              </>
+            )}
+          </section>
+        </SheetBody>
+      </SheetContent>
+    </Sheet>
   );
 }

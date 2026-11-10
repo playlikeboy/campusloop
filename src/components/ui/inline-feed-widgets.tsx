@@ -1,18 +1,15 @@
 "use client";
 
-import { ArrowRight, BookOpen, Clock, Flame, Gift, Hash, Users, Zap } from "lucide-react";
+import { ArrowRight, Users } from "lucide-react";
 import Link from "next/link";
 import { useMemo } from "react";
-import { toast } from "sonner";
 import useSWR from "swr";
 import { JoinCommunityButton } from "@/app/(app)/(main)/communities/join-community-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { Community } from "@/hooks/use-communities";
 import { fetcher } from "@/lib/api";
-import type { TrendingHashtag } from "@/lib/trending-hashtags";
 
-// ──────── 1. Suggested Communities Widget (Dynamic Timeline Feed) ────────
-
+/** Three communities the student has not joined yet, shown inside the feed. */
 export function InlineCommunitiesWidget() {
   const { data: allCommunities, isLoading } = useSWR<Community[]>(
     "/api/communities?limit=10&sort=popular",
@@ -26,7 +23,6 @@ export function InlineCommunitiesWidget() {
 
   const suggestedCommunities = useMemo(() => {
     if (!allCommunities || allCommunities.length === 0) return [];
-    // Prioritize active campus communities the student has not yet joined
     const unjoined = allCommunities.filter((c) => !c.isMember);
     const pool = unjoined.length > 0 ? unjoined : allCommunities;
     return pool.slice(0, 3);
@@ -34,28 +30,17 @@ export function InlineCommunitiesWidget() {
 
   if (isLoading && (!allCommunities || allCommunities.length === 0)) {
     return (
-      <div className="py-2.5 px-4 space-y-3 select-none animate-pulse">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="size-4 rounded-full bg-muted/60" />
-            <div className="h-4 w-36 rounded-md bg-muted/60" />
-          </div>
-          <div className="h-3 w-16 rounded-md bg-muted/40" />
-        </div>
-        <div className="divide-y divide-border/20">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="flex items-center justify-between gap-3 py-2.5 px-1">
-              <div className="flex items-center gap-3 min-w-0 flex-1">
-                <div className="size-10 rounded-full bg-muted/60 shrink-0" />
-                <div className="space-y-1.5 flex-1 min-w-0">
-                  <div className="h-3.5 w-32 rounded bg-muted/60" />
-                  <div className="h-2.5 w-24 rounded bg-muted/40" />
-                </div>
-              </div>
-              <div className="h-7 w-16 rounded-full bg-muted/50 shrink-0" />
+      <div className="space-y-3 px-4 py-3 motion-safe:animate-pulse" aria-hidden>
+        <div className="h-4 w-36 rounded-md bg-surface-muted" />
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="flex items-center gap-3 py-2">
+            <div className="size-10 shrink-0 rounded-full bg-surface-muted" />
+            <div className="flex-1 space-y-1.5">
+              <div className="h-3.5 w-32 rounded bg-surface-muted" />
+              <div className="h-3 w-24 rounded bg-surface-muted" />
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
     );
   }
@@ -65,264 +50,55 @@ export function InlineCommunitiesWidget() {
   }
 
   return (
-    <div className="py-2.5 px-4 space-y-3">
-      {/* Module Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Users className="size-4 text-primary" />
-          <h3 className="text-[15px] font-bold text-foreground tracking-tight">Communities for you</h3>
-        </div>
+    <section className="space-y-2 px-4 py-3" aria-labelledby="feed-communities-heading">
+      <div className="flex items-center justify-between gap-3">
+        <h3 id="feed-communities-heading" className="flex items-center gap-2 text-base font-bold text-fg">
+          <Users className="size-4 text-fg-muted" aria-hidden />
+          Communities to join
+        </h3>
         <Link
           href="/communities"
-          className="text-xs font-bold text-primary hover:underline flex items-center gap-0.5"
+          className="flex min-h-11 items-center gap-1 text-sm font-semibold text-brand-text hover:underline"
         >
-          Show more
-          <ArrowRight className="size-3" />
+          See all
+          <ArrowRight className="size-3.5" aria-hidden />
         </Link>
       </div>
 
-      {/* Dynamic Communities Stack */}
-      <div className="divide-y divide-border/25">
+      <ul className="divide-y divide-border">
         {suggestedCommunities.map((comm) => {
           const displaySlug = comm.slug || comm.name.toLowerCase().replace(/\s+/g, "-");
           const memberCount = comm.membersCount ?? comm.memberCount ?? comm.members?.length ?? 0;
-          const initialLetter = (displaySlug[0] || comm.name[0] || "C").toUpperCase();
+          const initialLetter = (comm.name[0] || displaySlug[0] || "C").toUpperCase();
 
           return (
-            <div
-              key={comm.id}
-              className="flex items-center justify-between gap-3 py-2.5 hover:bg-muted/20 transition-colors rounded-xl px-1"
-            >
-              <div className="flex items-center gap-3 min-w-0 flex-1">
-                <Avatar className="size-10 rounded-full border border-primary/20 shrink-0">
-                  {comm.avatarUrl && <AvatarImage src={comm.avatarUrl} alt={comm.name} />}
-                  <AvatarFallback className="bg-primary/10 text-primary font-black text-xs">
-                    c/{initialLetter}
+            <li key={comm.id} className="flex items-center justify-between gap-3 py-2.5">
+              <div className="flex min-w-0 flex-1 items-center gap-3">
+                <Avatar className="size-10 shrink-0 rounded-full">
+                  {comm.avatarUrl && <AvatarImage src={comm.avatarUrl} alt="" />}
+                  <AvatarFallback className="bg-surface-muted text-sm font-bold text-fg">
+                    {initialLetter}
                   </AvatarFallback>
                 </Avatar>
-
                 <div className="min-w-0 flex-1">
                   <Link
                     href={`/communities/${comm.id}`}
-                    className="font-bold text-sm text-foreground hover:underline truncate block"
+                    className="block truncate text-sm font-semibold text-fg hover:underline"
                   >
                     {comm.name}
                   </Link>
-                  <p className="text-xs text-muted-foreground truncate">
-                    <span className="font-medium">c/{displaySlug}</span> · {memberCount}{" "}
-                    {memberCount === 1 ? "member" : "members"}
+                  <p className="truncate text-sm text-fg-muted">
+                    {memberCount} {memberCount === 1 ? "member" : "members"}
                   </p>
-                  {comm.description && (
-                    <p className="text-[11px] text-muted-foreground/80 truncate">{comm.description}</p>
-                  )}
                 </div>
               </div>
-
               <div className="shrink-0">
                 <JoinCommunityButton communityId={comm.id} initialIsMember={Boolean(comm.isMember)} />
               </div>
-            </div>
+            </li>
           );
         })}
-      </div>
-    </div>
-  );
-}
-
-// ──────── 2. Campus Matchmaking Teaser Widget ────────
-
-export function InlineDatingWidget() {
-  return (
-    <div className="py-3 px-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-      <div className="flex items-center gap-3 min-w-0">
-        <div className="size-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
-          <Zap className="size-5 text-primary" />
-        </div>
-
-        <div className="space-y-0.5 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h4 className="text-[14px] font-bold text-foreground">Campus Match</h4>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
-              Safe &amp; Verified
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground leading-snug truncate">
-            Connect with fellow students in a safe space. 100% mutual opt-in matching.
-          </p>
-        </div>
-      </div>
-
-      <Link
-        href="/dating"
-        className="shrink-0 self-start sm:self-center px-4 py-1.5 rounded-full bg-brand hover:bg-brand-hover text-brand-fg font-bold text-xs transition-colors active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-      >
-        Explore Match
-      </Link>
-    </div>
-  );
-}
-
-// ──────── 3. Trending Hashtags Widget ────────
-
-export function InlineHashtagsWidget() {
-  const { data, isLoading } = useSWR<{ trending: TrendingHashtag[] }>(
-    "/api/hashtags/trending?limit=4",
-    fetcher,
-    {
-      revalidateIfStale: true,
-      dedupingInterval: 30000,
-    }
-  );
-
-  const tags =
-    data?.trending && data.trending.length > 0
-      ? data.trending.map((t) => ({
-          tag: t.tag.replace(/^#/, ""),
-          count: t.formattedCount,
-        }))
-      : [];
-
-  if (isLoading && tags.length === 0) {
-    return (
-      <div className="py-2.5 px-4 space-y-2 select-none animate-pulse">
-        <div className="flex items-center justify-between">
-          <div className="h-4 w-36 rounded bg-muted/60" />
-          <div className="h-3 w-12 rounded bg-muted/40" />
-        </div>
-        <div className="grid grid-cols-2 gap-2 pt-1">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-14 rounded-xl bg-muted/30 border border-border/30" />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (tags.length === 0) {
-    return null;
-  }
-
-  return (
-    <div className="py-2.5 px-4 space-y-2">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Flame className="size-4 text-primary" />
-          <h3 className="text-[15px] font-bold text-foreground tracking-tight">Trending on Campus</h3>
-        </div>
-        <Link href="/explore" className="text-xs font-bold text-primary hover:underline cursor-pointer">
-          Explore
-        </Link>
-      </div>
-
-      <div className="grid grid-cols-2 gap-2 pt-1">
-        {tags.map((item) => (
-          <Link
-            key={item.tag}
-            href={`/hashtag/${item.tag}`}
-            className="flex items-center justify-between p-2.5 rounded-xl bg-muted/20 hover:bg-muted/40 transition-colors border border-border/30"
-          >
-            <div className="min-w-0">
-              <p className="font-bold text-xs text-foreground truncate">#{item.tag}</p>
-              <p className="text-[10px] text-muted-foreground">{item.count}</p>
-            </div>
-            <Hash className="size-3.5 text-muted-foreground/60 shrink-0" />
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ──────── 4. Referral / Ambassador Perk Widget ────────
-
-export function InlineReferralWidget() {
-  function handleCopy() {
-    if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText("https://campusloop.space/sign-up");
-      toast.success("CampusLoop invite link copied to clipboard");
-    }
-  }
-
-  return (
-    <div className="py-3 px-4 flex items-center justify-between gap-3">
-      <div className="flex items-center gap-3 min-w-0">
-        <div className="size-10 rounded-full bg-reward-subtle flex items-center justify-center text-reward-text shrink-0">
-          <Gift className="size-5" />
-        </div>
-        <div className="min-w-0 space-y-0.5">
-          <h4 className="text-[14px] font-bold text-foreground truncate">Invite Classmates · Earn 20 LP</h4>
-          <p className="text-xs text-muted-foreground truncate">
-            Unlock the verified campus star badge and boost your clout tier.
-          </p>
-        </div>
-      </div>
-
-      <button
-        type="button"
-        onClick={handleCopy}
-        className="shrink-0 px-4 py-1.5 rounded-full border border-border text-foreground font-bold text-xs hover:bg-surface-muted transition-colors cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-      >
-        Copy Link
-      </button>
-    </div>
-  );
-}
-
-// ──────── 5. Campus Articles Spotlight Widget ────────
-
-export function InlineArticlesWidget() {
-  const { data } = useSWR<{ articles: any[] }>("/api/articles?limit=2&sort=popular", fetcher, {
-    revalidateIfStale: true,
-    dedupingInterval: 30000,
-  });
-
-  const articles = data?.articles || [];
-  if (articles.length === 0) return null;
-
-  return (
-    <div className="py-3 px-4 space-y-3 rounded-2xl border border-border/30 bg-gradient-to-br from-primary/5 via-card to-card">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <BookOpen className="size-4 text-primary" />
-          <h3 className="text-[15px] font-bold text-foreground tracking-tight">Articles &amp; Long Reads</h3>
-        </div>
-        <Link
-          href="/articles"
-          className="text-xs font-bold text-primary hover:underline flex items-center gap-0.5"
-        >
-          Explore all
-          <ArrowRight className="size-3" />
-        </Link>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {articles.map((art) => (
-          <Link
-            key={art.id}
-            href={`/articles/${art.slug}`}
-            className="group flex flex-col justify-between rounded-xl border border-border/40 bg-card p-3.5 hover:border-brand-subtle-border transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-          >
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between gap-1 text-[10px]">
-                <span className="font-bold text-primary uppercase">{art.category || "General"}</span>
-                <span className="text-muted-foreground flex items-center gap-1 font-medium">
-                  <Clock className="size-2.5" />
-                  {art.readingTimeMinutes || 3} min
-                </span>
-              </div>
-              <h4 className="font-bold text-xs text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-snug">
-                {art.title}
-              </h4>
-              {art.excerpt && <p className="text-[11px] text-muted-foreground line-clamp-2">{art.excerpt}</p>}
-            </div>
-
-            <div className="mt-2.5 flex items-center justify-between text-[10px] text-muted-foreground border-t border-border/20 pt-2 font-medium">
-              <span>@{art.author?.username || "student"}</span>
-              <span className="text-primary font-bold group-hover:underline">Read →</span>
-            </div>
-          </Link>
-        ))}
-      </div>
-    </div>
+      </ul>
+    </section>
   );
 }

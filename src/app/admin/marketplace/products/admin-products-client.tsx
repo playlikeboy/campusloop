@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
+import { buttonVariants } from "@/components/ui/button";
+import { fieldClassName } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
@@ -63,7 +65,7 @@ export function AdminProductsClient() {
         !product.isAvailable ? `${product.name} is now In Stock` : `${product.name} marked Out of Stock`
       );
     } catch {
-      toast.error("Failed to update product availability");
+      toast.error("Couldn't update stock. Try again.");
     } finally {
       setTogglingId(null);
     }
@@ -72,23 +74,23 @@ export function AdminProductsClient() {
   return (
     <div className="space-y-6 select-none">
       {/* ─── Top Header ─── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-5">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <UtensilsCrossed className="size-6 text-primary" />
-            <span>Campus Catalog &amp; Products</span>
+          <h1 className="flex items-center gap-2.5 text-2xl text-fg">
+            <UtensilsCrossed className="size-5 text-fg-muted" aria-hidden />
+            <span>Products</span>
           </h1>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Audit menu items, manage inventory availability, and view pricing across all campus stores
+          <p className="mt-1 max-w-2xl text-sm text-fg-muted">
+            Every item on sale in the marketplace, with price and stock.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <Link
             href="/admin/marketplace/merchants"
-            className="px-3.5 py-1.5 rounded-xl bg-muted text-muted-foreground hover:text-foreground text-xs font-bold transition-colors"
+            className={buttonVariants({ variant: "secondary", size: "sm" })}
           >
-            Stores Directory →
+            All merchants
           </Link>
         </div>
       </div>
@@ -96,107 +98,107 @@ export function AdminProductsClient() {
       {/* ─── Search & Filters Bar ─── */}
       <div className="flex flex-col sm:flex-row items-center gap-3">
         <div className="relative flex-1 w-full">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-fg-muted" />
           <input
+            aria-label="Search products"
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search items by name, store, or tag..."
-            className="w-full h-10 rounded-xl bg-card border border-border pl-10 pr-4 text-xs font-medium placeholder:text-muted-foreground/60 outline-none focus:border-foreground"
+            placeholder="Search by item, store or tag"
+            className={cn(fieldClassName, "w-full pl-10 pr-4 h-11")}
           />
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <select
+            aria-label="Stock"
             value={stockFilter}
             onChange={(e) => setStockFilter(e.target.value as any)}
-            className="h-10 rounded-xl bg-card border border-border px-3 text-xs font-bold text-foreground outline-none"
+            className={cn(fieldClassName, "h-11")}
           >
-            <option value="all">All Stock Status</option>
-            <option value="in_stock">In Stock Only</option>
+            <option value="all">All stock</option>
+            <option value="in_stock">In stock</option>
             <option value="out_of_stock">Out of Stock</option>
           </select>
         </div>
       </div>
 
       {/* ─── Products Catalog Table ─── */}
-      <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-xs">
+      <div className="rounded-lg border border-border bg-surface overflow-hidden">
         <div className="p-4 border-b border-border flex items-center justify-between">
-          <h2 className="text-sm font-bold text-foreground">Catalog Items</h2>
-          <span className="text-xs text-muted-foreground font-semibold">
-            {filteredProducts.length} items listed
-          </span>
+          <h2 className="text-sm font-bold text-fg">Products</h2>
+          <span className="text-xs text-fg-muted font-semibold">{filteredProducts.length} items listed</span>
         </div>
 
         {isLoading ? (
           <div className="p-4 space-y-2">
-            <Skeleton className="h-14 w-full rounded-xl" />
-            <Skeleton className="h-14 w-full rounded-xl" />
+            <Skeleton className="h-14 w-full rounded-lg" />
+            <Skeleton className="h-14 w-full rounded-lg" />
           </div>
         ) : filteredProducts.length > 0 ? (
           <div className="divide-y divide-border overflow-x-auto">
             <table className="w-full min-w-[750px] text-left text-xs">
-              <thead className="bg-muted/40 text-muted-foreground font-bold text-[10px]">
+              <thead className="bg-surface-muted text-fg-muted font-bold text-xs">
                 <tr>
                   <th className="p-3">Product Name</th>
-                  <th className="p-3">Merchant / Store</th>
+                  <th className="p-3">Store</th>
                   <th className="p-3">Category</th>
                   <th className="p-3">Price</th>
-                  <th className="p-3">Dietary / Specs</th>
+                  <th className="p-3">Details</th>
                   <th className="p-3">Stock Status</th>
-                  <th className="p-3 text-right">Quick Actions</th>
+                  <th className="p-3 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {filteredProducts.map((p) => (
-                  <tr key={p.id} className="hover:bg-muted/20 transition-colors">
+                  <tr key={p.id} className="hover:bg-surface-muted transition-colors">
                     <td className="p-3">
                       <div className="flex items-center gap-3">
-                        <div className="size-10 rounded-xl overflow-hidden bg-muted shrink-0 border border-border">
+                        <div className="size-10 rounded-lg overflow-hidden bg-surface-muted shrink-0 border border-border">
                           {p.imageUrl ? (
                             <img src={p.imageUrl} alt={p.name} className="size-full object-cover" />
                           ) : (
-                            <div className="size-full flex items-center justify-center text-muted-foreground">
+                            <div className="size-full flex items-center justify-center text-fg-muted">
                               <Package className="size-4" />
                             </div>
                           )}
                         </div>
                         <div>
-                          <p className="font-bold text-foreground">{p.name}</p>
+                          <p className="font-bold text-fg">{p.name}</p>
                           {p.description && (
-                            <p className="text-[10px] text-muted-foreground line-clamp-1">{p.description}</p>
+                            <p className="text-xs text-fg-muted line-clamp-1">{p.description}</p>
                           )}
                         </div>
                       </div>
                     </td>
-                    <td className="p-3 font-semibold text-foreground">
+                    <td className="p-3 font-semibold text-fg">
                       <Link
                         href={`/marketplace/store/${p.merchantId}`}
                         target="_blank"
                         className="hover:underline flex items-center gap-1"
                       >
                         <span>{p.merchant?.name || "Store"}</span>
-                        <ExternalLink className="size-3 text-muted-foreground" />
+                        <ExternalLink className="size-3 text-fg-muted" />
                       </Link>
                     </td>
                     <td className="p-3">
-                      <span className="px-2 py-0.5 rounded-md bg-muted font-bold text-[10px] text-muted-foreground">
+                      <span className="px-2 py-0.5 rounded-md bg-surface-muted font-bold text-xs text-fg-muted">
                         {p.category || "General"}
                       </span>
                     </td>
-                    <td className="p-3 font-bold text-foreground text-sm">₹{p.price}</td>
+                    <td className="p-3 font-bold text-fg text-sm">₹{p.price}</td>
                     <td className="p-3">
                       {p.isVeg === true && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-success-subtle text-success font-bold text-[10px]">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-success-subtle text-success font-bold text-xs">
                           <span className="size-1.5 rounded-full bg-success inline-block" /> VEG
                         </span>
                       )}
                       {p.isVeg === false && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-danger-subtle text-danger font-bold text-[10px]">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-danger-subtle text-danger font-bold text-xs">
                           <span className="size-1.5 rounded-full bg-danger inline-block" /> NON-VEG
                         </span>
                       )}
-                      {p.isVeg === null && <span className="text-[10px] text-muted-foreground">—</span>}
+                      {p.isVeg === null && <span className="text-xs text-fg-muted">—</span>}
                     </td>
                     <td className="p-3">
                       <button
@@ -204,7 +206,7 @@ export function AdminProductsClient() {
                         disabled={togglingId === p.id}
                         onClick={() => handleToggleAvailability(p)}
                         className={cn(
-                          "px-2.5 py-1 rounded-full text-[10px] font-bold transition-colors cursor-pointer border",
+                          "px-2.5 py-1 rounded-full text-xs font-bold transition-colors cursor-pointer border",
                           p.isAvailable
                             ? "bg-success-subtle text-success border-success/30 hover:bg-success-subtle"
                             : "bg-danger-subtle text-danger border-danger/30 hover:bg-danger-subtle"
@@ -243,12 +245,12 @@ export function AdminProductsClient() {
                                 mutate();
                                 toast.success(`Price updated to ₹${newPrice}`);
                               } catch {
-                                toast.error("Failed to update price");
+                                toast.error("Couldn't update the price. Try again.");
                               }
                             }
                           }
                         }}
-                        className="text-xs font-bold text-primary hover:underline cursor-pointer"
+                        className="text-xs font-bold text-brand-text hover:underline cursor-pointer"
                       >
                         Edit Price
                       </button>
@@ -260,9 +262,9 @@ export function AdminProductsClient() {
           </div>
         ) : (
           <div className="py-24 text-center space-y-2">
-            <Package className="size-10 text-muted-foreground/40 mx-auto" />
-            <p className="text-sm font-bold text-foreground">No catalog products found</p>
-            <p className="text-xs text-muted-foreground">Try adjusting your filters or search keywords.</p>
+            <Package className="size-10 text-fg-subtle mx-auto" />
+            <p className="text-sm font-bold text-fg">No products match</p>
+            <p className="text-xs text-fg-muted">Try another search or filter.</p>
           </div>
         )}
       </div>

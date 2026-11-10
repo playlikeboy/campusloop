@@ -30,7 +30,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     if (capsule.isUnlocked || new Date(capsule.targetUnlockDate) <= new Date()) {
       return NextResponse.json(
-        { error: "This capsule has already unlocked and is sealed from new entries" },
+        { error: "This capsule is already open, so you cannot add to it." },
         { status: 400 }
       );
     }

@@ -7,10 +7,15 @@ import { CertificateActions } from "@/components/courses/certificate-actions";
 import { getDb } from "@/db";
 import { courseCertificates, courses } from "@/db/schema";
 import { courseProvider, formatDuration } from "@/lib/courses/format";
+import { buildMetadata, SITE_URL } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
 type Props = { params: Promise<{ id: string }> };
+
+function formatIssued(date: Date) {
+  return date.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
+}
 
 async function load(id: string) {
   if (!/^[A-Z0-9_-]{4,40}$/i.test(id)) return null;
@@ -24,13 +29,15 @@ async function load(id: string) {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const r = await load((await params).id);
+  const { id } = await params;
+  const r = await load(id);
   if (!r) notFound();
-  return {
+  return buildMetadata({
     title: `${r.cert.recipientName} completed ${r.cert.courseTitle}`,
-    description: `Certificate of completion issued by CampusLoop on ${r.cert.issuedAt.toDateString()}.`,
-    robots: { index: false, follow: false },
-  };
+    description: `Certificate of completion for ${r.cert.courseTitle}, issued by CampusLoop on ${formatIssued(r.cert.issuedAt)}.`,
+    path: `/certificates/${r.cert.id}`,
+    noindex: true,
+  });
 }
 
 export default async function CertificatePage({ params }: Props) {
@@ -38,45 +45,70 @@ export default async function CertificatePage({ params }: Props) {
   const r = await load(id);
   if (!r) notFound();
   const { cert, course } = r;
-  const url = `https://campusloop.space/certificates/${cert.id}`;
-  const date = cert.issuedAt.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
+  const url = `${SITE_URL}/certificates/${cert.id}`;
+  const date = formatIssued(cert.issuedAt);
+  const provider = courseProvider(course);
 
   return (
-    <main className="min-h-dvh bg-muted/40 px-4 py-10 print:bg-white print:p-0">
+    <main className="min-h-dvh bg-surface-muted px-[var(--gutter)] py-10 print:bg-bg print:p-0">
       <div className="mx-auto max-w-3xl space-y-6">
-        <article className="relative overflow-hidden rounded-3xl bg-background p-8 text-center shadow-sm sm:p-14 print:rounded-none print:shadow-none" aria-label="Certificate of completion">
-          <div className="pointer-events-none absolute inset-3 rounded-xl border-2 border-primary/25" aria-hidden />
+        <article
+          className="sticker relative overflow-hidden p-8 text-center sm:p-14 print:rounded-none print:shadow-none"
+          aria-label="Certificate of completion"
+        >
+          <div
+            className="pointer-events-none absolute inset-3 rounded-lg border border-border-strong"
+            aria-hidden="true"
+          />
           <div className="relative">
-            <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <Award className="size-7" aria-hidden />
+            <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-verified-subtle text-verified-text">
+              <Award className="size-7" aria-hidden="true" />
             </div>
-            <p className="mt-4 text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">Certificate of completion</p>
-            <p className="mt-8 text-sm text-muted-foreground">This certifies that</p>
-            <h1 className="mt-2 text-3xl font-black tracking-tight text-foreground sm:text-5xl">{cert.recipientName}</h1>
-            <p className="mt-6 text-sm text-muted-foreground">completed every lecture of</p>
-            <p className="mt-2 text-xl font-bold text-foreground sm:text-2xl">{cert.courseTitle}</p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {course.lecturesCount} lectures · {formatDuration(course.durationSec)} · taught by {course.instructorName}
+            <p className="mt-4 font-display text-lg font-bold text-fg">Certificate of completion</p>
+            <p className="mt-8 text-sm text-fg-muted">This certifies that</p>
+            <h1 className="mt-2 text-balance text-4xl text-fg sm:text-5xl">{cert.recipientName}</h1>
+            <p className="mt-6 text-sm text-fg-muted">completed every lecture of</p>
+            <p className="mt-2 text-xl font-bold text-fg sm:text-2xl">{cert.courseTitle}</p>
+            <p className="mt-2 text-sm text-fg-muted">
+              {course.lecturesCount} lectures · {formatDuration(course.durationSec)} · taught by{" "}
+              {course.instructorName}
             </p>
-            <div className="mt-10 grid gap-4 text-sm sm:grid-cols-3">
-              <div><p className="text-muted-foreground">Issued</p><p className="font-semibold text-foreground">{date}</p></div>
-              <div><p className="text-muted-foreground">Issued by</p><p className="font-semibold text-foreground">CampusLoop</p></div>
-              <div><p className="text-muted-foreground">Certificate ID</p><p className="font-mono font-semibold text-foreground">{cert.id}</p></div>
-            </div>
-            <p className="mt-8 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-              <ShieldCheck className="size-3.5 text-primary" aria-hidden /> Verify at {url.replace("https://", "")}
+            <dl className="mt-10 grid gap-4 text-sm sm:grid-cols-3">
+              <div>
+                <dt className="text-fg-muted">Issued</dt>
+                <dd className="font-semibold text-fg">{date}</dd>
+              </div>
+              <div>
+                <dt className="text-fg-muted">Issued by</dt>
+                <dd className="font-semibold text-fg">CampusLoop</dd>
+              </div>
+              <div>
+                <dt className="text-fg-muted">Certificate ID</dt>
+                <dd className="font-mono font-semibold text-fg">{cert.id}</dd>
+              </div>
+            </dl>
+            <p className="mt-8 flex flex-wrap items-center justify-center gap-x-1.5 text-sm text-fg-muted">
+              <ShieldCheck className="size-4 shrink-0 text-verified-text" aria-hidden="true" />
+              <span>Check it at</span>
+              <span className="break-all">{url.replace("https://", "")}</span>
             </p>
-            {courseProvider(course) && (
-              <p className="mx-auto mt-4 max-w-lg text-[11px] leading-relaxed text-muted-foreground">
-                Course content by {courseProvider(course)}{course.license ? `, licensed ${course.license}` : ""}. This certificate is issued by CampusLoop for
-                completing the lectures and is not issued or endorsed by {courseProvider(course)}.
+            {provider && (
+              <p className="mx-auto mt-4 max-w-lg text-xs text-fg-muted">
+                Course content by {provider}
+                {course.license ? `, licensed ${course.license}` : ""}. CampusLoop issues this certificate for
+                finishing the lectures. It is not issued or endorsed by {provider}.
               </p>
             )}
           </div>
         </article>
         <CertificateActions url={url} courseTitle={cert.courseTitle} issued={cert.issuedAt} id={cert.id} />
         <p className="text-center text-sm print:hidden">
-          <Link href={`/courses/${course.slug}`} className="font-semibold text-primary hover:underline">View the course</Link>
+          <Link
+            href={`/courses/${course.slug}`}
+            className="font-semibold text-brand-text underline-offset-4 hover:underline"
+          >
+            View the course
+          </Link>
         </p>
       </div>
     </main>

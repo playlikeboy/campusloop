@@ -59,7 +59,7 @@ export function ReportDialog({ postId, isOpen, onClose }: ReportDialogProps) {
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-150"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-overlay animate-in fade-in duration-150"
       onClick={onClose}
     >
       <div
@@ -96,7 +96,7 @@ export function ReportDialog({ postId, isOpen, onClose }: ReportDialogProps) {
             <div className="space-y-1.5">
               <label
                 htmlFor="report-reason"
-                className="text-xs font-bold uppercase tracking-wider text-muted-foreground"
+                className="text-sm font-semibold text-fg"
               >
                 Reason
               </label>
@@ -120,9 +120,9 @@ export function ReportDialog({ postId, isOpen, onClose }: ReportDialogProps) {
             <div className="space-y-1.5">
               <label
                 htmlFor="report-details"
-                className="text-xs font-bold uppercase tracking-wider text-muted-foreground"
+                className="text-sm font-semibold text-fg"
               >
-                Details (Optional)
+                Details (optional)
               </label>
               <textarea
                 id="report-details"

@@ -5,12 +5,10 @@ import { Suspense } from "react";
 import { getDb } from "@/db";
 import { userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { privateMetadata } from "@/lib/seo";
 import { ArticleEditorClient } from "./article-editor-client";
 
-export const metadata: Metadata = {
-  title: "Write Article",
-  description: "Write and publish long-form student articles, placement guides, and stories on CampusLoop.",
-};
+export const metadata: Metadata = privateMetadata("Write an article");
 
 export default async function NewArticlePage() {
   const user = await hexclaveServerApp.getUser();
@@ -28,9 +26,7 @@ export default async function NewArticlePage() {
   }
 
   return (
-    <Suspense
-      fallback={<div className="p-8 text-center text-xs text-muted-foreground">Loading editor...</div>}
-    >
+    <Suspense fallback={<p className="p-8 text-center text-sm text-fg-muted">Loading the editor…</p>}>
       <ArticleEditorClient currentProfile={profile} />
     </Suspense>
   );

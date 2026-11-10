@@ -36,9 +36,9 @@ export function CommunityPreviewCard({
   return (
     <Link
       href={`/communities/${community.slug || community.id}`}
-      className="group flex items-start gap-3 p-3 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/50 hover:border-border/60 transition-colors"
+      className="group flex items-start gap-3 p-3 rounded-lg border border-border bg-surface hover:bg-surface-muted transition-ui"
     >
-      <Avatar className="size-10 rounded-xl shrink-0 border border-border/40">
+      <Avatar className="size-10 rounded-xl shrink-0 border border-border">
         {community.avatarUrl && <AvatarImage src={community.avatarUrl} alt={community.name} />}
         <AvatarFallback className="rounded-xl text-xs font-semibold bg-primary/10 text-primary">
           {community.name.slice(0, 2).toUpperCase()}
@@ -47,11 +47,11 @@ export function CommunityPreviewCard({
 
       <div className="space-y-1 min-w-0 flex-1">
         <div className="flex items-center justify-between gap-1.5">
-          <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors truncate">
+          <h3 className="text-sm font-semibold text-fg group-hover:text-brand-text transition-ui truncate">
             {community.name}
           </h3>
           {community.category && (
-            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 shrink-0 font-normal">
+            <Badge variant="secondary" className="text-xs px-1.5 py-0 h-4 shrink-0 font-normal">
               {community.category}
             </Badge>
           )}
@@ -90,29 +90,25 @@ export function EventPreviewCard({
   return (
     <Link
       href={`/events/${event.slug || event.id}`}
-      className="group flex flex-col justify-between p-3.5 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/50 hover:border-border/60 transition-colors space-y-2.5"
+      className="group flex flex-col justify-between p-3.5 rounded-lg border border-border bg-surface hover:bg-surface-muted transition-ui space-y-2.5"
     >
       <div className="space-y-1">
-        <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
+        <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
           <span className="font-semibold text-primary truncate">{event.clubName}</span>
           <span className="flex items-center gap-1 shrink-0">
             <Calendar className="size-3 text-muted-foreground" />
             <span>{formattedDate}</span>
           </span>
         </div>
-        <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+        <h3 className="text-sm font-semibold text-fg group-hover:text-brand-text transition-ui line-clamp-1">
           {event.title}
         </h3>
-        {event.tagline && (
-          <p className="text-xs text-muted-foreground line-clamp-1">{event.tagline}</p>
-        )}
+        {event.tagline && <p className="text-xs text-muted-foreground line-clamp-1">{event.tagline}</p>}
       </div>
 
-      <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-1 border-t border-border/20">
+      <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-border">
         <span className="truncate">{event.venue || event.mode}</span>
-        <span className="text-primary font-semibold group-hover:translate-x-0.5 transition-transform text-xs">
-          View event →
-        </span>
+        <span className="text-primary font-semibold text-xs">View event</span>
       </div>
     </Link>
   );
@@ -136,7 +132,7 @@ export function AcademicPreviewCard({
   return (
     <Link
       href={`/academics/study-material/${resource.id}`}
-      className="group flex items-start gap-3 p-3 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/50 hover:border-border/60 transition-colors"
+      className="group flex items-start gap-3 p-3 rounded-lg border border-border bg-surface hover:bg-surface-muted transition-ui"
     >
       <div className="size-10 rounded-xl bg-brand/10 text-brand-text flex items-center justify-center shrink-0 border border-brand-subtle-border/20">
         <GraduationCap className="size-5" />
@@ -144,17 +140,17 @@ export function AcademicPreviewCard({
 
       <div className="space-y-1 min-w-0 flex-1">
         <div className="flex items-center justify-between gap-1.5">
-          <span className="text-[10px] font-semibold text-brand-text tracking-wider">
+          <span className="text-xs font-semibold text-brand-text tracking-wider">
             {resource.subjectCode} · {resource.resourceType}
           </span>
           {resource.downloadsCount !== undefined && (
-            <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+            <span className="text-xs text-muted-foreground flex items-center gap-0.5">
               <Download className="size-3" />
               {resource.downloadsCount}
             </span>
           )}
         </div>
-        <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+        <h3 className="text-sm font-semibold text-fg group-hover:text-brand-text transition-ui line-clamp-1">
           {resource.title}
         </h3>
         <p className="text-xs text-muted-foreground truncate">{resource.subjectName}</p>
@@ -181,24 +177,20 @@ export function ArticlePreviewCard({
   return (
     <Link
       href={`/articles/${article.slug}`}
-      className="group flex flex-col justify-between p-3.5 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/50 hover:border-border/60 transition-colors space-y-2"
+      className="group flex flex-col justify-between p-3.5 rounded-lg border border-border bg-surface hover:bg-surface-muted transition-ui space-y-2"
     >
       <div className="space-y-1">
-        <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
+        <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
           <span className="truncate">{article.author?.displayName || "Student Author"}</span>
           <span className="shrink-0">{article.readingTimeMinutes || 3} min read</span>
         </div>
-        <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-snug">
+        <h3 className="text-sm font-semibold text-fg group-hover:text-brand-text transition-ui line-clamp-2 leading-snug">
           {article.title}
         </h3>
-        {article.excerpt && (
-          <p className="text-xs text-muted-foreground line-clamp-1">{article.excerpt}</p>
-        )}
+        {article.excerpt && <p className="text-xs text-muted-foreground line-clamp-1">{article.excerpt}</p>}
       </div>
 
-      <span className="text-[11px] font-medium text-primary group-hover:translate-x-0.5 transition-transform inline-block pt-1">
-        Read article →
-      </span>
+      <span className="text-xs font-medium text-primary inline-block pt-1">Read article</span>
     </Link>
   );
 }
@@ -222,9 +214,9 @@ export function CollegePreviewCard({
   return (
     <Link
       href={college.slug ? `/colleges/${college.slug}` : `/colleges/${college.id}`}
-      className="group flex items-start gap-3 p-3 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/50 hover:border-border/60 transition-colors"
+      className="group flex items-start gap-3 p-3 rounded-lg border border-border bg-surface hover:bg-surface-muted transition-ui"
     >
-      <Avatar className="size-10 rounded-xl shrink-0 border border-border/40">
+      <Avatar className="size-10 rounded-xl shrink-0 border border-border">
         {college.logoUrl && <AvatarImage src={college.logoUrl} alt={college.name} />}
         <AvatarFallback className="rounded-xl text-xs font-semibold bg-primary/10 text-primary">
           <Building2 className="size-4" />
@@ -233,11 +225,11 @@ export function CollegePreviewCard({
 
       <div className="space-y-1 min-w-0 flex-1">
         <div className="flex items-center justify-between gap-1.5">
-          <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors truncate">
+          <h3 className="text-sm font-semibold text-fg group-hover:text-brand-text transition-ui truncate">
             {college.name}
           </h3>
           {college.nirfRank && (
-            <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 shrink-0 font-normal">
+            <Badge variant="outline" className="text-xs px-1.5 py-0 h-4 shrink-0 font-normal">
               NIRF #{college.nirfRank}
             </Badge>
           )}
@@ -284,15 +276,17 @@ export function PersonPreviewCard({
 
     try {
       if (nextState) {
+        const res = await fetch(`/api/profile/${person.username}/follow`, { method: "POST" });
+        if (!res.ok) throw new Error("follow failed");
         toast.success(`Following @${person.username}`);
-        await fetch(`/api/profile/${person.username}/follow`, { method: "POST" });
       } else {
+        const res = await fetch(`/api/profile/${person.username}/follow`, { method: "DELETE" });
+        if (!res.ok) throw new Error("unfollow failed");
         toast.info(`Unfollowed @${person.username}`);
-        await fetch(`/api/profile/${person.username}/follow`, { method: "DELETE" });
       }
     } catch {
       setIsFollowing(!nextState);
-      toast.error("Failed to update follow status");
+      toast.error("Couldn't update. Try again.");
     } finally {
       setIsPending(false);
     }
@@ -301,10 +295,10 @@ export function PersonPreviewCard({
   return (
     <Link
       href={`/${person.username}`}
-      className="group flex items-center justify-between gap-3 p-3 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/50 hover:border-border/60 transition-colors"
+      className="group flex items-center justify-between gap-3 p-3 rounded-lg border border-border bg-surface hover:bg-surface-muted transition-ui"
     >
       <div className="flex items-center gap-3 min-w-0 flex-1">
-        <Avatar className="size-10 rounded-full shrink-0 border border-border/40">
+        <Avatar className="size-10 rounded-full shrink-0 border border-border">
           {person.avatarUrl && <AvatarImage src={person.avatarUrl} alt={person.displayName} />}
           <AvatarFallback className="text-xs font-semibold">
             {person.displayName?.slice(0, 1) || "S"}
@@ -312,7 +306,7 @@ export function PersonPreviewCard({
         </Avatar>
 
         <div className="space-y-0.5 min-w-0">
-          <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors truncate">
+          <p className="text-sm font-semibold text-fg group-hover:text-brand-text transition-ui truncate">
             {person.displayName}
           </p>
           <p className="text-xs text-muted-foreground truncate">
@@ -328,9 +322,9 @@ export function PersonPreviewCard({
         disabled={isPending}
         className={cn(
           "inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors shrink-0 cursor-pointer",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
           isFollowing
-            ? "border border-border/60 bg-muted text-foreground hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
+            ? "border border-border bg-muted text-foreground hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
             : "bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs"
         )}
       >
@@ -366,9 +360,9 @@ export function StorePreviewCard({
   return (
     <Link
       href="/marketplace"
-      className="group flex items-start gap-3 p-3 rounded-xl border border-border/30 bg-muted/20 hover:bg-muted/50 hover:border-border/60 transition-colors"
+      className="group flex items-start gap-3 p-3 rounded-lg border border-border bg-surface hover:bg-surface-muted transition-ui"
     >
-      <Avatar className="size-10 rounded-xl shrink-0 border border-border/40">
+      <Avatar className="size-10 rounded-xl shrink-0 border border-border">
         {store.logoUrl && <AvatarImage src={store.logoUrl} alt={store.name} />}
         <AvatarFallback className="rounded-xl text-xs font-semibold bg-warning/10 text-warning">
           <ShoppingBag className="size-4" />
@@ -377,18 +371,16 @@ export function StorePreviewCard({
 
       <div className="space-y-1 min-w-0 flex-1">
         <div className="flex items-center justify-between gap-1.5">
-          <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors truncate">
+          <h3 className="text-sm font-semibold text-fg group-hover:text-brand-text transition-ui truncate">
             {store.name}
           </h3>
           {store.category && (
-            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 shrink-0 font-normal">
+            <Badge variant="secondary" className="text-xs px-1.5 py-0 h-4 shrink-0 font-normal">
               {store.category}
             </Badge>
           )}
         </div>
-        {store.address && (
-          <p className="text-xs text-muted-foreground truncate">{store.address}</p>
-        )}
+        {store.address && <p className="text-xs text-muted-foreground truncate">{store.address}</p>}
       </div>
     </Link>
   );

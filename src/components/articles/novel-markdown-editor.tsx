@@ -5,37 +5,36 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import {
+  BarChart3,
   Bold,
+  Calculator,
+  CalendarClock,
   Check,
+  Clapperboard,
   Code,
   Columns2,
   Copy,
   FileText,
+  Gauge,
   Heading1,
   Heading2,
   Heading3,
+  HelpCircle,
   Image as ImageIcon,
   Italic,
-  BarChart3,
-  Clapperboard,
-  Calculator,
-  CalendarClock,
-  Gauge,
-  HelpCircle,
   Lightbulb,
-  ListChecks,
-  MessagesSquare,
-  Table2,
   List,
+  ListChecks,
   ListOrdered,
   Loader2,
   Maximize2,
+  MessagesSquare,
   Minimize2,
   Minus,
   Quote,
   Redo,
-  Sparkles,
   Strikethrough,
+  Table2,
   Undo,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -61,7 +60,9 @@ turndown.addRule("tableToSmartBlock", {
   filter: "table",
   replacement: (_content, node) => {
     const rows = Array.from((node as HTMLTableElement).querySelectorAll("tr")).map((tr) =>
-      Array.from(tr.querySelectorAll("th,td")).map((c) => (c.textContent || "").replace(/\|/g, "\\|").replace(/\s+/g, " ").trim())
+      Array.from(tr.querySelectorAll("th,td")).map((c) =>
+        (c.textContent || "").replace(/\|/g, "\\|").replace(/\s+/g, " ").trim()
+      )
     );
     if (rows.length === 0) return "";
     const width = Math.max(...rows.map((r) => r.length));
@@ -162,7 +163,7 @@ export function NovelMarkdownEditor({
     editorProps: {
       attributes: {
         class:
-          "prose dark:prose-invert max-w-none focus:outline-none min-h-[360px] text-foreground text-[16px] sm:text-[17px] leading-relaxed px-4 sm:px-8 py-6 font-normal selection:bg-primary/20 selection:text-foreground",
+          "prose dark:prose-invert max-w-none focus:outline-none min-h-[360px] text-fg text-base sm:text-lg leading-relaxed px-4 sm:px-8 py-6 font-normal",
       },
       handlePaste: (_view, event) => {
         const items = Array.from(event.clipboardData?.items || []);
@@ -182,14 +183,19 @@ export function NovelMarkdownEditor({
         const html = event.clipboardData?.getData("text/html") || "";
         const text = event.clipboardData?.getData("text/plain") || "";
         let pastedMarkdown: string | null = null;
-        if (html && /<(table|h[1-6]|pre|ol|ul|blockquote)\b/i.test(html)) pastedMarkdown = turndown.turndown(html);
+        if (html && /<(table|h[1-6]|pre|ol|ul|blockquote)\b/i.test(html))
+          pastedMarkdown = turndown.turndown(html);
         else if (looksLikeMarkdown(text)) pastedMarkdown = text;
         const ed = editorRef.current;
         if (pastedMarkdown && ed) {
           event.preventDefault();
           const { markdown } = smartifyMarkdown(pastedMarkdown);
           ed.chain().focus().insertContent(markdownToEditorHtml(markdown)).run();
-          const smartCount = (markdown.match(/^```(chart|table|comparison|timeline|steps|callout|stats|calculator|quiz|faq)\s*$/gm) ?? []).length;
+          const smartCount = (
+            markdown.match(
+              /^```(chart|table|comparison|timeline|steps|callout|stats|calculator|quiz|faq)\s*$/gm
+            ) ?? []
+          ).length;
           toast.success(
             smartCount > 0
               ? `Pasted with formatting. ${smartCount} smart block${smartCount === 1 ? "" : "s"} created.`
@@ -240,14 +246,17 @@ export function NovelMarkdownEditor({
   async function handleDirectUpload(file: File) {
     if (!editor) return;
     setIsUploading(true);
-    toast.loading("Uploading image to Cloud...", { id: "editor-img" });
+    toast.loading("Uploading image…", { id: "editor-img" });
     try {
       const res = await uploadImageToImgBB(file);
       const url = res.displayUrl || res.url;
       editor.chain().focus().setImage({ src: url, alt: file.name }).run();
       toast.success("Image embedded", { id: "editor-img" });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to upload image", { id: "editor-img" });
+      toast.error(
+        err instanceof Error ? err.message : "Couldn't upload the image. Try a smaller JPG or PNG.",
+        { id: "editor-img" }
+      );
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -324,7 +333,7 @@ export function NovelMarkdownEditor({
       {
         id: "text",
         title: "Text",
-        description: "Just start writing plain body text.",
+        description: "Plain text.",
         icon: FileText,
         category: "Basic",
         action: (ed) => ed.chain().focus().setParagraph().run(),
@@ -332,7 +341,7 @@ export function NovelMarkdownEditor({
       {
         id: "h1",
         title: "Heading 1",
-        description: "Large section header for major chapters.",
+        description: "Big section title.",
         icon: Heading1,
         category: "Basic",
         action: (ed) => ed.chain().focus().setHeading({ level: 1 }).run(),
@@ -340,7 +349,7 @@ export function NovelMarkdownEditor({
       {
         id: "h2",
         title: "Heading 2",
-        description: "Medium header for topic subsections.",
+        description: "Smaller section title.",
         icon: Heading2,
         category: "Basic",
         action: (ed) => ed.chain().focus().setHeading({ level: 2 }).run(),
@@ -348,23 +357,23 @@ export function NovelMarkdownEditor({
       {
         id: "h3",
         title: "Heading 3",
-        description: "Small header for detailed sub-points.",
+        description: "Small title.",
         icon: Heading3,
         category: "Basic",
         action: (ed) => ed.chain().focus().setHeading({ level: 3 }).run(),
       },
       {
         id: "bullet-list",
-        title: "Bullet List",
-        description: "Create a simple unordered bulleted list.",
+        title: "Bullet list",
+        description: "A list with bullets.",
         icon: List,
         category: "Basic",
         action: (ed) => ed.chain().focus().toggleBulletList().run(),
       },
       {
         id: "ordered-list",
-        title: "Numbered List",
-        description: "Create a numbered 1, 2, 3 ordered list.",
+        title: "Numbered list",
+        description: "A numbered list.",
         icon: ListOrdered,
         category: "Basic",
         action: (ed) => ed.chain().focus().toggleOrderedList().run(),
@@ -372,15 +381,15 @@ export function NovelMarkdownEditor({
       {
         id: "quote",
         title: "Quote",
-        description: "Capture a standout student quote or tip.",
+        description: "Highlight a quote or tip.",
         icon: Quote,
         category: "Basic",
         action: (ed) => ed.chain().focus().toggleBlockquote().run(),
       },
       {
         id: "code",
-        title: "Code Block",
-        description: "Syntax code block for C++, Python, or Web code.",
+        title: "Code block",
+        description: "Code with highlighting.",
         icon: Code,
         category: "Media & Code",
         action: (ed) => ed.chain().focus().toggleCodeBlock().run(),
@@ -388,20 +397,25 @@ export function NovelMarkdownEditor({
       {
         id: "divider",
         title: "Divider",
-        description: "Visually separate sections with a horizontal rule.",
+        description: "A line between sections.",
         icon: Minus,
         category: "Media & Code",
         action: (ed) => ed.chain().focus().setHorizontalRule().run(),
       },
       {
         id: "image",
-        title: "Upload Image",
-        description: "Embed an image, diagram, or campus photo.",
+        title: "Image",
+        description: "Upload a photo or diagram.",
         icon: ImageIcon,
         category: "Media & Code",
         action: () => fileInputRef.current?.click(),
       },
-      ...(Object.entries(SMART_BLOCK_TEMPLATES) as [SmartBlockType, (typeof SMART_BLOCK_TEMPLATES)[SmartBlockType]][]).map(
+      ...(
+        Object.entries(SMART_BLOCK_TEMPLATES) as [
+          SmartBlockType,
+          (typeof SMART_BLOCK_TEMPLATES)[SmartBlockType],
+        ][]
+      ).map(
         ([type, tpl]): SlashCommandItem => ({
           id: `smart-${type}`,
           title: tpl.title,
@@ -412,7 +426,11 @@ export function NovelMarkdownEditor({
             ed
               .chain()
               .focus()
-              .insertContent({ type: "codeBlock", attrs: { language: type }, content: [{ type: "text", text: tpl.body }] })
+              .insertContent({
+                type: "codeBlock",
+                attrs: { language: type },
+                content: [{ type: "text", text: tpl.body }],
+              })
               .run(),
         })
       ),
@@ -441,7 +459,7 @@ export function NovelMarkdownEditor({
   function handleCopyMarkdown() {
     navigator.clipboard.writeText(rawMarkdown);
     setCopied(true);
-    toast.success("Markdown copied to clipboard");
+    toast.success("Markdown copied");
     setTimeout(() => setCopied(false), 2000);
   }
 
@@ -458,7 +476,7 @@ export function NovelMarkdownEditor({
     <div
       ref={editorContainerRef}
       className={cn(
-        "relative flex flex-col rounded-2xl border border-border/50 bg-card text-foreground shadow-xs transition-ui overflow-hidden",
+        "relative flex flex-col rounded-lg border border-border bg-surface text-fg shadow-xs transition-ui overflow-hidden",
         isFullscreen ? "fixed inset-0 z-50 rounded-none border-none" : "w-full",
         className
       )}
@@ -476,7 +494,7 @@ export function NovelMarkdownEditor({
       />
 
       {/* ─── Notion-Style Sticky Header Toolbar ─── */}
-      <div className="flex items-center justify-between px-3 sm:px-4 py-2 border-b border-border/40 bg-muted/30 backdrop-blur-md flex-wrap gap-2 text-xs text-muted-foreground">
+      <div className="flex items-center justify-between px-3 sm:px-4 py-2 border-b border-border bg-surface-muted flex-wrap gap-2 text-xs text-fg-muted">
         {/* Left: Quick Format Bar */}
         <div className="flex items-center gap-1 flex-wrap">
           {editor && viewMode === "visual" && (
@@ -485,7 +503,7 @@ export function NovelMarkdownEditor({
                 type="button"
                 onClick={() => editor.chain().focus().undo().run()}
                 disabled={!editor.can().undo()}
-                className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30 transition-colors cursor-pointer"
+                className="inline-flex size-9 items-center justify-center rounded-full text-fg-muted hover:text-fg hover:bg-surface-sunken disabled:opacity-30 transition-ui cursor-pointer"
                 title="Undo (Ctrl+Z)"
               >
                 <Undo className="size-3.5" />
@@ -494,7 +512,7 @@ export function NovelMarkdownEditor({
                 type="button"
                 onClick={() => editor.chain().focus().redo().run()}
                 disabled={!editor.can().redo()}
-                className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30 transition-colors cursor-pointer"
+                className="inline-flex size-9 items-center justify-center rounded-full text-fg-muted hover:text-fg hover:bg-surface-sunken disabled:opacity-30 transition-ui cursor-pointer"
                 title="Redo (Ctrl+Y)"
               >
                 <Redo className="size-3.5" />
@@ -506,10 +524,10 @@ export function NovelMarkdownEditor({
                 type="button"
                 onClick={() => editor.chain().focus().toggleBold().run()}
                 className={cn(
-                  "p-1.5 rounded-lg transition-colors cursor-pointer",
+                  "inline-flex size-9 items-center justify-center rounded-full transition-ui cursor-pointer",
                   editor.isActive("bold")
-                    ? "bg-primary/10 text-primary font-bold"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    ? "bg-brand-subtle text-brand-text font-bold"
+                    : "text-fg-muted hover:text-fg hover:bg-surface-sunken"
                 )}
                 title="Bold (Ctrl+B)"
               >
@@ -519,10 +537,10 @@ export function NovelMarkdownEditor({
                 type="button"
                 onClick={() => editor.chain().focus().toggleItalic().run()}
                 className={cn(
-                  "p-1.5 rounded-lg transition-colors cursor-pointer",
+                  "inline-flex size-9 items-center justify-center rounded-full transition-ui cursor-pointer",
                   editor.isActive("italic")
-                    ? "bg-primary/10 text-primary font-bold"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    ? "bg-brand-subtle text-brand-text font-bold"
+                    : "text-fg-muted hover:text-fg hover:bg-surface-sunken"
                 )}
                 title="Italic (Ctrl+I)"
               >
@@ -532,10 +550,10 @@ export function NovelMarkdownEditor({
                 type="button"
                 onClick={() => editor.chain().focus().toggleCode().run()}
                 className={cn(
-                  "p-1.5 rounded-lg transition-colors cursor-pointer",
+                  "inline-flex size-9 items-center justify-center rounded-full transition-ui cursor-pointer",
                   editor.isActive("code")
-                    ? "bg-primary/10 text-primary font-bold"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    ? "bg-brand-subtle text-brand-text font-bold"
+                    : "text-fg-muted hover:text-fg hover:bg-surface-sunken"
                 )}
                 title="Inline Code"
               >
@@ -548,10 +566,10 @@ export function NovelMarkdownEditor({
                 type="button"
                 onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
                 className={cn(
-                  "p-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer",
+                  "inline-flex size-9 items-center justify-center rounded-full text-xs font-bold transition-ui cursor-pointer",
                   editor.isActive("heading", { level: 1 })
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    ? "bg-brand-subtle text-brand-text"
+                    : "text-fg-muted hover:text-fg hover:bg-surface-sunken"
                 )}
                 title="Heading 1"
               >
@@ -561,10 +579,10 @@ export function NovelMarkdownEditor({
                 type="button"
                 onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
                 className={cn(
-                  "p-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer",
+                  "inline-flex size-9 items-center justify-center rounded-full text-xs font-bold transition-ui cursor-pointer",
                   editor.isActive("heading", { level: 2 })
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    ? "bg-brand-subtle text-brand-text"
+                    : "text-fg-muted hover:text-fg hover:bg-surface-sunken"
                 )}
                 title="Heading 2"
               >
@@ -574,10 +592,10 @@ export function NovelMarkdownEditor({
                 type="button"
                 onClick={() => editor.chain().focus().toggleBulletList().run()}
                 className={cn(
-                  "p-1.5 rounded-lg transition-colors cursor-pointer",
+                  "inline-flex size-9 items-center justify-center rounded-full transition-ui cursor-pointer",
                   editor.isActive("bulletList")
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    ? "bg-brand-subtle text-brand-text"
+                    : "text-fg-muted hover:text-fg hover:bg-surface-sunken"
                 )}
                 title="Bullet List"
               >
@@ -587,10 +605,10 @@ export function NovelMarkdownEditor({
                 type="button"
                 onClick={() => editor.chain().focus().toggleBlockquote().run()}
                 className={cn(
-                  "p-1.5 rounded-lg transition-colors cursor-pointer",
+                  "inline-flex size-9 items-center justify-center rounded-full transition-ui cursor-pointer",
                   editor.isActive("blockquote")
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    ? "bg-brand-subtle text-brand-text"
+                    : "text-fg-muted hover:text-fg hover:bg-surface-sunken"
                 )}
                 title="Quote"
               >
@@ -601,11 +619,11 @@ export function NovelMarkdownEditor({
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploading}
-                className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+                className="inline-flex size-9 items-center justify-center rounded-full text-fg-muted hover:text-fg hover:bg-surface-sunken transition-ui cursor-pointer"
                 title="Embed image"
               >
                 {isUploading ? (
-                  <Loader2 className="size-3.5 animate-spin text-primary" />
+                  <Loader2 className="size-3.5 animate-spin text-brand-text" />
                 ) : (
                   <ImageIcon className="size-3.5" />
                 )}
@@ -617,15 +635,13 @@ export function NovelMarkdownEditor({
         {/* Right: View Mode, Stats & Fullscreen */}
         <div className="flex items-center gap-2">
           {/* Mode Switcher */}
-          <div className="flex items-center bg-muted/60 border border-border/40 rounded-lg p-0.5">
+          <div className="flex items-center bg-surface-muted border border-border rounded-lg p-0.5">
             <button
               type="button"
               onClick={() => setViewMode("visual")}
               className={cn(
-                "px-2.5 py-1 rounded-md text-[11px] font-semibold transition-ui cursor-pointer",
-                viewMode === "visual"
-                  ? "bg-background text-foreground shadow-xs font-bold"
-                  : "text-muted-foreground hover:text-foreground"
+                "h-8 px-2.5 rounded-md text-xs font-semibold transition-ui cursor-pointer",
+                viewMode === "visual" ? "bg-surface text-fg shadow-xs" : "text-fg-muted hover:text-fg"
               )}
             >
               Visual
@@ -634,10 +650,8 @@ export function NovelMarkdownEditor({
               type="button"
               onClick={() => setViewMode("split")}
               className={cn(
-                "px-2.5 py-1 rounded-md text-[11px] font-semibold transition-ui cursor-pointer flex items-center gap-1",
-                viewMode === "split"
-                  ? "bg-background text-foreground shadow-xs font-bold"
-                  : "text-muted-foreground hover:text-foreground"
+                "h-8 px-2.5 rounded-md text-xs font-semibold transition-ui cursor-pointer flex items-center gap-1",
+                viewMode === "split" ? "bg-surface text-fg shadow-xs" : "text-fg-muted hover:text-fg"
               )}
             >
               <Columns2 className="size-3" />
@@ -647,10 +661,8 @@ export function NovelMarkdownEditor({
               type="button"
               onClick={() => setViewMode("raw")}
               className={cn(
-                "px-2.5 py-1 rounded-md text-[11px] font-semibold transition-ui cursor-pointer",
-                viewMode === "raw"
-                  ? "bg-background text-foreground shadow-xs font-bold"
-                  : "text-muted-foreground hover:text-foreground"
+                "h-8 px-2.5 rounded-md text-xs font-semibold transition-ui cursor-pointer",
+                viewMode === "raw" ? "bg-surface text-fg shadow-xs" : "text-fg-muted hover:text-fg"
               )}
             >
               Markdown
@@ -661,18 +673,19 @@ export function NovelMarkdownEditor({
           <button
             type="button"
             onClick={handleCopyMarkdown}
-            className="p-1.5 rounded-lg bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground border border-border/40 transition-colors cursor-pointer"
+            className="inline-flex size-9 items-center justify-center rounded-full bg-surface hover:bg-surface-sunken text-fg-muted hover:text-fg border border-border transition-ui cursor-pointer"
             title="Copy Markdown"
+            aria-label="Copy Markdown"
           >
-            {copied ? <Check className="size-3.5 text-success" /> : <Copy className="size-3.5" />}
+            {copied ? <Check className="size-3.5 text-verified-text" /> : <Copy className="size-3.5" />}
           </button>
 
           {/* Fullscreen Toggle */}
           <button
             type="button"
             onClick={() => setIsFullscreen((prev) => !prev)}
-            className="p-1.5 rounded-lg bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground border border-border/40 transition-colors cursor-pointer"
-            title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+            className="inline-flex size-9 items-center justify-center rounded-full bg-surface hover:bg-surface-sunken text-fg-muted hover:text-fg border border-border transition-ui cursor-pointer"
+            title={isFullscreen ? "Exit full screen" : "Full screen"}
           >
             {isFullscreen ? <Minimize2 className="size-3.5" /> : <Maximize2 className="size-3.5" />}
           </button>
@@ -689,16 +702,14 @@ export function NovelMarkdownEditor({
             transform: "translateX(-50%)",
             zIndex: 60,
           }}
-          className="flex items-center gap-0.5 rounded-xl border border-border/60 bg-popover/95 backdrop-blur-2xl p-1 shadow-2xl text-popover-foreground animate-in fade-in zoom-in-95 duration-150"
+          className="flex items-center gap-0.5 rounded-xl border border-border bg-surface-raised p-1 shadow-lg text-fg animate-in fade-in zoom-in-95 duration-150"
         >
           <button
             type="button"
             onClick={() => editor.chain().focus().toggleBold().run()}
             className={cn(
-              "p-1.5 rounded-lg transition-colors cursor-pointer",
-              editor.isActive("bold")
-                ? "bg-primary text-primary-foreground"
-                : "hover:bg-muted text-foreground"
+              "inline-flex size-9 items-center justify-center rounded-full transition-ui cursor-pointer",
+              editor.isActive("bold") ? "bg-brand text-brand-fg" : "hover:bg-surface-muted text-fg"
             )}
             title="Bold"
           >
@@ -708,10 +719,8 @@ export function NovelMarkdownEditor({
             type="button"
             onClick={() => editor.chain().focus().toggleItalic().run()}
             className={cn(
-              "p-1.5 rounded-lg transition-colors cursor-pointer",
-              editor.isActive("italic")
-                ? "bg-primary text-primary-foreground"
-                : "hover:bg-muted text-foreground"
+              "inline-flex size-9 items-center justify-center rounded-full transition-ui cursor-pointer",
+              editor.isActive("italic") ? "bg-brand text-brand-fg" : "hover:bg-surface-muted text-fg"
             )}
             title="Italic"
           >
@@ -721,10 +730,8 @@ export function NovelMarkdownEditor({
             type="button"
             onClick={() => editor.chain().focus().toggleStrike().run()}
             className={cn(
-              "p-1.5 rounded-lg transition-colors cursor-pointer",
-              editor.isActive("strike")
-                ? "bg-primary text-primary-foreground"
-                : "hover:bg-muted text-foreground"
+              "inline-flex size-9 items-center justify-center rounded-full transition-ui cursor-pointer",
+              editor.isActive("strike") ? "bg-brand text-brand-fg" : "hover:bg-surface-muted text-fg"
             )}
             title="Strikethrough"
           >
@@ -734,10 +741,8 @@ export function NovelMarkdownEditor({
             type="button"
             onClick={() => editor.chain().focus().toggleCode().run()}
             className={cn(
-              "p-1.5 rounded-lg transition-colors cursor-pointer",
-              editor.isActive("code")
-                ? "bg-primary text-primary-foreground"
-                : "hover:bg-muted text-foreground"
+              "inline-flex size-9 items-center justify-center rounded-full transition-ui cursor-pointer",
+              editor.isActive("code") ? "bg-brand text-brand-fg" : "hover:bg-surface-muted text-fg"
             )}
             title="Inline Code"
           >
@@ -747,10 +752,10 @@ export function NovelMarkdownEditor({
             type="button"
             onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
             className={cn(
-              "px-2 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer",
+              "px-2 py-1 rounded-lg text-xs font-bold transition-ui cursor-pointer",
               editor.isActive("heading", { level: 2 })
-                ? "bg-primary text-primary-foreground"
-                : "hover:bg-muted text-foreground"
+                ? "bg-brand text-brand-fg"
+                : "hover:bg-surface-muted text-fg"
             )}
             title="Heading 2"
           >
@@ -760,10 +765,8 @@ export function NovelMarkdownEditor({
             type="button"
             onClick={() => editor.chain().focus().toggleBlockquote().run()}
             className={cn(
-              "p-1.5 rounded-lg transition-colors cursor-pointer",
-              editor.isActive("blockquote")
-                ? "bg-primary text-primary-foreground"
-                : "hover:bg-muted text-foreground"
+              "inline-flex size-9 items-center justify-center rounded-full transition-ui cursor-pointer",
+              editor.isActive("blockquote") ? "bg-brand text-brand-fg" : "hover:bg-surface-muted text-fg"
             )}
             title="Quote"
           >
@@ -775,19 +778,19 @@ export function NovelMarkdownEditor({
       {/* ─── Floating Slash Command Popover ─── */}
       {showSlashMenu && (
         <div
-          className="absolute z-50 w-72 rounded-2xl border border-border/60 bg-popover/98 backdrop-blur-2xl shadow-2xl overflow-hidden p-1.5 text-popover-foreground animate-in fade-in zoom-in-95 duration-100"
+          className="absolute z-50 w-72 rounded-lg border border-border bg-surface-raised shadow-lg overflow-hidden p-1.5 text-fg animate-in fade-in zoom-in-95 duration-100"
           style={{
             top: slashCoords ? Math.min(slashCoords.y, 450) : 100,
             left: slashCoords ? Math.min(slashCoords.x, 300) : 32,
           }}
         >
-          <div className="px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground border-b border-border/40 mb-1">
-            Blocks & Commands
+          <div className="px-2.5 py-1.5 text-xs font-bold text-fg-muted border-b border-border mb-1">
+            Add a block
           </div>
 
           <div className="max-h-64 overflow-y-auto space-y-0.5">
             {filteredCommands.length === 0 ? (
-              <div className="px-3 py-4 text-center text-xs text-muted-foreground">No matching blocks</div>
+              <div className="px-3 py-4 text-center text-xs text-fg-muted">No matching blocks</div>
             ) : (
               filteredCommands.map((item, idx) => {
                 const Icon = item.icon;
@@ -799,25 +802,23 @@ export function NovelMarkdownEditor({
                     onClick={() => executeCommand(item)}
                     onMouseEnter={() => setSlashIndex(idx)}
                     className={cn(
-                      "w-full flex items-start gap-2.5 px-2.5 py-2 rounded-xl text-left transition-colors cursor-pointer",
-                      isSelected
-                        ? "bg-primary/15 text-primary border border-primary/30"
-                        : "hover:bg-muted text-foreground"
+                      "w-full flex items-start gap-2.5 px-2.5 py-2 rounded-xl text-left transition-ui cursor-pointer",
+                      isSelected ? "bg-brand-subtle text-brand-text" : "hover:bg-surface-muted text-fg"
                     )}
                   >
                     <div
                       className={cn(
                         "size-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5 border",
                         isSelected
-                          ? "bg-primary text-primary-foreground border-primary"
-                          : "bg-muted border-border/40 text-muted-foreground"
+                          ? "bg-brand text-brand-fg border-brand"
+                          : "bg-surface-muted border-border text-fg-muted"
                       )}
                     >
                       <Icon className="size-3.5" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs font-semibold text-foreground">{item.title}</p>
-                      <p className="text-[11px] text-muted-foreground line-clamp-1">{item.description}</p>
+                      <p className="text-xs font-semibold text-fg">{item.title}</p>
+                      <p className="text-xs text-fg-muted line-clamp-1">{item.description}</p>
                     </div>
                   </button>
                 );
@@ -834,7 +835,7 @@ export function NovelMarkdownEditor({
           <div
             className={cn(
               "flex-1 overflow-y-auto overscroll-contain",
-              viewMode === "split" ? "border-r border-border/40" : ""
+              viewMode === "split" ? "border-r border-border" : ""
             )}
           >
             <EditorContent editor={editor} />
@@ -843,11 +844,8 @@ export function NovelMarkdownEditor({
 
         {/* Live Split Markdown Preview */}
         {viewMode === "split" && (
-          <div className="flex-1 overflow-y-auto overscroll-contain px-6 py-6 bg-muted/10">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-primary mb-4 pb-2 border-b border-primary/20 flex items-center gap-1.5">
-              <Sparkles className="size-3" />
-              <span>Live Student Article Preview</span>
-            </div>
+          <div className="flex-1 overflow-y-auto overscroll-contain px-6 py-6 bg-surface-muted">
+            <p className="mb-4 border-b border-border pb-2 text-xs font-semibold text-fg-muted">Preview</p>
             <MarkdownContent content={rawMarkdown} autoEmbed />
           </div>
         )}
@@ -858,28 +856,28 @@ export function NovelMarkdownEditor({
             value={rawMarkdown}
             onChange={handleRawMarkdownChange}
             placeholder={placeholder}
-            className="flex-1 w-full bg-transparent p-6 text-sm font-mono text-foreground placeholder:text-muted-foreground/60 focus:outline-none resize-none leading-relaxed"
+            className="flex-1 w-full bg-transparent p-6 text-sm font-mono text-fg placeholder:text-fg-subtle focus:outline-none resize-none leading-relaxed"
           />
         )}
       </div>
 
       {/* ─── Bottom Footer Status Bar ─── */}
-      <div className="flex items-center justify-between px-4 py-2 border-t border-border/40 bg-card/80 text-[11px] text-muted-foreground">
+      <div className="flex items-center justify-between px-4 py-2 border-t border-border bg-surface text-xs text-fg-muted">
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1">
-            <strong className="text-foreground">{wordCount}</strong> words
+            <strong className="text-fg">{wordCount}</strong> words
           </span>
           <span className="text-border">·</span>
           <span>
-            ~<strong className="text-foreground">{readingTime}</strong> min read
+            ~<strong className="text-fg">{readingTime}</strong> min read
           </span>
         </div>
 
-        <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-          <kbd className="px-1.5 py-0.5 rounded bg-muted font-mono text-muted-foreground border border-border/40">
+        <div className="flex items-center gap-2 text-xs text-fg-muted">
+          <kbd className="px-1.5 py-0.5 rounded bg-surface-muted font-mono text-fg-muted border border-border">
             /
           </kbd>
-          <span>for slash commands and smart blocks. Paste from ChatGPT keeps tables and formatting.</span>
+          <span className="hidden sm:inline">for headings, lists, code and more</span>
         </div>
       </div>
     </div>

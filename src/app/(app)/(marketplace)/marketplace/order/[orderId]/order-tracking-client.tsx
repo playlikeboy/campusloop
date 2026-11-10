@@ -1,298 +1,214 @@
 "use client";
 
-import { ArrowLeft, CheckCircle2, MapPin, Phone, Store } from "lucide-react";
+import { MapPin, Phone, Receipt, Store } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import useSWR from "swr";
+import { BillSummary } from "@/components/marketplace/bill-summary";
 import { OrderPayNow } from "@/components/marketplace/order-pay-now";
+import { orderStatusLabel, orderStatusVariant } from "@/components/marketplace/order-status";
+import { StatusTimeline } from "@/components/marketplace/status-timeline";
+import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PageHeader } from "@/components/ui/page-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetcher } from "@/lib/api";
-import { cn, formatTimeAgo } from "@/lib/utils";
+import { formatTimeAgo } from "@/lib/utils";
 
 interface OrderTrackingClientProps {
   orderId: string;
 }
 
 const DELIVERY_STEPS = [
-  { key: "PLACED", label: "Order Placed", desc: "Waiting for store confirmation" },
-  { key: "ACCEPTED", label: "Merchant Accepted", desc: "Store accepted your order" },
-  { key: "PREPARING", label: "Preparing Order", desc: "Chef is cooking your items" },
-  { key: "READY", label: "Ready for Delivery", desc: "Packed and assigned for delivery" },
-  { key: "OUT_FOR_DELIVERY", label: "Out for Delivery", desc: "Rider on the way to your hostel" },
-  { key: "DELIVERED", label: "Delivered", desc: "Order handed over successfully" },
+  { key: "PLACED", label: "Order placed", desc: "Waiting for the store to accept" },
+  { key: "ACCEPTED", label: "Accepted", desc: "The store has your order" },
+  { key: "PREPARING", label: "Preparing", desc: "Your order is being made" },
+  { key: "READY", label: "Packed", desc: "Waiting for delivery" },
+  { key: "OUT_FOR_DELIVERY", label: "On the way", desc: "Coming to your hostel" },
+  { key: "DELIVERED", label: "Delivered", desc: "Enjoy" },
 ];
 
 const PICKUP_STEPS = [
-  { key: "PLACED", label: "Order Placed", desc: "Waiting for store confirmation" },
-  { key: "ACCEPTED", label: "Merchant Accepted", desc: "Store accepted your order" },
-  { key: "PREPARING", label: "Preparing Order", desc: "Chef is preparing your items" },
-  { key: "READY_FOR_PICKUP", label: "Ready for Pickup", desc: "Collect from main counter" },
-  { key: "PICKED_UP", label: "Picked Up", desc: "Order collected successfully" },
+  { key: "PLACED", label: "Order placed", desc: "Waiting for the store to accept" },
+  { key: "ACCEPTED", label: "Accepted", desc: "The store has your order" },
+  { key: "PREPARING", label: "Preparing", desc: "Your order is being made" },
+  { key: "READY_FOR_PICKUP", label: "Ready for pickup", desc: "Collect it at the counter" },
+  { key: "PICKED_UP", label: "Picked up", desc: "All done" },
 ];
 
-export function OrderTrackingClient({ orderId }: OrderTrackingClientProps) {
-  const router = useRouter();
+const PAYMENT_LABEL: Record<string, string> = {
+  RAZORPAY: "Paid online",
+  COD: "Cash",
+  UPI: "UPI",
+};
 
-  const { data, isLoading, mutate } = useSWR<{ order: any }>(
+export function OrderTrackingClient({ orderId }: OrderTrackingClientProps) {
+  const { data, isLoading, error, mutate } = useSWR<{ order: any }>(
     `/api/marketplace/orders/${orderId}`,
     fetcher,
-    { refreshInterval: 5000 } // Auto refresh every 5s for live tracking
+    {
+      refreshInterval: 5000,
+    }
   );
-
   const order = data?.order;
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-2xl p-4 space-y-4">
-        <Skeleton className="h-44 w-full rounded-3xl" />
-        <Skeleton className="h-64 w-full rounded-3xl" />
+      <div className="mx-auto max-w-2xl space-y-4" aria-busy="true" aria-label="Loading order">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-56 w-full rounded-lg" />
+        <Skeleton className="h-40 w-full rounded-lg" />
       </div>
     );
   }
 
   if (!order) {
     return (
-      <div className="mx-auto max-w-2xl py-24 text-center px-4 space-y-3">
-        <p className="text-base font-bold text-foreground">Order not found</p>
-        <button
-          type="button"
-          onClick={() => router.push("/marketplace/orders")}
-          className="px-4 py-2 rounded-full bg-foreground text-background text-xs font-bold"
-        >
-          View All Orders
-        </button>
-      </div>
+      <EmptyState
+        icon={Receipt}
+        title={error ? "Couldn't load this order" : "Order not found"}
+        description={
+          error ? "Check your internet and try again." : "It may have been removed, or the link is wrong."
+        }
+        action={
+          <Link href="/marketplace/orders" className={buttonVariants({ variant: "primary" })}>
+            See your orders
+          </Link>
+        }
+      />
     );
   }
 
   const isPickup = order.fulfillmentType === "PICKUP";
   const steps = isPickup ? PICKUP_STEPS : DELIVERY_STEPS;
   const isRejected = order.status === "REJECTED" || order.status === "CANCELLED";
-
-  // Find step index
-  const currentStepIndex = steps.findIndex((s) => s.key === order.status);
-  const activeStepNum = currentStepIndex !== -1 ? currentStepIndex : 0;
+  const paymentLabel =
+    order.paymentMethod === "RAZORPAY" && order.paymentStatus !== "PAID"
+      ? "Online, not paid yet"
+      : (PAYMENT_LABEL[order.paymentMethod] ?? order.paymentMethod);
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen select-none pb-24">
-      {/* ─── Header ─── */}
-      <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border/30 bg-background/85 px-4 backdrop-blur-sm">
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => router.push("/marketplace/orders")}
-            className="flex size-9 items-center justify-center rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-          >
-            <ArrowLeft className="size-4.5" />
-          </button>
-          <div>
-            <h1 className="text-base font-black text-foreground tracking-tight leading-none">
-              Order {order.orderNumber}
-            </h1>
-            <p className="text-[11px] text-muted-foreground font-medium mt-0.5">
-              {order.merchant?.name} · {formatTimeAgo(order.createdAt)}
+    <div className="mx-auto max-w-2xl space-y-4 pb-24">
+      <PageHeader
+        title={`Order #${order.orderNumber}`}
+        description={`${order.merchant?.name ?? "Store"} · ${formatTimeAgo(order.createdAt)}`}
+        backHref="/marketplace/orders"
+        backLabel="Back to orders"
+        size="md"
+        secondaryActions={
+          <Badge variant={orderStatusVariant(order.status)}>{orderStatusLabel(order.status)}</Badge>
+        }
+      />
+
+      {order.status === "PAYMENT_PENDING" && order.paymentStatus !== "PAID" && (
+        <OrderPayNow
+          orderId={order.id}
+          total={order.total}
+          phone={order.deliveryAddress?.phone}
+          onPaid={() => mutate()}
+        />
+      )}
+
+      <section aria-label="Order progress" className="rounded-lg border border-border bg-surface p-4">
+        {isRejected ? (
+          <div className="space-y-1">
+            <p className="text-base font-semibold text-danger">
+              {order.status === "REJECTED"
+                ? "The store couldn't take this order"
+                : "This order was cancelled"}
             </p>
-          </div>
-        </div>
-
-        <Link
-          href={`/marketplace/store/${order.merchantId}`}
-          className="text-xs font-bold text-primary hover:underline"
-        >
-          Store Page
-        </Link>
-      </header>
-
-      <div className="p-4 space-y-4">
-        {order.status === "PAYMENT_PENDING" && order.paymentStatus !== "PAID" && (
-          <OrderPayNow
-            orderId={order.id}
-            total={order.total}
-            phone={order.deliveryAddress?.phone}
-            onPaid={() => mutate()}
-          />
-        )}
-
-        {/* ─── Order Status Card ─── */}
-        <div
-          className={cn(
-            "rounded-3xl border p-5 space-y-3 shadow-xs",
-            isRejected
-              ? "bg-danger-subtle border-danger text-danger"
-              : order.status === "DELIVERED" || order.status === "PICKED_UP"
-                ? "bg-success-subtle border-success text-success"
-                : "bg-card border-border/40 text-foreground"
-          )}
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-bold">
-                {isRejected
-                  ? "Order Cancelled / Rejected"
-                  : order.status === "DELIVERED" || order.status === "PICKED_UP"
-                    ? "Order Completed"
-                    : "Order in Progress"}
-              </span>
-            </div>
-            <span className="text-xs font-bold text-muted-foreground">{order.fulfillmentType}</span>
-          </div>
-
-          {order.rejectionReason && (
-            <p className="text-xs font-semibold text-danger bg-danger-subtle p-2.5 rounded-xl">
-              Reason: {order.rejectionReason}
-            </p>
-          )}
-
-          {/* Timeline Visual Steps */}
-          {!isRejected && (
-            <div className="space-y-4 pt-2">
-              {steps.map((step, idx) => {
-                const isPassed = idx <= activeStepNum;
-                const isCurrent = idx === activeStepNum;
-
-                return (
-                  <div key={step.key} className="flex items-start gap-3 relative">
-                    {/* Vertical connecting line */}
-                    {idx < steps.length - 1 && (
-                      <div
-                        className={cn(
-                          "absolute left-3 top-6 w-0.5 h-7",
-                          idx < activeStepNum ? "bg-success" : "bg-border/50"
-                        )}
-                      />
-                    )}
-
-                    {/* Step Icon / Dot */}
-                    <div
-                      className={cn(
-                        "size-6 rounded-full flex items-center justify-center shrink-0 z-10 text-xs font-bold transition-colors",
-                        isCurrent
-                          ? "bg-success text-black ring-4 ring-success animate-pulse"
-                          : isPassed
-                            ? "bg-success text-black"
-                            : "bg-muted text-muted-foreground border border-border/50"
-                      )}
-                    >
-                      {isPassed ? <CheckCircle2 className="size-3.5" /> : idx + 1}
-                    </div>
-
-                    {/* Step Content */}
-                    <div className="flex-1 min-w-0">
-                      <p
-                        className={cn(
-                          "text-xs font-bold leading-none",
-                          isCurrent
-                            ? "text-foreground font-black"
-                            : isPassed
-                              ? "text-foreground"
-                              : "text-muted-foreground"
-                        )}
-                      >
-                        {step.label}
-                      </p>
-                      <p className="text-[11px] text-muted-foreground mt-0.5">{step.desc}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* ─── Merchant & Contact Info ─── */}
-        <div className="rounded-3xl border border-border/40 bg-card p-4 space-y-3 shadow-xs">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <Store className="size-5 text-primary" />
-              <div>
-                <h3 className="text-sm font-black text-foreground">{order.merchant?.name}</h3>
-                <p className="text-xs text-muted-foreground">{order.merchant?.address}</p>
-              </div>
-            </div>
-
-            {order.merchant?.phone && (
-              <a
-                href={`tel:${order.merchant.phone}`}
-                className="flex size-9 items-center justify-center rounded-full bg-success-subtle text-success hover:bg-success-subtle transition-colors cursor-pointer"
-                title="Call Merchant"
-              >
-                <Phone className="size-4" />
-              </a>
+            {order.rejectionReason && (
+              <p className="text-sm text-fg-muted">Reason: {order.rejectionReason}</p>
             )}
           </div>
-        </div>
+        ) : (
+          <StatusTimeline steps={steps} current={order.status} />
+        )}
+      </section>
 
-        {/* ─── Ordered Items Breakdown ─── */}
-        <div className="rounded-3xl border border-border/40 bg-card p-4 space-y-3 shadow-xs">
-          <h3 className="text-xs font-bold text-muted-foreground">
-            Order Items ({order.items?.length || 0})
-          </h3>
+      <section
+        aria-label="Store"
+        className="flex items-center justify-between gap-3 rounded-lg border border-border bg-surface p-4"
+      >
+        <Link
+          href={`/marketplace/store/${order.merchantId}`}
+          className="flex min-w-0 items-center gap-3 hover:underline"
+        >
+          <Store className="size-5 shrink-0 text-fg-muted" aria-hidden="true" />
+          <span className="min-w-0">
+            <span className="block truncate text-sm font-semibold text-fg">{order.merchant?.name}</span>
+            {order.merchant?.address && (
+              <span className="block truncate text-sm text-fg-muted">{order.merchant.address}</span>
+            )}
+          </span>
+        </Link>
+        {order.merchant?.phone && (
+          <a
+            href={`tel:${order.merchant.phone}`}
+            aria-label={`Call ${order.merchant?.name ?? "the store"}`}
+            className={buttonVariants({ variant: "outline", size: "icon" })}
+          >
+            <Phone className="size-4" />
+          </a>
+        )}
+      </section>
 
-          <div className="space-y-2.5 divide-y divide-border/20">
-            {(order.items || []).map((item: any) => (
-              <div key={item.id} className="pt-2.5 first:pt-0 flex items-start justify-between gap-3 text-xs">
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-foreground">
-                    {item.quantity} × {item.productNameSnapshot}
+      <section aria-labelledby="order-items-title" className="rounded-lg border border-border bg-surface p-4">
+        <h2 id="order-items-title" className="mb-2 font-sans text-base font-semibold text-fg">
+          Items
+        </h2>
+        <ul className="divide-y divide-border">
+          {(order.items || []).map((item: any) => (
+            <li key={item.id} className="flex items-start justify-between gap-3 py-2 text-sm">
+              <div className="min-w-0">
+                <p className="text-fg">
+                  {item.quantity} × {item.productNameSnapshot}
+                </p>
+                {item.selectedAddons && item.selectedAddons.length > 0 && (
+                  <p className="text-xs text-fg-muted">
+                    + {item.selectedAddons.map((a: any) => a.name).join(", ")}
                   </p>
-                  {item.selectedAddons && item.selectedAddons.length > 0 && (
-                    <p className="text-[10px] text-success font-medium mt-0.5">
-                      + {item.selectedAddons.map((a: any) => a.name).join(", ")}
-                    </p>
-                  )}
-                </div>
-                <span className="font-black text-foreground">₹{item.subtotal.toLocaleString("en-IN")}</span>
+                )}
               </div>
-            ))}
-          </div>
-
-          <div className="pt-3 border-t border-border/30 space-y-1.5 text-xs text-muted-foreground">
-            <div className="flex items-center justify-between">
-              <span>Subtotal</span>
-              <span className="text-foreground font-bold">₹{order.subtotal.toLocaleString("en-IN")}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span>Delivery Fee</span>
-              <span className="text-foreground font-bold">₹{order.deliveryFee.toLocaleString("en-IN")}</span>
-            </div>
-            <div className="pt-1.5 border-t border-border/30 flex items-center justify-between text-sm font-black text-foreground">
-              <span>
-                Total ({order.paymentMethod === "RAZORPAY" ? "Online" : order.paymentMethod}
-                {order.paymentStatus === "PAID" ? " · Paid" : ""})
+              <span className="text-fg tabular-nums">
+                ₹{Number(item.subtotal || 0).toLocaleString("en-IN")}
               </span>
-              <span className="text-base text-success">₹{order.total.toLocaleString("en-IN")}</span>
-            </div>
-          </div>
-        </div>
+            </li>
+          ))}
+        </ul>
+      </section>
 
-        {/* ─── Delivery Details Card ─── */}
-        {order.deliveryAddress && (
-          <div className="rounded-3xl border border-border/40 bg-card p-4 space-y-2 text-xs shadow-xs">
-            <h3 className="text-xs font-bold text-muted-foreground">
-              Fulfillment Details
-            </h3>
+      <BillSummary
+        lines={[
+          { label: "Items", amount: Number(order.subtotal || 0) },
+          { label: "Delivery", amount: Number(order.deliveryFee || 0), freeWhenZero: true },
+        ]}
+        total={Number(order.total || 0)}
+        totalLabel={`Total · ${paymentLabel}`}
+      />
+
+      {order.deliveryAddress &&
+        (order.deliveryAddress.hostelName || order.deliveryAddress.phone || order.customerNote) && (
+          <section
+            aria-label="Delivery details"
+            className="space-y-1.5 rounded-lg border border-border bg-surface p-4 text-sm"
+          >
             {order.deliveryAddress.hostelName && (
-              <p className="text-foreground font-semibold flex items-center gap-1.5">
-                <MapPin className="size-3.5 text-danger" />
-                <span>
-                  {order.deliveryAddress.hostelName}, Room {order.deliveryAddress.roomNumber}
-                </span>
+              <p className="flex items-center gap-2 text-fg">
+                <MapPin className="size-4 shrink-0 text-fg-muted" aria-hidden="true" />
+                {order.deliveryAddress.hostelName}
+                {order.deliveryAddress.roomNumber ? `, room ${order.deliveryAddress.roomNumber}` : ""}
               </p>
             )}
             {order.deliveryAddress.phone && (
-              <p className="text-muted-foreground flex items-center gap-1.5">
-                <Phone className="size-3.5 text-primary" />
-                <span>Contact: {order.deliveryAddress.phone}</span>
+              <p className="flex items-center gap-2 text-fg-muted">
+                <Phone className="size-4 shrink-0" aria-hidden="true" />
+                {order.deliveryAddress.phone}
               </p>
             )}
-            {order.customerNote && (
-              <p className="text-muted-foreground italic mt-1 bg-muted/30 p-2 rounded-xl">
-                "{order.customerNote}"
-              </p>
-            )}
-          </div>
+            {order.customerNote && <p className="text-fg-muted">Your note: {order.customerNote}</p>}
+          </section>
         )}
-      </div>
-    </main>
+    </div>
   );
 }

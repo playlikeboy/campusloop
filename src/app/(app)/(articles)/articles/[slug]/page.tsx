@@ -1,11 +1,12 @@
 import { and, desc, eq, or, sql } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { ARTICLES_CANONICAL_HOST } from "@/constants/articles";
 import { getDb } from "@/db";
 import { articles, articleVotes, savedArticles, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { getFollowState } from "@/lib/follows";
+import { articleJsonLd, breadcrumbJsonLd, buildMetadata, ogImageUrl, privateMetadata } from "@/lib/seo";
+import { JsonLd } from "@/lib/seo/json-ld-script";
 import { getViewerInstitutionId, VIEWER_INSTITUTION_SLUG } from "@/lib/viewer";
 import { ArticleReaderClient } from "./article-reader-client";
 
@@ -27,53 +28,26 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
   });
 
   if (!article || article.status !== "PUBLISHED") {
-    return { title: "Article Not Found" };
+    return privateMetadata("Article not found");
   }
 
-  const title = `${article.title} — By ${article.author?.displayName || `@${article.author?.username}`}`;
-  const description = article.excerpt || article.subtitle || `Read ${article.title} on CampusLoop.`;
-  const canonicalUrl = `${ARTICLES_CANONICAL_HOST}/articles/${article.slug}`;
-  const ogImage = article.coverImageUrl || `${ARTICLES_CANONICAL_HOST}/og-image.png`;
+  const authorName = article.author?.displayName || `@${article.author?.username}`;
+  const description =
+    article.excerpt || article.subtitle || `${article.title}, an article by ${authorName} on CampusLoop.`;
 
-  return {
-    title,
+  return buildMetadata({
+    title: article.title,
     description,
-    keywords: [
-      ...(article.tags || []),
-      "CampusLoop Article",
-      "College Long Read",
-      article.category,
-      article.institution?.name || "Campus",
-      `@${article.author?.username}`,
-    ],
-    alternates: {
-      canonical: canonicalUrl,
-    },
-    robots: { index: true, follow: true },
-    openGraph: {
-      title,
-      description,
-      url: canonicalUrl,
-      siteName: "CampusLoop Articles",
-      type: "article",
-      publishedTime: article.publishedAt?.toISOString(),
-      authors: [article.author?.displayName || `@${article.author?.username}`],
-      images: [
-        {
-          url: ogImage,
-          width: 1200,
-          height: 630,
-          alt: article.title,
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: [ogImage],
-    },
-  };
+    path: `/articles/${article.slug}`,
+    image: article.coverImageUrl
+      ? { url: article.coverImageUrl, alt: article.title }
+      : ogImageUrl(article.title, "Article"),
+    type: "article",
+    publishedTime: article.publishedAt?.toISOString(),
+    modifiedTime: article.updatedAt?.toISOString(),
+    authors: [authorName],
+    keywords: [...(article.tags || []), article.category].filter(Boolean),
+  });
 }
 
 export default async function ArticlePage({ params }: ArticlePageProps) {
@@ -166,50 +140,28 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   const filteredMore = moreArticles.filter((a) => a.id !== article.id).slice(0, 3);
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: article.title,
-    description: article.excerpt || article.subtitle,
-    image: article.coverImageUrl || `${ARTICLES_CANONICAL_HOST}/og-image.png`,
-    datePublished: article.publishedAt?.toISOString() || article.createdAt.toISOString(),
-    dateModified: article.updatedAt?.toISOString() || article.createdAt.toISOString(),
-    author: {
-      "@type": "Person",
-      name: article.author?.displayName || `@${article.author?.username}`,
-      url: `${ARTICLES_CANONICAL_HOST}/${article.author?.username}`,
-    },
-    publisher: {
-      "@type": "Organization",
-      name: "CampusLoop",
-      url: ARTICLES_CANONICAL_HOST,
-      logo: `${ARTICLES_CANONICAL_HOST}/logo.png`,
-    },
-    mainEntityOfPage: {
-      "@type": "WebPage",
-      "@id": `${ARTICLES_CANONICAL_HOST}/articles/${article.slug}`,
-    },
-  };
-
-  const breadcrumbJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: ARTICLES_CANONICAL_HOST },
-      { "@type": "ListItem", position: 2, name: "Articles", item: `${ARTICLES_CANONICAL_HOST}/articles` },
-      {
-        "@type": "ListItem",
-        position: 3,
-        name: article.title,
-        item: `${ARTICLES_CANONICAL_HOST}/articles/${article.slug}`,
-      },
-    ],
-  };
+  const authorName = article.author?.displayName || `@${article.author?.username}`;
+  const articlePath = `/articles/${article.slug}`;
+  const structuredData = [
+    breadcrumbJsonLd([
+      { name: "Articles", path: "/articles" },
+      { name: article.title, path: articlePath },
+    ]),
+    articleJsonLd({
+      headline: article.title,
+      description: article.excerpt || article.subtitle,
+      path: articlePath,
+      image: article.coverImageUrl,
+      datePublished: article.publishedAt ?? article.createdAt,
+      dateModified: article.updatedAt ?? article.createdAt,
+      authorName,
+      authorPath: article.author?.username ? `/@${article.author.username}` : null,
+    }),
+  ];
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      {article.status === "PUBLISHED" && <JsonLd data={structuredData} />}
       <ArticleReaderClient
         article={article as any}
         currentProfile={currentProfile as any}

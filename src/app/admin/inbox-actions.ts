@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { institutionRequests } from "@/db/schema";
-import { hubRequestWhere } from "./_lib/inbox";
 import { requireAdminProfile } from "./_lib/guard";
+import { hubRequestWhere } from "./_lib/inbox";
 
 /** Approve or decline a "request my college hub" submission from the inbox. */
 export async function decideHubRequest(id: string, decision: "APPROVED" | "REJECTED") {

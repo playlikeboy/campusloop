@@ -1,13 +1,10 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { privateMetadata } from "@/lib/seo";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 import { HubCreateClient } from "../../hub/new/hub-create-client";
 
-export const metadata: Metadata = {
-  title: "List Flat / Roommate Opening",
-  description: "Post student room vacancies, PG openings, and find verified college flatmates.",
-  alternates: { canonical: "https://campusloop.space/housing/new" },
-};
+export const metadata: Metadata = privateMetadata("List a room");
 
 export default async function NewHousingPage() {
   const user = await getCachedAuthUser();

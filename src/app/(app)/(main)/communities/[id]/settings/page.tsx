@@ -5,6 +5,7 @@ import { CommunityHeader } from "@/components/communities/community-header";
 import { CommunitySettingsClient } from "@/components/communities/community-settings-client";
 import { getDb } from "@/db";
 import { posts } from "@/db/schema";
+import { privateMetadata } from "@/lib/seo";
 import { getCachedAuthUser, getCachedCommunity, getCachedUserProfile } from "@/lib/server-cache";
 
 interface PageProps {
@@ -14,18 +15,7 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   const comm = await getCachedCommunity(id);
-
-  if (!comm) {
-    return {
-      title: "Community Settings",
-    };
-  }
-
-  return {
-    title: `c/${comm.name} Settings & Moderation`,
-    description: `Manage privacy, anonymous posting permissions, and guidelines for c/${comm.name}.`,
-    robots: { index: false, follow: false },
-  };
+  return privateMetadata(comm ? `c/${comm.name} settings` : "Community settings");
 }
 
 export default async function CommunitySettingsPage({ params }: PageProps) {

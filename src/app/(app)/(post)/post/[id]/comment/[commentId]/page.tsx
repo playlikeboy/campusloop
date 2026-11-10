@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CommentPermalinkView } from "@/components/post/comment-permalink-view";
 import { ParentPostContextCard } from "@/components/post/parent-post-context-card";
+import { buildMetadata, serializeJsonLd } from "@/lib/seo";
 import { getCachedCommentDetail } from "@/lib/server-cache";
 import { cleanSnippet } from "@/lib/utils";
 
@@ -14,57 +15,32 @@ interface CommentPageProps {
 export async function generateMetadata({ params }: CommentPageProps): Promise<Metadata> {
   const { id, commentId } = await params;
   const comment = await getCachedCommentDetail(commentId);
+  const path = `/post/${id}/comment/${commentId}`;
 
   if (!comment || comment.postId !== id || comment.status !== "PUBLISHED") {
-    return {
-      title: "Comment",
-      description: "Explore verified student discussions and comments on CampusLoop.",
-      robots: { index: false, follow: false },
-    };
+    return buildMetadata({ title: "Comment", description: "A comment on CampusLoop.", path, noindex: true });
   }
 
   const post = comment.post;
   const commentAuthor = comment.isAnonymous
-    ? comment.pseudonym || "Anonymous Student"
-    : comment.author?.displayName || comment.author?.username || "Student";
+    ? "Anonymous"
+    : comment.author?.displayName || comment.author?.username || "A student";
+  const postTitle = post?.title?.trim() || cleanSnippet(post?.body || "", 50) || "a post";
+  const isPrivate =
+    comment.isAnonymous ||
+    !post ||
+    post.isAnonymous ||
+    post.type === "CONFESSION" ||
+    post.type === "ANONYMOUS" ||
+    post.status !== "PUBLISHED";
 
-  const postTitle = post?.title?.trim() || cleanSnippet(post?.body || "", 60) || "Campus Discussion";
-  const title = `"${commentAuthor} on ${postTitle}"`;
-  const description = cleanSnippet(comment.body, 157).slice(0, 160) || "Join the conversation on CampusLoop.";
-  const canonicalUrl = `https://campusloop.space/post/${id}/comment/${commentId}`;
-
-  return {
-    title,
-    description,
-    alternates: {
-      canonical: canonicalUrl,
-    },
-    openGraph: {
-      title,
-      description,
-      url: canonicalUrl,
-      siteName: "CampusLoop",
-      type: "article",
-      images: [
-        {
-          url: "https://campusloop.space/og-image.png",
-          width: 1200,
-          height: 630,
-          alt: title,
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: ["https://campusloop.space/og-image.png"],
-    },
-    robots: {
-      index: true,
-      follow: true,
-    },
-  };
+  return buildMetadata({
+    title: `${commentAuthor} on "${postTitle}"`,
+    description: cleanSnippet(comment.body, 155) || "A comment from a student on CampusLoop.",
+    path,
+    type: "article",
+    noindex: isPrivate,
+  });
 }
 
 export default async function CommentPermalinkPage({ params }: CommentPageProps) {
@@ -102,6 +78,14 @@ export default async function CommentPermalinkPage({ params }: CommentPageProps)
     ...reply,
     author: reply.isAnonymous ? null : reply.author,
   }));
+
+  // Only public comments on public posts get structured data
+  const isIndexable =
+    !rawComment.isAnonymous &&
+    !post.isAnonymous &&
+    post.type !== "CONFESSION" &&
+    post.type !== "ANONYMOUS" &&
+    post.status === "PUBLISHED";
 
   // Schema.org JSON-LD structured data for Comment & DiscussionForumPosting
   const jsonLd = {
@@ -146,45 +130,53 @@ export default async function CommentPermalinkPage({ params }: CommentPageProps)
   };
 
   return (
-    <div className="w-full h-full overflow-y-auto bg-background/50">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+    <div className="w-full h-full overflow-y-auto bg-bg">
+      {isIndexable ? (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }} />
+      ) : null}
 
       <div className="max-w-2xl mx-auto px-4 py-5 sm:py-8 space-y-6">
         {/* Navigation & Breadcrumbs */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2">
           <Link
             href={`/post/${id}`}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer group"
+            className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-fg-muted hover:text-fg transition-ui cursor-pointer"
           >
-            <ArrowLeft className="size-3.5 group-hover:-translate-x-0.5 transition-transform" />
-            <span>Back to full post</span>
+            <ArrowLeft className="size-4" aria-hidden />
+            <span>Back to the post</span>
           </Link>
 
           {/* Breadcrumb Trail for SEO & Google Navigation */}
-          <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-[11px] text-muted-foreground/80 overflow-hidden">
-            <Link href="/feeds" className="hover:text-foreground transition-colors truncate">
+          <nav
+            aria-label="Breadcrumb"
+            className="flex items-center gap-1.5 text-xs text-fg-subtle overflow-hidden"
+          >
+            <Link href="/feeds" className="hover:text-fg transition-ui truncate">
               Home
             </Link>
-            <ChevronRight className="size-3 shrink-0 text-muted-foreground/40" />
+            <ChevronRight className="size-3 shrink-0 text-fg-subtle" />
             {post.institution && (
               <>
                 <Link
-                  href={`/college/${post.institution.slug || post.institution.id}`}
-                  className="hover:text-foreground transition-colors truncate max-w-[120px]"
+                  href={
+                    post.institution.slug
+                      ? `/colleges/${post.institution.slug}`
+                      : `/college/${post.institution.id}`
+                  }
+                  className="hover:text-fg transition-ui truncate max-w-[120px]"
                 >
                   {collegeName}
                 </Link>
-                <ChevronRight className="size-3 shrink-0 text-muted-foreground/40" />
+                <ChevronRight className="size-3 shrink-0 text-fg-subtle" />
               </>
             )}
-            <Link href={`/post/${id}`} className="hover:text-foreground transition-colors truncate max-w-[100px]">
-              Discussion
+            <Link href={`/post/${id}`} className="hover:text-fg transition-ui truncate max-w-[100px]">
+              Post
             </Link>
-            <ChevronRight className="size-3 shrink-0 text-muted-foreground/40" />
-            <span className="text-foreground font-semibold truncate">Comment</span>
+            <ChevronRight className="size-3 shrink-0 text-fg-subtle" />
+            <span className="text-fg font-semibold truncate" aria-current="page">
+              Comment
+            </span>
           </nav>
         </div>
 

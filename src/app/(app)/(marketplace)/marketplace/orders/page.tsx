@@ -1,13 +1,10 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { privateMetadata } from "@/lib/seo";
 import { getCachedAuthUser } from "@/lib/server-cache";
 import { OrdersClient } from "./orders-client";
 
-export const metadata: Metadata = {
-  title: "My Campus Orders",
-  description: "View and track all your active and previous campus marketplace orders.",
-  robots: { index: false, follow: false },
-};
+export const metadata: Metadata = privateMetadata("Your orders");
 
 export default async function OrdersPage() {
   const user = await getCachedAuthUser();

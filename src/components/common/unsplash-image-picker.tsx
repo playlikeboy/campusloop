@@ -16,8 +16,12 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { pingUnsplashDownload, useUnsplashSearch } from "@/hooks/use-unsplash";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -43,11 +47,11 @@ interface UnsplashImagePickerProps {
 
 const POPULAR_TOPICS = [
   { id: "hackathon", label: "Hackathon", icon: Code2 },
-  { id: "college fest", label: "Campus Fest", icon: Sparkles },
+  { id: "college fest", label: "Fest", icon: Sparkles },
   { id: "coding developer", label: "Coding", icon: Laptop },
   { id: "tech workshop", label: "Workshop", icon: BookOpen },
   { id: "university campus", label: "Campus", icon: School },
-  { id: "college party concert", label: "Party & Music", icon: Music },
+  { id: "college party concert", label: "Music", icon: Music },
   { id: "esports gaming", label: "Esports", icon: Flame },
   { id: "conference seminar", label: "Seminar", icon: Mic },
 ];
@@ -58,7 +62,7 @@ export function UnsplashImagePicker({
   onSelect,
   defaultQuery = "hackathon",
   orientation = "landscape",
-  title = "Choose High-Res Cover from Unsplash",
+  title = "Choose a cover photo",
 }: UnsplashImagePickerProps) {
   const [query, setQuery] = useState(defaultQuery);
   const [activeTopic, setActiveTopic] = useState<string>(defaultQuery);
@@ -101,38 +105,25 @@ export function UnsplashImagePicker({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="w-[calc(100%-2rem)] max-w-2xl max-h-[88vh] overflow-y-auto rounded-3xl p-4 sm:p-6 border-border/40 bg-background/95 backdrop-blur-2xl shadow-2xl">
+      <DialogContent className="flex max-h-[88dvh] max-w-2xl flex-col overflow-y-auto">
         <DialogHeader>
-          <div className="flex items-center justify-between gap-3 pb-2 border-b border-border/30">
-            <div className="flex items-center gap-2.5">
-              <div className="flex size-8 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0 border border-primary/20">
-                <Camera className="size-4" />
-              </div>
-              <div>
-                <DialogTitle className="text-sm sm:text-base font-black tracking-tight text-foreground">
-                  {title}
-                </DialogTitle>
-                <p className="text-[11px] text-muted-foreground font-medium">
-                  Search millions of free, high-resolution campus photos
-                </p>
-              </div>
-            </div>
-          </div>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>Free photos from Unsplash. Tap one to use it.</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-3 pt-2">
-          {/* Search Input */}
+        <div className="space-y-3">
           <div className="relative w-full">
-            <Search className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-fg-subtle" />
             <Input
-              type="text"
-              placeholder="Search hackathons, festivals, workshops, college libraries..."
+              type="search"
+              placeholder="Search photos, e.g. hackathon, library"
               value={query}
               onChange={(e) => {
                 setQuery(e.target.value);
                 setActiveTopic("");
               }}
-              className="h-10 pl-9.5 pr-8 rounded-2xl text-xs bg-muted/30 border-border/40 focus:bg-background"
+              className="pl-10 pr-11"
+              aria-label="Search photos"
             />
             {query && (
               <button
@@ -141,54 +132,44 @@ export function UnsplashImagePicker({
                   setQuery("");
                   setActiveTopic("");
                 }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer p-0.5"
-                title="Clear"
+                className="absolute right-1 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-full text-fg-muted transition-ui hover:bg-surface-muted hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                aria-label="Clear search"
               >
-                <X className="size-3.5" />
+                <X className="size-4" />
               </button>
             )}
           </div>
 
-          {/* Preset Topic Pills */}
           <div className="no-scrollbar flex items-center gap-1.5 overflow-x-auto py-0.5">
             {POPULAR_TOPICS.map((topic) => {
               const Icon = topic.icon;
-              const isSelected = activeTopic === topic.id;
               return (
-                <button
+                <Chip
                   key={topic.id}
-                  type="button"
+                  size="sm"
+                  selected={activeTopic === topic.id}
                   onClick={() => handleTopicClick(topic.id)}
-                  className={cn(
-                    "px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap transition-ui cursor-pointer flex items-center gap-1 shrink-0 border",
-                    isSelected
-                      ? "bg-foreground text-background border-foreground font-black shadow-xs"
-                      : "bg-muted/30 text-muted-foreground hover:text-foreground border-border/40"
-                  )}
+                  icon={<Icon className="size-3.5" />}
+                  className="shrink-0"
                 >
-                  <Icon className="size-3" />
-                  <span>{topic.label}</span>
-                </button>
+                  {topic.label}
+                </Chip>
               );
             })}
           </div>
 
-          {/* Photos Grid */}
           <div className="min-h-[280px]">
             {isLoading ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-2">
-                {[...Array(6)].map((_, i) => (
-                  <div
+              <div className="grid grid-cols-2 gap-2.5 pt-2 sm:grid-cols-3">
+                {[0, 1, 2, 3, 4, 5].map((i) => (
+                  <Skeleton
                     key={i}
-                    className={cn(
-                      "rounded-xl bg-muted/40 animate-pulse border border-border/30",
-                      orientation === "portrait" ? "aspect-9/16" : "aspect-16/9"
-                    )}
+                    className={cn("rounded-md", orientation === "portrait" ? "aspect-9/16" : "aspect-16/9")}
                   />
                 ))}
               </div>
             ) : photos.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-2">
+              <div className="grid grid-cols-2 gap-2.5 pt-2 sm:grid-cols-3">
                 {photos.map((photo) => {
                   const isSelected = selectedPhotoId === photo.id;
                   return (
@@ -196,65 +177,57 @@ export function UnsplashImagePicker({
                       key={photo.id}
                       type="button"
                       onClick={() => handlePhotoSelect(photo)}
+                      aria-pressed={isSelected}
                       className={cn(
-                        "group relative overflow-hidden rounded-xl border text-left transition-ui cursor-pointer",
+                        "group relative overflow-hidden rounded-md text-left transition-ui focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                         orientation === "portrait" ? "aspect-9/16" : "aspect-16/9",
-                        isSelected
-                          ? "border-primary ring-2 ring-primary/40 shadow-md scale-[0.98]"
-                          : "border-border/40 hover:border-primary/60 hover:shadow-xs"
+                        isSelected ? "ring-3 ring-brand" : "hover:opacity-90"
                       )}
                     >
                       <img
                         src={photo.thumbUrl}
                         alt={photo.alt}
                         loading="lazy"
-                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        className="size-full object-cover"
                       />
-
-                      {/* Gradient Vignette */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-80 group-hover:opacity-95 transition-opacity" />
-
-                      {/* Photographer attribution */}
-                      <div className="absolute bottom-1.5 left-2 right-2 flex items-center justify-between text-[10px] text-white/90">
-                        <span className="truncate font-semibold drop-shadow-xs">
+                      <span className="absolute inset-x-1.5 bottom-1.5 flex items-center justify-between gap-1">
+                        <span className="truncate rounded-full bg-overlay px-2 py-0.5 text-[0.6875rem] font-medium text-story-field-fg">
                           {photo.photographerName}
                         </span>
                         {isSelected && (
-                          <span className="size-4 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0">
-                            <Check className="size-2.5 stroke-3" />
+                          <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-brand text-brand-fg">
+                            <Check className="size-3" aria-hidden="true" />
                           </span>
                         )}
-                      </div>
+                      </span>
                     </button>
                   );
                 })}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground space-y-2">
-                <Camera className="size-8 opacity-40" />
-                <p className="text-xs font-bold">No photos found for &quot;{query}&quot;</p>
-                <button
-                  type="button"
-                  onClick={() => handleTopicClick("hackathon")}
-                  className="text-xs text-primary font-bold hover:underline cursor-pointer"
-                >
-                  Reset to Hackathon photos
-                </button>
-              </div>
+              <EmptyState
+                size="compact"
+                icon={Camera}
+                title={`No photos for "${query}"`}
+                description="Try a shorter word."
+                action={
+                  <Button variant="secondary" size="sm" onClick={() => handleTopicClick("hackathon")}>
+                    Show hackathon photos
+                  </Button>
+                }
+              />
             )}
           </div>
 
-          {/* Unsplash Attribution Footer */}
-          <div className="flex items-center justify-between pt-3 border-t border-border/30 text-[11px] text-muted-foreground">
-            <span className="font-medium">1-tap to select cover photo</span>
+          <div className="flex items-center justify-end border-t border-border pt-3 text-xs text-fg-muted">
             <a
               href="https://unsplash.com/?utm_source=campusloop&utm_medium=referral"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 font-bold text-foreground hover:text-primary transition-colors"
+              className="inline-flex min-h-11 items-center gap-1 font-medium text-fg-muted transition-ui hover:text-brand-text"
             >
-              <span>Photos by Unsplash</span>
-              <ExternalLink className="size-2.5" />
+              Photos by Unsplash
+              <ExternalLink className="size-3" aria-hidden="true" />
             </a>
           </div>
         </div>

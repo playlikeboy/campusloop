@@ -1,314 +1,269 @@
 "use client";
 
-import { Copy, ExternalLink, Loader2, Save, Store, Truck } from "lucide-react";
+import { Copy, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
-import { Skeleton } from "@/components/ui/skeleton";
+import { LoadError } from "@/components/merchant/load-error";
+import { MerchantListSkeleton, MerchantPage } from "@/components/merchant/merchant-page";
+import { copyStoreLink, readError, storePath } from "@/components/merchant/merchant-utils";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FormField } from "@/components/ui/form-field";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 
-export function MerchantStoreClient() {
-  const { data, isLoading, mutate } = useSWR<{ merchant: any; hours: any[] }>(
-    "/api/merchant/store",
-    fetcher,
-    { dedupingInterval: 15000 }
+function ToggleRow({
+  label,
+  hint,
+  checked,
+  onChange,
+}: {
+  label: string;
+  hint: string;
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <label className="flex min-h-11 cursor-pointer items-center justify-between gap-3">
+      <span>
+        <span className="block text-sm font-semibold text-fg">{label}</span>
+        <span className="block text-sm text-fg-muted">{hint}</span>
+      </span>
+      <Switch checked={checked} onCheckedChange={(v) => onChange(Boolean(v))} />
+    </label>
   );
+}
 
+export function MerchantStoreClient() {
+  const { data, error, isLoading, mutate } = useSWR<{ merchant: any }>("/api/merchant/store", fetcher, {
+    dedupingInterval: 15000,
+  });
   const merchant = data?.merchant;
 
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
-  const [locationPin, setLocationPin] = useState("");
-  const [deliveryFee, setDeliveryFee] = useState("20");
-  const [minOrderValue, setMinOrderValue] = useState("80");
-  const [freeDeliveryAbove, setFreeDeliveryAbove] = useState("299");
-  const [estimatedPrepTime, setEstimatedPrepTime] = useState("15–25 min");
-  const [pickupInstructions, setPickupInstructions] = useState("");
-  const [isDeliveryEnabled, setIsDeliveryEnabled] = useState(true);
-  const [isPickupEnabled, setIsPickupEnabled] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
+  const [f, setF] = useState({
+    name: "",
+    description: "",
+    phone: "",
+    address: "",
+    locationPin: "",
+    deliveryFee: "20",
+    minOrderValue: "80",
+    freeDeliveryAbove: "",
+    estimatedPrepTime: "15–25 min",
+    pickupInstructions: "",
+    isDeliveryEnabled: true,
+    isPickupEnabled: true,
+  });
+  const [saving, setSaving] = useState(false);
+  const [missing, setMissing] = useState<{ name?: boolean; address?: boolean }>({});
+  const set = <K extends keyof typeof f>(k: K, v: (typeof f)[K]) => setF((prev) => ({ ...prev, [k]: v }));
 
   useEffect(() => {
-    if (merchant) {
-      setName(merchant.name || "");
-      setDescription(merchant.description || "");
-      setPhone(merchant.phone || "");
-      setAddress(merchant.address || "");
-      setLocationPin(merchant.locationPin || "");
-      setDeliveryFee(String(merchant.deliveryFee || 20));
-      setMinOrderValue(String(merchant.minOrderValue || 80));
-      setFreeDeliveryAbove(merchant.freeDeliveryAbove ? String(merchant.freeDeliveryAbove) : "");
-      setEstimatedPrepTime(merchant.estimatedPrepTime || "15–25 min");
-      setPickupInstructions(merchant.pickupInstructions || "");
-      setIsDeliveryEnabled(merchant.isDeliveryEnabled !== false);
-      setIsPickupEnabled(merchant.isPickupEnabled !== false);
-    }
+    if (!merchant) return;
+    setF({
+      name: merchant.name || "",
+      description: merchant.description || "",
+      phone: merchant.phone || "",
+      address: merchant.address || "",
+      locationPin: merchant.locationPin || "",
+      deliveryFee: String(merchant.deliveryFee ?? 20),
+      minOrderValue: String(merchant.minOrderValue ?? 80),
+      freeDeliveryAbove: merchant.freeDeliveryAbove ? String(merchant.freeDeliveryAbove) : "",
+      estimatedPrepTime: merchant.estimatedPrepTime || "15–25 min",
+      pickupInstructions: merchant.pickupInstructions || "",
+      isDeliveryEnabled: merchant.isDeliveryEnabled !== false,
+      isPickupEnabled: merchant.isPickupEnabled !== false,
+    });
   }, [merchant]);
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
+    const gaps = { name: !f.name.trim(), address: !f.address.trim() };
+    setMissing(gaps);
+    if (gaps.name || gaps.address) {
+      toast.error("Add your store name and address, then save.");
+      return;
+    }
     sounds.send();
     haptics.success();
-    setIsSaving(true);
-
+    setSaving(true);
     try {
       const res = await fetch("/api/merchant/store", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: name.trim(),
-          description: description.trim(),
-          phone: phone.trim(),
-          address: address.trim(),
-          locationPin: locationPin.trim(),
-          deliveryFee: parseInt(deliveryFee, 10) || 0,
-          minOrderValue: parseInt(minOrderValue, 10) || 0,
-          freeDeliveryAbove: freeDeliveryAbove ? parseInt(freeDeliveryAbove, 10) : null,
-          estimatedPrepTime: estimatedPrepTime.trim(),
-          pickupInstructions: pickupInstructions.trim(),
-          isDeliveryEnabled,
-          isPickupEnabled,
+          name: f.name.trim(),
+          description: f.description.trim(),
+          phone: f.phone.trim(),
+          address: f.address.trim(),
+          locationPin: f.locationPin.trim(),
+          deliveryFee: Number.parseInt(f.deliveryFee, 10) || 0,
+          minOrderValue: Number.parseInt(f.minOrderValue, 10) || 0,
+          freeDeliveryAbove: f.freeDeliveryAbove ? Number.parseInt(f.freeDeliveryAbove, 10) : null,
+          estimatedPrepTime: f.estimatedPrepTime.trim(),
+          pickupInstructions: f.pickupInstructions.trim(),
+          isDeliveryEnabled: f.isDeliveryEnabled,
+          isPickupEnabled: f.isPickupEnabled,
         }),
       });
-
-      if (!res.ok) throw new Error();
-      mutate();
-      toast.success("Store settings updated!");
-    } catch {
-      toast.error("Failed to update store settings");
+      if (!res.ok) throw new Error(await readError(res, "Couldn't save. Try again."));
+      await mutate();
+      toast.success("Store details saved");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't save. Try again.");
     } finally {
-      setIsSaving(false);
+      setSaving(false);
     }
   }
 
-  function handleCopyLink() {
-    if (!merchant?.id) return;
-    sounds.tap();
-    haptics.light();
-    navigator.clipboard.writeText(`https://campusloop.space/marketplace/store/${merchant.id}`);
-    toast.success("Store link copied to clipboard!");
-  }
-
-  if (isLoading) {
-    return (
-      <div className="max-w-2xl mx-auto p-4 space-y-4">
-        <Skeleton className="h-44 rounded-3xl" />
-        <Skeleton className="h-64 rounded-3xl" />
-      </div>
-    );
-  }
-
   return (
-    <main className="max-w-2xl mx-auto p-4 space-y-6 select-none pb-24">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-card border border-border/40 p-5 rounded-3xl shadow-xs">
-        <div>
-          <h1 className="text-xl font-bold text-foreground tracking-tight">Store Profile &amp; Settings</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Configure business details, delivery radius, and prep timing
-          </p>
-        </div>
+    <MerchantPage
+      width="narrow"
+      title="Store details"
+      description="What students see on your store page."
+      secondaryActions={
+        merchant?.id ? (
+          <>
+            <Button asChild variant="outline">
+              <Link href={storePath(merchant.id)} target="_blank" rel="noopener noreferrer">
+                <ExternalLink />
+                View store
+              </Link>
+            </Button>
+            <Button variant="outline" onClick={() => void copyStoreLink(merchant.id)}>
+              <Copy />
+              Copy link
+            </Button>
+          </>
+        ) : undefined
+      }
+    >
+      {isLoading ? (
+        <MerchantListSkeleton rows={2} rowClassName="h-64" />
+      ) : error ? (
+        <LoadError what="your store details" onRetry={mutate} />
+      ) : (
+        <form onSubmit={handleSave} className="space-y-4" noValidate>
+          <Card>
+            <CardHeader>
+              <CardTitle>About your store</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FormField
+                label="Store name"
+                required
+                error={missing.name ? "Add your store name." : undefined}
+              >
+                <Input value={f.name} onChange={(e) => set("name", e.target.value)} />
+              </FormField>
+              <FormField label="Short description">
+                <Textarea
+                  rows={2}
+                  value={f.description}
+                  onChange={(e) => set("description", e.target.value)}
+                  placeholder="Momos, rolls and cold coffee near Gate 2."
+                />
+              </FormField>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FormField label="Phone">
+                  <Input
+                    type="tel"
+                    inputMode="tel"
+                    value={f.phone}
+                    onChange={(e) => set("phone", e.target.value)}
+                  />
+                </FormField>
+                <FormField label="Landmark" hint="Like “250 m from Gate 1”.">
+                  <Input value={f.locationPin} onChange={(e) => set("locationPin", e.target.value)} />
+                </FormField>
+              </div>
+              <FormField
+                label="Address"
+                required
+                error={missing.address ? "Add your address so students can find you." : undefined}
+              >
+                <Input value={f.address} onChange={(e) => set("address", e.target.value)} />
+              </FormField>
+            </CardContent>
+          </Card>
 
-        {merchant?.id && (
-          <div className="flex items-center gap-2">
-            <Link
-              href={`/marketplace/store/${merchant.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold bg-muted hover:bg-muted/80 text-foreground border border-border/60 transition-colors"
-            >
-              <ExternalLink className="size-3.5 text-primary" />
-              <span>Open Store ↗</span>
-            </Link>
-            <button
-              type="button"
-              onClick={handleCopyLink}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold bg-muted hover:bg-muted/80 text-foreground border border-border/60 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              <Copy className="size-3.5" />
-              <span>Copy Link</span>
-            </button>
-          </div>
-        )}
-      </div>
-
-      <form onSubmit={handleSave} className="space-y-5">
-        {/* Basic Store Info */}
-        <div className="rounded-3xl border border-border/40 bg-card p-5 space-y-3.5 shadow-xs">
-          <h2 className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
-            <Store className="size-4 text-primary" />
-            <span>Store Details</span>
-          </h2>
-
-          <div className="space-y-1.5">
-            <span className="text-[11px] font-bold text-muted-foreground">Business Name *</span>
-            <input
-              type="text"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-bold text-foreground focus:border-foreground outline-none"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <span className="text-[11px] font-bold text-muted-foreground">Store Description</span>
-            <textarea
-              rows={2}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full rounded-2xl bg-muted/40 border border-border/50 p-3 text-xs font-medium text-foreground focus:border-foreground outline-none resize-none"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <span className="text-[11px] font-bold text-muted-foreground">Contact Phone</span>
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-bold text-foreground focus:border-foreground outline-none"
+          <Card>
+            <CardHeader>
+              <CardTitle>Delivery and pickup</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <ToggleRow
+                label="Delivery"
+                hint="You bring orders to hostels."
+                checked={f.isDeliveryEnabled}
+                onChange={(v) => set("isDeliveryEnabled", v)}
               />
-            </div>
-            <div className="space-y-1.5">
-              <span className="text-[11px] font-bold text-muted-foreground">
-                Location Pin (e.g. 250m from Gate)
-              </span>
-              <input
-                type="text"
-                value={locationPin}
-                onChange={(e) => setLocationPin(e.target.value)}
-                className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-bold text-foreground focus:border-foreground outline-none"
+              <ToggleRow
+                label="Pickup"
+                hint="Students collect from your counter."
+                checked={f.isPickupEnabled}
+                onChange={(v) => set("isPickupEnabled", v)}
               />
-            </div>
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+                <FormField label="Delivery fee (₹)">
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    value={f.deliveryFee}
+                    onChange={(e) => set("deliveryFee", e.target.value)}
+                  />
+                </FormField>
+                <FormField label="Min order (₹)">
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    value={f.minOrderValue}
+                    onChange={(e) => set("minOrderValue", e.target.value)}
+                  />
+                </FormField>
+                <FormField label="Free delivery over (₹)" className="col-span-2 sm:col-span-1">
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    value={f.freeDeliveryAbove}
+                    onChange={(e) => set("freeDeliveryAbove", e.target.value)}
+                    placeholder="Leave empty for never"
+                  />
+                </FormField>
+              </div>
+              <FormField label="Usual wait time">
+                <Input
+                  value={f.estimatedPrepTime}
+                  onChange={(e) => set("estimatedPrepTime", e.target.value)}
+                  placeholder="15–20 min"
+                />
+              </FormField>
+              <FormField label="Pickup instructions">
+                <Input
+                  value={f.pickupInstructions}
+                  onChange={(e) => set("pickupInstructions", e.target.value)}
+                  placeholder="Show your order number at the counter."
+                />
+              </FormField>
+            </CardContent>
+          </Card>
+
+          <div className="sticky bottom-4 z-(--z-raised)">
+            <Button type="submit" size="lg" className="w-full" loading={saving}>
+              Save details
+            </Button>
           </div>
-
-          <div className="space-y-1.5">
-            <span className="text-[11px] font-bold text-muted-foreground">Campus Address *</span>
-            <input
-              type="text"
-              required
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-bold text-foreground focus:border-foreground outline-none"
-            />
-          </div>
-        </div>
-
-        {/* Fulfillment & Delivery Rules */}
-        <div className="rounded-3xl border border-border/40 bg-card p-5 space-y-3.5 shadow-xs">
-          <h2 className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
-            <Truck className="size-4 text-success" />
-            <span>Fulfillment &amp; Delivery Rules</span>
-          </h2>
-
-          <div className="grid grid-cols-2 gap-3">
-            <label className="flex items-center gap-2 p-3 rounded-2xl border border-border/40 bg-muted/30 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={isDeliveryEnabled}
-                onChange={(e) => setIsDeliveryEnabled(e.target.checked)}
-                className="size-4 rounded accent-brand"
-              />
-              <span className="text-xs font-bold">Delivery Enabled</span>
-            </label>
-
-            <label className="flex items-center gap-2 p-3 rounded-2xl border border-border/40 bg-muted/30 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={isPickupEnabled}
-                onChange={(e) => setIsPickupEnabled(e.target.checked)}
-                className="size-4 rounded accent-brand"
-              />
-              <span className="text-xs font-bold">Pickup Enabled</span>
-            </label>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="space-y-1.5">
-              <span className="text-[11px] font-bold text-muted-foreground">Delivery Fee (₹)</span>
-              <input
-                type="number"
-                min="0"
-                value={deliveryFee}
-                onChange={(e) => setDeliveryFee(e.target.value)}
-                className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-bold text-foreground outline-none"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <span className="text-[11px] font-bold text-muted-foreground">Min Order (₹)</span>
-              <input
-                type="number"
-                min="0"
-                value={minOrderValue}
-                onChange={(e) => setMinOrderValue(e.target.value)}
-                className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-bold text-foreground outline-none"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <span className="text-[11px] font-bold text-muted-foreground">Free Delivery Above (₹)</span>
-              <input
-                type="number"
-                min="0"
-                value={freeDeliveryAbove}
-                onChange={(e) => setFreeDeliveryAbove(e.target.value)}
-                placeholder="299"
-                className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-bold text-foreground outline-none"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <span className="text-[11px] font-bold text-muted-foreground">Estimated Prep Timing</span>
-            <input
-              type="text"
-              value={estimatedPrepTime}
-              onChange={(e) => setEstimatedPrepTime(e.target.value)}
-              placeholder="e.g. 15–20 min"
-              className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-bold text-foreground outline-none"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <span className="text-[11px] font-bold text-muted-foreground">
-              Pickup Instructions for Students
-            </span>
-            <input
-              type="text"
-              value={pickupInstructions}
-              onChange={(e) => setPickupInstructions(e.target.value)}
-              placeholder="Collect from main counter by showing your order number"
-              className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 px-3.5 text-xs font-medium text-foreground outline-none"
-            />
-          </div>
-        </div>
-
-        {/* Save Button */}
-        <button
-          type="submit"
-          disabled={isSaving}
-          className="w-full h-12 rounded-2xl bg-foreground text-background font-bold text-sm hover:opacity-90 active:scale-98 transition-colors flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-        >
-          {isSaving ? (
-            <>
-              <Loader2 className="size-4 animate-spin" />
-              <span>Saving Changes...</span>
-            </>
-          ) : (
-            <>
-              <Save className="size-4" />
-              <span>Save Store Settings</span>
-            </>
-          )}
-        </button>
-      </form>
-    </main>
+        </form>
+      )}
+    </MerchantPage>
   );
 }

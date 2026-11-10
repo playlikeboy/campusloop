@@ -1,36 +1,19 @@
 "use client";
 
-import { useMemo } from "react";
 import Link from "next/link";
+import { useMemo } from "react";
 import useSWR from "swr";
-import {
-  ArrowLeft,
-  Building2,
-  CheckCircle2,
-  GraduationCap,
-  PieChart,
-  TrendingUp,
-  UserCheck,
-  Users,
-} from "lucide-react";
+import { ManageHeader } from "@/components/events/manage-header";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
 import { fetcher } from "@/lib/api";
 
 interface RegistrationItem {
   id: string;
   registrationType: "SOLO" | "TEAM";
-  teamName: string | null;
   status: "CONFIRMED" | "ATTENDED" | "WAITLISTED" | "CANCELLED";
-  createdAt: string;
-  profile?: {
-    id: string;
-    course: string | null;
-    branch: string | null;
-    year: number | null;
-    institution?: {
-      id: string;
-      name: string;
-    } | null;
-  } | null;
+  profile?: { year: number | null; institution?: { name: string } | null } | null;
 }
 
 interface AnalyticsClientProps {
@@ -39,246 +22,122 @@ interface AnalyticsClientProps {
   eventTitle: string;
 }
 
+interface Row {
+  label: string;
+  count: number;
+}
+
+const YEAR_LABELS = ["1st year", "2nd year", "3rd year", "4th year"];
+
+function BreakdownList({ title, rows, total }: { title: string; rows: Row[]; total: number }) {
+  return (
+    <section
+      aria-labelledby={`${title}-title`}
+      className="space-y-3 rounded-lg border border-border bg-surface p-4 sm:p-5"
+    >
+      <h2 id={`${title}-title`} className="text-lg font-bold text-fg">
+        {title}
+      </h2>
+      {rows.length === 0 ? (
+        <p className="text-sm text-fg-muted">No data yet.</p>
+      ) : (
+        <ul className="space-y-3">
+          {rows.map((row) => {
+            const percent = total > 0 ? Math.round((row.count / total) * 100) : 0;
+            return (
+              <li key={row.label} className="space-y-1">
+                <div className="flex justify-between gap-3 text-sm">
+                  <span className="truncate text-fg">{row.label}</span>
+                  <span className="shrink-0 text-fg-muted tabular-nums">
+                    {row.count} ({percent}%)
+                  </span>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-poll-track" aria-hidden="true">
+                  <div className="h-full rounded-full bg-poll-fill-chosen" style={{ width: `${percent}%` }} />
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </section>
+  );
+}
+
 export function AnalyticsClient({ eventId, initialSlug, eventTitle }: AnalyticsClientProps) {
-  const { data, isLoading } = useSWR<{
-    event: {
-      id: string;
-      slug: string;
-      title: string;
-      maxParticipants: number | null;
-      registrations: RegistrationItem[];
-    };
+  const { data, error, isLoading, mutate } = useSWR<{
+    event: { slug: string; maxParticipants: number | null; registrations: RegistrationItem[] };
   }>(`/api/events/${eventId}`, fetcher);
 
-  const registrations = data?.event?.registrations || [];
+  const registrations = useMemo(() => data?.event?.registrations ?? [], [data]);
   const slug = data?.event?.slug || initialSlug;
-  const maxCapacity = data?.event?.maxParticipants;
-
-  // Demographics computations
+  const max = data?.event?.maxParticipants;
   const total = registrations.length;
   const attended = registrations.filter((r) => r.status === "ATTENDED").length;
-  const confirmed = registrations.filter((r) => r.status === "CONFIRMED").length;
-  const cancelled = registrations.filter((r) => r.status === "CANCELLED").length;
 
-  const attendanceRate = total > 0 ? Math.round((attended / total) * 100) : 0;
-  const capacityFillRate = maxCapacity ? Math.min(100, Math.round((total / maxCapacity) * 100)) : null;
-
-  // Solo vs Team
-  const soloCount = registrations.filter((r) => r.registrationType === "SOLO").length;
-  const teamCount = registrations.filter((r) => r.registrationType === "TEAM").length;
-  const soloPercent = total > 0 ? Math.round((soloCount / total) * 100) : 0;
-  const teamPercent = total > 0 ? Math.round((teamCount / total) * 100) : 0;
-
-  // College Distribution
-  const collegeCounts = useMemo(() => {
-    const map = new Map<string, number>();
-    registrations.forEach((r) => {
-      const name = r.profile?.institution?.name || "Campus Community";
-      map.set(name, (map.get(name) || 0) + 1);
-    });
-    return Array.from(map.entries())
-      .map(([name, count]) => ({ name, count, percent: total > 0 ? Math.round((count / total) * 100) : 0 }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 5);
-  }, [registrations, total]);
-
-  // Year Distribution
-  const yearCounts = useMemo(() => {
-    const years: Record<string, number> = {
-      "1st Year": 0,
-      "2nd Year": 0,
-      "3rd Year": 0,
-      "4th Year": 0,
-      "Other / PG": 0,
-    };
-    registrations.forEach((r) => {
+  const { formats, years, colleges } = useMemo(() => {
+    const solo = registrations.filter((r) => r.registrationType === "SOLO").length;
+    const yearCounts = [0, 0, 0, 0, 0];
+    const collegeMap = new Map<string, number>();
+    for (const r of registrations) {
       const y = r.profile?.year;
-      if (y === 1) years["1st Year"]++;
-      else if (y === 2) years["2nd Year"]++;
-      else if (y === 3) years["3rd Year"]++;
-      else if (y === 4) years["4th Year"]++;
-      else years["Other / PG"]++;
-    });
-    return Object.entries(years).map(([label, count]) => ({
-      label,
-      count,
-      percent: total > 0 ? Math.round((count / total) * 100) : 0,
-    }));
-  }, [registrations, total]);
+      yearCounts[y && y >= 1 && y <= 4 ? y - 1 : 4]++;
+      const name = r.profile?.institution?.name || "College not set";
+      collegeMap.set(name, (collegeMap.get(name) || 0) + 1);
+    }
+    return {
+      formats: [
+        { label: "Solo", count: solo },
+        { label: "Teams", count: registrations.length - solo },
+      ],
+      years: [...YEAR_LABELS, "Other or PG"].map((label, i) => ({ label, count: yearCounts[i] })),
+      colleges: [...collegeMap.entries()]
+        .map(([label, count]) => ({ label, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5),
+    };
+  }, [registrations]);
 
   return (
-    <div className="w-full max-w-5xl mx-auto py-6 space-y-6">
-      {/* ─── Top Bar ─── */}
-      <div className="flex items-center justify-between pb-3 border-b border-border/30">
-        <div className="flex items-center gap-3 min-w-0">
-          <Link
-            href={`/events/manage/${slug}`}
-            className="p-2 rounded-xl border border-border/40 bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors shrink-0"
-          >
-            <ArrowLeft className="size-4" />
-          </Link>
-          <div className="min-w-0">
-            <span className="text-xs font-bold text-brand-text block">
-              Event Analytics
-            </span>
-            <h1 className="text-lg font-black text-foreground truncate">{eventTitle}</h1>
-          </div>
+    <div className="mx-auto w-full max-w-3xl space-y-5 px-4 py-6">
+      <ManageHeader
+        slug={slug}
+        title="Analytics"
+        eventTitle={eventTitle}
+        action={
+          <Button asChild variant="outline">
+            <Link href={`/events/manage/${slug}/attendees`}>Attendees</Link>
+          </Button>
+        }
+      />
+
+      {isLoading ? (
+        <div className="space-y-3" aria-busy="true">
+          <Skeleton className="h-6 w-2/3" />
+          <Skeleton className="h-40 w-full rounded-lg" />
+          <Skeleton className="h-40 w-full rounded-lg" />
         </div>
-
-        <Link
-          href={`/events/manage/${slug}/attendees`}
-          className="text-xs font-bold text-primary hover:underline"
-        >
-          View Full Roster →
-        </Link>
-      </div>
-
-      {/* ─── Metric Strip ─── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="p-4 rounded-2xl border border-border/40 bg-card/40 space-y-1">
-          <span className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5">
-            <Users className="size-3.5 text-primary" /> Total Registered
-          </span>
-          <p className="text-2xl font-black text-foreground">{total}</p>
-          {maxCapacity && (
-            <p className="text-[11px] text-muted-foreground">Capacity fill: {capacityFillRate}%</p>
-          )}
-        </div>
-
-        <div className="p-4 rounded-2xl border border-border/40 bg-card/40 space-y-1">
-          <span className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5">
-            <UserCheck className="size-3.5 text-success" /> Attended / Checked-In
-          </span>
-          <p className="text-2xl font-black text-foreground">{attended}</p>
-          <p className="text-[11px] text-success font-semibold">{attendanceRate}% turnout</p>
-        </div>
-
-        <div className="p-4 rounded-2xl border border-border/40 bg-card/40 space-y-1">
-          <span className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5">
-            <CheckCircle2 className="size-3.5 text-brand-text" /> Pending Confirmed
-          </span>
-          <p className="text-2xl font-black text-foreground">{confirmed}</p>
-          <p className="text-[11px] text-muted-foreground">Awaiting check-in</p>
-        </div>
-
-        <div className="p-4 rounded-2xl border border-border/40 bg-card/40 space-y-1">
-          <span className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5">
-            <TrendingUp className="size-3.5 text-brand-text" /> Solo vs. Team
-          </span>
-          <p className="text-2xl font-black text-foreground">
-            {soloCount} <span className="text-xs text-muted-foreground font-normal">/ {teamCount}</span>
+      ) : error ? (
+        <EmptyState
+          title="Analytics didn't load"
+          description="Check your connection and try again."
+          action={<Button onClick={() => mutate()}>Try again</Button>}
+        />
+      ) : total === 0 ? (
+        <EmptyState title="No sign-ups yet" description="Numbers show up here once people sign up." />
+      ) : (
+        <>
+          <p className="text-sm text-fg">
+            <span className="font-semibold tabular-nums">{total}</span>
+            {max ? ` of ${max} spots taken` : " signed up"} ·{" "}
+            <span className="font-semibold tabular-nums">{attended}</span> checked in (
+            {Math.round((attended / total) * 100)}%)
           </p>
-          <p className="text-[11px] text-muted-foreground">{soloPercent}% Solo</p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* ─── Solo vs Team Participation Breakdown ─── */}
-        <div className="p-5 rounded-2xl border border-border/40 bg-card/40 space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
-              <PieChart className="size-4 text-brand-text" /> Registration Mode
-            </h2>
-            <span className="text-xs text-muted-foreground">{total} total</span>
-          </div>
-
-          <div className="space-y-3">
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span className="font-semibold text-foreground">Solo Registrations</span>
-                <span className="text-muted-foreground">
-                  {soloCount} ({soloPercent}%)
-                </span>
-              </div>
-              <div className="h-2 rounded-full bg-muted/60 overflow-hidden">
-                <div
-                  className="h-full bg-brand rounded-full transition-colors duration-500"
-                  style={{ width: `${soloPercent}%` }}
-                />
-              </div>
-            </div>
-
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span className="font-semibold text-foreground">Team Registrations</span>
-                <span className="text-muted-foreground">
-                  {teamCount} ({teamPercent}%)
-                </span>
-              </div>
-              <div className="h-2 rounded-full bg-muted/60 overflow-hidden">
-                <div
-                  className="h-full bg-brand rounded-full transition-colors duration-500"
-                  style={{ width: `${teamPercent}%` }}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ─── Academic Year Distribution ─── */}
-        <div className="p-5 rounded-2xl border border-border/40 bg-card/40 space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
-              <GraduationCap className="size-4 text-success" /> Academic Year Demographics
-            </h2>
-          </div>
-
-          <div className="space-y-2.5">
-            {yearCounts.map((yc) => (
-              <div key={yc.label} className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span className="font-medium text-foreground">{yc.label}</span>
-                  <span className="text-muted-foreground">
-                    {yc.count} ({yc.percent}%)
-                  </span>
-                </div>
-                <div className="h-1.5 rounded-full bg-muted/60 overflow-hidden">
-                  <div
-                    className="h-full bg-success rounded-full transition-colors duration-500"
-                    style={{ width: `${yc.percent}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* ─── Top College Campus Representation ─── */}
-      <div className="p-5 rounded-2xl border border-border/40 bg-card/40 space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
-            <Building2 className="size-4 text-primary" /> Top Campus Representation
-          </h2>
-          <span className="text-xs text-muted-foreground">Colleges with highest registrations</span>
-        </div>
-
-        {collegeCounts.length > 0 ? (
-          <div className="space-y-3">
-            {collegeCounts.map((col, idx) => (
-              <div key={col.name} className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span className="font-medium text-foreground truncate max-w-sm sm:max-w-md">
-                    <span className="text-muted-foreground font-normal mr-1.5">#{idx + 1}</span>
-                    {col.name}
-                  </span>
-                  <span className="text-muted-foreground shrink-0">
-                    {col.count} students ({col.percent}%)
-                  </span>
-                </div>
-                <div className="h-1.5 rounded-full bg-muted/60 overflow-hidden">
-                  <div
-                    className="h-full bg-primary rounded-full transition-colors duration-500"
-                    style={{ width: `${col.percent}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-xs text-muted-foreground py-4 text-center">No campus breakdown available yet.</p>
-        )}
-      </div>
+          <BreakdownList title="Solo or team" rows={formats} total={total} />
+          <BreakdownList title="Year of study" rows={years} total={total} />
+          <BreakdownList title="Top colleges" rows={colleges} total={total} />
+        </>
+      )}
     </div>
   );
 }

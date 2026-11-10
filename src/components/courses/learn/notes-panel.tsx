@@ -1,9 +1,14 @@
 "use client";
 
-import { Clock, Loader2, Trash2 } from "lucide-react";
+import { Clock, NotebookPen, Trash2, WifiOff } from "lucide-react";
 import { useState } from "react";
-import useSWR from "swr";
 import { toast } from "sonner";
+import useSWR from "swr";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { SegmentedControl } from "@/components/ui/segmented-control";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
 import { courseAction } from "@/hooks/use-courses";
 import { fetcher } from "@/lib/api";
 import { formatClock } from "@/lib/courses/format";
@@ -15,7 +20,7 @@ interface Note {
   body: string;
 }
 
-/** Private timestamped notes. Clicking a timestamp seeks the video there. */
+/** Private timestamped notes. Tapping a timestamp jumps the video there. */
 export function NotesPanel({
   slug,
   lectureId,
@@ -29,30 +34,49 @@ export function NotesPanel({
   currentTime: () => number;
   onSeek: (lectureId: string, sec: number) => void;
 }) {
-  const { data, mutate } = useSWR<{ notes: Note[] }>(`/api/courses/${slug}/notes`, fetcher);
+  const { data, error, mutate } = useSWR<{ notes: Note[] }>(`/api/courses/${slug}/notes`, fetcher);
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [scope, setScope] = useState<"lecture" | "all">("lecture");
   const notes = (data?.notes ?? []).filter((n) => scope === "all" || n.lectureId === lectureId);
 
   async function add() {
-    if (!text.trim()) return;
+    if (!text.trim() || busy) return;
     setBusy(true);
     try {
-      await courseAction(`/api/courses/${slug}/notes`, { lectureId, atSec: Math.floor(currentTime()), body: text });
+      await courseAction(`/api/courses/${slug}/notes`, {
+        lectureId,
+        atSec: Math.floor(currentTime()),
+        body: text,
+      });
       setText("");
       await mutate();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not save note");
+      toast.error(
+        e instanceof Error ? e.message : "Couldn't save your note. Check your connection and try again."
+      );
     } finally {
       setBusy(false);
     }
   }
 
+  async function remove(id: string) {
+    try {
+      await courseAction(`/api/courses/${slug}/notes?id=${id}`, undefined, "DELETE");
+    } catch {
+      toast.error("Couldn't delete that note. Try again.");
+    }
+    mutate();
+  }
+
   return (
-    <div className="space-y-4">
-      <div className="rounded-2xl bg-muted/40 p-3">
-        <textarea
+    <div className="space-y-5">
+      <div className="space-y-2">
+        <label htmlFor="note-input" className="text-sm font-semibold text-fg">
+          Add a note at this moment
+        </label>
+        <Textarea
+          id="note-input"
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => {
@@ -61,47 +85,78 @@ export function NotesPanel({
           }}
           rows={2}
           maxLength={1000}
-          placeholder="Write a note at the current time. Ctrl+Enter to save."
-          className="w-full resize-none rounded-xl bg-background p-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          placeholder="Only you can see your notes"
         />
-        <div className="mt-2 flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">{text.length}/1000</span>
-          <button type="button" onClick={add} disabled={busy || !text.trim()} className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground disabled:opacity-50 cursor-pointer">
-            {busy && <Loader2 className="size-4 animate-spin" aria-hidden />} Save note
-          </button>
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-xs tabular-nums text-fg-subtle">{text.length}/1000</span>
+          <Button onClick={add} loading={busy} disabled={!text.trim()}>
+            Save note
+          </Button>
         </div>
       </div>
-      <div className="flex gap-1" role="tablist" aria-label="Which notes">
-        {(["lecture", "all"] as const).map((s) => (
-          <button key={s} type="button" role="tab" aria-selected={scope === s} onClick={() => setScope(s)} className={`h-8 rounded-full px-3 text-xs font-semibold cursor-pointer ${scope === s ? "bg-foreground text-background" : "bg-muted/60 text-muted-foreground"}`}>
-            {s === "lecture" ? "This lecture" : "All lectures"}
-          </button>
-        ))}
-      </div>
-      {notes.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No notes yet. Notes are private to you.</p>
+
+      <SegmentedControl
+        aria-label="Which notes to show"
+        size="sm"
+        value={scope}
+        onChange={setScope}
+        options={[
+          { value: "lecture", label: "This lecture" },
+          { value: "all", label: "All lectures" },
+        ]}
+      />
+
+      {error ? (
+        <EmptyState
+          size="compact"
+          icon={WifiOff}
+          title="Couldn't load your notes"
+          description="Check your connection, then try again."
+          action={
+            <Button variant="secondary" onClick={() => mutate()}>
+              Try again
+            </Button>
+          }
+        />
+      ) : !data ? (
+        <div className="space-y-2">
+          <Skeleton className="h-16 rounded-lg" />
+          <Skeleton className="h-16 rounded-lg" />
+        </div>
+      ) : notes.length === 0 ? (
+        <EmptyState
+          size="compact"
+          icon={NotebookPen}
+          title="No notes yet"
+          description="Write one above. It's saved with the video time."
+        />
       ) : (
-        <ul className="space-y-2">
+        <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-surface">
           {notes.map((n) => (
-            <li key={n.id} className="group rounded-xl bg-card/60 p-3 shadow-2xs">
+            <li key={n.id} className="p-3">
               <div className="flex items-center gap-2">
-                <button type="button" onClick={() => onSeek(n.lectureId, n.atSec)} className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold tabular-nums text-primary hover:bg-primary/15 cursor-pointer">
-                  <Clock className="size-3" aria-hidden /> {formatClock(n.atSec)}
-                </button>
-                {scope === "all" && <span className="truncate text-xs text-muted-foreground">{lectureTitles[n.lectureId]}</span>}
-                <button
-                  type="button"
-                  onClick={async () => {
-                    await courseAction(`/api/courses/${slug}/notes?id=${n.id}`, undefined, "DELETE").catch(() => {});
-                    mutate();
-                  }}
-                  aria-label="Delete note"
-                  className="ml-auto flex size-7 items-center justify-center rounded-full text-muted-foreground opacity-60 hover:bg-muted hover:text-destructive group-hover:opacity-100 cursor-pointer"
+                <Button
+                  variant="pill"
+                  onClick={() => onSeek(n.lectureId, n.atSec)}
+                  className="tabular-nums"
+                  aria-label={`Jump to ${formatClock(n.atSec)}`}
                 >
-                  <Trash2 className="size-3.5" />
-                </button>
+                  <Clock aria-hidden /> {formatClock(n.atSec)}
+                </Button>
+                {scope === "all" && (
+                  <span className="min-w-0 truncate text-xs text-fg-muted">{lectureTitles[n.lectureId]}</span>
+                )}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => remove(n.id)}
+                  aria-label="Delete note"
+                  className="ml-auto text-fg-muted hover:text-danger"
+                >
+                  <Trash2 />
+                </Button>
               </div>
-              <p className="mt-1.5 whitespace-pre-wrap text-sm text-foreground">{n.body}</p>
+              <p className="mt-1.5 whitespace-pre-wrap text-sm text-fg">{n.body}</p>
             </li>
           ))}
         </ul>

@@ -1,5 +1,13 @@
 import { DOCS_FEATURES } from "@/lib/docs-features";
-import { GUIDE_CATEGORIES, GUIDES, getGuidesByCategory, INVESTOR_POINTS, latestGuideUpdate, PRODUCT_OVERVIEW, SITE_URL } from "./index";
+import {
+  GUIDE_CATEGORIES,
+  GUIDES,
+  getGuidesByCategory,
+  INVESTOR_POINTS,
+  latestGuideUpdate,
+  PRODUCT_OVERVIEW,
+  SITE_URL,
+} from "./index";
 import type { GuideEntry } from "./types";
 
 /**

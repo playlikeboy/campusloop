@@ -1,146 +1,127 @@
 "use client";
 
 import confetti from "canvas-confetti";
-import { BadgeCheck, Cake, MessageCircle, PartyPopper, School } from "lucide-react";
+import { Cake, MessageCircle, PartyPopper } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
+import { cn } from "@/lib/utils";
+
+export interface BirthdayStudent {
+  id: string;
+  username: string;
+  displayName: string;
+  avatarUrl?: string | null;
+  course?: string | null;
+  branch?: string | null;
+  gender?: string | null;
+  dob?: string | null;
+  daysUntil?: number;
+  birthMonth?: number;
+  birthDay?: number;
+  institution?: { id: string; name: string } | null;
+}
 
 interface BirthdayCardProps {
-  student: {
-    id: string;
-    username: string;
-    displayName: string;
-    avatarUrl?: string | null;
-    course?: string | null;
-    branch?: string | null;
-    gender?: string | null;
-    dob?: string | null;
-    daysUntil?: number;
-    birthMonth?: number;
-    birthDay?: number;
-    institution?: { id: string; name: string } | null;
-  };
+  student: BirthdayStudent;
   isToday?: boolean;
 }
 
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
+function birthDate(s: BirthdayStudent): string {
+  if (s.birthMonth && s.birthDay) return `${MONTH_NAMES[s.birthMonth - 1]} ${s.birthDay}`;
+  if (!s.dob) return "";
+  const [, m, d] = s.dob.split("-");
+  const month = MONTH_NAMES[Number.parseInt(m, 10) - 1];
+  return month ? `${month} ${Number.parseInt(d, 10)}` : "";
+}
+
+/** One person in the birthdays list. Today's people get a Wish button. */
 export function BirthdayCard({ student, isToday = false }: BirthdayCardProps) {
   const [wished, setWished] = useState(false);
+  const date = birthDate(student);
+  const college = student.institution?.name.split(",")[0];
 
-  function handleConfetti(e: React.MouseEvent) {
-    e.stopPropagation();
+  function wish(e: React.MouseEvent<HTMLButtonElement>) {
     sounds.tap();
-    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    const x = (rect.left + rect.width / 2) / window.innerWidth;
-    const y = (rect.top + rect.height / 2) / window.innerHeight;
-
+    haptics.success();
+    const rect = e.currentTarget.getBoundingClientRect();
     confetti({
       particleCount: 60,
       spread: 75,
-      origin: { x, y },
+      origin: {
+        x: (rect.left + rect.width / 2) / window.innerWidth,
+        y: (rect.top + rect.height / 2) / window.innerHeight,
+      },
       // ds-allow: canvas-confetti takes hex only; celebratory burst, not UI chrome
-      colors: ["#ec4899", "#8b5cf6", "#3b82f6", "#f59e0b", "#10b981"],
+      colors: ["#6b3df5", "#ffd43b", "#ff5c93", "#3ddc97"],
     });
-
     if (!wished) {
       setWished(true);
-      toast.success(`Wished @${student.username} a Happy Birthday!`);
+      toast.success(`You wished @${student.username} happy birthday`);
     }
   }
 
-  const birthDateFormatted =
-    student.birthMonth && student.birthDay
-      ? `${MONTH_NAMES[student.birthMonth - 1]} ${student.birthDay}`
-      : student.dob
-        ? `${MONTH_NAMES[parseInt(student.dob.split("-")[1], 10) - 1]} ${parseInt(student.dob.split("-")[2], 10)}`
-        : "";
-
   return (
-    <div
-      className={`group relative flex items-center justify-between p-3.5 sm:p-4 rounded-3xl transition-colors duration-300 border-0 ${
-        isToday
-          ? "bg-brand-subtle shadow-xs"
-          : "bg-card/70 hover:bg-muted/30 shadow-2xs"
-      }`}
+    <li
+      className={cn(
+        "flex items-center gap-3 rounded-lg border border-border p-3",
+        isToday ? "bg-surface-raised" : "bg-surface"
+      )}
     >
-      <Link href={`/@${student.username}`} className="flex items-center gap-3 min-w-0 flex-1">
-        <div className="relative shrink-0">
-          <Avatar className="size-11 sm:size-12 rounded-full border-0 shadow-2xs group-hover:scale-105 transition-transform">
-            <AvatarImage src={student.avatarUrl || ""} className="rounded-full object-cover" />
-            <AvatarFallback className="font-black text-xs bg-primary/10 text-primary rounded-full">
+      <Link
+        href={`/@${student.username}`}
+        className="flex min-w-0 flex-1 items-center gap-3 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <span className="relative shrink-0">
+          <Avatar className="size-11">
+            <AvatarImage src={student.avatarUrl || ""} alt="" />
+            <AvatarFallback className="bg-surface-muted text-sm font-semibold">
               {(student.displayName?.[0] || "S").toUpperCase()}
             </AvatarFallback>
           </Avatar>
           {isToday && (
-            <span className="absolute -bottom-1 -right-1 flex size-5 items-center justify-center rounded-full bg-danger text-white shadow-xs text-[10px] animate-pulse">
-              <Cake className="size-3" />
+            <span className="absolute -right-1 -bottom-1 flex size-5 items-center justify-center rounded-full border-2 border-bg bg-surface-muted text-fg">
+              <Cake aria-hidden="true" className="size-3" />
             </span>
           )}
-        </div>
-
-        <div className="min-w-0 flex-1 space-y-0.5">
-          <div className="flex items-center gap-1.5">
-            <h4 className="text-xs sm:text-sm font-bold text-foreground truncate group-hover:text-primary transition-colors">
-              {student.displayName}
-            </h4>
-            <span className="text-primary inline-flex items-center" title="Verified Student">
-              <BadgeCheck className="size-3.5 fill-primary text-white" />
-            </span>
-          </div>
-
-          <p className="text-[11px] text-muted-foreground truncate">
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-sm font-semibold text-fg">{student.displayName}</span>
+          <span className="block truncate text-xs text-fg-muted">
             @{student.username}
             {student.course && ` · ${student.course}`}
-          </p>
-
-          {student.institution && (
-            <p className="text-[10px] text-muted-foreground/80 truncate flex items-center gap-1">
-              <School className="size-2.5 shrink-0 opacity-70" />
-              <span>{student.institution.name.split(",")[0]}</span>
-            </p>
-          )}
-        </div>
+          </span>
+          {college && <span className="block truncate text-xs text-fg-subtle">{college}</span>}
+        </span>
       </Link>
 
-      <div className="flex items-center gap-2 shrink-0 ml-2">
-        {isToday ? (
-          <button
-            type="button"
-            onClick={handleConfetti}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-transform cursor-pointer shadow-xs select-none active:scale-95 border-0 ${
-              wished
-                ? "bg-danger/20 text-danger"
-                : "bg-danger text-white hover:bg-danger hover:scale-105"
-            }`}
-          >
-            <PartyPopper className="size-3.5" />
-            <span>{wished ? "Wished!" : "Wish"}</span>
-          </button>
-        ) : (
-          <div className="text-right space-y-0.5">
-            {birthDateFormatted && (
-              <span className="text-xs font-bold text-foreground block">{birthDateFormatted}</span>
-            )}
-            {student.daysUntil !== undefined && (
-              <span className="text-[10px] text-muted-foreground block font-medium">
-                {student.daysUntil === 1 ? "Tomorrow" : `In ${student.daysUntil} days`}
-              </span>
-            )}
-          </div>
-        )}
+      {isToday ? (
+        <Button size="sm" variant={wished ? "outline" : "primary"} onClick={wish}>
+          <PartyPopper aria-hidden="true" />
+          {wished ? "Wished" : "Wish"}
+        </Button>
+      ) : (
+        <span className="shrink-0 text-right">
+          {date && <span className="block text-sm font-semibold text-fg">{date}</span>}
+          {student.daysUntil !== undefined && (
+            <span className="block text-xs text-fg-muted">
+              {student.daysUntil === 1 ? "Tomorrow" : `In ${student.daysUntil} days`}
+            </span>
+          )}
+        </span>
+      )}
 
-        <Link
-          href={`/chat?recipientId=${student.id}`}
-          className="size-8 rounded-full bg-muted/40 border-0 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
-          title="Send Direct Message"
-        >
-          <MessageCircle className="size-3.5" />
+      <Button asChild variant="ghost" size="icon" className="shrink-0">
+        <Link href={`/chat?recipientId=${student.id}`} aria-label={`Message ${student.displayName}`}>
+          <MessageCircle aria-hidden="true" />
         </Link>
-      </div>
-    </div>
+      </Button>
+    </li>
   );
 }
