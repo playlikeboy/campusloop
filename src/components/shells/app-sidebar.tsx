@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { DESKTOP_NAV_ITEMS, ROUTES } from "@/constants/navigation";
 import type { UserProfile } from "@/db/schema";
-import { cn, getAvatarUrl } from "@/lib/utils";
+import { cn, getAvatarUrl, initialOf } from "@/lib/utils";
 import { isPathActive, navPress, profileHref } from "./nav-utils";
 
 interface AppSidebarProps {
@@ -96,7 +96,7 @@ export function AppSidebar({ profile, isAdmin, isViewer }: AppSidebarProps) {
             <Avatar className="size-9 shrink-0">
               <AvatarImage src={avatar} alt="" />
               <AvatarFallback className="bg-surface-muted text-sm font-semibold text-fg">
-                {profile.displayName?.[0] || "U"}
+                {initialOf(profile.displayName, "U")}
               </AvatarFallback>
             </Avatar>
             <span className="min-w-0 flex-1">

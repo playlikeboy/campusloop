@@ -56,7 +56,7 @@ export function DatingMatchModal({ matchResult, onClose }: DatingMatchModalProps
 
           <div className="mt-6 flex flex-col gap-2">
             {matchResult?.conversationId && (
-              <Button variant="crush" asChild>
+              <Button asChild>
                 <Link href={`/chat/${matchResult.conversationId}`}>
                   <MessageCircle />
                   Send a message

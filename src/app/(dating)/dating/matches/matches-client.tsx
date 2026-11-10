@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Sticker } from "@/components/ui/stickers";
 import { fetcher } from "@/lib/api";
 import { getAvatarUrl } from "@/lib/utils";
 
@@ -72,15 +73,21 @@ export function MatchesClient() {
         title="No matches yet"
         description="When you and someone both like each other, you can chat here."
         action={
-          <Button variant="crush" asChild>
+          <Button asChild>
             <Link href="/matching">Start swiping</Link>
           </Button>
         }
       />
     );
   } else {
+    const total = data?.totalCount ?? matches.length;
     body = (
-      <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-surface">
+      <>
+        <Sticker tone="crush" className="mb-4 inline-flex items-baseline gap-1.5 px-3.5 py-2">
+          <span className="sticker-caption text-2xl tabular-nums">{total}</span>
+          <span className="text-sm font-semibold">{total === 1 ? "match" : "matches"}</span>
+        </Sticker>
+        <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-surface">
         {matches.map((m) => {
           const detail =
             [m.user.branch, formatStudyYear(m.user.year)].filter(Boolean).join(" · ") ||
@@ -106,7 +113,8 @@ export function MatchesClient() {
             </li>
           );
         })}
-      </ul>
+        </ul>
+      </>
     );
   }
 

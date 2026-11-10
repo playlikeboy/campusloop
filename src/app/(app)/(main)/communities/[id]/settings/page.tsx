@@ -51,7 +51,7 @@ export default async function CommunitySettingsPage({ params }: PageProps) {
   const activeMembersCount = comm.members.filter((m) => m.status === "ACTIVE").length;
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen bg-background text-foreground pb-24 border-x border-border/30 select-none">
+    <main className="mx-auto flex w-full max-w-2xl flex-col min-h-dvh bg-background text-foreground pb-24 border-x border-border/30 select-none">
       <CommunityHeader
         community={comm}
         membersCount={activeMembersCount}

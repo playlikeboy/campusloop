@@ -230,6 +230,12 @@ export default async function MainCollegePage({ params }: PageProps) {
   }
 
   const allowedDomains = Array.from(domainMap.values());
+  // Verified = a student email domain confirmed by students/admins or in the curated registry.
+  const isVerifiedCollege =
+    curatedDomains.length > 0 ||
+    (college.domains || []).some(
+      (row) => row.verificationStatus === "STUDENT_VERIFIED" || row.verificationStatus === "ADMIN_VERIFIED"
+    );
   const emailFormatInfo = getInstitutionEmailFormat(college.slug || "");
 
   const formattedAcademics = collegeAcademics.map((item) => ({
@@ -303,6 +309,7 @@ export default async function MainCollegePage({ params }: PageProps) {
         relatedColleges={relatedColleges}
         currentUserId={profile?.id}
         isEnrolledHere={isEnrolledHere}
+        isVerifiedCollege={isVerifiedCollege}
         trendingTags={trendingTags}
       />
     </>

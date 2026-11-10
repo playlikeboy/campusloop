@@ -27,7 +27,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { VerifiedBadge } from "@/components/ui/verified-badge";
+import { VerifiedSticker } from "@/components/ui/stickers";
 import type { FeedPost } from "@/hooks/use-feed";
 import { isCollegeVerifiedUser } from "@/lib/user-verification";
 import { cn, formatTimeAgo, getCollegeShortName } from "@/lib/utils";
@@ -185,7 +185,9 @@ export function FeedCardHeader({
               </span>
             )}
 
-            {isVerified && <VerifiedBadge size="sm" />}
+            {isVerified && (
+              <VerifiedSticker size="sm" label="Verified" variant="flat" className="h-6 shrink-0 px-2" />
+            )}
 
             {!isBotPost &&
               !post.isAnonymous &&

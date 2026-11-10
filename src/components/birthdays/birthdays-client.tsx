@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Sticker } from "@/components/ui/stickers";
 import { fetcher } from "@/lib/api";
 import { BirthdayCard, type BirthdayStudent } from "./birthday-card";
 import { BirthdayPrivacyCard } from "./birthday-privacy-card";
@@ -87,7 +88,6 @@ export function BirthdaysClient() {
       <header className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl text-fg">Birthdays</h1>
         <SegmentedControl<Scope>
-          size="sm"
           value={scope}
           onChange={setScope}
           options={[
@@ -171,7 +171,16 @@ export function BirthdaysClient() {
       ) : (
         <>
           <section className="space-y-3">
-            <h2 className="text-base text-fg">Today</h2>
+            {today.length > 0 ? (
+              <Sticker pop className="inline-flex items-center gap-2 px-3.5 py-2">
+                <Cake aria-hidden="true" className="size-5 shrink-0 text-brand-text" />
+                <h2 className="sticker-caption text-lg">
+                  {today.length === 1 ? "1 birthday today" : `${today.length} birthdays today`}
+                </h2>
+              </Sticker>
+            ) : (
+              <h2 className="text-base text-fg">Today</h2>
+            )}
             {today.length > 0 ? (
               <List people={today} isToday />
             ) : (

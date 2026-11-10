@@ -123,8 +123,8 @@ export function ConfessionComposerInline({
     <div className={cn("space-y-3", className)}>
       <QuestionSticker
         variant="flat"
-        prompt="Confess anonymously"
-        placeholder="Say what you can't say out loud…"
+        prompt="Say it. No name attached."
+        placeholder="What have you been keeping in?"
         value={body}
         onChange={setBody}
         onSubmit={() => handleSubmit()}

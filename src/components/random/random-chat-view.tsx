@@ -16,7 +16,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { Input } from "@/components/ui/input";
-import { cn, formatTimeAgo } from "@/lib/utils";
+import { QuestionSticker } from "@/components/ui/stickers";
+import { cn, formatTimeAgo, initialOf } from "@/lib/utils";
 
 interface RandomChatViewProps {
   session: any;
@@ -59,7 +60,7 @@ export function RandomChatView(props: RandomChatViewProps) {
         <Avatar className="size-9">
           {partner?.avatarUrl ? <AvatarImage src={partner.avatarUrl} alt="" /> : null}
           <AvatarFallback className="bg-surface-muted text-sm font-semibold text-fg-muted">
-            {partnerName.slice(0, 1).toUpperCase()}
+            {initialOf(partnerName)}
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1 leading-tight">
@@ -88,19 +89,30 @@ export function RandomChatView(props: RandomChatViewProps) {
         </button>
       </header>
 
-      <div className="flex shrink-0 items-center gap-2 border-b border-border bg-surface-muted px-4 py-1">
-        <Lightbulb className="size-4 shrink-0 text-fg-muted" aria-hidden />
-        <p className="min-w-0 flex-1 truncate text-sm text-fg">{props.starter}</p>
-        <Button variant="ghost" size="sm" onClick={props.onShuffleStarter}>
-          New idea
-        </Button>
-      </div>
+      {/* Once the chat is going, the idea shrinks to a strip; before that it is the question sticker below. */}
+      {messages.length > 0 && (
+        <div className="flex shrink-0 items-center gap-2 border-b border-border bg-surface-muted px-4 py-1">
+          <Lightbulb className="size-4 shrink-0 text-fg-muted" aria-hidden />
+          <p className="min-w-0 flex-1 truncate text-sm text-fg">{props.starter}</p>
+          <Button variant="ghost" size="sm" onClick={props.onShuffleStarter}>
+            New idea
+          </Button>
+        </div>
+      )}
 
       <div className="flex-1 space-y-3 overflow-y-auto p-4" aria-live="polite">
         {messages.length === 0 ? (
-          <div className="flex h-full flex-col items-center justify-center gap-1 p-6 text-center">
-            <p className="font-display text-lg font-bold text-fg">You're connected</p>
-            <p className="text-sm text-fg-muted">Say hi, or try the idea above. Be kind.</p>
+          <div className="flex min-h-full flex-col items-center justify-center gap-5 py-6">
+            <div className="space-y-1 text-center">
+              <p className="font-display text-lg font-bold text-fg">You're connected</p>
+              <p className="text-sm text-fg-muted">Say hi, or answer this one below. Be kind.</p>
+            </div>
+            <QuestionSticker prompt={props.starter} variant="flat" className="w-full max-w-sm">
+              <Button variant="ghost" size="sm" onClick={props.onShuffleStarter} className="-ml-3">
+                <Lightbulb aria-hidden />
+                New idea
+              </Button>
+            </QuestionSticker>
           </div>
         ) : (
           messages.map((m) => (

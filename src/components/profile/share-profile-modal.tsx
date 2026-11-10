@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { LinkedinIcon, XIcon } from "@/components/ui/social-icons";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
+import { initialOf } from "@/lib/utils";
 
 interface ShareProfileModalProps {
   isOpen: boolean;
@@ -116,7 +117,7 @@ export function ShareProfileModal({ isOpen, onClose, profile }: ShareProfileModa
             <Avatar className="size-12">
               <AvatarImage src={profile.avatarUrl || ""} alt="" className="object-cover" />
               <AvatarFallback className="bg-surface-muted font-semibold">
-                {profile.displayName[0]?.toUpperCase()}
+                {initialOf(profile.displayName)}
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0">

@@ -1,7 +1,7 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
+import { cn, initialOf } from "@/lib/utils";
 
 interface StoryAvatarItemProps {
   displayName: string;
@@ -20,7 +20,7 @@ export function StoryAvatarItem({
   hasUnseen = true,
   onClick,
 }: StoryAvatarItemProps) {
-  const fallback = displayName ? displayName[0].toUpperCase() : "S";
+  const fallback = initialOf(displayName, "S");
 
   return (
     <button

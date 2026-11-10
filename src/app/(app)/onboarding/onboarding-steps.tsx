@@ -12,7 +12,7 @@ import { labelClassName } from "@/components/ui/label";
 import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Textarea } from "@/components/ui/textarea";
 import { DEGREE_CATEGORIES, getBranchOptionsForDegree } from "@/constants";
-import { cn } from "@/lib/utils";
+import { cn, initialOf } from "@/lib/utils";
 import { CampusPicker } from "./onboarding-campus-picker";
 import {
   GENDERS,
@@ -78,7 +78,7 @@ export function StepProfile({
         <Avatar className="size-20">
           <AvatarImage src={avatarSrc} className="object-cover" alt="" />
           <AvatarFallback className="bg-brand-subtle text-xl font-bold text-brand-text">
-            {values.displayName ? values.displayName[0].toUpperCase() : "?"}
+            {initialOf(values.displayName)}
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0 space-y-1">

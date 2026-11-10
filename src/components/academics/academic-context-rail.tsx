@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useScrollIsolation } from "@/hooks/use-scroll-isolation";
 import { fetcher } from "@/lib/api";
 import { sounds } from "@/lib/sounds";
-import { getAvatarUrl } from "@/lib/utils";
+import { getAvatarUrl, initialOf } from "@/lib/utils";
 
 interface AcademicContextRailProps {
   onSelectTopic?: (topic: string) => void;
@@ -139,7 +139,7 @@ export function AcademicContextRail({
                   </span>
                   <Avatar size="sm">
                     <AvatarImage src={getAvatarUrl(u.avatarUrl, u.username)} alt="" />
-                    <AvatarFallback>{(u.displayName || u.username).charAt(0).toUpperCase()}</AvatarFallback>
+                    <AvatarFallback>{initialOf(u.displayName || u.username)}</AvatarFallback>
                   </Avatar>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-medium text-fg">{u.displayName}</span>

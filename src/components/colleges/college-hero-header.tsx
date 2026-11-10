@@ -37,6 +37,8 @@ interface CollegeHeroHeaderProps {
   postsCount: number;
   academicsCount?: number;
   isEnrolledHere: boolean;
+  /** The college has a confirmed student email domain. */
+  isVerifiedCollege?: boolean;
   /** Signed-out visitors see "Join with college email" instead of "Ask seniors". */
   isSignedIn?: boolean;
   onAskSeniorClick?: () => void;
@@ -54,6 +56,7 @@ export function CollegeHeroHeader({
   postsCount,
   academicsCount = 0,
   isEnrolledHere,
+  isVerifiedCollege = false,
   isSignedIn = true,
   onAskSeniorClick,
 }: CollegeHeroHeaderProps) {
@@ -137,7 +140,11 @@ export function CollegeHeroHeader({
             </div>
           </div>
 
-          {isEnrolledHere && <VerifiedSticker size="sm" label="Your college" />}
+          {isEnrolledHere ? (
+            <VerifiedSticker size="sm" label="Your college" />
+          ) : isVerifiedCollege ? (
+            <VerifiedSticker size="sm" label="Verified college" />
+          ) : null}
 
           {college.description && (
             <p className="line-clamp-3 max-w-prose text-sm leading-relaxed text-fg-muted">

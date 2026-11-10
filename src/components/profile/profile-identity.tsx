@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { MentionTag, VerifiedSticker } from "@/components/ui/stickers";
 import type { CustomLink } from "@/lib/social-links";
-import { cn } from "@/lib/utils";
+import { cn, initialOf } from "@/lib/utils";
 
 export interface ProfileStat {
   label: string;
@@ -54,7 +54,7 @@ export function ProfileAvatar({
     <Avatar className={cn("size-24 border-4 border-bg bg-surface shadow-sm sm:size-32", className)}>
       <AvatarImage src={avatarUrl || ""} alt={`${displayName}'s photo`} className="object-cover" />
       <AvatarFallback className="bg-surface-muted font-display text-3xl font-bold text-fg">
-        {displayName[0]?.toUpperCase()}
+        {initialOf(displayName)}
       </AvatarFallback>
     </Avatar>
   );
@@ -94,7 +94,12 @@ export function ProfileIdentity({
 
   return (
     <section aria-label={`${displayName}'s profile`}>
-      <div className="relative h-36 w-full overflow-hidden bg-surface-muted sm:h-52 sm:rounded-b-xl lg:h-60">
+      <div
+        className={cn(
+          "relative h-36 w-full overflow-hidden sm:h-52 sm:rounded-b-xl lg:h-60",
+          bannerUrl ? "bg-surface-muted" : "story-field"
+        )}
+      >
         {bannerUrl && <img src={bannerUrl} alt="" className="h-full w-full object-cover" />}
         {coverActions && (
           <div className="absolute inset-x-3 top-3 flex items-center justify-between gap-2">
@@ -125,6 +130,7 @@ export function ProfileIdentity({
                   href={`/colleges/${institution.slug}`}
                   size="sm"
                   title={institution.name}
+                  className="relative after:absolute after:inset-x-0 after:-inset-y-2.5 after:content-['']"
                 />
               ) : null}
             </div>

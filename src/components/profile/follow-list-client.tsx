@@ -109,7 +109,7 @@ export function FollowListClient({
   const emptyLine = direction === "friends" ? "Friends are people who follow each other." : undefined;
 
   return (
-    <div className="flex min-h-screen w-full flex-col">
+    <div className="flex min-h-dvh w-full flex-col">
       <header className="sticky top-0 z-40 border-b border-border bg-bg">
         <div className="flex items-center gap-2 px-2 py-2">
           <Button asChild variant="ghost" size="icon" aria-label="Back to profile">

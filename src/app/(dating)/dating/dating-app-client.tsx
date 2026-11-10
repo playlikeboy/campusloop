@@ -183,7 +183,8 @@ export function DatingAppClient() {
           description="Nearby students show up first. Others only see a rough distance, like 'Within 5 km'."
           className="mb-2"
         />
-        <div className="relative min-h-[min(56dvh,500px)] flex-1 py-1">
+        {/* 36dvh keeps the card plus the 56px actions above the bottom nav on a 360x640 phone. */}
+        <div className="relative flex min-h-[min(36dvh,500px)] flex-1 flex-col py-1">
           <SwipeDeck candidates={remaining} onSwipe={handleSwipe} />
         </div>
         <div className="pt-3">
@@ -210,10 +211,7 @@ export function DatingAppClient() {
         description="Look at other colleges too, or check back later."
         action={
           <div className="flex flex-col items-center gap-1">
-            <Button
-              variant="crush"
-              onClick={() => void updatePreferences({ scope: "GLOBAL", gender: "ALL" })}
-            >
+            <Button onClick={() => void updatePreferences({ scope: "GLOBAL", gender: "ALL" })}>
               <Globe />
               Show all colleges
             </Button>

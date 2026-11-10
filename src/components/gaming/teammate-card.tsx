@@ -5,7 +5,8 @@ import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getAvatarUrl } from "@/lib/utils";
+import { MentionTag } from "@/components/ui/stickers";
+import { getAvatarUrl, initialOf } from "@/lib/utils";
 
 interface TeammateCardProps {
   teammate: {
@@ -60,7 +61,7 @@ export function TeammateCard({ teammate }: TeammateCardProps) {
           <Link href={`/@${teammate.user.username}`} className="shrink-0" aria-hidden tabIndex={-1}>
             <Avatar className="size-11">
               <AvatarImage src={avatar} alt="" />
-              <AvatarFallback className="text-sm">{teammate.user.displayName[0] || "U"}</AvatarFallback>
+              <AvatarFallback className="text-sm">{initialOf(teammate.user.displayName, "U")}</AvatarFallback>
             </Avatar>
           </Link>
           <div className="min-w-0">
@@ -70,10 +71,17 @@ export function TeammateCard({ teammate }: TeammateCardProps) {
             >
               {teammate.user.displayName}
             </Link>
-            <p className="truncate text-sm text-fg-muted">
-              @{teammate.user.username}
-              {teammate.institution ? ` · ${teammate.institution.name.split(",")[0]}` : ""}
-            </p>
+            <div className="mt-0.5 flex min-w-0 items-center gap-1.5 text-sm text-fg-muted">
+              <MentionTag
+                username={teammate.user.username}
+                href={`/@${teammate.user.username}`}
+                size="sm"
+                className="min-w-0 shrink"
+              />
+              {teammate.institution && (
+                <span className="min-w-0 truncate">{teammate.institution.name.split(",")[0]}</span>
+              )}
+            </div>
           </div>
         </div>
 

@@ -13,7 +13,7 @@ import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Institution, UserProfile } from "@/db/schema";
 import { fetcher } from "@/lib/api";
-import { getAvatarUrl } from "@/lib/utils";
+import { getAvatarUrl, initialOf } from "@/lib/utils";
 
 type BranchStudent = UserProfile & { institution?: Institution | null };
 
@@ -45,7 +45,7 @@ export function BranchDirectoryClient() {
   const branchTitle = data?.branch || slug.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
 
   return (
-    <div className="mx-auto min-h-screen w-full max-w-2xl space-y-4 px-4 pt-3 pb-24">
+    <div className="mx-auto min-h-dvh w-full max-w-2xl space-y-4 px-4 pt-3 pb-24">
       <header className="space-y-1">
         <Button variant="ghost" size="sm" className="-ml-2" onClick={() => router.back()}>
           <ArrowLeft />
@@ -137,7 +137,7 @@ export function BranchDirectoryClient() {
               <Link href={`/@${student.username}`} className="shrink-0">
                 <Avatar className="size-11">
                   <AvatarImage src={student.avatarUrl || getAvatarUrl(null, student.username)} alt="" />
-                  <AvatarFallback>{student.displayName[0]?.toUpperCase()}</AvatarFallback>
+                  <AvatarFallback>{initialOf(student.displayName)}</AvatarFallback>
                 </Avatar>
               </Link>
               <div className="min-w-0 flex-1 space-y-0.5">

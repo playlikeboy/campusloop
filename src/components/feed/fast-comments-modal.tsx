@@ -34,7 +34,7 @@ import { voteComment } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { uploadImageToImgBB } from "@/lib/upload";
-import { cn, formatTimeAgo, getAvatarUrl } from "@/lib/utils";
+import { cn, formatTimeAgo, getAvatarUrl, initialOf } from "@/lib/utils";
 
 export interface FastComment {
   id: string;
@@ -675,7 +675,8 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                   <button
                     type="button"
                     onClick={() => setReplyingTo(null)}
-                    className="size-5 rounded-full hover:bg-surface-muted flex items-center justify-center text-fg-subtle hover:text-fg cursor-pointer"
+                    aria-label="Stop replying"
+                    className="relative size-5 rounded-full hover:bg-surface-muted flex items-center justify-center text-fg-subtle hover:text-fg cursor-pointer after:absolute after:-inset-3 after:content-['']"
                   >
                     <X className="size-3" />
                   </button>
@@ -704,7 +705,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                       {isAnonymous ? (
                         <VenetianMask className="size-4 text-brand-text" />
                       ) : (
-                        profile?.displayName?.[0] || "U"
+                        initialOf(profile?.displayName, "U")
                       )}
                     </AvatarFallback>
                   </Avatar>
@@ -743,7 +744,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                       onPaste={handlePaste}
                       onFocus={handleComposerFocus}
                       enterKeyHint="send"
-                      className="flex-1 bg-transparent text-sm text-fg placeholder:text-fg-muted outline-none"
+                      className="min-h-8 min-w-0 flex-1 bg-transparent text-base text-fg placeholder:text-fg-muted outline-none sm:text-sm"
                       maxLength={500}
                     />
 
@@ -752,7 +753,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={isUploadingImage}
-                      className="text-fg-subtle hover:text-fg transition-colors p-1 cursor-pointer disabled:opacity-40"
+                      className="relative shrink-0 text-fg-subtle hover:text-fg transition-colors p-1 cursor-pointer disabled:opacity-40 after:absolute after:-inset-2 after:content-['']"
                       title="Attach photo"
                       aria-label="Attach photo"
                     >
@@ -773,7 +774,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                         toast.info(next ? "Commenting anonymously" : "Commenting publicly");
                       }}
                       className={cn(
-                        "flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold transition-colors cursor-pointer",
+                        "relative flex shrink-0 items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold transition-colors cursor-pointer after:absolute after:-inset-y-2.5 after:-inset-x-1 after:content-['']",
                         isAnonymous
                           ? "bg-brand-subtle/80 text-brand-text border border-brand-subtle-border/40"
                           : "text-fg-subtle hover:text-fg"
@@ -791,7 +792,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                     disabled={!commentText.trim() || isSubmitting}
                     onClick={handleSendComment}
                     className={cn(
-                      "size-9 rounded-full flex items-center justify-center transition-colors cursor-pointer shrink-0 shadow-md",
+                      "size-11 rounded-full flex items-center justify-center transition-colors cursor-pointer shrink-0 shadow-md",
                       commentText.trim() && !isSubmitting
                         ? "bg-primary text-primary-foreground hover:bg-primary/95 active:scale-90 shadow-primary/25"
                         : "bg-muted text-muted-foreground/50 cursor-not-allowed"

@@ -41,7 +41,13 @@ export function candidatePhotos(c: Candidate): string[] {
 /** Shown instead of a photo when the student has not added one. */
 function NoPhoto({ name, compact }: { name: string; compact?: boolean }) {
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-crush-subtle text-crush-text">
+    <div
+      className={cn(
+        "absolute inset-0 flex flex-col items-center gap-2 bg-crush-subtle text-crush-text",
+        // Full cards keep the letter in the top half, clear of the name and details overlay.
+        compact ? "justify-center" : "justify-start pt-[18%]"
+      )}
+    >
       <span className="font-display text-7xl font-extrabold">{initials(name)}</span>
       {!compact && (
         <span className="inline-flex items-center gap-1.5 text-sm font-medium">

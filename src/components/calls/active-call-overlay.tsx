@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { CallEngine, type CallState } from "@/lib/calls/call-engine";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
+import { initialOf } from "@/lib/utils";
 import { CallControls } from "./call-controls";
 
 interface ActiveCallOverlayProps {
@@ -179,7 +180,7 @@ export function ActiveCallOverlay({
   }
 
   const status = callState === "CONNECTED" ? formatSeconds(duration) : STATE_LABEL[callState];
-  const initials = partner.displayName?.slice(0, 2).toUpperCase() || "CL";
+  const initials = initialOf(partner.displayName);
 
   return (
     <div
@@ -200,7 +201,7 @@ export function ActiveCallOverlay({
                 {initials}
               </AvatarFallback>
             </Avatar>
-            <h2 className="font-display text-3xl font-bold">{partner.displayName}</h2>
+            <h2 className="max-w-full font-display text-3xl font-bold break-words">{partner.displayName}</h2>
             <p className="text-lg text-fg-muted tabular-nums" aria-live="polite">
               {status}
             </p>
@@ -227,15 +228,15 @@ export function ActiveCallOverlay({
 
       <header className="relative z-20 flex items-center justify-between p-4 pt-[max(1rem,env(safe-area-inset-top))]">
         {type === "video" ? (
-          <div className="flex items-center gap-3 rounded-full bg-surface py-1.5 pr-4 pl-1.5 shadow-lg">
+          <div className="flex min-w-0 items-center gap-3 rounded-full bg-surface py-1.5 pr-4 pl-1.5 shadow-lg">
             <Avatar className="size-9">
               <AvatarImage src={partner.avatarUrl || ""} alt="" />
               <AvatarFallback className="bg-brand-subtle text-xs font-bold text-brand-text">
                 {initials}
               </AvatarFallback>
             </Avatar>
-            <div>
-              <p className="text-sm leading-tight font-semibold">{partner.displayName}</p>
+            <div className="min-w-0">
+              <p className="truncate text-sm leading-tight font-semibold">{partner.displayName}</p>
               <p className="text-xs text-fg-muted tabular-nums" aria-live="polite">
                 {status}
               </p>

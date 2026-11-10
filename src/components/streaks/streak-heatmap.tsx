@@ -137,7 +137,7 @@ export function StreakHeatmap({
                         day.isFuture
                           ? "bg-transparent"
                           : day.isCompleted
-                            ? "bg-verified"
+                            ? "bg-brand"
                             : "bg-surface-sunken",
                         day.isToday && "ring-2 ring-border-strong ring-offset-1 ring-offset-surface"
                       )}
@@ -156,7 +156,7 @@ export function StreakHeatmap({
           Not active
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="size-3 rounded-xs bg-verified" aria-hidden="true" />
+          <span className="size-3 rounded-xs bg-brand" aria-hidden="true" />
           Active
         </span>
       </div>

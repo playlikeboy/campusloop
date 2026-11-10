@@ -4,28 +4,42 @@ import { Users } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { EmptyState } from "@/components/ui/empty-state";
-import { getAvatarUrl } from "@/lib/utils";
+import { VerifiedSticker } from "@/components/ui/stickers";
+import { getAvatarUrl, initialOf } from "@/lib/utils";
 import type { CommunityDetailProps } from "./community-detail-client";
 import { CommunityRoleBadge } from "./community-role-badge";
+import { EmptySticker } from "./empty-sticker";
 
 type Members = NonNullable<CommunityDetailProps["membersList"]>;
 type Related = NonNullable<CommunityDetailProps["relatedCommunities"]>;
 
 export function CommunityMembersPanel({ members }: { members: Members }) {
   if (members.length === 0) {
-    return <EmptyState icon={Users} size="compact" bordered title="No members to show yet" />;
+    return (
+      <EmptyState
+        illustration={<EmptySticker icon={Users} />}
+        size="compact"
+        bordered
+        title="No members to show yet"
+      />
+    );
   }
   return (
     <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-surface">
       {members.map((m) => (
-        <li key={m.id} className="flex items-center justify-between gap-3 px-4 py-3">
+        <li key={m.id} className="flex min-h-16 items-center justify-between gap-3 px-4 py-3">
           <Link href={`/@${m.user.username}`} className="group flex min-w-0 items-center gap-3">
             <Avatar className="size-10 shrink-0">
               <AvatarImage src={m.user.avatarUrl || ""} alt="" />
-              <AvatarFallback>{(m.user.displayName || "U").slice(0, 1).toUpperCase()}</AvatarFallback>
+              <AvatarFallback>{initialOf(m.user.displayName, "U")}</AvatarFallback>
             </Avatar>
             <div className="min-w-0">
-              <p className="truncate font-semibold text-fg group-hover:underline">{m.user.displayName}</p>
+              <p className="flex min-w-0 items-center gap-1.5">
+                <span className="truncate font-semibold text-fg group-hover:underline">{m.user.displayName}</span>
+                {m.user.isCollegeVerified && (
+                  <VerifiedSticker label="Verified" size="sm" className="h-6 shrink-0 shadow-none" />
+                )}
+              </p>
               <p className="truncate text-sm text-fg-muted">
                 @{m.user.username}
                 {m.user.headline ? ` · ${m.user.headline}` : ""}

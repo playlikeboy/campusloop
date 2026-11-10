@@ -149,7 +149,7 @@ export default function HashtagFeed() {
   ];
 
   return (
-    <main className="min-h-screen bg-bg text-fg pb-28 mx-auto max-w-2xl sm:border-x border-border">
+    <main className="min-h-dvh bg-bg text-fg pb-28 mx-auto max-w-2xl sm:border-x border-border">
       <header className="sticky top-12 lg:top-0 z-30 bg-bg border-b border-border px-2 py-1.5 flex items-center justify-between gap-2">
         <Link
           href="/feeds"
@@ -235,7 +235,7 @@ export default function HashtagFeed() {
                   href={`/hashtag/${encodeURIComponent(cleanRTag)}`}
                   aria-current={isCurrent ? "page" : undefined}
                   className={cn(
-                    "inline-flex h-8 items-center px-3 rounded-full text-xs font-medium transition-ui shrink-0",
+                    "inline-flex h-8 pointer-coarse:h-11 items-center px-3 rounded-full text-xs font-medium transition-ui shrink-0",
                     isCurrent
                       ? "bg-brand text-brand-fg"
                       : "bg-surface-muted text-fg-muted hover:bg-surface-sunken hover:text-fg"

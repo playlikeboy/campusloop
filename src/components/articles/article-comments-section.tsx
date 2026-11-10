@@ -15,6 +15,7 @@ import { fetcher, voteArticleComment } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { type ArticleComment, ArticleCommentItem } from "./article-comment-item";
+import { initialOf } from "@/lib/utils";
 
 interface ArticleCommentsSectionProps {
   articleSlug: string;
@@ -217,7 +218,7 @@ export function ArticleCommentsSection({
           <Avatar className="size-8 shrink-0">
             <AvatarImage src={effectiveProfile?.avatarUrl || ""} alt="" />
             <AvatarFallback className="bg-surface-muted text-xs font-semibold text-fg">
-              {effectiveProfile?.username?.[0]?.toUpperCase() || "U"}
+              {initialOf(effectiveProfile?.username, "U")}
             </AvatarFallback>
           </Avatar>
           <label htmlFor="article-comment" className="sr-only">

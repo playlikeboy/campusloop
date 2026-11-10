@@ -6,6 +6,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
 import { BillSummary } from "@/components/marketplace/bill-summary";
+import { OrderProgressSticker } from "@/components/marketplace/order-progress-sticker";
 import { StatusTimeline } from "@/components/marketplace/status-timeline";
 import { Badge, type BadgeVariant } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CountdownSticker } from "@/components/ui/stickers/countdown-sticker";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -113,6 +115,15 @@ export function BikeBookingClient({ bookingId }: BikeBookingClientProps) {
   const status = STATUS[booking.status] ?? { label: booking.status, variant: "neutral" as BadgeVariant };
   const isCancelled = ["CANCELLED", "REJECTED", "DISPUTED"].includes(booking.status);
   const canCancel = booking.status === "REQUESTED" || booking.status === "CONFIRMED";
+  // Real times only: count down to pickup before the ride, to return time during it.
+  // Once the time passes, the sticker shows its done label instead of numbers.
+  const beforePickup = ["REQUESTED", "CONFIRMED", "READY_FOR_PICKUP"].includes(booking.status);
+  const countdown =
+    beforePickup && booking.startAt
+      ? { title: "Pickup in", target: booking.startAt as string, done: "Pickup time is here" }
+      : booking.status === "ACTIVE" && booking.endAt
+        ? { title: "Return the bike in", target: booking.endAt as string, done: "Return time is here" }
+        : null;
 
   return (
     <div className="mx-auto max-w-2xl space-y-4 pb-24">
@@ -124,6 +135,17 @@ export function BikeBookingClient({ bookingId }: BikeBookingClientProps) {
         size="md"
         secondaryActions={<Badge variant={status.variant}>{status.label}</Badge>}
       />
+
+      {!isCancelled && <OrderProgressSticker steps={STEPS} current={booking.status} />}
+
+      {countdown && (
+        <CountdownSticker
+          variant="flat"
+          title={countdown.title}
+          target={countdown.target}
+          doneLabel={countdown.done}
+        />
+      )}
 
       <section aria-label="Booking progress" className="rounded-lg border border-border bg-surface p-4">
         {isCancelled ? (
@@ -156,7 +178,7 @@ export function BikeBookingClient({ bookingId }: BikeBookingClientProps) {
           </div>
         </dl>
         <div className="flex items-center justify-between gap-3">
-          <p className="flex items-center gap-2 text-fg">
+          <p className="flex min-w-0 items-center gap-2 break-words text-fg">
             <MapPin className="size-4 shrink-0 text-fg-muted" aria-hidden="true" />
             {booking.bike?.pickupLocation}
           </p>

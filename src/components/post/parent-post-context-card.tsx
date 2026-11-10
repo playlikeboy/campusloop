@@ -2,7 +2,7 @@ import { ArrowRight, Building2, MessageCircle, VenetianMask } from "lucide-react
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { RichText } from "@/components/ui/rich-text";
-import { formatTimeAgo, getAvatarUrl } from "@/lib/utils";
+import { formatTimeAgo, getAvatarUrl, initialOf } from "@/lib/utils";
 
 export interface ParentPostContextProps {
   id: string;
@@ -36,7 +36,7 @@ export function ParentPostContextCard({ post }: { post: ParentPostContextProps }
   const fallback = isAnon ? (
     <VenetianMask className="size-4 text-brand-text" />
   ) : (
-    (post.author?.displayName?.[0] ?? "S").toUpperCase()
+    initialOf(post.author?.displayName, "S")
   );
 
   const collegeName = post.institution?.name?.split(",")[0] || "Campus Discussion";

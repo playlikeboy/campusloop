@@ -18,7 +18,7 @@ export function SwipeDeck({
   if (!top) return null;
 
   return (
-    <div className="relative mx-auto h-full w-full max-w-sm">
+    <div className="relative mx-auto min-h-0 w-full max-w-sm flex-1">
       {third && <BackCard key={third.id} candidate={third} depth={2} />}
       {second && <BackCard key={second.id} candidate={second} depth={1} />}
       <TopCard key={top.id} candidate={top} onSwipe={onSwipe} />
@@ -30,7 +30,7 @@ function buzz(pattern: number | number[]) {
   if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") navigator.vibrate(pattern);
 }
 
-/** Undo, Pass and Like under the deck. */
+/** Undo, Pass and Like under the deck. Pass and Like are 56px thumb targets; Undo is 44px. */
 export function SwipeActions({
   onPass,
   onLike,
@@ -66,7 +66,7 @@ export function SwipeActions({
           onPass();
         }}
         aria-label="Pass"
-        className="shadow-sm"
+        className="size-14 min-h-14 min-w-14 shadow-sm"
       >
         <X className="size-6" />
       </Button>
@@ -79,7 +79,7 @@ export function SwipeActions({
           onLike();
         }}
         aria-label="Like"
-        className="shadow-sticker"
+        className="size-14 min-h-14 min-w-14 shadow-sticker"
       >
         <Heart className="size-6 fill-current" />
       </Button>

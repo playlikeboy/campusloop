@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { BillSummary } from "@/components/marketplace/bill-summary";
 import { ChoiceCard } from "@/components/marketplace/choice-card";
+import { StickyActionBar } from "@/components/marketplace/sticky-action-bar";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { fieldClassName, Input } from "@/components/ui/input";
@@ -210,7 +211,7 @@ export function CheckoutClient({ profileId, collegeName = "your college" }: Chec
   }
 
   return (
-    <div className="mx-auto max-w-2xl pb-24">
+    <div className="mx-auto max-w-2xl pb-24 lg:pb-0">
       <PageHeader
         title="Checkout"
         description={`${collegeName} · ${merchantGroups.length} ${merchantGroups.length === 1 ? "order" : "orders"}`}
@@ -396,13 +397,15 @@ export function CheckoutClient({ profileId, collegeName = "your college" }: Chec
           total={grandTotal}
         />
 
-        <Button type="submit" size="lg" className="w-full" loading={isSubmitting}>
-          {isSubmitting
-            ? paymentMethod === "RAZORPAY"
-              ? "Opening payment..."
-              : "Placing order..."
-            : `${paymentMethod === "RAZORPAY" ? "Pay" : "Place order"} · ${rupees(grandTotal)}`}
-        </Button>
+        <StickyActionBar>
+          <Button type="submit" size="lg" className="w-full" loading={isSubmitting}>
+            {isSubmitting
+              ? paymentMethod === "RAZORPAY"
+                ? "Opening payment..."
+                : "Placing order..."
+              : `${paymentMethod === "RAZORPAY" ? "Pay" : "Place order"} · ${rupees(grandTotal)}`}
+          </Button>
+        </StickyActionBar>
       </form>
     </div>
   );

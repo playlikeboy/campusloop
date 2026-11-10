@@ -16,7 +16,7 @@ import { InboxRowsSkeleton } from "./chat-skeletons";
 const EMPTY_COPY: Record<InboxFilter, { title: string; description: string; icon: typeof MessageCircle }> = {
   ALL: {
     title: "No chats yet",
-    description: "Search for a classmate above to send your first message.",
+    description: "Search for a classmate to send your first message.",
     icon: MessageCircle,
   },
   UNREAD: { title: "You're all caught up", description: "No unread messages right now.", icon: MailOpen },
@@ -147,6 +147,10 @@ interface InboxListProps {
   onOpenActions: (conv: CachedConversation) => void;
   onRetry: () => void;
   onShowAll: () => void;
+  /** Empty inbox: jump to the people search. */
+  onFindPeople: () => void;
+  /** Empty groups filter: open the new-group flow. */
+  onNewGroup: () => void;
 }
 
 /** The conversation list with its loading, error and empty states. */
@@ -161,6 +165,8 @@ export function ChatInboxList({
   onOpenActions,
   onRetry,
   onShowAll,
+  onFindPeople,
+  onNewGroup,
 }: InboxListProps) {
   if (loading) return <InboxRowsSkeleton />;
 
@@ -187,18 +193,22 @@ export function ChatInboxList({
         title={copy.title}
         description={copy.description}
         action={
-          filter !== "ALL" ? (
+          filter === "ALL" ? (
+            <Button onClick={onFindPeople}>Find someone to message</Button>
+          ) : filter === "GROUPS" ? (
+            <Button onClick={onNewGroup}>New group</Button>
+          ) : (
             <Button variant="secondary" onClick={onShowAll}>
               Show all chats
             </Button>
-          ) : undefined
+          )
         }
       />
     );
   }
 
   return (
-    <ul className="space-y-0.5 p-2 pb-24">
+    <ul className="space-y-0.5 p-2 pb-[calc(var(--nav-mobile-h)+env(safe-area-inset-bottom)+5.5rem)] lg:pb-24">
       {conversations.map((conv) => (
         <li key={conv.id}>
           <ChatInboxRow

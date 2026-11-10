@@ -107,7 +107,7 @@ export function CurriculumSidebar({
                           replace
                           href={`/learn/${slug}/${l.id}`}
                           aria-current={active ? "page" : undefined}
-                          className="min-w-0 flex-1 rounded-sm py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          className="flex min-h-11 min-w-0 flex-1 flex-col justify-center rounded-sm py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         >
                           <span
                             className={cn(

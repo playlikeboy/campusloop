@@ -399,7 +399,7 @@ export function AcademicPdfViewer({
       className={cn(
         "w-full min-w-0 max-w-full rounded-xl border border-border bg-surface overflow-hidden relative flex flex-col select-none",
         isFullscreen
-          ? "fixed inset-0 z-50 rounded-none h-screen bg-background"
+          ? "fixed inset-0 z-50 rounded-none h-dvh bg-background"
           : "h-[62vh] min-h-[360px] max-h-[680px] sm:h-[620px]",
         className
       )}

@@ -23,7 +23,7 @@ export function StreakWeek({ days, className }: { days: StreakWeekDay[]; classNa
               className={cn(
                 "flex size-9 items-center justify-center rounded-full text-xs font-semibold",
                 day.isCompleted
-                  ? "bg-verified text-verified-fg"
+                  ? "bg-brand text-brand-fg"
                   : day.isToday
                     ? "border-2 border-border-strong bg-surface text-fg"
                     : "border border-border bg-surface-muted"

@@ -60,6 +60,7 @@ interface CollegeHubClientProps {
   relatedColleges: NearbyCollege[];
   currentUserId?: string;
   isEnrolledHere: boolean;
+  isVerifiedCollege?: boolean;
   trendingTags: string[];
 }
 
@@ -76,6 +77,7 @@ export function CollegeHubClient({
   relatedColleges,
   currentUserId,
   isEnrolledHere,
+  isVerifiedCollege = false,
   trendingTags,
 }: CollegeHubClientProps) {
   const router = useRouter();
@@ -138,7 +140,7 @@ export function CollegeHubClient({
   const nearby = relatedColleges.slice(0, 5);
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-4 px-4 pt-3 pb-24">
+    <main className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col gap-4 px-4 pt-3 pb-24">
       <CollegeHeroHeader
         college={college}
         allowedDomains={allowedDomains}
@@ -146,6 +148,7 @@ export function CollegeHubClient({
         postsCount={posts.length}
         academicsCount={academics.length}
         isEnrolledHere={isEnrolledHere}
+        isVerifiedCollege={isVerifiedCollege}
         isSignedIn={Boolean(currentUserId)}
         onAskSeniorClick={handleAskSenior}
       />

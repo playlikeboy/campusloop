@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import useSWR, { mutate } from "swr";
 import { BrandedQrModal } from "@/components/common/branded-qr-modal";
 import { eventModeLabel, eventTypeLabel } from "@/components/events/event-card";
+import { GoingSticker } from "@/components/events/event-countdown-tag";
 import { EventDateTile } from "@/components/events/event-date-tile";
 import {
   EventAbout,
@@ -33,7 +34,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CountdownSticker } from "@/components/ui/stickers";
+import { CountdownSticker, LoopPointsSticker } from "@/components/ui/stickers";
 import { useProfile } from "@/hooks/use-profile";
 import { fetcher } from "@/lib/api";
 import { type CalendarEvent, downloadAppleCalendarIcs, openGoogleCalendar } from "@/lib/calendar";
@@ -104,6 +105,9 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
   );
   const startMs = new Date(event.startDate).getTime();
   const endMs = new Date(event.endDate).getTime();
+  const regClosesRaw = event.registrationDeadline ? new Date(event.registrationDeadline).getTime() : Number.NaN;
+  const regClosesMs = Number.isFinite(regClosesRaw) ? regClosesRaw : null;
+  const goingCount = Number(event.attendeeCount);
   const isLive = now !== null && now >= startMs && now <= endMs;
   const hasEnded = now !== null && now > endMs;
   const posterUrl =
@@ -188,6 +192,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
             {hasEnded && <Badge variant="neutral">Ended</Badge>}
             <Badge variant="neutral">{eventTypeLabel(event.eventType)}</Badge>
             <Badge variant="outline">{event.entryFee || "Free"}</Badge>
+            {Number.isFinite(goingCount) && goingCount > 0 && <GoingSticker count={goingCount} />}
           </div>
           <h1 className="font-display text-3xl font-extrabold text-balance text-fg sm:text-4xl">
             {event.title}
@@ -265,14 +270,24 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
         )}
 
         {points > 0 && !event.isRegistered && !hasEnded && (
-          <p className="text-sm text-fg-muted">
-            Register to earn <span className="font-semibold text-reward-text">+{points} Loop Points</span>.
+          <p className="flex flex-wrap items-center gap-2 text-sm text-fg-muted">
+            Register to earn <LoopPointsSticker points={points} size="sm" />
           </p>
         )}
       </div>
 
       {!isLive && !hasEnded && now !== null && (
-        <CountdownSticker title="Starts in" target={event.startDate} className="mt-6 sm:max-w-sm" />
+        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+          <CountdownSticker title="Starts in" target={event.startDate} />
+          {regClosesMs !== null && regClosesMs > now && regClosesMs < startMs && !event.isRegistered && (
+            <CountdownSticker
+              title="Registration closes in"
+              target={event.registrationDeadline}
+              variant="flat"
+              doneLabel="Registration closed"
+            />
+          )}
+        </div>
       )}
 
       <div className="mt-4">

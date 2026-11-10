@@ -127,6 +127,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
         avatarUrl: m.user.avatarUrl,
         headline: m.user.headline,
         points: m.user.points,
+        isCollegeVerified: m.user.isCollegeVerified,
       },
     }));
 

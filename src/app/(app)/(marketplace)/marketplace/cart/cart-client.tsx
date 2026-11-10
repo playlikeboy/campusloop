@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { BillSummary } from "@/components/marketplace/bill-summary";
 import { QuantityStepper } from "@/components/marketplace/quantity-stepper";
+import { StickyActionBar } from "@/components/marketplace/sticky-action-bar";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -51,7 +52,7 @@ export function CartClient() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4 pb-24">
+    <div className="mx-auto max-w-2xl space-y-4 pb-24 lg:pb-0">
       <PageHeader
         title="Your cart"
         backHref="/marketplace"
@@ -78,15 +79,15 @@ export function CartClient() {
           aria-label={group.merchantName}
           className="rounded-lg border border-border bg-surface"
         >
-          <div className="flex items-center justify-between border-b border-border px-4 py-3">
+          <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
             <Link
               href={`/marketplace/store/${group.merchantId}`}
-              className="flex items-center gap-2 text-sm font-semibold text-fg hover:underline"
+              className="flex min-h-11 min-w-0 items-center gap-2 text-sm font-semibold text-fg hover:underline"
             >
-              <Store className="size-4 text-fg-muted" aria-hidden="true" />
-              {group.merchantName}
+              <Store className="size-4 shrink-0 text-fg-muted" aria-hidden="true" />
+              <span className="truncate">{group.merchantName}</span>
             </Link>
-            <span className="text-sm text-fg-muted tabular-nums">
+            <span className="shrink-0 text-sm text-fg-muted tabular-nums">
               ₹{group.subtotal.toLocaleString("en-IN")}
             </span>
           </div>
@@ -98,7 +99,7 @@ export function CartClient() {
               return (
                 <li key={item.id} className="flex items-center justify-between gap-3 px-4 py-3">
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-fg">{item.productName}</p>
+                    <p className="text-sm font-medium break-words text-fg">{item.productName}</p>
                     {options.length > 0 && (
                       <p className="text-xs text-fg-muted">
                         {options.map(([k, v]) => `${k}: ${v}`).join(" · ")}
@@ -133,20 +134,22 @@ export function CartClient() {
         total={grandTotal}
       />
 
-      <Link
-        href="/marketplace/checkout"
-        onClick={() => {
-          sounds.tap();
-          haptics.light();
-        }}
-        className={cn(buttonVariants({ variant: "primary", size: "lg" }), "w-full justify-between")}
-      >
-        <span>Go to checkout</span>
-        <span className="flex items-center gap-1 tabular-nums">
-          ₹{grandTotal.toLocaleString("en-IN")}
-          <ChevronRight className="size-4" aria-hidden="true" />
-        </span>
-      </Link>
+      <StickyActionBar>
+        <Link
+          href="/marketplace/checkout"
+          onClick={() => {
+            sounds.tap();
+            haptics.light();
+          }}
+          className={cn(buttonVariants({ variant: "primary", size: "lg" }), "w-full justify-between")}
+        >
+          <span>Go to checkout</span>
+          <span className="flex items-center gap-1 tabular-nums">
+            ₹{grandTotal.toLocaleString("en-IN")}
+            <ChevronRight className="size-4" aria-hidden="true" />
+          </span>
+        </Link>
+      </StickyActionBar>
 
       <ConfirmDialog
         isOpen={confirmClear}

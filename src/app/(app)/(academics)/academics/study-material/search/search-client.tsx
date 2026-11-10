@@ -288,7 +288,7 @@ export function AcademicsSearchClient({
   const typeLabel = RESOURCE_TYPES.find((t) => t.id === selectedType)?.label;
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col bg-bg px-4 pb-28 sm:px-6 lg:px-8">
+    <div className="mx-auto flex min-h-dvh w-full max-w-6xl flex-col bg-bg px-4 pb-28 sm:px-6 lg:px-8">
       <header
         className={cn(
           "sticky z-30 -mx-4 flex flex-col gap-3 border-b border-border bg-bg px-4 pt-3 pb-2 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8",

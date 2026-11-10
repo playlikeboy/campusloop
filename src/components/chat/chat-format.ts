@@ -1,3 +1,4 @@
+import { initialOf as sharedInitialOf } from "@/lib/utils";
 import type { CachedConversation, CachedMessage } from "@/lib/chat-cache";
 
 /** Short inbox timestamp: "now", "5m", "4:30 pm", "Yesterday", "3d", "12 Aug". */
@@ -54,7 +55,7 @@ export function isSameDay(a: string | Date, b: string | Date): boolean {
 }
 
 export function initialOf(name?: string | null, fallback = "S"): string {
-  return (name?.trim()?.[0] || fallback).toUpperCase();
+  return sharedInitialOf(name, fallback);
 }
 
 export function isGroupConversation(conv: CachedConversation): boolean {

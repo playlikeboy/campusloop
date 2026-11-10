@@ -110,7 +110,7 @@ export function ArticleDashboardClient({
   const currentList = activeTab === "published" ? published : activeTab === "drafts" ? drafts : archived;
 
   return (
-    <div className="mx-auto min-h-screen max-w-4xl px-4 pt-6 pb-28 sm:px-6">
+    <div className="mx-auto min-h-dvh max-w-4xl px-4 pt-6 pb-28 sm:px-6">
       <header className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-5">
         <div>
           <h1 className="text-3xl text-fg">My articles</h1>

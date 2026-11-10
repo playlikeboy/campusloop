@@ -1,3 +1,5 @@
+import { initialOf } from "@/lib/utils";
+
 export interface SecretCrushItem {
   id: string;
   targetId: string;
@@ -40,6 +42,7 @@ export function formatStudyYear(year?: number | null): string | null {
   return year > 1000 ? `Class of ${year}` : `Year ${year}`;
 }
 
+/** One emoji-safe letter for avatar fallbacks. */
 export function initials(name?: string | null): string {
-  return (name ?? "?").trim().slice(0, 2).toUpperCase() || "?";
+  return initialOf(name);
 }

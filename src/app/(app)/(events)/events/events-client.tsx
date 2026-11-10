@@ -123,36 +123,36 @@ export function EventsClient({
 
   return (
     <section className="mx-auto w-full max-w-3xl space-y-4 px-4 pt-4 pb-12 sm:px-0 sm:pt-6">
-      <header className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          {isArchive && (
-            <Link
-              href="/events"
-              className="mb-1 inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-brand-text hover:underline"
-            >
-              <ArrowLeft className="size-4" aria-hidden /> All events
-            </Link>
-          )}
-          <h1 className="font-display text-3xl font-extrabold text-fg">{pageTitle}</h1>
-          {!isArchive && (
-            <p className="mt-1 text-sm text-fg-muted">Fests, hackathons and meetups. Tap one to register.</p>
-          )}
-        </div>
-        <div className="flex shrink-0 items-center gap-2">
-          <Button asChild variant="circleIcon" size="icon" aria-label="My tickets" title="My tickets">
-            <Link href="/events/my-tickets">
-              <Ticket />
-            </Link>
-          </Button>
-          {!isArchive && (
-            <Button asChild>
-              <Link href="/events/new">
-                <Plus aria-hidden /> <span className="hidden sm:inline">Host an event</span>
-                <span className="sm:hidden">Host</span>
+      <header>
+        {isArchive && (
+          <Link
+            href="/events"
+            className="mb-1 inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-brand-text hover:underline"
+          >
+            <ArrowLeft className="size-4" aria-hidden /> All events
+          </Link>
+        )}
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="min-w-0 truncate font-display text-3xl font-extrabold text-fg">{pageTitle}</h1>
+          <div className="flex shrink-0 items-center gap-2">
+            <Button asChild variant="circleIcon" size="icon" aria-label="My tickets" title="My tickets">
+              <Link href="/events/my-tickets">
+                <Ticket />
               </Link>
             </Button>
-          )}
+            {!isArchive && (
+              <Button asChild>
+                <Link href="/events/new">
+                  <Plus aria-hidden /> <span className="hidden sm:inline">Host an event</span>
+                  <span className="sm:hidden">Host</span>
+                </Link>
+              </Button>
+            )}
+          </div>
         </div>
+        {!isArchive && (
+          <p className="mt-1 text-sm text-fg-muted">Fests, hackathons and meetups. Tap one to register.</p>
+        )}
       </header>
 
       <div className="flex items-center gap-2">
@@ -199,7 +199,7 @@ export function EventsClient({
         </Button>
       </div>
 
-      <fieldset className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+      <fieldset className="no-scrollbar -mx-4 flex min-w-0 gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0">
         <legend className="sr-only">Category</legend>
         {CATEGORIES.map((category) => (
           <Chip
@@ -289,7 +289,7 @@ export function EventsClient({
 
       {!isArchive && (
         <div className="flex justify-center pt-2">
-          <Button asChild variant="ghost" size="sm">
+          <Button asChild variant="ghost" className="min-h-11">
             <Link href="/events/closed">
               <History aria-hidden /> See past events
             </Link>

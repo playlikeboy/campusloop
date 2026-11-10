@@ -1,6 +1,7 @@
 "use client";
 
 import { BookOpen, Building2, Calendar, GraduationCap, ShoppingBag, Users, WifiOff } from "lucide-react";
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState, useTransition } from "react";
 import useSWR from "swr";
@@ -21,6 +22,7 @@ import { UnifiedSearchView } from "@/components/explore/unified-search-view";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CountdownSticker } from "@/components/ui/stickers";
 import { fetcher } from "@/lib/api";
 import type { SearchApiResponse, SearchCategoryFilter, SearchScope } from "@/lib/search/types";
 
@@ -52,6 +54,7 @@ export function ExploreClient({
   initialType = "ALL",
 }: ExploreClientProps) {
   const router = useRouter();
+  const [openedAt] = useState(() => Date.now());
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [, startTransition] = useTransition();
@@ -145,8 +148,15 @@ export function ExploreClient({
     dedupingInterval: 20000,
   });
 
+  // Soonest event that hasn't started yet gets the countdown sticker.
+  const nextEvent = (homeData?.events ?? [])
+    .filter((ev: any) => ev?.startDate && new Date(ev.startDate).getTime() > openedAt)
+    .sort((a: any, b: any) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())[0] as
+    | { id: string; slug?: string | null; title: string; startDate: string }
+    | undefined;
+
   return (
-    <div className="mx-auto w-full max-w-7xl min-h-screen px-3 sm:px-6 py-4 pb-28 space-y-7">
+    <div className="mx-auto w-full max-w-7xl min-h-dvh px-3 sm:px-6 py-4 pb-28 space-y-7">
       {/* ─── Header & Search bar (shared across both states) ─── */}
       <ExploreHeader
         searchQuery={searchQuery}
@@ -241,6 +251,19 @@ export function ExploreClient({
               viewAllHref="/events"
               viewAllLabel="See all"
             >
+              {nextEvent && (
+                <Link
+                  href={`/events/${nextEvent.slug || nextEvent.id}`}
+                  className="block rounded-sticker focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:max-w-sm"
+                >
+                  <CountdownSticker
+                    variant="flat"
+                    title={nextEvent.title}
+                    target={nextEvent.startDate}
+                    className="transition-ui hover:border-border-strong"
+                  />
+                </Link>
+              )}
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {homeData.events.map((ev: any) => (
                   <EventPreviewCard key={ev.id} event={ev} />

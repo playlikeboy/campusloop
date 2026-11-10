@@ -23,7 +23,7 @@ import { hasAttachedVideoContent } from "@/lib/embeds";
 import { haptics } from "@/lib/haptics";
 import { cleanPostHtml, removeDuplicateTitleFromBody } from "@/lib/html-sanitize";
 import { sounds } from "@/lib/sounds";
-import { cn, getAvatarUrl, getCollegeShortName } from "@/lib/utils";
+import { cn, getAvatarUrl, getCollegeShortName, initialOf } from "@/lib/utils";
 import { PollCard } from "./poll-card";
 import { ReportDialog } from "./report-dialog";
 import { ShareStoryModal } from "./share-story-modal";
@@ -74,7 +74,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
       ? cleanBotPseudonym || "bot"
       : post.pseudonym || "anonymous"
     : post.author?.username || "student";
-  const avatarFallback = post.author?.displayName?.[0] ?? "S";
+  const avatarFallback = initialOf(post.author?.displayName, "S");
   const avatarUrl = post.isAnonymous
     ? ""
     : getAvatarUrl(post.author?.avatarUrl, post.author?.username ?? "student");

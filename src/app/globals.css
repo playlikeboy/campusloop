@@ -230,6 +230,10 @@
     background: var(--bg);
     color: var(--fg);
   }
+  /* Fieldsets default to min-inline-size: min-content, which lets chip rows widen the page. */
+  fieldset {
+    min-inline-size: 0;
+  }
 
   /* Keep app surfaces inside the viewport on 320–390px screens. */
   @media (max-width: 768px) {

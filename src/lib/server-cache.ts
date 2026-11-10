@@ -46,6 +46,7 @@ export const getCachedCommunity = cache(async (idOrSlug: string) => {
               displayName: true,
               avatarUrl: true,
               points: true,
+              isCollegeVerified: true,
               branch: true,
               year: true,
             },

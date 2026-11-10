@@ -70,7 +70,7 @@ export function CrushSearchDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="flex max-h-[calc(100dvh-1.5rem)] max-w-md flex-col">
         <DialogHeader>
           <DialogTitle>Add a secret crush</DialogTitle>
           <DialogDescription>They only find out if they add you too.</DialogDescription>
@@ -92,7 +92,7 @@ export function CrushSearchDialog({
           />
         </label>
 
-        <div className="mt-3 max-h-72 min-h-36 overflow-y-auto" aria-live="polite">
+        <div className="mt-3 max-h-72 min-h-36 overflow-y-auto overscroll-contain" aria-live="polite">
           {searching ? (
             <div className="flex justify-center py-10 text-fg-muted">
               <Spinner size="sm" label="Searching" />
@@ -118,7 +118,6 @@ export function CrushSearchDialog({
                     </div>
                   </div>
                   <Button
-                    variant="crush"
                     size="sm"
                     disabled={submitting}
                     onClick={async () => {

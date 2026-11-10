@@ -94,7 +94,7 @@ export function AtlasClient() {
   const evidenceSources = response?.evidence?.sources ?? [];
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-dvh pb-24">
       <ContextualLivingNav />
 
       <main className="mx-auto w-full max-w-4xl space-y-5 px-4 py-5 sm:px-6 sm:py-8">

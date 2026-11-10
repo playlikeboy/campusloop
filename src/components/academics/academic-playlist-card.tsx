@@ -8,7 +8,7 @@ import { playlistCoverClass } from "@/components/academics/playlist-cover";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn } from "@/lib/utils";
+import { cn, initialOf } from "@/lib/utils";
 
 export interface AcademicPlaylistData {
   id: string;
@@ -164,7 +164,7 @@ export function AcademicPlaylistCard({
           <Avatar size="sm">
             {playlist.creator?.avatarUrl && <AvatarImage src={playlist.creator.avatarUrl} alt="" />}
             <AvatarFallback className="bg-brand-subtle text-brand-text">
-              {creatorName.charAt(0).toUpperCase()}
+              {initialOf(creatorName)}
             </AvatarFallback>
           </Avatar>
           <span className="truncate">

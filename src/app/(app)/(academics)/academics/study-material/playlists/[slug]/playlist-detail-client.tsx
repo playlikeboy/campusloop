@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn } from "@/lib/utils";
+import { cn, initialOf } from "@/lib/utils";
 
 interface PlaylistItemData {
   id: string;
@@ -236,7 +236,7 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
   const currentItem = items[activeIndex];
 
   return (
-    <div className="min-h-screen pb-20 max-w-7xl mx-auto px-2 sm:px-4 py-4 space-y-4">
+    <div className="min-h-dvh pb-20 max-w-7xl mx-auto px-2 sm:px-4 py-4 space-y-4">
       {/* ─── Top Navigation & Meta Banner ─── */}
       <div
         className={cn(
@@ -336,7 +336,7 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
                 />
               ) : (
                 <span className="size-4 rounded-full bg-bg/20 text-xs flex items-center justify-center font-bold">
-                  {playlist.creator.displayName.charAt(0)}
+                  {initialOf(playlist.creator.displayName)}
                 </span>
               )}
               <span>@{playlist.creator.username}</span>

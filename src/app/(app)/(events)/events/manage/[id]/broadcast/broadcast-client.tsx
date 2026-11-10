@@ -94,7 +94,7 @@ export function BroadcastClient({ eventId, initialSlug, eventTitle }: BroadcastC
     <div className="mx-auto w-full max-w-2xl space-y-6 px-4 py-6">
       <ManageHeader slug={slug} title="Send an update" eventTitle={eventTitle} />
 
-      <fieldset>
+      <fieldset className="min-w-0">
         <legend className="text-sm font-semibold text-fg">Start from</legend>
         <div className="mt-2 flex gap-2 overflow-x-auto no-scrollbar pb-1">
           {TEMPLATES.map((t) => (

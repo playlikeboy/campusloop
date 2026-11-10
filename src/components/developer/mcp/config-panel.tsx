@@ -74,7 +74,7 @@ export function McpConfigPanel({
       <pre className="overflow-x-auto rounded-md border border-border bg-surface-sunken p-4 font-mono text-xs leading-relaxed whitespace-pre-wrap break-all text-fg">
         {snippet}
       </pre>
-      <p className="text-sm text-fg-muted [&_code]:rounded-sm [&_code]:bg-surface-muted [&_code]:px-1 [&_code]:font-mono [&_code]:text-fg">
+      <p className="text-sm break-words text-fg-muted [&_code]:break-all [&_code]:rounded-sm [&_code]:bg-surface-muted [&_code]:px-1 [&_code]:font-mono [&_code]:text-fg">
         {HINTS[tab]}
       </p>
     </section>

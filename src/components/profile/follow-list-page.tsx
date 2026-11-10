@@ -99,7 +99,7 @@ export async function FollowListPageView({
     : null;
 
   return (
-    <div className="relative min-h-screen bg-bg">
+    <div className="relative min-h-dvh bg-bg">
       <Navigation
         profile={currentProfile}
         collegeName={college?.name ?? "Your college"}

@@ -28,7 +28,7 @@ import type { Comment } from "@/db/schema";
 import { pinComment, voteComment } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn, formatTimeAgo, getAvatarUrl } from "@/lib/utils";
+import { cn, formatTimeAgo, getAvatarUrl, initialOf } from "@/lib/utils";
 
 export type CommentWithAuthor = Omit<Comment, "createdAt" | "updatedAt"> & {
   createdAt: Date | string;
@@ -113,7 +113,7 @@ export function CommentItem({
   const fallback: React.ReactNode = isAnon ? (
     <VenetianMask className="size-4 text-brand-text" />
   ) : (
-    (comment.author?.displayName?.[0] ?? "S").toUpperCase()
+    initialOf(comment.author?.displayName, "S")
   );
   const avatarUrl = isAnon
     ? ""
@@ -482,7 +482,7 @@ export function CommentItem({
                   onChange={handleReplyInputChange}
                   placeholder="Write a reply…"
                   rows={2}
-                  className="w-full bg-transparent text-xs text-foreground placeholder:text-muted-foreground/60 outline-none resize-none leading-relaxed"
+                  className="w-full bg-transparent text-base sm:text-xs text-foreground placeholder:text-muted-foreground/60 outline-none resize-none leading-relaxed"
                   autoFocus
                 />
 

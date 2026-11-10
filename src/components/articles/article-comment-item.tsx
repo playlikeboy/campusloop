@@ -3,7 +3,7 @@
 import { CornerDownRight, ThumbsUp, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
+import { cn, initialOf } from "@/lib/utils";
 
 export interface ArticleComment {
   id: string;
@@ -56,7 +56,7 @@ export function ArticleCommentItem({
           <Avatar className={cn("shrink-0", isReply ? "size-6" : "size-8")}>
             <AvatarImage src={author?.avatarUrl || ""} alt="" />
             <AvatarFallback className="bg-surface-muted text-xs font-semibold text-fg">
-              {name[0]}
+              {initialOf(name)}
             </AvatarFallback>
           </Avatar>
           <span className="min-w-0">

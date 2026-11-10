@@ -4,7 +4,7 @@ import { BarChart3, ChevronRight, Megaphone, QrCode, Settings, Users } from "luc
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge, type BadgeVariant } from "@/components/ui/badge";
-import { formatTimeAgo } from "@/lib/utils";
+import { formatTimeAgo, initialOf } from "@/lib/utils";
 
 const REG_STATUS: Record<string, { label: string; variant: BadgeVariant }> = {
   ATTENDED: { label: "Checked in", variant: "verified" },
@@ -65,7 +65,7 @@ export function LatestRegistrations({
         {registrations.length > 0 && (
           <Link
             href={`/events/manage/${slug}/attendees`}
-            className="text-sm font-semibold text-brand-text hover:underline"
+            className="inline-flex min-h-11 items-center text-sm font-semibold text-brand-text hover:underline"
           >
             See all ({registrations.length})
           </Link>
@@ -81,7 +81,7 @@ export function LatestRegistrations({
                 <div className="flex min-w-0 items-center gap-3">
                   <Avatar size="sm">
                     {reg.profile?.avatarUrl && <AvatarImage src={reg.profile.avatarUrl} alt="" />}
-                    <AvatarFallback>{name[0]}</AvatarFallback>
+                    <AvatarFallback>{initialOf(name)}</AvatarFallback>
                   </Avatar>
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-fg">{name}</p>

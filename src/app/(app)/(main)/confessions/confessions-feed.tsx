@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { FeedCard } from "@/components/ui/feed-card";
 import { SegmentedControl } from "@/components/ui/segmented-control";
+import { QuestionSticker } from "@/components/ui/stickers";
 import { ConfessionsFeedSkeleton } from "@/components/ui/skeleton-card";
 import { type FeedPost, useFeed } from "@/hooks/use-feed";
 import { useProfile } from "@/hooks/use-profile";
@@ -143,8 +144,8 @@ export function ConfessionsFeed() {
   return (
     <div className="w-full max-w-7xl mx-auto px-0 sm:px-4 lg:px-6 sm:pb-3">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-        <main className="lg:col-span-8 flex flex-col min-h-screen pb-28 sm:pb-12 sm:rounded-lg sm:border sm:border-border bg-bg overflow-hidden">
-          <div className="sticky top-12 lg:top-0 z-30 bg-bg border-b border-border">
+        <main className="lg:col-span-8 flex flex-col min-h-dvh pb-28 sm:pb-12 sm:rounded-lg sm:border sm:border-border bg-bg overflow-hidden">
+          <div className="sm:sticky sm:top-12 lg:top-0 z-30 bg-bg border-b border-border">
             <div className="flex items-center justify-between gap-3 px-4 pt-3 pb-2">
               <div className="min-w-0">
                 <h1 className="flex items-center gap-2 text-xl">
@@ -208,13 +209,15 @@ export function ConfessionsFeed() {
           </div>
 
           <div className="sm:hidden px-4 py-3 border-b border-border">
-            <Link
-              href="/post/new?type=CONFESSION"
-              className="flex min-h-11 items-center gap-2 rounded-md bg-surface-muted px-3.5 text-sm text-fg-subtle transition-ui hover:bg-surface-sunken"
-            >
-              <VenetianMask className="size-4 text-fg-muted shrink-0" aria-hidden />
-              <span className="truncate">Write something anonymously…</span>
-            </Link>
+            <QuestionSticker variant="flat" prompt="Say it. No name attached.">
+              <Link
+                href="/post/new?type=CONFESSION"
+                className="flex min-h-11 items-center gap-2 rounded-md bg-surface-muted px-3.5 text-base text-fg-subtle transition-ui hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <VenetianMask className="size-4 text-fg-muted shrink-0" aria-hidden />
+                <span className="truncate">Write your confession…</span>
+              </Link>
+            </QuestionSticker>
           </div>
 
           <div className="hidden sm:block p-4 border-b border-border">

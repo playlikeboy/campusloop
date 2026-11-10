@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export function DatingCardSkeleton() {
   return (
     <div
-      className="relative mx-auto flex h-full min-h-[min(56dvh,500px)] w-full max-w-sm flex-col gap-3 py-1"
+      className="relative mx-auto flex h-full min-h-[min(36dvh,500px)] w-full max-w-sm flex-col gap-3 py-1"
       aria-busy="true"
       aria-label="Loading profiles"
     >
@@ -20,8 +20,8 @@ export function DatingCardSkeleton() {
       </div>
       <div className="flex shrink-0 items-center justify-center gap-4 py-1">
         <Skeleton className="size-11 rounded-full" />
-        <Skeleton className="size-13 rounded-full" />
-        <Skeleton className="size-13 rounded-full" />
+        <Skeleton className="size-14 rounded-full" />
+        <Skeleton className="size-14 rounded-full" />
       </div>
     </div>
   );

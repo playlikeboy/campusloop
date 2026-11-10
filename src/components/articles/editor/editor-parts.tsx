@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getCategoryMeta } from "@/constants/articles";
+import { initialOf } from "@/lib/utils";
 
 export type SaveStatus = "saved" | "saving" | "unsaved" | "error";
 
@@ -113,7 +114,7 @@ export function ArticlePreview({
         <div className="flex items-center gap-3 border-y border-border py-3 text-sm">
           <Avatar className="size-9">
             <AvatarImage src={author?.avatarUrl || ""} alt="" />
-            <AvatarFallback className="bg-surface-muted font-semibold text-fg">{name[0]}</AvatarFallback>
+            <AvatarFallback className="bg-surface-muted font-semibold text-fg">{initialOf(name)}</AvatarFallback>
           </Avatar>
           <div>
             <p className="font-semibold text-fg">{name}</p>

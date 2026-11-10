@@ -7,9 +7,10 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { MentionTag } from "@/components/ui/stickers";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn } from "@/lib/utils";
+import { cn, initialOf } from "@/lib/utils";
 
 export interface BirthdayStudent {
   id: string;
@@ -82,7 +83,7 @@ export function BirthdayCard({ student, isToday = false }: BirthdayCardProps) {
           <Avatar className="size-11">
             <AvatarImage src={student.avatarUrl || ""} alt="" />
             <AvatarFallback className="bg-surface-muted text-sm font-semibold">
-              {(student.displayName?.[0] || "S").toUpperCase()}
+              {initialOf(student.displayName, "S")}
             </AvatarFallback>
           </Avatar>
           {isToday && (
@@ -93,9 +94,9 @@ export function BirthdayCard({ student, isToday = false }: BirthdayCardProps) {
         </span>
         <span className="min-w-0 flex-1">
           <span className="block truncate text-sm font-semibold text-fg">{student.displayName}</span>
-          <span className="block truncate text-xs text-fg-muted">
-            @{student.username}
-            {student.course && ` · ${student.course}`}
+          <span className="mt-0.5 flex min-w-0 items-center gap-1.5 text-xs text-fg-muted">
+            <MentionTag username={student.username} size="sm" className="min-w-0 shrink" />
+            {student.course && <span className="min-w-0 truncate">{student.course}</span>}
           </span>
           {college && <span className="block truncate text-xs text-fg-subtle">{college}</span>}
         </span>

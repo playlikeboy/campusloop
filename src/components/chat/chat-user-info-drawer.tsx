@@ -26,8 +26,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { LoopPointsSticker } from "@/components/ui/stickers";
-import { VerifiedBadge } from "@/components/ui/verified-badge";
+import { LoopPointsSticker, VerifiedSticker } from "@/components/ui/stickers";
 import type { CachedMessage } from "@/lib/chat-cache";
 import { isOnline, presenceLabel } from "@/lib/presence";
 import { cn } from "@/lib/utils";
@@ -151,10 +150,8 @@ export function ChatUserInfoDrawer({
               showPresence={!isGroup}
               className="size-24"
             />
-            <h2 className="flex items-center gap-1.5 font-display text-2xl font-bold text-fg">
-              {p.displayName}
-              {!isGroup && p.isCollegeVerified && <VerifiedBadge size="md" />}
-            </h2>
+            <h2 className="max-w-full font-display text-2xl font-bold break-words text-fg">{p.displayName}</h2>
+            {!isGroup && p.isCollegeVerified && <VerifiedSticker size="sm" />}
             <p className="text-sm text-fg-muted">
               {isGroup
                 ? formatMemberCount(p.membersCount || p.participants?.length || 2)

@@ -8,6 +8,7 @@ import { JoinCommunityButton } from "@/app/(app)/(main)/communities/join-communi
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { Community } from "@/hooks/use-communities";
 import { fetcher } from "@/lib/api";
+import { initialOf } from "@/lib/utils";
 
 /** Three communities the student has not joined yet, shown inside the feed. */
 export function InlineCommunitiesWidget() {
@@ -69,7 +70,7 @@ export function InlineCommunitiesWidget() {
         {suggestedCommunities.map((comm) => {
           const displaySlug = comm.slug || comm.name.toLowerCase().replace(/\s+/g, "-");
           const memberCount = comm.membersCount ?? comm.memberCount ?? comm.members?.length ?? 0;
-          const initialLetter = (comm.name[0] || displaySlug[0] || "C").toUpperCase();
+          const initialLetter = initialOf(comm.name || displaySlug, "C");
 
           return (
             <li key={comm.id} className="flex items-center justify-between gap-3 py-2.5">

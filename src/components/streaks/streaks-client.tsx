@@ -7,11 +7,20 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CountdownSticker, Sticker } from "@/components/ui/stickers";
 import { STREAK_QUALIFYING_EVENTS } from "@/constants/streaks";
 import { useStreaks } from "@/hooks/use-streaks";
 import { StreakHeatmap } from "./streak-heatmap";
 import { StreakMilestones } from "./streak-milestones";
 import { StreakWeek } from "./streak-week";
+
+const IST_OFFSET_MS = 330 * 60 * 1000;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** Next midnight in India time, when an unprotected streak day closes (streak days use Asia/Kolkata). */
+function nextIstMidnight(now = Date.now()) {
+  return Math.floor((now + IST_OFFSET_MS) / DAY_MS) * DAY_MS + DAY_MS - IST_OFFSET_MS;
+}
 
 /** /streaks: your run, the last 7 days, today's task, active days and milestones. */
 export function StreaksClient({ profileId }: { profileId?: string }) {
@@ -22,7 +31,7 @@ export function StreaksClient({ profileId }: { profileId?: string }) {
   if (isLoading) {
     return (
       <div className="mx-auto w-full max-w-3xl space-y-6 px-4 py-6" aria-busy="true">
-        <Skeleton className="h-10 w-48 rounded-md" />
+        <Skeleton className="h-20 w-56 rounded-sticker" />
         <Skeleton className="h-24 rounded-lg" />
         <Skeleton className="h-48 rounded-lg" />
       </div>
@@ -67,9 +76,13 @@ export function StreaksClient({ profileId }: { profileId?: string }) {
     <div className="mx-auto w-full max-w-3xl space-y-8 px-4 py-6 pb-28 sm:px-6">
       <header className="space-y-4">
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-4xl text-fg sm:text-5xl">
-            <span className="tabular-nums">{currentStreak}</span> {currentStreak === 1 ? "day" : "days"}
-          </h1>
+          <Sticker pop className="inline-flex items-center gap-3 px-5 py-3">
+            <Flame aria-hidden="true" className="size-8 shrink-0 text-brand-text" />
+            <h1 className="sticker-caption text-5xl text-sticker-fg sm:text-6xl">
+              <span className="tabular-nums">{currentStreak}</span>{" "}
+              <span className="text-3xl sm:text-4xl">{currentStreak === 1 ? "day" : "days"}</span>
+            </h1>
+          </Sticker>
           {isSafeToday ? <Badge variant="verified">Streak safe today</Badge> : null}
         </div>
         <p className="text-base text-fg-muted">
@@ -92,6 +105,14 @@ export function StreaksClient({ profileId }: { profileId?: string }) {
             Today
           </h2>
           <p className="text-sm text-fg">{todayMission.instruction}</p>
+          {currentStreak > 0 && (
+            <CountdownSticker
+              variant="flat"
+              title="Today ends at midnight"
+              target={nextIstMidnight()}
+              doneLabel="New day. Refresh to see your streak."
+            />
+          )}
           <div className="flex flex-wrap gap-2">
             <Button asChild>
               <Link href={todayMission.ctaHref}>

@@ -16,7 +16,7 @@ import { useCallback, useEffect, useState } from "react";
 import { AdminGlobalSearch } from "@/app/admin/_components/admin-global-search";
 import { AdminMobileDrawer } from "@/app/admin/_components/admin-mobile-drawer";
 import { ADMIN_NAV_SECTIONS } from "@/constants/navigation";
-import { cn } from "@/lib/utils";
+import { cn, initialOf } from "@/lib/utils";
 import { formatCount } from "./nav-utils";
 
 export { ADMIN_NAV_SECTIONS };
@@ -234,7 +234,7 @@ export function AdminHeader({
 
           <div className="flex items-center gap-2 border-l border-border pl-2">
             <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-muted text-xs font-semibold text-fg">
-              {adminProfile?.displayName?.charAt(0) || "A"}
+              {initialOf(adminProfile?.displayName, "A")}
             </span>
             <span className="hidden flex-col leading-tight lg:flex">
               <span className="max-w-32 truncate text-xs font-semibold text-fg">

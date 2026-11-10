@@ -119,7 +119,7 @@ export function CreateCommunityClient() {
   }
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-5xl px-4 pt-3 pb-32 sm:px-6">
+    <main className="mx-auto min-h-dvh w-full max-w-5xl px-4 pt-3 pb-32 sm:px-6">
       <Button variant="ghost" asChild className="-ml-2">
         <Link href="/communities">
           <ArrowLeft />

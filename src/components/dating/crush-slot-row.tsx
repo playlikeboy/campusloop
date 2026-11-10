@@ -46,7 +46,7 @@ export function CrushSlotRow({
 
       <div className="flex shrink-0 items-center gap-1">
         {crush.isMutual ? (
-          <Button variant="crush" size="sm" asChild>
+          <Button size="sm" asChild>
             <Link href={`/chat?userId=${crush.targetId}`} onClick={onNavigate}>
               <MessageCircle />
               Message

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { fetcher } from "@/lib/api";
-import { cn } from "@/lib/utils";
+import { cn, initialOf } from "@/lib/utils";
 
 export interface MentionUser {
   id: string;
@@ -160,7 +160,7 @@ export function MentionSuggestions({ trigger, onSelect, onClose, className }: Me
                 <Avatar className="size-8 border border-border/40 shrink-0">
                   <AvatarImage src={user.avatarUrl || ""} />
                   <AvatarFallback className="text-[11px] font-bold bg-muted text-foreground">
-                    {user.displayName[0]}
+                    {initialOf(user.displayName)}
                   </AvatarFallback>
                 </Avatar>
 

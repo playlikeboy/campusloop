@@ -4,7 +4,7 @@ export default function FeedsLoading() {
   return (
     <div className="mx-auto flex w-full max-w-[1020px] justify-center gap-8">
       <div
-        className="min-h-screen w-full max-w-[640px] select-none border-border sm:border-x"
+        className="min-h-dvh w-full max-w-[640px] select-none border-border sm:border-x"
         aria-busy="true"
       >
         <span className="sr-only">Loading your feed</span>

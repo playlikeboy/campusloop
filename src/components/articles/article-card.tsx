@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { getCategoryMeta } from "@/constants/articles";
 import { ArticleCardActions } from "./article-card-actions";
+import { initialOf } from "@/lib/utils";
 
 export interface ArticleCardProps {
   article: {
@@ -66,7 +67,7 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
         <Avatar className="size-6 shrink-0">
           <AvatarImage src={article.author?.avatarUrl || ""} alt="" />
           <AvatarFallback className="bg-surface-muted text-xs font-semibold text-fg">
-            {authorName[0]}
+            {initialOf(authorName)}
           </AvatarFallback>
         </Avatar>
         <span className="truncate font-semibold text-fg group-hover/author:underline">{authorName}</span>

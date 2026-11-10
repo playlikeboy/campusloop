@@ -5,7 +5,7 @@ import { FollowButton } from "@/components/profile/follow-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getAvatarUrl } from "@/lib/utils";
+import { getAvatarUrl, initialOf } from "@/lib/utils";
 
 export interface FollowListItem {
   id: string;
@@ -37,7 +37,7 @@ export function FollowListRow({
         <Avatar className="size-11 border border-border">
           <AvatarImage src={getAvatarUrl(user.avatarUrl, user.username)} alt="" className="object-cover" />
           <AvatarFallback className="bg-surface-muted font-semibold text-fg">
-            {user.displayName[0]?.toUpperCase()}
+            {initialOf(user.displayName)}
           </AvatarFallback>
         </Avatar>
       </Link>

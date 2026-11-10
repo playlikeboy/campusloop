@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SignOutButton } from "@/components/ui/sign-out-button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import type { UserProfile } from "@/db/schema";
-import { getAvatarUrl } from "@/lib/utils";
+import { getAvatarUrl, initialOf } from "@/lib/utils";
 import { navPress, profileHref } from "./nav-utils";
 
 const itemClass =
@@ -65,7 +65,7 @@ export function AccountMenu({
         <Avatar className="size-8">
           <AvatarImage src={avatar} alt="" />
           <AvatarFallback className="bg-surface-muted text-xs font-semibold text-fg">
-            {profile.displayName?.[0] || "U"}
+            {initialOf(profile.displayName, "U")}
           </AvatarFallback>
         </Avatar>
       </button>

@@ -31,7 +31,7 @@ export function PlayerHeader({
 }: Props) {
   const progress = total ? Math.round((done / total) * 100) : 0;
   return (
-    <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border bg-surface px-2 sm:gap-3 sm:px-4">
+    <header className="relative flex h-14 shrink-0 items-center gap-2 border-b border-border bg-surface px-2 sm:gap-3 sm:px-4">
       <Button asChild variant="ghost" size="icon">
         <Link href={`/courses/${slug}`} aria-label="Back to the course page">
           <ChevronLeft className="size-5" />
@@ -40,12 +40,10 @@ export function PlayerHeader({
       <h1 className="min-w-0 flex-1 truncate font-sans text-sm font-semibold text-fg sm:text-base">
         {title}
       </h1>
-      <div className="hidden items-center gap-2 sm:flex">
-        <ProgressBar value={progress} label="Course progress" className="w-28" />
-        <span className="text-xs font-semibold tabular-nums text-fg-muted">
-          {done}/{total} done
-        </span>
-      </div>
+      <span className="shrink-0 text-xs font-semibold tabular-nums text-fg-muted">
+        {done}/{total}
+        <span className="hidden sm:inline"> done</span>
+      </span>
       {progress === 100 && (
         <Button onClick={onCertificate} loading={certBusy} aria-label="Get your certificate">
           {!certBusy && <Award aria-hidden />}
@@ -71,6 +69,13 @@ export function PlayerHeader({
       >
         {sidebar ? <PanelRightClose /> : <PanelRightOpen />}
       </Button>
+      <ProgressBar
+        value={progress}
+        done={done}
+        total={total}
+        label="Course progress"
+        className="absolute inset-x-2 bottom-1 sm:inset-x-4"
+      />
     </header>
   );
 }

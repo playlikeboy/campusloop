@@ -153,7 +153,7 @@ export function SavedClient() {
             Looking for notes?{" "}
             <Link
               href="/academics/study-material/saved"
-              className="font-semibold text-brand-text hover:underline"
+              className="inline-flex min-h-11 items-center font-semibold text-brand-text hover:underline"
             >
               See saved study material
             </Link>

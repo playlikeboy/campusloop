@@ -199,7 +199,7 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
   return (
     <>
       <div className="mx-auto flex w-full max-w-[1020px] items-start justify-center gap-8 pb-28">
-        <main className="flex min-h-screen w-full max-w-[640px] min-w-0 flex-col bg-bg text-fg sm:border-x border-border pb-20 sm:pb-8">
+        <main className="flex min-h-dvh w-full max-w-[640px] min-w-0 flex-col bg-bg text-fg sm:border-x border-border pb-20 sm:pb-8">
           <FeedHeader
             scope={scope}
             onScopeChange={handleScopeChange}

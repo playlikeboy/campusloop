@@ -6,7 +6,7 @@ import { StoryAvatarItem } from "@/components/stories/story-avatar-item";
 import { useProfile } from "@/hooks/use-profile";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { formatTimeAgo } from "@/lib/utils";
+import { formatTimeAgo, initialOf } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 
 interface Story {
@@ -101,7 +101,7 @@ export function StoryRing({ users }: StoryRingProps) {
             <Avatar className="size-14 border border-background shadow-xs">
               <AvatarImage src={profile?.avatarUrl || ""} />
               <AvatarFallback className="font-bold text-xs bg-muted text-muted-foreground">
-                {(profile?.displayName?.[0] || "U").toUpperCase()}
+                {initialOf(profile?.displayName, "U")}
               </AvatarFallback>
             </Avatar>
           </button>

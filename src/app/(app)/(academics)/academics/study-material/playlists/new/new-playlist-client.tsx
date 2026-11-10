@@ -172,7 +172,7 @@ export function NewPlaylistClient() {
   }
 
   return (
-    <div className="min-h-screen pb-24 max-w-2xl mx-auto border-x border-border/40 bg-background px-4 py-4 space-y-5 select-none">
+    <div className="min-h-dvh pb-24 max-w-2xl mx-auto border-x border-border/40 bg-background px-4 py-4 space-y-5 select-none">
       {/* ─── Header ─── */}
       <div className="flex items-center justify-between border-b border-border/40 pb-3">
         <div className="flex items-center gap-2.5">

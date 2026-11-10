@@ -10,6 +10,7 @@ import { DatingMatchModal } from "@/components/dating/dating-match-modal";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Sticker } from "@/components/ui/stickers";
 import { fetcher } from "@/lib/api";
 import { getAvatarUrl } from "@/lib/utils";
 
@@ -78,7 +79,7 @@ export function LikesClient() {
         title="No likes yet"
         description="When someone likes you, they show up here."
         action={
-          <Button variant="crush" asChild>
+          <Button asChild>
             <Link href="/matching">Start swiping</Link>
           </Button>
         }
@@ -87,12 +88,20 @@ export function LikesClient() {
   } else {
     body = (
       <>
-        <p className="mb-3 text-sm text-fg-muted">Like them back to match and start chatting.</p>
+        <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2">
+          <Sticker tone="crush" className="inline-flex items-baseline gap-1.5 px-3.5 py-2">
+            <span className="sticker-caption text-2xl tabular-nums">{likes.length}</span>
+            <span className="text-sm font-semibold">
+              {likes.length === 1 ? "person likes you" : "people like you"}
+            </span>
+          </Sticker>
+          <p className="min-w-0 text-sm text-fg-muted">Like them back to match and start chatting.</p>
+        </div>
         <ul className="grid grid-cols-2 gap-3">
           {likes.map((admirer) => {
             const year = formatStudyYear(admirer.year);
             return (
-              <li key={admirer.id} className="relative overflow-hidden rounded-lg bg-black">
+              <li key={admirer.id} className="relative min-w-0 overflow-hidden rounded-lg bg-black">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={admirer.photo ?? getAvatarUrl(admirer.avatarUrl, admirer.username)}

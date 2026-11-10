@@ -146,7 +146,7 @@ export function HubCreateClient({ initialType = "lost_found" }: HubCreateClientP
   }
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-2xl flex-col bg-bg pb-24 text-fg">
+    <div className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col bg-bg pb-24 text-fg">
       <header className="sticky top-12 z-30 flex items-center justify-between gap-3 border-b border-border bg-bg px-4 py-2 lg:top-0">
         <div className="flex min-w-0 items-center gap-2">
           <Button variant="ghost" size="icon" onClick={() => router.back()} aria-label="Back">

@@ -6,6 +6,7 @@ import { TournamentBracketViewer } from "@/components/gaming/tournament-bracket-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { CountdownSticker } from "@/components/ui/stickers";
 import { PanelError, PanelSkeleton } from "./gaming-panels";
 
 const STATUS_LABEL: Record<string, string> = {
@@ -18,7 +19,7 @@ const STATUS_LABEL: Record<string, string> = {
 function statusBadge(status: string) {
   const label = STATUS_LABEL[status] ?? status.replace(/_/g, " ").toLowerCase();
   const variant =
-    status === "REGISTRATION_OPEN" ? "verified" : status === "IN_PROGRESS" ? "warning" : "neutral";
+    status === "REGISTRATION_OPEN" ? "outline" : status === "IN_PROGRESS" ? "warning" : "neutral";
   return <Badge variant={variant}>{label}</Badge>;
 }
 
@@ -91,6 +92,16 @@ function TournamentDetail({
         )}
       </dl>
 
+      {status === "REGISTRATION_OPEN" && tournament.startsAt && (
+        <CountdownSticker
+          variant="flat"
+          title="Starts in"
+          target={tournament.startsAt}
+          doneLabel="Starting now"
+          className="max-w-sm"
+        />
+      )}
+
       {(status === "REGISTRATION_OPEN" && !t?.userEntry) ||
       (t?.isOrganizer && status === "REGISTRATION_OPEN") ? (
         <div className="flex flex-wrap gap-2">
@@ -106,7 +117,7 @@ function TournamentDetail({
           )}
         </div>
       ) : t?.userEntry ? (
-        <Badge variant="verified">You're in</Badge>
+        <Badge variant="success">You're in</Badge>
       ) : null}
 
       {tournament.rules && (

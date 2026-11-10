@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import type { UserProfile } from "@/db/schema";
-import { cn } from "@/lib/utils";
+import { cn, initialOf } from "@/lib/utils";
 import { ChatPersonRow } from "./chat-person-row";
 
 /** Stored as the conversation type by the API. */
@@ -49,7 +49,7 @@ export function GroupDetailsStep(p: DetailsStepProps) {
           <Avatar className="size-16">
             <AvatarImage src={p.avatarUrl} alt="" />
             <AvatarFallback className="bg-brand-subtle text-brand-text">
-              {p.title.trim() ? p.title.trim().slice(0, 2).toUpperCase() : <Users2 className="size-6" />}
+              {p.title.trim() ? initialOf(p.title) : <Users2 className="size-6" />}
             </AvatarFallback>
           </Avatar>
           <span className="absolute -right-1 -bottom-1 flex size-7 items-center justify-center rounded-full border-2 border-surface-raised bg-brand text-brand-fg">

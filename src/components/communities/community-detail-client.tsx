@@ -16,7 +16,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { FeedPost } from "@/hooks/use-feed";
 import { useProfile } from "@/hooks/use-profile";
 import { haptics } from "@/lib/haptics";
+import { initialOf } from "@/lib/utils";
 import { CommunityDetailHero } from "./community-detail-hero";
+import { EmptySticker } from "./empty-sticker";
 import { CommunityMembersPanel, CommunityRulesPanel, CommunitySidebar } from "./community-detail-panels";
 
 const FEED_FILTERS = [
@@ -72,6 +74,7 @@ export interface CommunityDetailProps {
       avatarUrl?: string | null;
       headline?: string | null;
       points?: number | null;
+      isCollegeVerified?: boolean | null;
     };
   }>;
 }
@@ -228,11 +231,11 @@ export function CommunityDetailClient({
               <button
                 type="button"
                 onClick={() => setShowFullComposer(true)}
-                className="flex w-full cursor-pointer items-center gap-3 rounded-lg border border-border bg-surface p-3 text-left transition-ui hover:border-border-strong"
+                className="flex min-h-14 w-full cursor-pointer items-center gap-3 rounded-lg border border-border bg-surface p-3 text-left transition-ui hover:border-border-strong"
               >
                 <Avatar className="size-9 shrink-0">
                   <AvatarImage src={profile?.avatarUrl || ""} alt="" />
-                  <AvatarFallback>{(profile?.displayName || "U").slice(0, 1).toUpperCase()}</AvatarFallback>
+                  <AvatarFallback>{initialOf(profile?.displayName, "U")}</AvatarFallback>
                 </Avatar>
                 <span className="flex-1 truncate text-sm text-fg-subtle">Post in c/{community.name}</span>
                 <span className="inline-flex h-9 items-center gap-1 rounded-full bg-brand px-4 text-sm font-semibold text-brand-fg">
@@ -252,7 +255,7 @@ export function CommunityDetailClient({
             )}
 
             {posts.length > 0 && (
-              <fieldset className="no-scrollbar flex gap-2 overflow-x-auto">
+              <fieldset className="no-scrollbar flex min-w-0 gap-2 overflow-x-auto">
                 <legend className="sr-only">Sort posts</legend>
                 {FEED_FILTERS.map((f) => (
                   <Chip
@@ -278,7 +281,7 @@ export function CommunityDetailClient({
               </div>
             ) : (
               <EmptyState
-                icon={MessageSquarePlus}
+                illustration={<EmptySticker icon={MessageSquarePlus} />}
                 bordered
                 title={posts.length > 0 ? "No polls or questions yet" : "No posts here yet"}
                 description={

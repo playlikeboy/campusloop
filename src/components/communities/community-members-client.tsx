@@ -8,6 +8,8 @@ import { approveJoinRequest, rejectJoinRequest } from "@/app/(app)/(main)/commun
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { VerifiedSticker } from "@/components/ui/stickers";
+import { initialOf } from "@/lib/utils";
 import { CommunityRoleBadge } from "./community-role-badge";
 
 interface MemberItem {
@@ -24,6 +26,7 @@ interface MemberItem {
     points?: number | null;
     branch?: string | null;
     year?: number | null;
+    isCollegeVerified?: boolean | null;
   };
 }
 
@@ -105,7 +108,7 @@ export function CommunityMembersClient({
           <button
             type="button"
             onClick={() => setSearch("")}
-            className="absolute top-1/2 right-0.5 inline-flex min-h-10 -translate-y-1/2 cursor-pointer items-center rounded-full px-3 text-sm font-semibold text-fg-muted hover:text-fg"
+            className="absolute top-1/2 right-0.5 inline-flex min-h-11 -translate-y-1/2 cursor-pointer items-center rounded-full px-3 text-sm font-semibold text-fg-muted hover:text-fg"
           >
             Clear
           </button>
@@ -124,21 +127,21 @@ export function CommunityMembersClient({
 
           <div className="divide-y divide-border/40">
             {pendingMembers.map((m) => (
-              <div key={m.id} className="py-3 flex items-center justify-between gap-3">
+              <div key={m.id} className="flex flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-between">
                 <Link href={`/@${m.user.username}`} className="flex items-center gap-3 min-w-0">
                   <Avatar className="size-10 shrink-0">
-                    <AvatarImage src={m.user.avatarUrl || ""} />
-                    <AvatarFallback className="text-xs font-semibold">{m.user.displayName[0]}</AvatarFallback>
+                    <AvatarImage src={m.user.avatarUrl || ""} alt="" />
+                    <AvatarFallback className="text-xs font-semibold">{initialOf(m.user.displayName)}</AvatarFallback>
                   </Avatar>
                   <div className="min-w-0">
-                    <p className="text-xs font-bold text-foreground truncate">{m.user.displayName}</p>
-                    <p className="text-xs text-muted-foreground truncate">
+                    <p className="truncate text-sm font-semibold text-fg">{m.user.displayName}</p>
+                    <p className="truncate text-xs text-fg-muted">
                       @{m.user.username} {m.user.branch ? `• ${m.user.branch}` : ""}
                     </p>
                   </div>
                 </Link>
 
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex shrink-0 items-center gap-2 *:flex-1 sm:*:flex-none">
                   <Button
                     type="button"
                     size="sm"
@@ -174,25 +177,30 @@ export function CommunityMembersClient({
 
         <div className="grid gap-2.5 sm:grid-cols-2">
           {admins.map((m) => (
-            <Link key={m.id} href={`/@${m.user.username}`}>
-              <div className="rounded-2xl bg-card p-3.5 hover:bg-muted/30 transition-colors cursor-pointer flex items-center justify-between gap-3 shadow-2xs">
+            <Link key={m.id} href={`/@${m.user.username}`} className="min-w-0">
+              <div className="flex min-h-16 cursor-pointer items-center justify-between gap-3 rounded-lg border border-border bg-surface p-3.5 transition-ui hover:border-border-strong">
                 <div className="flex items-center gap-3 min-w-0">
                   <Avatar className="size-10 shrink-0">
-                    <AvatarImage src={m.user.avatarUrl || ""} />
-                    <AvatarFallback className="text-xs font-semibold">{m.user.displayName[0]}</AvatarFallback>
+                    <AvatarImage src={m.user.avatarUrl || ""} alt="" />
+                    <AvatarFallback className="text-xs font-semibold">{initialOf(m.user.displayName)}</AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 space-y-0.5">
-                    <p className="text-xs font-bold text-foreground truncate flex items-center gap-1">
-                      <span>{m.user.displayName}</span>
-                      <Crown className="size-3 text-warning shrink-0" />
+                    <p className="flex min-w-0 items-center gap-1 text-sm font-semibold text-fg">
+                      <span className="truncate">{m.user.displayName}</span>
+                      <Crown className="size-3 shrink-0 text-warning" aria-label="Admin" />
                     </p>
-                    <p className="text-xs text-muted-foreground truncate">
+                    <p className="truncate text-xs text-fg-muted">
                       @{m.user.username} {m.user.branch ? `• ${m.user.branch}` : ""}
                     </p>
                   </div>
                 </div>
 
-                <CommunityRoleBadge role={m.role} />
+                <div className="flex shrink-0 items-center gap-1.5">
+                  {m.user.isCollegeVerified && (
+                    <VerifiedSticker label="Verified" size="sm" className="h-6 shadow-none" />
+                  )}
+                  <CommunityRoleBadge role={m.role} />
+                </div>
               </div>
             </Link>
           ))}
@@ -202,35 +210,40 @@ export function CommunityMembersClient({
       {/* Members Directory */}
       <div className="space-y-2">
         <h3 className="flex items-center gap-1.5 px-1 text-sm font-semibold text-fg">
-          <Users className="size-3.5 text-primary" /> Members ({regularMembers.length})
+          <Users className="size-3.5 text-fg-muted" aria-hidden="true" /> Members ({regularMembers.length})
         </h3>
 
         <div className="grid gap-2.5 sm:grid-cols-2">
           {regularMembers.map((m) => (
-            <Link key={m.id} href={`/@${m.user.username}`}>
-              <div className="rounded-2xl bg-card p-3.5 hover:bg-muted/30 transition-colors cursor-pointer flex items-center justify-between gap-3 shadow-2xs">
+            <Link key={m.id} href={`/@${m.user.username}`} className="min-w-0">
+              <div className="flex min-h-16 cursor-pointer items-center justify-between gap-3 rounded-lg border border-border bg-surface p-3.5 transition-ui hover:border-border-strong">
                 <div className="flex items-center gap-3 min-w-0">
                   <Avatar className="size-10 shrink-0">
-                    <AvatarImage src={m.user.avatarUrl || ""} />
-                    <AvatarFallback className="text-xs font-semibold">{m.user.displayName[0]}</AvatarFallback>
+                    <AvatarImage src={m.user.avatarUrl || ""} alt="" />
+                    <AvatarFallback className="text-xs font-semibold">{initialOf(m.user.displayName)}</AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 space-y-0.5">
-                    <p className="text-xs font-bold text-foreground truncate">{m.user.displayName}</p>
-                    <p className="text-xs text-muted-foreground truncate">
+                    <p className="truncate text-sm font-semibold text-fg">{m.user.displayName}</p>
+                    <p className="truncate text-xs text-fg-muted">
                       @{m.user.username} {m.user.branch ? `• ${m.user.branch}` : ""}
                     </p>
                   </div>
                 </div>
 
-                <CommunityRoleBadge role={m.role} />
+                <div className="flex shrink-0 items-center gap-1.5">
+                  {m.user.isCollegeVerified && (
+                    <VerifiedSticker label="Verified" size="sm" className="h-6 shadow-none" />
+                  )}
+                  <CommunityRoleBadge role={m.role} />
+                </div>
               </div>
             </Link>
           ))}
 
           {regularMembers.length === 0 && (
-            <div className="col-span-full py-10 text-center rounded-2xl bg-card text-muted-foreground text-xs font-semibold shadow-2xs">
-              No other members matching your search.
-            </div>
+            <p className="col-span-full rounded-lg border border-dashed border-border-strong px-6 py-8 text-center text-sm text-fg-muted">
+              {search ? "No members match that search." : "No other members yet."}
+            </p>
           )}
         </div>
       </div>

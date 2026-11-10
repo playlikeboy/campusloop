@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  BadgeCheck,
   Bookmark,
   Edit3,
   Flag,
@@ -34,6 +33,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { PollCard } from "@/components/ui/poll-card";
 import { RichText } from "@/components/ui/rich-text";
+import { VerifiedSticker } from "@/components/ui/stickers";
+import { VerifiedBadge } from "@/components/ui/verified-badge";
 import type { FeedPost } from "@/hooks/use-feed";
 import { useHlsVideo } from "@/hooks/use-hls-video";
 import { repostPost, voteOnPost } from "@/lib/api";
@@ -43,7 +44,7 @@ import { haptics } from "@/lib/haptics";
 import { extractMediaAttachments, stripMediaAttachmentMarkers } from "@/lib/media-attachments";
 import { sounds } from "@/lib/sounds";
 import { isCollegeVerifiedUser } from "@/lib/user-verification";
-import { cleanSnippet, cn, formatTimeAgo, getAvatarUrl, getCollegeShortName } from "@/lib/utils";
+import { cleanSnippet, cn, formatTimeAgo, getAvatarUrl, getCollegeShortName, initialOf } from "@/lib/utils";
 import { extractVideoStreamInfo } from "@/lib/video/stream-helper";
 
 // Dynamically import heavy modals to keep the reels bundle ultra-lightweight
@@ -253,7 +254,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
   const avatarFallback: React.ReactNode = post.isAnonymous ? (
     <VenetianMask className="size-4 text-brand-text" />
   ) : (
-    (post.author?.displayName?.[0] ?? "S")
+    initialOf(post.author?.displayName, "S")
   );
   const avatarUrl = post.isAnonymous
     ? ""
@@ -768,7 +769,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
         <div
           onDoubleClick={handleDoubleTap}
           onClick={handleTogglePlay}
-          className="relative w-full h-full sm:max-w-[420px] sm:max-h-[calc(100vh-140px)] sm:rounded-3xl overflow-hidden bg-black flex items-center justify-center cursor-pointer select-none"
+          className="relative w-full h-full sm:max-w-[420px] sm:max-h-[calc(100dvh-140px)] sm:rounded-3xl overflow-hidden bg-black flex items-center justify-center cursor-pointer select-none"
         >
           {/* 9:16 Video Player & Audio Stream */}
           {/* biome-ignore lint/a11y/useMediaCaption: student-uploaded and Reddit clips ship without caption files */}
@@ -889,7 +890,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
                   </Link>
                 )}
                 {!post.isAnonymous && isCollegeVerifiedUser(post.author) && (
-                  <BadgeCheck className="size-3.5 text-brand-text fill-brand-text/20 shrink-0" />
+                  <VerifiedBadge size="sm" />
                 )}
               </div>
 
@@ -1043,7 +1044,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
                 </Link>
               )}
               {!post.isAnonymous && isCollegeVerifiedUser(post.author) && (
-                <BadgeCheck className="size-4 text-brand-text fill-brand-text/20 shrink-0" />
+                <VerifiedSticker size="sm" label="Verified" variant="flat" className="h-6 shrink-0 px-2" />
               )}
             </div>
 

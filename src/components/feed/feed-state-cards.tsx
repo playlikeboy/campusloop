@@ -1,16 +1,21 @@
 "use client";
 
-import { CheckCircle2, MessageSquarePlus, RefreshCw, WifiOff } from "lucide-react";
+import { CheckCircle2, RefreshCw, WifiOff } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Sticker } from "@/components/ui/stickers";
 
 export function FeedEmptyState() {
   return (
     <EmptyState
-      icon={MessageSquarePlus}
+      illustration={
+        <Sticker tone="brand" pop className="sticker-caption px-4 py-2 text-lg">
+          Be the first
+        </Sticker>
+      }
       title="No posts here yet"
-      description="Be the first. Ask a question or start a poll."
+      description="Ask a question or start a poll."
       action={
         <Button asChild>
           <Link href="/post/new">Write a post</Link>

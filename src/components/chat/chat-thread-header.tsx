@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { VerifiedBadge } from "@/components/ui/verified-badge";
+import { VerifiedSticker } from "@/components/ui/stickers";
 import { isOnline, presenceLabel } from "@/lib/presence";
 import { cn } from "@/lib/utils";
 import { ChatAvatar } from "./chat-avatar";
@@ -98,7 +98,9 @@ export function ChatThreadHeader({
               {isGroup ? (
                 <Badge variant="neutral">{p.isCommunity ? "Community" : "Group"}</Badge>
               ) : (
-                p.isCollegeVerified && <VerifiedBadge size="sm" />
+                p.isCollegeVerified && (
+                  <VerifiedSticker size="sm" label="Verified" variant="flat" className="shrink-0" />
+                )
               )}
             </span>
             <span

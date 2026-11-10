@@ -443,34 +443,36 @@ export function MessengerPane({
         onSearchChange={setSearchQuery}
       />
 
-      <div
-        ref={scrollRef}
-        onScroll={onScroll}
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={media.handleDrop}
-        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3 sm:px-6"
-      >
-        <div className="mx-auto flex min-h-full w-full max-w-4xl flex-col justify-end">
-          {loadingOlder && (
-            <div role="status" className="flex items-center justify-center gap-2 py-2 text-xs text-fg-muted">
-              <Spinner size="xs" /> Loading older messages
-            </div>
-          )}
-          {content}
-          <div ref={endRef} />
-        </div>
-      </div>
-
-      {showJump && (
-        <button
-          type="button"
-          onClick={() => scrollToBottom()}
-          aria-label="Jump to latest messages"
-          className="absolute right-4 bottom-24 z-10 flex size-11 cursor-pointer items-center justify-center rounded-full border border-border bg-surface-raised text-fg shadow-lg transition-ui outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-ring"
+      <div className="relative flex min-h-0 flex-1 flex-col">
+        <div
+          ref={scrollRef}
+          onScroll={onScroll}
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={media.handleDrop}
+          className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain px-3 py-3 sm:px-6"
         >
-          <ArrowDown className="size-5" />
-        </button>
-      )}
+          <div className="mx-auto flex min-h-full w-full max-w-4xl flex-col justify-end">
+            {loadingOlder && (
+              <div role="status" className="flex items-center justify-center gap-2 py-2 text-xs text-fg-muted">
+                <Spinner size="xs" /> Loading older messages
+              </div>
+            )}
+            {content}
+            <div ref={endRef} />
+          </div>
+        </div>
+
+        {showJump && (
+          <button
+            type="button"
+            onClick={() => scrollToBottom()}
+            aria-label="Jump to latest messages"
+            className="absolute right-4 bottom-3 z-10 flex size-11 cursor-pointer items-center justify-center rounded-full border border-border bg-surface-raised text-fg shadow-lg transition-ui outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <ArrowDown className="size-5" />
+          </button>
+        )}
+      </div>
 
       <ChatComposer
         textareaRef={textareaRef}

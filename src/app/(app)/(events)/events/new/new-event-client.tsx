@@ -170,7 +170,7 @@ export function NewEventClient() {
   const sectionProps = { form, set, isExternal };
 
   return (
-    <div className="min-h-screen bg-bg pb-24 text-fg">
+    <div className="min-h-dvh bg-bg pb-24 text-fg">
       <header className="sticky top-0 z-40 border-b border-border bg-bg">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-2 sm:px-6">
           <div className="flex min-w-0 items-center gap-2">

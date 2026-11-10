@@ -139,3 +139,29 @@ export const SYSTEM_TYPES = new Set([
   "GAMING_MATCH_READY",
   "TOURNAMENT_UPDATE",
 ]);
+
+/**
+ * Loop Points total from a points milestone, read from the text the server wrote
+ * ("... with 320 LP."). Null for every other notification.
+ */
+export function pointsFromNotification(n: NotificationItem): number | null {
+  if (n.type !== "MILESTONE" || !n.previewText) return null;
+  const match = n.previewText.match(/\b(?:with|reached)\s+([\d,]+)\s+LP\b/);
+  if (!match) return null;
+  const value = Number(match[1].replace(/,/g, ""));
+  return Number.isFinite(value) ? value : null;
+}
+
+/** Splits a newest-first list into Today and Earlier, keeping order. */
+export function groupByDay(list: NotificationItem[], now = new Date()) {
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const today: NotificationItem[] = [];
+  const earlier: NotificationItem[] = [];
+  for (const n of list) {
+    (new Date(n.createdAt).getTime() >= startOfToday ? today : earlier).push(n);
+  }
+  return [
+    { id: "today", label: "Today", items: today },
+    { id: "earlier", label: "Earlier", items: earlier },
+  ].filter((g) => g.items.length > 0);
+}

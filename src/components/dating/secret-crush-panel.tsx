@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Sticker } from "@/components/ui/stickers";
 import { CrushSearchDialog } from "./crush-search-dialog";
 import { CrushSlotRow, EmptyCrushSlot } from "./crush-slot-row";
 import { useSecretCrush } from "./use-secret-crush";
@@ -36,23 +37,27 @@ export function SecretCrushPanel({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <div className="space-y-4">
       {crush.receivedCount > 0 && (
-        <p className="flex items-center gap-2.5 rounded-lg bg-crush-subtle px-4 py-3 text-sm font-medium text-crush-text">
-          <Heart className="size-4 shrink-0 fill-current" aria-hidden="true" />
-          {crush.receivedCount === 1
-            ? "1 student has a crush on you. Add yours to see if it's them."
-            : `${crush.receivedCount} students have a crush on you. Add yours to see if it's them.`}
-        </p>
+        <Sticker tone="crush" pop className="flex items-center gap-3 px-4 py-3">
+          <span className="sticker-caption flex shrink-0 items-center gap-1.5 text-4xl tabular-nums">
+            <Heart className="size-6 fill-current" aria-hidden="true" />
+            {crush.receivedCount}
+          </span>
+          <p className="min-w-0 text-sm font-medium">
+            {crush.receivedCount === 1 ? "student has a crush on you." : "students have a crush on you."}{" "}
+            Add yours to see if it's them.
+          </p>
+        </Sticker>
       )}
 
       <section aria-labelledby="crush-list-title" className="rounded-lg border border-border bg-surface">
         <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
-          <h2 id="crush-list-title" className="text-base font-semibold text-fg">
+          <h2 id="crush-list-title" className="min-w-0 text-base font-semibold text-fg">
             Your crushes{" "}
             <span className="font-normal text-fg-muted tabular-nums">
               {crush.usedSlots}/{crush.maxSlots}
             </span>
           </h2>
-          <Button variant="crush" size="sm" onClick={() => setSearchOpen(true)} disabled={!crush.canAdd}>
+          <Button size="sm" onClick={() => setSearchOpen(true)} disabled={!crush.canAdd}>
             <Plus />
             Add crush
           </Button>

@@ -37,8 +37,11 @@ export default async function DatingLayout({ children }: { children: React.React
       <PresenceHeartbeat />
       <AppPullToRefresh>
         <MatchSubHeader collegeName={collegeName} />
-        {/* The swipe deck sizes itself from this column, so it gets a bounded viewport height. */}
-        <div className="flex min-h-[calc(100dvh-14rem)] flex-col">{children}</div>
+        {/* The swipe deck sizes itself from this column, so it gets a bounded viewport height:
+            viewport minus top bar, match sub-header and bottom nav (about 19.5rem on a phone). */}
+        <div className="flex min-h-[calc(100dvh-19.5rem-env(safe-area-inset-bottom))] flex-col lg:min-h-[calc(100dvh-14rem)]">
+          {children}
+        </div>
       </AppPullToRefresh>
     </AppShell>
   );

@@ -113,7 +113,7 @@ export function LivingHubClient({ profileId }: Props) {
   const tab = TABS.find((t) => t.id === activeTab) || TABS[0];
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-dvh pb-24">
       <ContextualLivingNav />
 
       <main className="mx-auto max-w-5xl space-y-10 px-4 py-6 sm:px-6">

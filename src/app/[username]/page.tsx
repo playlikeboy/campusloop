@@ -106,13 +106,13 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
       getFollowState(row.id, viewer.id),
     ]);
     return (
-      <div className="relative min-h-screen bg-bg lg:flex">
+      <div className="relative min-h-dvh bg-bg lg:flex">
         <Navigation
           profile={viewer}
           collegeName={college?.name ?? "Your college"}
           isAdmin={viewer.role === "ADMIN"}
         />
-        <div className="mx-auto min-h-screen w-full max-w-7xl min-w-0 flex-1 px-2 py-4 sm:px-6 sm:py-6 lg:px-8">
+        <div className="mx-auto min-h-dvh w-full max-w-7xl min-w-0 flex-1 px-2 py-4 sm:px-6 sm:py-6 lg:px-8">
           <main className="w-full min-w-0 pb-24 md:pb-8">
             <Suspense fallback={<ProfileSkeleton />}>
               <ProfileClientView

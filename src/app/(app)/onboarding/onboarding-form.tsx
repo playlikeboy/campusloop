@@ -182,7 +182,7 @@ export function OnboardingForm({
         </p>
       )}
 
-      <div className="sticky bottom-0 -mx-[var(--gutter)] mt-8 flex gap-3 border-t border-border bg-bg px-[var(--gutter)] py-4">
+      <div className="sticky bottom-0 -mx-[var(--gutter)] mt-8 flex gap-3 border-t border-border bg-bg px-[var(--gutter)] pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
         {step > 0 && (
           <Button
             type="button"

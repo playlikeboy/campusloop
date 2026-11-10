@@ -4,7 +4,8 @@ import { ArrowUp, Bookmark, Check, MessageSquare, Share2 } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { MentionTag } from "@/components/ui/stickers";
+import { cn, initialOf } from "@/lib/utils";
 import type { ArticleEngagement } from "./use-article-engagement";
 
 interface ArticleAuthor {
@@ -39,7 +40,7 @@ export function ArticleByline({
           <Avatar className="size-11">
             <AvatarImage src={author.avatarUrl || ""} alt="" />
             <AvatarFallback className="bg-surface-muted text-sm font-semibold text-fg">
-              {author.name[0]}
+              {initialOf(author.name)}
             </AvatarFallback>
           </Avatar>
         </Link>
@@ -51,7 +52,7 @@ export function ArticleByline({
             {canFollow && (
               <Button
                 variant={engagement.isFollowing ? "secondary" : "outline"}
-                size="xs"
+                size="sm"
                 onClick={engagement.toggleFollow}
                 aria-pressed={engagement.isFollowing}
               >
@@ -149,14 +150,16 @@ export function ArticleAuthorCard({ author }: { author: ArticleAuthor }) {
         <Avatar className="size-14 shrink-0">
           <AvatarImage src={author.avatarUrl || ""} alt="" />
           <AvatarFallback className="bg-surface-muted text-base font-semibold text-fg">
-            {author.name[0]}
+            {initialOf(author.name)}
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0 space-y-0.5">
           <p className="truncate text-base font-semibold text-fg">{author.name}</p>
-          <p className="truncate text-sm text-fg-muted">
-            @{author.handle}
-            {author.college ? ` · ${author.college}` : ""}
+          <p className="flex min-w-0 items-center gap-2 text-sm text-fg-muted">
+            {author.handle && (
+              <MentionTag username={author.handle} href={profileHref} size="sm" className="min-w-0 shrink" />
+            )}
+            {author.college && <span className="truncate">{author.college}</span>}
           </p>
           {author.bio && <p className="line-clamp-2 pt-1 text-sm text-fg-muted">{author.bio}</p>}
         </div>

@@ -1,8 +1,15 @@
 "use client";
 
-import { ArrowLeft, Camera, ImageIcon, Move, QrCode, Share2 } from "lucide-react";
+import { ArrowLeft, Camera, ImageIcon, MoreHorizontal, Move, QrCode, Share2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 interface ProfileCoverActionsProps {
   isOwnProfile: boolean;
@@ -14,7 +21,10 @@ interface ProfileCoverActionsProps {
   onRepositionCover: () => void;
 }
 
-/** Round icon buttons on the cover photo: back on the left, share and cover tools on the right. */
+/**
+ * Cover buttons: back on the left, share plus a "more" menu on the right.
+ * QR code and cover tools live in the menu so the cover stays clear on phones.
+ */
 export function ProfileCoverActions({
   isOwnProfile,
   hasBanner,
@@ -39,9 +49,6 @@ export function ProfileCoverActions({
         <ArrowLeft aria-hidden="true" />
       </Button>
       <div className="flex items-center gap-2">
-        <Button variant="circleIcon" size="icon" className={icon} onClick={onQr} aria-label="Show QR code">
-          <QrCode aria-hidden="true" />
-        </Button>
         <Button
           variant="circleIcon"
           size="icon"
@@ -51,39 +58,38 @@ export function ProfileCoverActions({
         >
           <Share2 aria-hidden="true" />
         </Button>
-        {isOwnProfile && (
-          <>
-            <Button
-              variant="circleIcon"
-              size="icon"
-              className={`${icon} hidden sm:inline-flex`}
-              onClick={onPickCover}
-              aria-label="Pick a cover photo"
-            >
-              <ImageIcon aria-hidden="true" />
-            </Button>
-            {hasBanner && (
-              <Button
-                variant="circleIcon"
-                size="icon"
-                className={icon}
-                onClick={onRepositionCover}
-                aria-label="Move cover photo"
-              >
-                <Move aria-hidden="true" />
-              </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            aria-label="More profile options"
+            className={cn(buttonVariants({ variant: "circleIcon", size: "icon" }), icon)}
+          >
+            <MoreHorizontal aria-hidden="true" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={onQr}>
+              <QrCode aria-hidden="true" />
+              Show QR code
+            </DropdownMenuItem>
+            {isOwnProfile && (
+              <>
+                <DropdownMenuItem onClick={onUploadCover}>
+                  <Camera aria-hidden="true" />
+                  Upload cover photo
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onPickCover}>
+                  <ImageIcon aria-hidden="true" />
+                  Pick a cover photo
+                </DropdownMenuItem>
+                {hasBanner && (
+                  <DropdownMenuItem onClick={onRepositionCover}>
+                    <Move aria-hidden="true" />
+                    Move cover photo
+                  </DropdownMenuItem>
+                )}
+              </>
             )}
-            <Button
-              variant="circleIcon"
-              size="icon"
-              className={icon}
-              onClick={onUploadCover}
-              aria-label="Upload a cover photo"
-            >
-              <Camera aria-hidden="true" />
-            </Button>
-          </>
-        )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </>
   );

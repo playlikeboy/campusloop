@@ -161,7 +161,7 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
   const collegeName = getCollegeShortName(post.institution);
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-dvh">
       {/* ─── Sticky Editor Header ─── */}
       <header className="sticky top-12 lg:top-0 z-30 flex items-center justify-between border-b border-border bg-bg px-4 py-3">
         <div className="flex items-center gap-3">
@@ -299,7 +299,7 @@ export function PostEditClient({ post, currentUserId }: PostEditClientProps) {
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Add a title"
             maxLength={120}
-            className="w-full rounded-xl border border-border bg-muted/20 px-3.5 py-2.5 text-sm font-semibold text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary transition-colors"
+            className="w-full rounded-xl border border-border bg-muted/20 px-3.5 py-2.5 text-base sm:text-sm font-semibold text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary transition-colors"
           />
         </div>
 

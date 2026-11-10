@@ -1,13 +1,15 @@
 "use client";
 
-import { CalendarDays, Check, MapPin, Trophy, Users } from "lucide-react";
+import { CalendarDays, Check, MapPin, Trophy } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import { mutate } from "swr";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { LoopPointsSticker } from "@/components/ui/stickers";
 import { cn } from "@/lib/utils";
+import { EventCountdownTag, GoingSticker } from "./event-countdown-tag";
 import { EventDateTile } from "./event-date-tile";
 
 export interface EventItem {
@@ -188,10 +190,8 @@ export function EventCard({ event, variant = "row" }: EventCardProps) {
 
   const footer = (
     <div className="flex items-center justify-between gap-3">
-      <span className="inline-flex min-w-0 items-center gap-1.5 text-sm text-fg-muted">
-        <Users className="size-4 shrink-0" aria-hidden />
-        <span className="tabular-nums">{attendeeCount}</span> going
-        <span aria-hidden>·</span>
+      <span className="inline-flex min-w-0 items-center gap-2 text-sm text-fg-muted">
+        <GoingSticker count={attendeeCount} />
         <span className="truncate">{event.entryFee || "Free"}</span>
       </span>
       {action}
@@ -203,9 +203,19 @@ export function EventCard({ event, variant = "row" }: EventCardProps) {
       {live && <Badge variant="danger">Live now</Badge>}
       <Badge variant="neutral">{eventTypeLabel(event.eventType)}</Badge>
       {restricted && <Badge variant="outline">Selected colleges</Badge>}
-      {event.loopPointsReward > 0 && <Badge variant="reward">+{event.loopPointsReward} points</Badge>}
+      {event.loopPointsReward > 0 && (
+        <LoopPointsSticker points={event.loopPointsReward} label="points" size="sm" className="h-7 shadow-none" />
+      )}
     </div>
   );
+
+  const deadlineMs = event.registrationDeadline ? new Date(event.registrationDeadline).getTime() : Number.NaN;
+  const countdown =
+    closed || live ? null : Number.isFinite(deadlineMs) && deadlineMs < start.getTime() ? (
+      <EventCountdownTag label="Registration closes in" target={event.registrationDeadline} />
+    ) : (
+      <EventCountdownTag label="Starts in" target={event.startDate} />
+    );
 
   if (variant === "grid") {
     return (
@@ -231,6 +241,7 @@ export function EventCard({ event, variant = "row" }: EventCardProps) {
             <p className="mt-0.5 truncate text-sm text-fg-muted">{event.clubName}</p>
           </div>
           {meta}
+          {countdown}
           {footer}
         </div>
       </article>
@@ -260,6 +271,7 @@ export function EventCard({ event, variant = "row" }: EventCardProps) {
           <p className="truncate text-sm text-fg-muted">{event.clubName}</p>
         </div>
         {meta}
+        {countdown}
         {event.prizesDescription && (
           <p className="inline-flex max-w-full items-center gap-1.5 text-sm text-fg">
             <Trophy className="size-4 shrink-0 text-fg-muted" aria-hidden />

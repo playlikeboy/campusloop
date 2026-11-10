@@ -196,7 +196,7 @@ export function ProfileClientView({
   ];
 
   return (
-    <div className="min-h-screen pb-28 text-fg">
+    <div className="min-h-dvh pb-28 text-fg">
       <input
         ref={bannerInputRef}
         type="file"
@@ -258,7 +258,7 @@ export function ProfileClientView({
                 <button
                   type="button"
                   onClick={() => changeTab("clout")}
-                  className="cursor-pointer rounded-full"
+                  className="inline-flex min-h-11 cursor-pointer items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   aria-label={`${points} Loop Points. See your points`}
                 >
                   <LoopPointsSticker points={points} size="sm" />

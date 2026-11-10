@@ -64,7 +64,7 @@ export function AcademicWatchClient({ resourceId, title, subjectCode, modules }:
   const completedCount = flat.filter((f) => watched.has(f.attachment.id)).length;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-dvh bg-background">
       {/* Top bar */}
       <div className="border-b border-border bg-surface sticky top-0 z-20">
         <div className="max-w-7xl mx-auto px-3 sm:px-5 py-3 flex items-center justify-between gap-3">

@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Pagination } from "@/components/ui/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn, formatTimeAgo, getAvatarUrl } from "@/lib/utils";
+import { cn, formatTimeAgo, getAvatarUrl, initialOf } from "@/lib/utils";
 
 export function PanelSkeleton({ label }: { label: string }) {
   return (
@@ -199,7 +199,7 @@ export function FeedPanel({
               <div className="flex items-center gap-2.5">
                 <Avatar className="size-9">
                   <AvatarImage src={getAvatarUrl(post.author?.avatarUrl, post.author?.username)} alt="" />
-                  <AvatarFallback className="text-xs">{post.author?.displayName?.[0] || "U"}</AvatarFallback>
+                  <AvatarFallback className="text-xs">{initialOf(post.author?.displayName, "U")}</AvatarFallback>
                 </Avatar>
                 <div className="min-w-0">
                   <Link
@@ -282,7 +282,7 @@ export function LeaderboardPanel({
                 </span>
                 <Avatar className="size-9 shrink-0">
                   <AvatarImage src={getAvatarUrl(player.user?.avatarUrl, player.user?.username)} alt="" />
-                  <AvatarFallback className="text-xs">{player.user?.displayName?.[0] || "U"}</AvatarFallback>
+                  <AvatarFallback className="text-xs">{initialOf(player.user?.displayName, "U")}</AvatarFallback>
                 </Avatar>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-fg">{player.user?.displayName}</p>

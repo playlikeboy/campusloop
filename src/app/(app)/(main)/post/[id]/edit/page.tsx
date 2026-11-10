@@ -64,7 +64,7 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen border-x border-border bg-background pb-20">
+    <main className="mx-auto flex w-full max-w-2xl flex-col min-h-dvh border-x border-border bg-background pb-20">
       <PostEditClient post={post} currentUserId={profile.id} />
     </main>
   );

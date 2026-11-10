@@ -258,7 +258,7 @@ export function CampusAiClient() {
   }
 
   return (
-    <div className="relative mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-3xl flex-col px-3 py-6 sm:px-6">
+    <div className="relative mx-auto flex min-h-[calc(100dvh-5rem)] w-full max-w-3xl flex-col px-3 py-6 sm:px-6">
       {/* Header Bar */}
       <div className="mb-6 flex items-center justify-between border-b border-border pb-4">
         <div>
@@ -482,8 +482,10 @@ export function CampusAiClient() {
                   <button
                     type="button"
                     onClick={() => handleFeedback(m.id, "helpful")}
+                    aria-label="Helpful answer"
+                    aria-pressed={m.feedback === "helpful"}
                     className={cn(
-                      "size-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer transition-colors",
+                      "size-7 pointer-coarse:size-11 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer transition-colors",
                       m.feedback === "helpful" && "text-success bg-success/10"
                     )}
                     title="Helpful response"
@@ -493,8 +495,10 @@ export function CampusAiClient() {
                   <button
                     type="button"
                     onClick={() => handleFeedback(m.id, "unhelpful")}
+                    aria-label="Not helpful"
+                    aria-pressed={m.feedback === "unhelpful"}
                     className={cn(
-                      "size-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer transition-colors",
+                      "size-7 pointer-coarse:size-11 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer transition-colors",
                       m.feedback === "unhelpful" && "text-danger bg-danger/10"
                     )}
                     title="Unhelpful"
@@ -519,7 +523,7 @@ export function CampusAiClient() {
       </div>
 
       {/* Persistent Bottom Input Bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-border bg-bg pb-4 pt-3">
+      <div className="fixed right-0 bottom-[calc(var(--nav-mobile-h)+env(safe-area-inset-bottom))] left-0 z-30 border-t border-border bg-bg pt-3 pb-3 lg:bottom-0 lg:pb-[max(1rem,env(safe-area-inset-bottom))]">
         <div className="mx-auto max-w-3xl px-3 sm:px-6">
           <div className="flex items-end gap-2 rounded-xl border border-border bg-surface p-2">
             <button
@@ -562,7 +566,7 @@ export function CampusAiClient() {
               type="button"
               onClick={() => void ask()}
               disabled={!message.trim() || loading}
-              className="size-10 rounded-full p-0 shrink-0 cursor-pointer"
+              className="size-11 rounded-full p-0 shrink-0 cursor-pointer"
               aria-label="Send"
             >
               <ArrowUp className="size-4.5" />

@@ -3,7 +3,7 @@
 import { Camera, Crop, ImageIcon, Smile } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { getAvatarUrl } from "@/lib/utils";
+import { getAvatarUrl, initialOf } from "@/lib/utils";
 
 interface PhotoSectionProps {
   avatarUrl: string;
@@ -81,7 +81,7 @@ export function PhotoSection({
         <Avatar className="size-24 border-4 border-surface shadow-sm">
           <AvatarImage src={avatarUrl || getAvatarUrl(null, username || "user")} alt="Your profile photo" />
           <AvatarFallback className="bg-surface-muted font-display text-2xl font-bold text-fg">
-            {displayName ? displayName[0].toUpperCase() : "?"}
+            {initialOf(displayName)}
           </AvatarFallback>
         </Avatar>
         <div className="flex flex-wrap gap-2">

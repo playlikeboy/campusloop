@@ -53,7 +53,6 @@ export function SecretCrushButton({ targetId, targetName, className, iconOnly }:
           </DialogHeader>
           <div className="flex flex-col gap-2 sm:flex-row-reverse">
             <Button
-              variant="crush"
               className="sm:flex-1"
               loading={crush.submitting}
               disabled={!loaded || alreadyAdded || !crush.canAdd}

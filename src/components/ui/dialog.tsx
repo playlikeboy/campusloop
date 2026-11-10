@@ -61,7 +61,7 @@ export function DialogContent({ className, children }: { className?: string; chi
       aria-modal="true"
       onClick={(e) => e.stopPropagation()}
       className={cn(
-        "relative w-full max-w-lg rounded-xl bg-surface-raised p-5 text-fg shadow-lg sticker-pop sm:p-6",
+        "relative max-h-[calc(100dvh-1.5rem)] w-full max-w-lg overflow-y-auto overscroll-contain rounded-xl bg-surface-raised p-5 text-fg shadow-lg sticker-pop sm:p-6",
         className
       )}
     >
@@ -69,7 +69,7 @@ export function DialogContent({ className, children }: { className?: string; chi
         type="button"
         onClick={() => ctx?.onOpenChange(false)}
         aria-label="Close"
-        className="absolute top-3 right-3 flex size-10 cursor-pointer items-center justify-center rounded-full text-fg-muted transition-ui outline-none hover:bg-surface-muted hover:text-fg focus-visible:ring-2 focus-visible:ring-ring sm:top-4 sm:right-4"
+        className="absolute top-2 right-2 flex size-11 cursor-pointer items-center justify-center rounded-full text-fg-muted transition-ui outline-none hover:bg-surface-muted hover:text-fg focus-visible:ring-2 focus-visible:ring-ring sm:top-4 sm:right-4"
       >
         <X className="size-4" />
       </button>

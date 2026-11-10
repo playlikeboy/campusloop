@@ -15,6 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
+import { initialOf } from "@/lib/utils";
 
 interface RegistrationItem {
   id: string;
@@ -157,7 +158,7 @@ export function CheckInClient({ eventId, initialSlug, eventTitle }: CheckInClien
                 <div className="flex min-w-0 items-center gap-3">
                   <Avatar size="lg">
                     {reg.profile?.avatarUrl && <AvatarImage src={reg.profile.avatarUrl} alt="" />}
-                    <AvatarFallback>{name[0]}</AvatarFallback>
+                    <AvatarFallback>{initialOf(name)}</AvatarFallback>
                   </Avatar>
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-fg">{name}</p>
@@ -169,13 +170,18 @@ export function CheckInClient({ eventId, initialSlug, eventTitle }: CheckInClien
                   </div>
                 </div>
                 {view === "PENDING" ? (
-                  <Button loading={busyId === reg.id} onClick={() => setStatus(reg.id, "ATTENDED")}>
+                  <Button
+                    className="shrink-0"
+                    loading={busyId === reg.id}
+                    onClick={() => setStatus(reg.id, "ATTENDED")}
+                  >
                     {busyId !== reg.id && <UserCheck aria-hidden="true" />}
                     Check in
                   </Button>
                 ) : (
                   <Button
                     variant="ghost"
+                    className="shrink-0"
                     loading={busyId === reg.id}
                     onClick={() => setStatus(reg.id, "CONFIRMED")}
                   >

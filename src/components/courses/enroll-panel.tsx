@@ -80,7 +80,7 @@ export function EnrollPanel({ slug }: { slug: string }) {
       {viewer.enrolled ? (
         <>
           <div className="mt-3">
-            <ProgressBar value={progress} label="Your progress" />
+            <ProgressBar value={progress} done={doneCount} total={lectures.length} label="Your progress" />
             <p className="mt-1.5 text-sm tabular-nums text-fg-muted">
               {doneCount} of {lectureCount(lectures.length)} done
             </p>

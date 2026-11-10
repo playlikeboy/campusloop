@@ -24,7 +24,7 @@ interface HubLayoutProps {
 /** Shared frame for Buy and sell, Housing, Lost and found and Ride share. */
 export function HubLayout({ title, description, action, children, className }: HubLayoutProps) {
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-dvh pb-24">
       <ContextualLivingNav />
       <main className={cn("mx-auto max-w-5xl space-y-5 px-4 py-6 sm:px-6", className)}>
         <header className="flex items-start justify-between gap-3">
@@ -76,7 +76,7 @@ export function HubSearch({ value, onChange, placeholder, label, className }: Hu
           type="button"
           onClick={() => onChange("")}
           aria-label="Clear search"
-          className="absolute top-1/2 right-1 flex size-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-fg-muted transition-ui outline-none hover:bg-surface-muted hover:text-fg focus-visible:ring-2 focus-visible:ring-ring"
+          className="absolute top-1/2 right-0 flex size-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-fg-muted transition-ui outline-none hover:bg-surface-muted hover:text-fg focus-visible:ring-2 focus-visible:ring-ring"
         >
           <X className="size-4" />
         </button>

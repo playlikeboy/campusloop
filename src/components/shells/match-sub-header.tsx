@@ -60,12 +60,12 @@ export function MatchSubHeader({ collegeName }: { collegeName?: string }) {
     <div className="mb-4 border-b border-border">
       <div className="pt-4 pb-2">
         <div className="flex items-baseline justify-between gap-3">
-          <h1 className="text-2xl text-fg">Campus Match</h1>
-          {collegeName && <p className="truncate text-sm text-fg-muted">{collegeName}</p>}
+          <h1 className="shrink-0 text-2xl text-fg">Campus Match</h1>
+          {collegeName && <p className="min-w-0 truncate text-sm text-fg-muted">{collegeName}</p>}
         </div>
         <p className="mt-1 flex items-center gap-1.5 text-sm text-fg-muted">
           <ShieldCheck className="size-4 shrink-0 text-fg-subtle" aria-hidden="true" />
-          18+ only. Only students signed in to CampusLoop can see your profile.
+          18+ only. Only signed-in students see your profile.
         </p>
       </div>
       <nav aria-label="Campus Match" className="no-scrollbar -mb-px flex gap-1 overflow-x-auto">

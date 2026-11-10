@@ -20,7 +20,7 @@ import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import type { SearchSuggestionItem, SearchSuggestionsResponse } from "@/lib/search/types";
 import { sounds } from "@/lib/sounds";
-import { cn } from "@/lib/utils";
+import { cn, initialOf } from "@/lib/utils";
 
 const SEARCH_IDEAS = ["placements", "hackathons", "hostel", "exam notes", "coding club", "night canteen"];
 
@@ -364,7 +364,7 @@ export function SearchAutocomplete({
                           <Avatar className="size-7 rounded-full border border-border shrink-0">
                             <AvatarImage src={item.imageUrl || ""} />
                             <AvatarFallback className="text-xs font-bold bg-brand/15 text-brand-text">
-                              {item.title?.[0]?.toUpperCase() || "U"}
+                              {initialOf(item.title, "U")}
                             </AvatarFallback>
                           </Avatar>
                         );

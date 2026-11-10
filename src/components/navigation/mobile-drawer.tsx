@@ -12,7 +12,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { VerifiedBadge } from "@/components/ui/verified-badge";
 import { DRAWER_SECTIONS, ROUTES } from "@/constants/navigation";
 import type { UserProfile } from "@/db/schema";
-import { cn, getAvatarUrl, getCollegeShortName } from "@/lib/utils";
+import { cn, getAvatarUrl, getCollegeShortName, initialOf } from "@/lib/utils";
 
 type AnonMode = "ALL" | "NON_ANONYMOUS";
 
@@ -64,7 +64,7 @@ export function MobileDrawer({
       <Avatar className="size-12 shrink-0">
         <AvatarImage src={getAvatarUrl(profile.avatarUrl, profile.username)} alt="" />
         <AvatarFallback className="bg-surface-muted text-base font-semibold text-fg">
-          {profile.displayName?.[0] || "U"}
+          {initialOf(profile.displayName, "U")}
         </AvatarFallback>
       </Avatar>
       <div className="min-w-0">

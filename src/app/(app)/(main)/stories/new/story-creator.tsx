@@ -30,7 +30,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { uploadImageToImgBB } from "@/lib/upload";
-import { cn } from "@/lib/utils";
+import { cn, initialOf } from "@/lib/utils";
 
 interface StoryCreatorProps {
   initialText?: string;
@@ -358,7 +358,7 @@ export function StoryCreator({ profile, initialText = "", initialMediaUrl = null
               <Avatar className="size-9">
                 <AvatarImage src={profile.avatarUrl || ""} alt="" />
                 <AvatarFallback className="bg-sticker text-sm font-semibold text-sticker-fg">
-                  {profile.displayName[0]}
+                  {initialOf(profile.displayName)}
                 </AvatarFallback>
               </Avatar>
               <p className="truncate text-sm font-semibold">Your story</p>

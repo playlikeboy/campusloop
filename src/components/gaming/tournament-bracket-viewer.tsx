@@ -9,9 +9,9 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-const MATCH_STATUS: Record<string, { label: string; variant: "verified" | "warning" | "brand" | "neutral" }> =
+const MATCH_STATUS: Record<string, { label: string; variant: "success" | "warning" | "brand" | "neutral" }> =
   {
-    CONFIRMED: { label: "Done", variant: "verified" },
+    CONFIRMED: { label: "Done", variant: "success" },
     REPORTED: { label: "Waiting to confirm", variant: "warning" },
     READY: { label: "Ready", variant: "brand" },
   };

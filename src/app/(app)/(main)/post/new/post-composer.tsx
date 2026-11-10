@@ -63,7 +63,7 @@ import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import type { TrendingHashtag } from "@/lib/trending-hashtags";
 import { uploadImageToImgBB, uploadMediaFile } from "@/lib/upload";
-import { cn } from "@/lib/utils";
+import { cn, initialOf } from "@/lib/utils";
 
 export type PostType = "NORMAL" | "MEME" | "CONFESSION" | "POLL" | "QUESTION";
 
@@ -852,7 +852,7 @@ export function PostComposer({
       <div
         className={cn(
           "flex flex-col bg-background",
-          isModal ? "rounded-xl overflow-hidden bg-surface-raised shadow-lg" : "min-h-screen"
+          isModal ? "rounded-xl overflow-hidden bg-surface-raised shadow-lg" : "min-h-dvh"
         )}
       >
         {/* ─── Sticky top bar (Twitter / X minimalist style) ─── */}
@@ -929,7 +929,7 @@ export function PostComposer({
               {anonActive ? (
                 <VenetianMask className="size-4 text-fg-muted" aria-hidden />
               ) : (
-                profile?.displayName?.[0] || "U"
+                initialOf(profile?.displayName, "U")
               )}
             </AvatarFallback>
           </Avatar>

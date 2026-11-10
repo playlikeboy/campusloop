@@ -97,12 +97,12 @@ export function DeviceSection() {
         label="Clear saved feed data"
         description="Frees space. Your account and posts are not affected."
       >
-        <Button variant="outline" size="sm" onClick={clearCache}>
+        <Button variant="outline" onClick={clearCache}>
           Clear
         </Button>
       </SettingsRow>
       <SettingsRow label="Signed in on" description={device}>
-        <SignOutButton size="sm" className="text-danger" />
+        <SignOutButton className="text-danger" />
       </SettingsRow>
     </SettingsSection>
   );

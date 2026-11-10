@@ -125,7 +125,7 @@ export function ArticleReaderClient({
   }, [article.slug]);
 
   return (
-    <div className="relative min-h-screen bg-bg pb-32">
+    <div className="relative min-h-dvh bg-bg pb-32">
       <ReadingProgress />
 
       <article className="mx-auto max-w-3xl space-y-8 px-4 pt-6 sm:px-6">

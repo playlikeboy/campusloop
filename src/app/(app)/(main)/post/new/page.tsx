@@ -89,7 +89,7 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
   const initialScope = scope?.toUpperCase() === "CAMPUS" ? ("CAMPUS" as const) : ("GLOBAL" as const);
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen border-x border-border bg-background pb-12 sm:pb-0">
+    <main className="mx-auto flex w-full max-w-2xl flex-col min-h-dvh border-x border-border bg-background pb-12 sm:pb-0">
       <PostComposer
         initialType={initialType}
         initialContent={text}

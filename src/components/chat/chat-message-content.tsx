@@ -13,10 +13,10 @@ interface ChatMessageContentProps {
   isMe: boolean;
 }
 
-const LINK_ME =
-  "inline-flex items-center gap-1 font-medium underline underline-offset-2 text-brand-fg break-all transition-ui";
-const LINK_THEM =
-  "inline-flex items-center gap-1 font-medium underline underline-offset-2 text-brand-text break-all transition-ui";
+// Inline (not inline-flex) so long URLs wrap across lines inside the bubble.
+const LINK_ME = "font-medium text-brand-fg underline underline-offset-2 wrap-anywhere transition-ui";
+const LINK_THEM = "font-medium text-brand-text underline underline-offset-2 wrap-anywhere transition-ui";
+const LINK_ICON = "ml-1 inline-block size-3 shrink-0 align-[-0.125em] opacity-80";
 
 /**
  * Splits text into @mentions, URLs and plain text. A mention must follow a space or punctuation,
@@ -73,8 +73,8 @@ function renderFormattedMessage(text: string, isMe: boolean) {
               onClick={(e) => e.stopPropagation()}
               className={isMe ? LINK_ME : LINK_THEM}
             >
-              <span>{cleanUrl}</span>
-              <ExternalLink className="size-3 shrink-0 opacity-80" />
+              {cleanUrl}
+              <ExternalLink aria-hidden="true" className={LINK_ICON} />
             </Link>
             {trailing}
           </React.Fragment>
@@ -90,8 +90,8 @@ function renderFormattedMessage(text: string, isMe: boolean) {
             onClick={(e) => e.stopPropagation()}
             className={isMe ? LINK_ME : LINK_THEM}
           >
-            <span>{cleanUrl}</span>
-            <ExternalLink className="size-3 shrink-0 opacity-80" />
+            {cleanUrl}
+            <ExternalLink aria-hidden="true" className={LINK_ICON} />
           </a>
           {trailing}
         </React.Fragment>
@@ -116,7 +116,7 @@ export function ChatMessageContent({ content, isMe }: ChatMessageContentProps) {
   return (
     <div className="space-y-1.5 text-left">
       {/* Formatted body text with left alignment */}
-      <p className="whitespace-pre-wrap break-words text-left text-base leading-snug select-text">
+      <p className="min-w-0 whitespace-pre-wrap break-words wrap-anywhere text-left text-base leading-snug select-text">
         {renderFormattedMessage(content, isMe)}
       </p>
 

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { getAvatarUrl } from "@/lib/utils";
+import { getAvatarUrl, initialOf } from "@/lib/utils";
 
 interface ProfileSectionProps {
   profile: {
@@ -82,7 +82,7 @@ export function ProfileSection({ profile }: ProfileSectionProps) {
           <Avatar className="size-14">
             <AvatarImage src={getAvatarUrl(profile.avatarUrl, profile.username, displayName)} alt="" />
             <AvatarFallback className="bg-surface-muted font-semibold text-fg">
-              {displayName.charAt(0).toUpperCase() || "?"}
+              {initialOf(displayName)}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">
@@ -91,7 +91,7 @@ export function ProfileSection({ profile }: ProfileSectionProps) {
               <p className="truncate text-sm text-fg-muted">{profile.institutionName}</p>
             )}
           </div>
-          <Button asChild variant="outline" size="sm">
+          <Button asChild variant="outline" className="shrink-0">
             <Link href="/profile/edit">Edit profile</Link>
           </Button>
         </div>

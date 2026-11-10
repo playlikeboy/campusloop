@@ -119,7 +119,8 @@ export function StoreReviews({
                   <img
                     src={getAvatarUrl(r.student?.avatarUrl, handle || "student")}
                     alt=""
-                    className="size-8 rounded-full bg-surface-muted object-cover"
+                    loading="lazy"
+                    className="size-8 shrink-0 rounded-full bg-surface-muted object-cover"
                   />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold text-fg">

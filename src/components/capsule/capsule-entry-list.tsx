@@ -2,7 +2,7 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { formatTimeAgo, getAvatarUrl } from "@/lib/utils";
+import { formatTimeAgo, getAvatarUrl, initialOf } from "@/lib/utils";
 import { CAPSULE_ENTRY_LABELS } from "./capsule-labels";
 
 type CapsuleEntry = any;
@@ -43,7 +43,7 @@ export function OpenedEntries({ entries }: { entries: CapsuleEntry[] }) {
                 <>
                   <Avatar className="size-6">
                     <AvatarImage src={getAvatarUrl(entry.author.avatarUrl, entry.author.username)} alt="" />
-                    <AvatarFallback className="text-xs">{entry.author.displayName[0]}</AvatarFallback>
+                    <AvatarFallback className="text-xs">{initialOf(entry.author.displayName)}</AvatarFallback>
                   </Avatar>
                   <span className="truncate font-semibold text-fg">{entry.author.displayName}</span>
                 </>

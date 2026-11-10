@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { QuestionSticker } from "@/components/ui/stickers";
+import { MentionTag, QuestionSticker } from "@/components/ui/stickers";
 import { courseAction } from "@/hooks/use-courses";
 import { fetcher } from "@/lib/api";
 import { formatTimeAgo } from "@/lib/utils";
@@ -110,16 +110,18 @@ export function QaPanel({ slug, lectureId }: { slug: string; lectureId: string }
             <li key={q.id} className="rounded-lg border border-border bg-surface p-4">
               <p className="font-semibold text-fg">{q.title}</p>
               {q.body && <p className="mt-1 whitespace-pre-wrap text-sm text-fg">{q.body}</p>}
-              <p className="mt-1 text-xs text-fg-subtle">
-                {q.author.displayName} · {formatTimeAgo(q.createdAt)}
+              <p className="mt-1.5 flex min-w-0 items-center gap-2 text-xs text-fg-subtle">
+                <MentionTag username={q.author.username} href={`/@${q.author.username}`} size="sm" />
+                <span className="shrink-0">{formatTimeAgo(q.createdAt)}</span>
               </p>
               {q.answers.length > 0 && (
                 <ul className="mt-3 space-y-3 rounded-md bg-surface-muted p-3">
                   {q.answers.map((a) => (
                     <li key={a.id}>
                       <p className="whitespace-pre-wrap text-sm text-fg">{a.body}</p>
-                      <p className="mt-0.5 text-xs text-fg-subtle">
-                        {a.author.displayName} · {formatTimeAgo(a.createdAt)}
+                      <p className="mt-1 flex min-w-0 items-center gap-2 text-xs text-fg-subtle">
+                        <MentionTag username={a.author.username} href={`/@${a.author.username}`} size="sm" />
+                        <span className="shrink-0">{formatTimeAgo(a.createdAt)}</span>
                       </p>
                     </li>
                   ))}

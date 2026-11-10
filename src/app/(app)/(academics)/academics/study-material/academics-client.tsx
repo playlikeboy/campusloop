@@ -251,7 +251,7 @@ export function AcademicsClient({
   );
 
   return (
-    <div className="mx-auto min-h-screen w-full max-w-6xl px-4 pb-20 lg:px-6">
+    <div className="mx-auto min-h-dvh w-full max-w-6xl px-4 pb-20 lg:px-6">
       <AcademicHeader
         scope={scope}
         onScopeChange={setScope}

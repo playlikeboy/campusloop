@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { courseAction, useCourse } from "@/hooks/use-courses";
 import { fetcher } from "@/lib/api";
-import { cn, formatTimeAgo } from "@/lib/utils";
+import { cn, formatTimeAgo, initialOf } from "@/lib/utils";
 import { RatingStars } from "./rating-stars";
 
 interface Review {
@@ -140,7 +140,7 @@ export function CourseReviews({ slug, compact }: { slug: string; compact?: boole
             <li key={r.id} className="flex gap-3">
               <Avatar className="size-9">
                 <AvatarImage src={r.author.avatarUrl ?? ""} alt="" />
-                <AvatarFallback className="text-xs">{r.author.displayName[0]}</AvatarFallback>
+                <AvatarFallback className="text-xs">{initialOf(r.author.displayName)}</AvatarFallback>
               </Avatar>
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-fg">{r.author.displayName}</p>

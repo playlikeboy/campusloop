@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { CourseReviews } from "@/components/courses/course-reviews";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { type CourseDetailResponse, courseAction } from "@/hooks/use-courses";
+import { cn } from "@/lib/utils";
 import { CurriculumSidebar } from "./curriculum-sidebar";
 import { LectureOverview, ResourcesList } from "./lecture-info";
 import { LectureMedia } from "./lecture-media";
@@ -139,6 +140,8 @@ export function PlayerShell({
 
   if (!lecture) return null;
 
+  const stickyMedia = lecture.kind !== "ARTICLE" && lecture.kind !== "LINK";
+
   const tabs: { id: Tab; label: string; mobileOnly?: boolean }[] = [
     { id: "content", label: "Lectures", mobileOnly: true },
     { id: "overview", label: "Overview" },
@@ -165,16 +168,19 @@ export function PlayerShell({
 
       <div className="flex min-h-0 flex-1">
         <main className="min-w-0 flex-1 overflow-y-auto">
-          <LectureMedia
-            key={lecture.id}
-            lecture={lecture}
-            startAt={startAt || viewer.positions[lecture.id] || 0}
-            playerRef={playerRef}
-            nextTitle={next?.title}
-            onProgress={saveProgress}
-            onComplete={() => setDone(lecture.id, true)}
-            onNext={() => go(next?.id)}
-          />
+          {/* Phones: the video stays pinned at the top while the lecture list scrolls under it. */}
+          <div className={stickyMedia ? "z-20 max-lg:sticky max-lg:top-0" : undefined}>
+            <LectureMedia
+              key={lecture.id}
+              lecture={lecture}
+              startAt={startAt || viewer.positions[lecture.id] || 0}
+              playerRef={playerRef}
+              nextTitle={next?.title}
+              onProgress={saveProgress}
+              onComplete={() => setDone(lecture.id, true)}
+              onNext={() => go(next?.id)}
+            />
+          </div>
           <LectureToolbar
             hasPrev={Boolean(prev)}
             hasNext={Boolean(next)}
@@ -194,7 +200,12 @@ export function PlayerShell({
             onValueChange={(v) => setTab(v as Tab)}
             className="mx-auto max-w-4xl gap-0 px-4 pb-16"
           >
-            <div className="no-scrollbar sticky top-0 z-10 -mx-4 overflow-x-auto bg-bg px-4">
+            <div
+              className={cn(
+                "no-scrollbar sticky top-0 z-10 -mx-4 overflow-x-auto bg-bg px-4",
+                stickyMedia && "max-lg:top-[calc(100vw*9/16)]"
+              )}
+            >
               <TabsList variant="line" aria-label="Lecture details" className="min-w-full">
                 {tabs.map((t) => (
                   <TabsTrigger

@@ -14,6 +14,7 @@ import { SegmentedControl } from "@/components/ui/segmented-control";
 import type { FeedPost } from "@/hooks/use-feed";
 import { haptics } from "@/lib/haptics";
 import { CommunityList } from "./community-row";
+import { EmptySticker } from "./empty-sticker";
 
 export interface CommunityMemberWithUser {
   userId: string;
@@ -200,18 +201,19 @@ export function CommunitiesIndexClient({
   );
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-3xl space-y-4 px-4 pt-4 pb-24 sm:px-6">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-3xl font-bold text-fg">Communities</h1>
-          <p className="mt-1 text-sm text-fg-muted">Clubs, branch groups and interest circles.</p>
+    <main className="mx-auto min-h-dvh w-full max-w-3xl space-y-4 px-4 pt-4 pb-24 sm:px-6">
+      <header>
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="min-w-0 truncate font-display text-3xl font-extrabold text-fg">Communities</h1>
+          <Button asChild className="shrink-0">
+            <Link href="/communities/new">
+              <Plus aria-hidden="true" />
+              <span className="hidden sm:inline">Start a community</span>
+              <span className="sm:hidden">Start one</span>
+            </Link>
+          </Button>
         </div>
-        <Button asChild>
-          <Link href="/communities/new">
-            <Plus />
-            Start a community
-          </Link>
-        </Button>
+        <p className="mt-1 text-sm text-fg-muted">Clubs, branch groups and interest circles.</p>
       </header>
 
       <SegmentedControl
@@ -231,7 +233,7 @@ export function CommunitiesIndexClient({
         <div className="space-y-4">
           {searchBox("Search communities", "Search clubs and interests")}
 
-          <fieldset className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
+          <fieldset className="no-scrollbar -mx-4 flex min-w-0 gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
             <legend className="sr-only">Category</legend>
             {CATEGORY_DEFINITIONS.map((def) => (
               <Chip
@@ -272,7 +274,7 @@ export function CommunitiesIndexClient({
             </>
           ) : (
             <EmptyState
-              icon={Users}
+              illustration={<EmptySticker icon={Users} />}
               bordered
               title={search ? `No communities match "${search}"` : "No communities here yet"}
               description="Start one and invite your friends."
@@ -303,7 +305,7 @@ export function CommunitiesIndexClient({
             </>
           ) : (
             <EmptyState
-              icon={MessageSquare}
+              illustration={<EmptySticker icon={MessageSquare} />}
               bordered
               title={search ? `No posts match "${search}"` : "No community posts yet"}
               description="Join a community and start the first conversation."
@@ -327,7 +329,7 @@ export function CommunitiesIndexClient({
             </>
           ) : (
             <EmptyState
-              icon={Users}
+              illustration={<EmptySticker icon={Users} />}
               bordered
               title="You haven't joined any communities"
               description="Join a club or interest group to see its posts here."

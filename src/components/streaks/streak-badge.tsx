@@ -14,7 +14,7 @@ interface StreakBadgeProps {
 export function StreakBadge({ className, href = "/streaks" }: StreakBadgeProps) {
   const { streak, isLoading } = useStreaks();
   const base =
-    "inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-sm font-semibold tabular-nums select-none";
+    "inline-flex h-11 items-center gap-1.5 rounded-full px-3 text-sm font-semibold tabular-nums select-none";
 
   if (isLoading || !streak) {
     return (

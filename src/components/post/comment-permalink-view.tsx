@@ -40,7 +40,7 @@ import { useProfile } from "@/hooks/use-profile";
 import { voteComment } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn, formatTimeAgo, getAvatarUrl } from "@/lib/utils";
+import { cn, formatTimeAgo, getAvatarUrl, initialOf } from "@/lib/utils";
 
 export interface CommentAuthor {
   id?: string;
@@ -121,7 +121,7 @@ export function CommentPermalinkView({
   const fallback = isAnon ? (
     <VenetianMask className="size-5 text-brand-text" />
   ) : (
-    (comment.author?.displayName?.[0] ?? "S").toUpperCase()
+    initialOf(comment.author?.displayName, "S")
   );
 
   const isVerified = Boolean(!isAnon && (comment.author?.points || 0) >= 150);
@@ -440,7 +440,7 @@ export function CommentPermalinkView({
                   onChange={handleReplyTextChange}
                   placeholder={`Reply to @${handle}…`}
                   rows={2}
-                  className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground/60 outline-none resize-none leading-relaxed"
+                  className="w-full bg-transparent text-base sm:text-sm text-foreground placeholder:text-muted-foreground/60 outline-none resize-none leading-relaxed"
                 />
 
                 <div className="flex items-center justify-between pt-1 border-t border-border">
@@ -511,7 +511,7 @@ export function CommentPermalinkView({
               const replyFallback = replyAnon ? (
                 <VenetianMask className="size-4 text-brand-text" />
               ) : (
-                (reply.author?.displayName?.[0] ?? "S").toUpperCase()
+                initialOf(reply.author?.displayName, "S")
               );
 
               return (

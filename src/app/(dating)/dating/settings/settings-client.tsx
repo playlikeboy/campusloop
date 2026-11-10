@@ -26,6 +26,9 @@ type PrefsResponse = {
   recommendedGender: "MALE" | "FEMALE" | "ALL";
 };
 
+/** 44px segments that wrap long labels instead of overflowing at 360px. */
+const SEGMENTS = "*:h-auto *:min-h-11 *:min-w-0 *:px-2 *:py-1.5 *:text-center *:leading-tight *:whitespace-normal";
+
 function Group({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
   return (
     <section className="space-y-2.5">
@@ -112,6 +115,7 @@ export function SettingsClient() {
         <SegmentedControl
           aria-label="Colleges to show"
           fullWidth
+          className={SEGMENTS}
           value={prefs.scope}
           onChange={(scope) => void save({ scope })}
           options={[
@@ -122,6 +126,7 @@ export function SettingsClient() {
         <SegmentedControl
           aria-label="Show me"
           fullWidth
+          className={SEGMENTS}
           value={gender}
           onChange={(g) => void save({ gender: g })}
           options={[
@@ -136,6 +141,7 @@ export function SettingsClient() {
         <SegmentedControl
           aria-label="Order of profiles"
           fullWidth
+          className={SEGMENTS}
           value={prefs.sort}
           onChange={(sort) => void save({ sort })}
           options={[

@@ -15,9 +15,10 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { MentionTag } from "@/components/ui/stickers";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn } from "@/lib/utils";
+import { cn, initialOf } from "@/lib/utils";
 
 // ─── 1. Community Preview Card ───
 export function CommunityPreviewCard({
@@ -181,7 +182,11 @@ export function ArticlePreviewCard({
     >
       <div className="space-y-1">
         <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
-          <span className="truncate">{article.author?.displayName || "Student Author"}</span>
+          {article.author?.username ? (
+            <MentionTag username={article.author.username} size="sm" className="min-w-0" />
+          ) : (
+            <span className="truncate">{article.author?.displayName || "Student"}</span>
+          )}
           <span className="shrink-0">{article.readingTimeMinutes || 3} min read</span>
         </div>
         <h3 className="text-sm font-semibold text-fg group-hover:text-brand-text transition-ui line-clamp-2 leading-snug">
@@ -213,7 +218,7 @@ export function CollegePreviewCard({
 
   return (
     <Link
-      href={college.slug ? `/colleges/${college.slug}` : `/colleges/${college.id}`}
+      href={`/college/${college.slug || college.id}`}
       className="group flex items-start gap-3 p-3 rounded-lg border border-border bg-surface hover:bg-surface-muted transition-ui"
     >
       <Avatar className="size-10 rounded-xl shrink-0 border border-border">
@@ -301,7 +306,7 @@ export function PersonPreviewCard({
         <Avatar className="size-10 rounded-full shrink-0 border border-border">
           {person.avatarUrl && <AvatarImage src={person.avatarUrl} alt={person.displayName} />}
           <AvatarFallback className="text-xs font-semibold">
-            {person.displayName?.slice(0, 1) || "S"}
+            {initialOf(person.displayName, "S")}
           </AvatarFallback>
         </Avatar>
 
@@ -309,9 +314,11 @@ export function PersonPreviewCard({
           <p className="text-sm font-semibold text-fg group-hover:text-brand-text transition-ui truncate">
             {person.displayName}
           </p>
-          <p className="text-xs text-muted-foreground truncate">
-            @{person.username}
-            {person.institution?.name ? ` · ${person.institution.name.split(",")[0]}` : ""}
+          <p className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+            <MentionTag username={person.username} size="sm" className="min-w-0 shrink" />
+            {person.institution?.name ? (
+              <span className="truncate">{person.institution.name.split(",")[0]}</span>
+            ) : null}
           </p>
         </div>
       </div>
@@ -321,7 +328,7 @@ export function PersonPreviewCard({
         onClick={handleFollowToggle}
         disabled={isPending}
         className={cn(
-          "inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors shrink-0 cursor-pointer",
+          "inline-flex min-h-9 items-center gap-1 px-3 rounded-full text-xs font-semibold transition-colors shrink-0 cursor-pointer pointer-coarse:min-h-11",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
           isFollowing
             ? "border border-border bg-muted text-foreground hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"

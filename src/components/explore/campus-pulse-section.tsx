@@ -4,6 +4,7 @@ import { Flame, Hash, MessageSquare, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { sounds } from "@/lib/sounds";
+import { initialOf } from "@/lib/utils";
 
 export interface PulseTrend {
   category: string;
@@ -106,7 +107,7 @@ export function CampusPulseSection({ trends, topDiscussions, onTopicClick }: Cam
                   <div className="flex items-center gap-2 mb-1">
                     <Avatar className="size-4.5 rounded-full">
                       {d.authorAvatar && <AvatarImage src={d.authorAvatar} alt={d.authorName} />}
-                      <AvatarFallback className="text-xs">{d.authorName?.slice(0, 1) || "S"}</AvatarFallback>
+                      <AvatarFallback className="text-xs">{initialOf(d.authorName, "S")}</AvatarFallback>
                     </Avatar>
                     <span className="text-xs text-fg-muted truncate">{d.category}</span>
                     <span className="text-xs text-fg-subtle ml-auto shrink-0">{d.timeAgo}</span>

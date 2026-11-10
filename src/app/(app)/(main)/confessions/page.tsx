@@ -18,7 +18,7 @@ export default function ConfessionsPage() {
       fallback={
         <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-2 sm:py-4">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            <main className="lg:col-span-8 flex flex-col min-h-screen space-y-4" aria-busy="true">
+            <main className="lg:col-span-8 flex flex-col min-h-dvh space-y-4" aria-busy="true">
               <span className="sr-only">Loading confessions</span>
               <div className="h-10 w-48 bg-surface-muted rounded-full animate-pulse" />
               <ConfessionsFeedSkeleton />

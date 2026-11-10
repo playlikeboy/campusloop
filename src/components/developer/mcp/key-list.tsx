@@ -119,12 +119,12 @@ export function McpKeyList({
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="flex h-10 min-w-0 flex-1 items-center justify-between rounded-md border border-border bg-surface px-3 font-mono text-xs text-fg-muted">
+              <div className="flex h-11 min-w-0 flex-1 items-center justify-between rounded-md border border-border bg-surface px-3 font-mono text-xs text-fg-muted">
                 <span className="truncate">{isVisible ? k.key : masked}</span>
                 <button
                   type="button"
                   onClick={() => setVisible((p) => ({ ...p, [k.id]: !p[k.id] }))}
-                  className="-mr-2 ml-1 flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full transition-ui hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="-mr-2 ml-1 flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full transition-ui hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   aria-label={isVisible ? "Hide token" : "Show token"}
                 >
                   {isVisible ? <EyeOff className="size-4" /> : <Eye className="size-4" />}

@@ -2,6 +2,7 @@
 
 import { MapPin, Trophy } from "lucide-react";
 import Link from "next/link";
+import { VerifiedSticker } from "@/components/ui/stickers";
 import { cn } from "@/lib/utils";
 import { CollegeCrest } from "./college-crest";
 
@@ -20,6 +21,8 @@ export interface CollegeItem {
   description?: string | null;
   websiteDomain?: string | null;
   postCount?: number;
+  /** True only when the college has a verified student email domain. Rows show the mint sticker for it. */
+  verified?: boolean;
 }
 
 /** One college as a list row: crest, name, place and email domain. */
@@ -54,10 +57,13 @@ export function CollegeHubRow({
       <CollegeCrest name={college.name} logoUrl={college.logoUrl} size="md" />
 
       <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-1.5">
-          <h3 className="truncate font-semibold leading-tight text-fg group-hover:text-brand-text">
+        <div className="flex min-w-0 items-center gap-1.5">
+          <h3 className="min-w-0 truncate font-semibold leading-tight text-fg group-hover:text-brand-text">
             {college.name}
           </h3>
+          {college.verified ? (
+            <VerifiedSticker size="sm" label="Verified" className="shrink-0 shadow-none" />
+          ) : null}
           {college.nirfRank ? (
             <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-surface-muted px-2 py-0.5 text-xs font-semibold text-fg-muted">
               <Trophy className="size-3" aria-hidden="true" />

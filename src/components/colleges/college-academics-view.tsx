@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight, BadgeCheck, BookOpen, Download, Plus, Search, ThumbsUp, X } from "lucide-react";
+import { ArrowUpRight, BookOpen, Download, Plus, Search, ThumbsUp, X } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
+import { VerifiedSticker } from "@/components/ui/stickers";
 
 export interface CollegeAcademicResourceItem {
   id: string;
@@ -189,12 +190,7 @@ export function CollegeAcademicsView({ collegeName, collegeSlug, resources }: Co
                   <span>
                     Sem {item.semester} · {item.branch}
                   </span>
-                  {item.isVerified && (
-                    <Badge variant="verified">
-                      <BadgeCheck />
-                      Checked
-                    </Badge>
-                  )}
+                  {item.isVerified && <VerifiedSticker size="sm" label="Checked" className="shadow-none" />}
                 </div>
                 <h3 className="line-clamp-2 font-semibold leading-snug text-fg">{item.title}</h3>
                 {item.description && <p className="line-clamp-2 text-sm text-fg-muted">{item.description}</p>}

@@ -146,3 +146,12 @@ export function formatImagePostDate(dateInput?: string | Date | null): string {
 
   return `${day} ${month} ${year}, ${hours}:${minutes}`;
 }
+
+/**
+ * First letter or digit of a name, upper-cased, for avatar fallbacks.
+ * Skips leading emoji and symbols so "🚀 HackBIT" gives "H", never half a surrogate pair.
+ */
+export function initialOf(name?: string | null, fallback = "?"): string {
+  const match = name?.match(/[\p{L}\p{N}]/u);
+  return (match?.[0] ?? fallback).toUpperCase();
+}

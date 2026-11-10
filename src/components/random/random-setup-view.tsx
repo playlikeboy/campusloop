@@ -112,7 +112,7 @@ export function RandomSetupView({
                 )}
               >
                 <Icon className={cn("size-5", selected ? "text-brand-text" : "text-fg-muted")} aria-hidden />
-                <p className="mt-2 text-sm font-semibold text-fg">{m.title}</p>
+                <p className="mt-2 text-sm font-semibold break-words text-fg">{m.title}</p>
                 <p className="mt-0.5 text-sm text-fg-muted">{m.description}</p>
               </button>
             );
@@ -122,7 +122,7 @@ export function RandomSetupView({
 
       <section className="mt-6 space-y-3" aria-labelledby="random-topics">
         <div className="flex items-baseline justify-between gap-2">
-          <h2 id="random-topics" className="text-lg">
+          <h2 id="random-topics" className="min-w-0 text-lg">
             What do you want to talk about?
           </h2>
           <span className="shrink-0 text-sm tabular-nums text-fg-muted">
@@ -149,7 +149,7 @@ export function RandomSetupView({
         </Button>
       </section>
 
-      <div className="sticky bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 -mx-4 mt-6 border-t border-border bg-bg px-4 pt-3 lg:bottom-0">
+      <div className="sticky bottom-[calc(var(--nav-mobile-h)+env(safe-area-inset-bottom))] z-30 -mx-4 mt-6 border-t border-border bg-bg px-4 pt-3 lg:bottom-0">
         <div className="flex flex-col gap-1">
           <Button size="lg" className="w-full" onClick={onFind} disabled={interests.length === 0}>
             Find someone

@@ -3,6 +3,7 @@
 import { Phone, PhoneOff, Video } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { sounds } from "@/lib/sounds";
+import { initialOf } from "@/lib/utils";
 
 interface IncomingCallModalProps {
   incomingCall: {
@@ -25,7 +26,7 @@ export function IncomingCallModal({ incomingCall, onAccept, onDecline }: Incomin
   const kind = type === "video" ? "video call" : "voice call";
 
   return (
-    <div className="dark fixed inset-0 z-(--z-modal) flex items-end justify-center bg-overlay p-3 select-none sm:items-center sm:p-4">
+    <div className="dark fixed inset-0 z-(--z-modal) flex items-end justify-center bg-overlay p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] select-none sm:items-center sm:p-4">
       <div
         role="alertdialog"
         aria-modal="true"
@@ -42,12 +43,12 @@ export function IncomingCallModal({ incomingCall, onAccept, onDecline }: Incomin
             <Avatar className="size-24">
               <AvatarImage src={caller.avatarUrl || ""} alt="" />
               <AvatarFallback className="bg-brand-subtle text-2xl font-bold text-brand-text">
-                {caller.displayName?.slice(0, 2).toUpperCase()}
+                {initialOf(caller.displayName)}
               </AvatarFallback>
             </Avatar>
           </div>
           <div className="space-y-1">
-            <h2 id="incoming-call-title" className="font-display text-2xl font-bold text-fg">
+            <h2 id="incoming-call-title" className="font-display text-2xl font-bold break-words text-fg">
               {caller.displayName}
             </h2>
             <p id="incoming-call-desc" className="text-sm text-fg-muted">

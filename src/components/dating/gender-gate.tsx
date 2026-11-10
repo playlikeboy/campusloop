@@ -33,7 +33,7 @@ export function GenderGate({ onSaved }: { onSaved: () => Promise<void> | void })
   return (
     <form
       onSubmit={submit}
-      className="m-auto w-full max-w-sm space-y-5 rounded-lg border border-border bg-surface p-6"
+      className="m-auto w-full max-w-sm space-y-5 rounded-lg border border-border bg-surface p-5 sm:p-6"
     >
       <div className="space-y-1">
         <h2 className="text-xl text-fg">One thing first</h2>
@@ -44,6 +44,7 @@ export function GenderGate({ onSaved }: { onSaved: () => Promise<void> | void })
       <SegmentedControl<Gender>
         aria-label="Your gender"
         fullWidth
+        className="*:h-11"
         value={gender}
         onChange={setGender}
         options={[
@@ -52,7 +53,7 @@ export function GenderGate({ onSaved }: { onSaved: () => Promise<void> | void })
           { value: "OTHER", label: "Other" },
         ]}
       />
-      <Button type="submit" variant="crush" className="w-full" loading={saving}>
+      <Button type="submit" className="w-full" loading={saving}>
         Start matching
       </Button>
     </form>

@@ -14,7 +14,6 @@ import {
   FolderPlus,
   Layers,
   Share2,
-  ShieldCheck,
   ThumbsUp,
 } from "lucide-react";
 import Link from "next/link";
@@ -30,6 +29,7 @@ import { SimilarResourcesWidget } from "@/components/academics/similar-resources
 import { AnimatedIcon } from "@/components/ui/animated-icon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { VerifiedSticker } from "@/components/ui/stickers";
 import { useScrollIsolation } from "@/hooks/use-scroll-isolation";
 import { checkAndRecordDownload, GUEST_DOWNLOAD_LIMIT } from "@/lib/academic-download-limiter";
 import {
@@ -388,7 +388,9 @@ export function AcademicDetailClient({
                   >
                     {resource.uploader?.displayName}
                   </Link>
-                  {resource.isVerified && <ShieldCheck className="size-3.5 text-primary shrink-0" />}
+                  {resource.isVerified && (
+                    <VerifiedSticker size="sm" label="Checked" className="shrink-0 shadow-none" />
+                  )}
                 </div>
                 <p className="text-xs text-muted-foreground truncate">
                   @{resource.uploader?.username} · {resource.institution?.name?.split(",")[0] || "Campus"} ·{" "}

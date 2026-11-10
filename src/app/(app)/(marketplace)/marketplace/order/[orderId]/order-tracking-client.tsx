@@ -5,6 +5,7 @@ import Link from "next/link";
 import useSWR from "swr";
 import { BillSummary } from "@/components/marketplace/bill-summary";
 import { OrderPayNow } from "@/components/marketplace/order-pay-now";
+import { OrderProgressSticker } from "@/components/marketplace/order-progress-sticker";
 import { orderStatusLabel, orderStatusVariant } from "@/components/marketplace/order-status";
 import { StatusTimeline } from "@/components/marketplace/status-timeline";
 import { Badge } from "@/components/ui/badge";
@@ -109,6 +110,8 @@ export function OrderTrackingClient({ orderId }: OrderTrackingClientProps) {
         />
       )}
 
+      {!isRejected && <OrderProgressSticker steps={steps} current={order.status} />}
+
       <section aria-label="Order progress" className="rounded-lg border border-border bg-surface p-4">
         {isRejected ? (
           <div className="space-y-1">
@@ -161,7 +164,7 @@ export function OrderTrackingClient({ orderId }: OrderTrackingClientProps) {
           {(order.items || []).map((item: any) => (
             <li key={item.id} className="flex items-start justify-between gap-3 py-2 text-sm">
               <div className="min-w-0">
-                <p className="text-fg">
+                <p className="break-words text-fg">
                   {item.quantity} × {item.productNameSnapshot}
                 </p>
                 {item.selectedAddons && item.selectedAddons.length > 0 && (
@@ -194,7 +197,7 @@ export function OrderTrackingClient({ orderId }: OrderTrackingClientProps) {
             className="space-y-1.5 rounded-lg border border-border bg-surface p-4 text-sm"
           >
             {order.deliveryAddress.hostelName && (
-              <p className="flex items-center gap-2 text-fg">
+              <p className="flex min-w-0 items-center gap-2 break-words text-fg">
                 <MapPin className="size-4 shrink-0 text-fg-muted" aria-hidden="true" />
                 {order.deliveryAddress.hostelName}
                 {order.deliveryAddress.roomNumber ? `, room ${order.deliveryAddress.roomNumber}` : ""}
@@ -206,7 +209,7 @@ export function OrderTrackingClient({ orderId }: OrderTrackingClientProps) {
                 {order.deliveryAddress.phone}
               </p>
             )}
-            {order.customerNote && <p className="text-fg-muted">Your note: {order.customerNote}</p>}
+            {order.customerNote && <p className="break-words text-fg-muted">Your note: {order.customerNote}</p>}
           </section>
         )}
     </div>

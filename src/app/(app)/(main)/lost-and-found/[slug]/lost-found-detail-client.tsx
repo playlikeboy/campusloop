@@ -27,7 +27,7 @@ import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { absoluteUrl } from "@/lib/seo/constants";
 import { sounds } from "@/lib/sounds";
-import { formatTimeAgo, getAvatarUrl } from "@/lib/utils";
+import { formatTimeAgo, getAvatarUrl, initialOf } from "@/lib/utils";
 import { ItemMatches } from "./item-matches";
 
 interface Props {
@@ -197,12 +197,12 @@ export function LostFoundDetailClient({ slug, currentProfileId }: Props) {
             </Badge>
           )}
         </div>
-        <h1 className="text-balance text-3xl text-fg">{item.title}</h1>
+        <h1 className="text-balance break-words text-3xl text-fg">{item.title}</h1>
         <dl className="space-y-1.5 text-sm text-fg-muted">
           <div className="flex items-center gap-2">
             <MapPin className="size-4 shrink-0" aria-hidden="true" />
             <dt className="sr-only">Where</dt>
-            <dd>
+            <dd className="min-w-0 break-words">
               {item.location}
               {item.institution?.name ? `, ${item.institution.name}` : ""}
             </dd>
@@ -225,7 +225,7 @@ export function LostFoundDetailClient({ slug, currentProfileId }: Props) {
       )}
 
       {item.description && (
-        <p className="whitespace-pre-wrap text-pretty text-base leading-relaxed text-fg">
+        <p className="whitespace-pre-wrap text-pretty break-words text-base leading-relaxed text-fg">
           {item.description}
         </p>
       )}
@@ -238,7 +238,7 @@ export function LostFoundDetailClient({ slug, currentProfileId }: Props) {
           <Avatar className="size-11 shrink-0">
             <AvatarImage src={avatar} alt="" />
             <AvatarFallback className="text-xs font-semibold">
-              {item.author.displayName?.[0] || "U"}
+              {initialOf(item.author.displayName, "U")}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0">
@@ -298,7 +298,7 @@ export function LostFoundDetailClient({ slug, currentProfileId }: Props) {
             <img
               src={item.imageUrl}
               alt={item.title}
-              className="max-h-[80vh] w-full rounded-md object-contain"
+              className="max-h-[80dvh] w-full rounded-md object-contain"
             />
           </DialogContent>
         </Dialog>

@@ -23,6 +23,7 @@ import { hasAttachedVideoContent, isMediaImageUrl, isMediaVideoUrl } from "@/lib
 import { extractMediaAttachments } from "@/lib/media-attachments";
 import { cleanPostHtml } from "@/lib/html-sanitize";
 import { cn, formatImagePostDate } from "@/lib/utils";
+import { MentionTag } from "@/components/ui/stickers";
 
 interface RichTextProps {
   content: string;
@@ -279,14 +280,14 @@ export function RichText({
       } else if (raw.startsWith("@")) {
         const username = raw.slice(1);
         parts.push(
-          <Link
+          <MentionTag
             key={`mention-${tokenMatch.index}`}
+            username={username}
             href={`/@${username}`}
+            size="sm"
             onClick={(e) => e.stopPropagation()}
-            className="text-primary font-bold hover:underline cursor-pointer"
-          >
-            {raw}
-          </Link>
+            className="align-baseline"
+          />
         );
       }
 

@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetcher } from "@/lib/api";
-import { formatTimeAgo } from "@/lib/utils";
+import { formatTimeAgo, initialOf } from "@/lib/utils";
 import { type AttendeeRegistration, downloadAttendeesCsv } from "./attendees-csv";
 
 interface AttendeesClientProps {
@@ -205,7 +205,7 @@ function AttendeeRow({
         <div className="flex min-w-0 items-center gap-3">
           <Avatar size="lg">
             {reg.profile?.avatarUrl && <AvatarImage src={reg.profile.avatarUrl} alt="" />}
-            <AvatarFallback>{name[0]}</AvatarFallback>
+            <AvatarFallback>{initialOf(name)}</AvatarFallback>
           </Avatar>
           <div className="min-w-0 text-xs text-fg-muted">
             <p className="truncate text-sm font-semibold text-fg">{name}</p>
@@ -217,7 +217,9 @@ function AttendeeRow({
             {study && <p className="truncate">{study}</p>}
           </div>
         </div>
-        <Badge variant={status.variant}>{status.label}</Badge>
+        <Badge variant={status.variant} className="shrink-0">
+          {status.label}
+        </Badge>
       </div>
       {(reg.teamName || reg.contactPhone) && (
         <p className="text-xs text-fg-muted">
@@ -228,7 +230,7 @@ function AttendeeRow({
       )}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="text-xs text-fg-subtle">Signed up {formatTimeAgo(new Date(reg.createdAt))}</span>
-        <div className="flex gap-2">
+        <div className="flex w-full gap-2 *:flex-1 sm:w-auto sm:*:flex-none">
           {reg.status !== "CANCELLED" && (
             <Button variant="ghost" disabled={busy} onClick={() => onStatus("CANCELLED")}>
               Remove

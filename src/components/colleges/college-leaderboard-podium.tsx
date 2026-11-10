@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
+import { initialOf } from "@/lib/utils";
 
 interface StudentItem {
   id: string;
@@ -153,7 +154,7 @@ export function CollegeLeaderboardPodium({ students, collegeName }: CollegeLeade
                 </span>
                 <Avatar className="size-10 shrink-0">
                   <AvatarImage src={student.avatarUrl || ""} alt="" />
-                  <AvatarFallback>{student.displayName[0]}</AvatarFallback>
+                  <AvatarFallback>{initialOf(student.displayName)}</AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-semibold text-fg">{student.displayName}</p>

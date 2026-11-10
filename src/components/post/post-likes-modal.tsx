@@ -8,6 +8,7 @@ import useSWRInfinite from "swr/infinite";
 import { FollowButton } from "@/components/profile/follow-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { fetcher } from "@/lib/api";
+import { initialOf } from "@/lib/utils";
 
 export interface LikedUser {
   id: string;
@@ -202,7 +203,7 @@ export function PostLikesModal({ postId, isOpen, onClose, currentUserId }: PostL
               aria-label="Search people who liked this"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-10 pl-9 pr-10 rounded-full border border-border bg-surface text-sm text-fg placeholder:text-fg-subtle outline-none focus-visible:ring-2 focus-visible:ring-ring transition-ui"
+              className="w-full h-10 pl-9 pr-10 rounded-full border border-border bg-surface text-base sm:text-sm text-fg placeholder:text-fg-subtle outline-none focus-visible:ring-2 focus-visible:ring-ring transition-ui"
             />
             {searchQuery && (
               <button
@@ -272,7 +273,7 @@ export function PostLikesModal({ postId, isOpen, onClose, currentUserId }: PostL
                       <Avatar className="size-10 shrink-0 border border-border transition-transform shadow-2xs">
                         <AvatarImage src={user.avatarUrl || ""} />
                         <AvatarFallback className="text-xs font-bold bg-primary/10 text-primary">
-                          {(user.displayName?.[0] || "S").toUpperCase()}
+                          {initialOf(user.displayName, "S")}
                         </AvatarFallback>
                       </Avatar>
 

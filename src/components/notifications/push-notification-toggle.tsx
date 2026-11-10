@@ -40,7 +40,7 @@ export function PushNotificationToggle({ variant = "row" }: { variant?: "row" | 
             <X aria-hidden="true" />
           </Button>
         ) : (
-          <Button size="sm" onClick={subscribe} loading={isBusy}>
+          <Button onClick={subscribe} loading={isBusy}>
             Turn on
           </Button>
         )}
@@ -62,12 +62,11 @@ export function PushNotificationToggle({ variant = "row" }: { variant?: "row" | 
       </div>
       <div className="flex items-center gap-2">
         {isSubscribed && (
-          <Button variant="ghost" size="sm" onClick={sendTestNotification}>
+          <Button variant="ghost" onClick={sendTestNotification}>
             Send a test
           </Button>
         )}
         <Button
-          size="sm"
           variant={isSubscribed ? "outline" : "primary"}
           onClick={isSubscribed ? unsubscribe : subscribe}
           loading={isBusy}

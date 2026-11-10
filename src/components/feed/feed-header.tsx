@@ -216,7 +216,7 @@ export function FeedHeader({
             ))}
             <Link
               href="/confessions"
-              className="inline-flex h-8 items-center rounded-full px-3 text-xs font-medium text-brand-text underline-offset-4 hover:underline"
+              className="inline-flex h-8 pointer-coarse:h-11 items-center rounded-full px-3 text-xs font-medium text-brand-text underline-offset-4 hover:underline"
             >
               Open confessions
             </Link>

@@ -76,7 +76,7 @@ export function ProfileSocialLinks({
       <Link
         href="/profile/edit"
         className={cn(
-          "inline-flex h-9 items-center gap-1.5 rounded-full border border-dashed border-border-strong px-3 text-sm text-fg-muted transition-ui hover:border-brand hover:text-brand-text",
+          "inline-flex min-h-11 items-center gap-1.5 rounded-full border border-dashed border-border-strong px-3 text-sm text-fg-muted transition-ui hover:border-brand hover:text-brand-text",
           className
         )}
       >
@@ -89,7 +89,7 @@ export function ProfileSocialLinks({
   const visibleItems = expanded ? items : items.slice(0, maxVisible);
   const hiddenCount = items.length - maxVisible;
   const circle =
-    "inline-flex size-10 items-center justify-center rounded-full border border-border bg-surface text-fg transition-ui hover:bg-surface-muted active:scale-95";
+    "inline-flex size-11 items-center justify-center rounded-full border border-border bg-surface text-fg transition-ui hover:bg-surface-muted active:scale-95";
 
   return (
     <ul className={cn("flex flex-wrap items-center gap-2", className)} aria-label="Links">

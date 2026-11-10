@@ -13,7 +13,7 @@ import { StoryProgress } from "@/components/ui/stickers";
 import { haptics } from "@/lib/haptics";
 import { SITE_URL } from "@/lib/seo";
 import { sounds } from "@/lib/sounds";
-import { cn } from "@/lib/utils";
+import { cn, initialOf } from "@/lib/utils";
 
 interface StoryViewerClientProps {
   story: {
@@ -71,6 +71,10 @@ export function StoryViewerClient({
   const [posted, setPosted] = useState("");
 
   const touchStart = useRef<{ x: number; y: number; t: number } | null>(null);
+  const mouseDownAt = useRef(0);
+  const lastTouchAt = useRef(0);
+  // A hold (to pause) or a swipe should not also count as a tap on a tap zone.
+  const suppressTap = useRef(false);
 
   const { background, text: textClasses } = splitStoryClasses(story.backgroundColor);
   const { stickers, body } = decodeStoryText(story.text);
@@ -117,18 +121,23 @@ export function StoryViewerClient({
     setIsHeld(false);
     const start = touchStart.current;
     touchStart.current = null;
+    lastTouchAt.current = Date.now();
     if (!start) return;
     const dx = e.changedTouches[0].clientX - start.x;
     const dy = e.changedTouches[0].clientY - start.y;
 
+    suppressTap.current = !(Date.now() - start.t < 250 && Math.abs(dx) < 15 && Math.abs(dy) < 15);
     if (dy > 80 && Math.abs(dy) > Math.abs(dx)) return closeViewer();
     if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) return dx < 0 ? navigateNext() : navigatePrev();
-    if (Date.now() - start.t < 250 && Math.abs(dx) < 15 && Math.abs(dy) < 15) {
-      const target = e.target as HTMLElement;
-      if (target.closest("a,button,input,form")) return;
-      if (e.changedTouches[0].clientX < window.innerWidth * 0.35) navigatePrev();
-      else navigateNext();
+  }
+
+  function handleTapZone(direction: "prev" | "next") {
+    if (suppressTap.current) {
+      suppressTap.current = false;
+      return;
     }
+    if (direction === "prev") navigatePrev();
+    else navigateNext();
   }
 
   async function handleLike() {
@@ -208,7 +217,7 @@ export function StoryViewerClient({
   }
 
   return (
-    <div className="dark fixed inset-0 z-50 flex touch-manipulation select-none items-center justify-center bg-black md:p-4">
+    <div className="dark fixed inset-0 z-50 flex h-dvh touch-manipulation select-none items-center justify-center bg-black md:p-4">
       <button
         type="button"
         onClick={navigatePrev}
@@ -224,8 +233,17 @@ export function StoryViewerClient({
           "relative flex h-full w-full flex-col justify-between overflow-hidden text-white md:h-[min(92dvh,844px)] md:w-[min(430px,100vw)] md:rounded-xl",
           story.mediaUrl ? "bg-black" : background
         )}
-        onMouseDown={() => setIsHeld(true)}
-        onMouseUp={() => setIsHeld(false)}
+        onMouseDown={() => {
+          // Phones fire mouse events after touch ones; the touch handlers already ran.
+          if (Date.now() - lastTouchAt.current < 1000) return;
+          mouseDownAt.current = Date.now();
+          setIsHeld(true);
+        }}
+        onMouseUp={() => {
+          if (Date.now() - lastTouchAt.current < 1000) return;
+          if (mouseDownAt.current) suppressTap.current = Date.now() - mouseDownAt.current >= 250;
+          setIsHeld(false);
+        }}
         onMouseLeave={() => setIsHeld(false)}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
@@ -239,6 +257,22 @@ export function StoryViewerClient({
           />
         )}
 
+        {/* Tap zones: left third goes back, the rest goes forward. Content and controls sit above. */}
+        <button
+          type="button"
+          tabIndex={-1}
+          aria-hidden
+          onClick={() => handleTapZone("prev")}
+          className="absolute inset-y-0 left-0 z-10 w-[35%] cursor-pointer focus:outline-none"
+        />
+        <button
+          type="button"
+          tabIndex={-1}
+          aria-hidden
+          onClick={() => handleTapZone("next")}
+          className="absolute inset-y-0 right-0 z-10 w-[65%] cursor-pointer focus:outline-none"
+        />
+
         {showHeart && (
           <div
             className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center"
@@ -249,7 +283,10 @@ export function StoryViewerClient({
         )}
 
         {/* Progress + author */}
-        <header className="relative z-20 flex w-full flex-col gap-3 bg-linear-to-b from-black/50 to-transparent p-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+        <header className={cn(
+            "relative z-20 flex w-full flex-col gap-3 p-3 pt-[max(0.75rem,env(safe-area-inset-top))]",
+            story.mediaUrl && "bg-black/40"
+          )}>
           <StoryProgress
             key={story.id}
             count={1}
@@ -268,7 +305,7 @@ export function StoryViewerClient({
               <Avatar className="size-9">
                 <AvatarImage src={story.author.avatarUrl || ""} alt="" />
                 <AvatarFallback className="bg-sticker text-sm font-semibold text-sticker-fg">
-                  {story.author.displayName[0]}
+                  {initialOf(story.author.displayName)}
                 </AvatarFallback>
               </Avatar>
               <span className="min-w-0 leading-tight">
@@ -307,7 +344,10 @@ export function StoryViewerClient({
         </div>
 
         {/* Reply / like / share */}
-        <footer className="relative z-20 flex w-full items-center gap-2 bg-linear-to-t from-black/50 to-transparent p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+        <footer className={cn(
+            "relative z-20 flex w-full items-center gap-2 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]",
+            story.mediaUrl && "bg-black/40"
+          )}>
           {!isOwner ? (
             <form onSubmit={handleSendReply} className="relative flex flex-1 items-center">
               <label htmlFor="story-reply" className="sr-only">
@@ -320,7 +360,7 @@ export function StoryViewerClient({
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
                 maxLength={500}
-                className="h-11 w-full rounded-full border border-white/50 bg-black/35 pr-12 pl-4 text-sm text-white caret-white transition-ui placeholder:text-white/75 focus:border-white focus:outline-none"
+                className="h-11 w-full rounded-full border border-white/50 bg-black/35 pr-12 pl-4 text-base text-white caret-white transition-ui placeholder:text-white/75 focus:border-white focus:outline-none"
               />
               <button
                 type="submit"

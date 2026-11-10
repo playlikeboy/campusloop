@@ -14,7 +14,7 @@ import { useScrollIsolation } from "@/hooks/use-scroll-isolation";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
-import { cn } from "@/lib/utils";
+import { cn, initialOf } from "@/lib/utils";
 
 type SuggestedPeer = UserProfile & { institution?: Institution | null };
 
@@ -339,7 +339,7 @@ export function RightSidebar({ className }: { className?: string } = {}) {
                         <Avatar className="size-10 shrink-0 border border-border/30">
                           <AvatarImage src={peer.avatarUrl || ""} />
                           <AvatarFallback className="text-xs font-bold bg-muted text-foreground">
-                            {peer.displayName[0]}
+                            {initialOf(peer.displayName)}
                           </AvatarFallback>
                         </Avatar>
 

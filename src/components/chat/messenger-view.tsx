@@ -156,6 +156,12 @@ export function MessengerView({
     };
   }, [conversations, filter]);
 
+  const openCreateGroup = useCallback(() => {
+    sounds.tap();
+    haptics.medium();
+    setShowCreateGroup(true);
+  }, []);
+
   const activeConv = conversations?.find((c) => c.id === activeId);
   const searching = searchQuery.trim().length > 0;
 
@@ -203,17 +209,15 @@ export function MessengerView({
               onOpenActions={setActionConv}
               onRetry={() => mutate()}
               onShowAll={() => setFilter("ALL")}
+              onFindPeople={() => document.getElementById("chat-search-input")?.focus()}
+              onNewGroup={openCreateGroup}
             />
           )}
         </div>
 
         <button
           type="button"
-          onClick={() => {
-            sounds.tap();
-            haptics.medium();
-            setShowCreateGroup(true);
-          }}
+          onClick={openCreateGroup}
           className="fab-bubble absolute right-4 bottom-[calc(1rem+var(--nav-mobile-h,0px)+env(safe-area-inset-bottom))] z-20 flex h-13 cursor-pointer items-center gap-2 px-5 text-sm font-semibold outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 lg:bottom-5"
         >
           <UserPlus className="size-5" aria-hidden="true" />

@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { type NotificationItem, type NotificationTab, useNotifications } from "@/hooks/use-notifications";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
+import { groupByDay } from "./notification-meta";
 import { NotificationRow } from "./notification-row";
 
 interface NotificationsClientProps {
@@ -162,11 +163,20 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
       <PushNotificationToggle variant="banner" />
 
       {list.length > 0 ? (
-        <ul className="divide-y divide-border">
-          {list.map((n) => (
-            <NotificationRow key={n.id} n={n} onOpen={open} />
+        <div className="space-y-2 pt-2">
+          {groupByDay(list).map((group) => (
+            <section key={group.id} aria-labelledby={`notif-group-${group.id}`}>
+              <h2 id={`notif-group-${group.id}`} className="px-4 py-2 text-sm font-semibold text-fg-muted">
+                {group.label}
+              </h2>
+              <ul className="divide-y divide-border">
+                {group.items.map((n) => (
+                  <NotificationRow key={n.id} n={n} onOpen={open} />
+                ))}
+              </ul>
+            </section>
           ))}
-        </ul>
+        </div>
       ) : isLoading ? (
         <ul aria-busy="true" aria-label="Loading notifications" className="divide-y divide-border">
           {[0, 1, 2, 3, 4].map((i) => (

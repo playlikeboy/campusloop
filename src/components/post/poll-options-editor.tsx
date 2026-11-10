@@ -55,7 +55,7 @@ export function PollOptionsEditor({ options, onChange, onAdd, onRemove }: PollOp
                   required={index < 2}
                   maxLength={80}
                   onChange={(e) => onChange(index, e.target.value)}
-                  className="h-10 flex-1 rounded-md border border-border bg-surface px-3.5 text-sm font-medium outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-success/50 focus:ring-1 focus:ring-success/20 shadow-xs"
+                  className="h-11 min-w-0 flex-1 rounded-md border border-border bg-surface px-3.5 text-base sm:text-sm font-medium outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-success/50 focus:ring-1 focus:ring-success/20 shadow-xs"
                 />
                 {options.length > 2 && (
                   <button

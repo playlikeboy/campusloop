@@ -54,32 +54,35 @@ export function FirstVisitNotificationPrompt() {
     <div
       role="dialog"
       aria-labelledby="notif-prompt-title"
-      className="sticker-pop fixed right-4 bottom-20 left-4 z-50 rounded-lg border border-border bg-surface-raised p-4 shadow-lg sm:right-6 sm:bottom-6 sm:left-auto sm:w-96"
+      aria-describedby="notif-prompt-desc"
+      className="sticker-pop fixed inset-x-3 bottom-[calc(var(--nav-mobile-h)+env(safe-area-inset-bottom)+0.75rem)] z-50 mx-auto max-w-sm rounded-lg border border-border bg-surface-raised p-3 shadow-lg lg:right-6 lg:bottom-6 lg:left-auto lg:mx-0 lg:w-96 lg:max-w-none lg:p-4"
     >
-      <button
-        type="button"
-        onClick={dismiss}
-        className="absolute top-2 right-2 flex size-10 cursor-pointer items-center justify-center rounded-full text-fg-muted transition-ui hover:bg-surface-muted hover:text-fg"
-        aria-label="Close"
-      >
-        <X aria-hidden="true" className="size-4" />
-      </button>
-      <div className="flex items-start gap-3 pr-8">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-surface-muted text-fg">
-          <Bell aria-hidden="true" className="size-5" />
+      <div className="flex items-center gap-3">
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-brand-subtle text-brand-text">
+          <Bell aria-hidden="true" className="size-4" />
         </span>
-        <div className="min-w-0 space-y-1">
-          <h2 id="notif-prompt-title" className="text-base text-fg">
+        <div className="min-w-0 flex-1">
+          <h2 id="notif-prompt-title" className="text-sm font-semibold text-fg sm:text-base">
             Turn on notifications?
           </h2>
-          <p className="text-sm text-fg-muted">Get a ping when someone messages or replies to you.</p>
+          <p id="notif-prompt-desc" className="text-xs text-fg-muted sm:text-sm">
+            Get a ping for new messages and replies.
+          </p>
         </div>
+        <button
+          type="button"
+          onClick={dismiss}
+          className="-mr-1 flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-fg-muted transition-ui outline-none hover:bg-surface-muted hover:text-fg focus-visible:ring-2 focus-visible:ring-ring"
+          aria-label="Close"
+        >
+          <X aria-hidden="true" className="size-4" />
+        </button>
       </div>
-      <div className="mt-4 flex justify-end gap-2">
-        <Button variant="ghost" size="sm" onClick={dismiss}>
+      <div className="mt-2 grid grid-cols-2 gap-2">
+        <Button variant="ghost" onClick={dismiss}>
           Not now
         </Button>
-        <Button size="sm" onClick={enable} loading={isBusy}>
+        <Button onClick={enable} loading={isBusy}>
           Turn on
         </Button>
       </div>

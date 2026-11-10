@@ -105,16 +105,14 @@ export function BookingSheet({ open, onOpenChange, total, submitting, onSubmit }
             <div className="space-y-1.5">
               <span className="block text-sm font-semibold text-fg">Licence photo (optional)</span>
               {licenceUrl ? (
-                <div className="relative size-20 overflow-hidden rounded-md border border-border bg-surface-muted">
-                  <img src={licenceUrl} alt="Your licence" className="size-full object-cover" />
-                  <button
-                    type="button"
-                    onClick={() => setLicenceUrl(null)}
-                    aria-label="Remove licence photo"
-                    className="absolute top-0 right-0 flex size-8 items-center justify-center rounded-full bg-surface text-fg shadow-xs"
-                  >
-                    <X className="size-4" />
-                  </button>
+                <div className="flex items-center gap-3">
+                  <div className="size-20 shrink-0 overflow-hidden rounded-md border border-border bg-surface-muted">
+                    <img src={licenceUrl} alt="Your licence" className="size-full object-cover" />
+                  </div>
+                  <Button type="button" variant="ghost" onClick={() => setLicenceUrl(null)}>
+                    <X className="size-4" aria-hidden="true" />
+                    Remove photo
+                  </Button>
                 </div>
               ) : (
                 <Button

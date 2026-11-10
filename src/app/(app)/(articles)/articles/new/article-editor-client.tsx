@@ -300,7 +300,7 @@ export function ArticleEditorClient({
   }
 
   return (
-    <div className="mx-auto min-h-screen max-w-4xl px-4 pb-28 sm:px-6">
+    <div className="mx-auto min-h-dvh max-w-4xl px-4 pb-28 sm:px-6">
       <input
         ref={coverImageInputRef}
         type="file"
