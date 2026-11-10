@@ -76,7 +76,7 @@ export function CollegeHubRow({
             className="h-full w-full object-contain"
           />
         ) : (
-          <div className="flex size-full items-center justify-center rounded-full bg-linear-to-br from-primary/20 via-violet-500/15 to-primary/10">
+          <div className="flex size-full items-center justify-center rounded-full bg-brand-subtle">
             <span className="text-xs font-black text-primary tracking-tight">{initials}</span>
           </div>
         )}
@@ -88,7 +88,7 @@ export function CollegeHubRow({
             {college.name}
           </h3>
           {college.nirfRank ? (
-            <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-black text-amber-500">
+            <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-surface-muted px-1.5 py-0.5 text-[10px] font-black text-fg-muted">
               <Trophy className="size-2.5" />
               {college.nirfRank}
             </span>
@@ -101,7 +101,7 @@ export function CollegeHubRow({
           {college.websiteDomain ? (
             <>
               <span aria-hidden className="text-muted-foreground/40">·</span>
-              <span className="shrink-0 font-mono text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.2 rounded-md">
+              <span className="shrink-0 font-mono text-[11px] font-semibold text-brand-text bg-brand-subtle px-1.5 py-0.2 rounded-md">
                 @{college.websiteDomain}
               </span>
             </>

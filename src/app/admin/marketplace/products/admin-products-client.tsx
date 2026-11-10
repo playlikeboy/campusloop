@@ -74,7 +74,7 @@ export function AdminProductsClient() {
       {/* ─── Top Header ─── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-4">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-foreground flex items-center gap-2">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <UtensilsCrossed className="size-6 text-primary" />
             <span>Campus Catalog &amp; Products</span>
           </h1>
@@ -122,7 +122,7 @@ export function AdminProductsClient() {
       {/* ─── Products Catalog Table ─── */}
       <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-xs">
         <div className="p-4 border-b border-border flex items-center justify-between">
-          <h2 className="text-sm font-black text-foreground">Catalog Items</h2>
+          <h2 className="text-sm font-bold text-foreground">Catalog Items</h2>
           <span className="text-xs text-muted-foreground font-semibold">
             {filteredProducts.length} items listed
           </span>
@@ -136,7 +136,7 @@ export function AdminProductsClient() {
         ) : filteredProducts.length > 0 ? (
           <div className="divide-y divide-border overflow-x-auto">
             <table className="w-full min-w-[750px] text-left text-xs">
-              <thead className="bg-muted/40 text-muted-foreground font-bold uppercase tracking-wider text-[10px]">
+              <thead className="bg-muted/40 text-muted-foreground font-bold text-[10px]">
                 <tr>
                   <th className="p-3">Product Name</th>
                   <th className="p-3">Merchant / Store</th>
@@ -180,20 +180,20 @@ export function AdminProductsClient() {
                       </Link>
                     </td>
                     <td className="p-3">
-                      <span className="px-2 py-0.5 rounded-md bg-muted font-bold text-[10px] uppercase text-muted-foreground">
+                      <span className="px-2 py-0.5 rounded-md bg-muted font-bold text-[10px] text-muted-foreground">
                         {p.category || "General"}
                       </span>
                     </td>
-                    <td className="p-3 font-black text-foreground text-sm">₹{p.price}</td>
+                    <td className="p-3 font-bold text-foreground text-sm">₹{p.price}</td>
                     <td className="p-3">
                       {p.isVeg === true && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-500 font-bold text-[10px]">
-                          <span className="size-1.5 rounded-full bg-emerald-500 inline-block" /> VEG
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-success-subtle text-success font-bold text-[10px]">
+                          <span className="size-1.5 rounded-full bg-success inline-block" /> VEG
                         </span>
                       )}
                       {p.isVeg === false && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-500/15 text-rose-500 font-bold text-[10px]">
-                          <span className="size-1.5 rounded-full bg-rose-500 inline-block" /> NON-VEG
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-danger-subtle text-danger font-bold text-[10px]">
+                          <span className="size-1.5 rounded-full bg-danger inline-block" /> NON-VEG
                         </span>
                       )}
                       {p.isVeg === null && <span className="text-[10px] text-muted-foreground">—</span>}
@@ -204,21 +204,21 @@ export function AdminProductsClient() {
                         disabled={togglingId === p.id}
                         onClick={() => handleToggleAvailability(p)}
                         className={cn(
-                          "px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer border",
+                          "px-2.5 py-1 rounded-full text-[10px] font-bold transition-colors cursor-pointer border",
                           p.isAvailable
-                            ? "bg-emerald-500/15 text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/25"
-                            : "bg-rose-500/15 text-rose-500 border-rose-500/30 hover:bg-rose-500/25"
+                            ? "bg-success-subtle text-success border-success/30 hover:bg-success-subtle"
+                            : "bg-danger-subtle text-danger border-danger/30 hover:bg-danger-subtle"
                         )}
                       >
                         {togglingId === p.id ? (
                           <Loader2 className="size-3 animate-spin mx-auto" />
                         ) : p.isAvailable ? (
                           <span className="inline-flex items-center gap-1">
-                            <span className="size-1.5 rounded-full bg-emerald-500 inline-block" /> In Stock
+                            <span className="size-1.5 rounded-full bg-success inline-block" /> In Stock
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1">
-                            <span className="size-1.5 rounded-full bg-rose-500 inline-block" /> Out of Stock
+                            <span className="size-1.5 rounded-full bg-danger inline-block" /> Out of Stock
                           </span>
                         )}
                       </button>

@@ -154,7 +154,7 @@ export function InlineDatingWidget() {
 
       <Link
         href="/dating"
-        className="shrink-0 self-start sm:self-center px-4 py-1.5 rounded-full bg-primary hover:bg-primary/95 text-primary-foreground font-bold text-xs transition-all shadow-2xs active:scale-95 cursor-pointer"
+        className="shrink-0 self-start sm:self-center px-4 py-1.5 rounded-full bg-brand hover:bg-brand-hover text-brand-fg font-bold text-xs transition-colors active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
       >
         Explore Match
       </Link>
@@ -246,7 +246,7 @@ export function InlineReferralWidget() {
   return (
     <div className="py-3 px-4 flex items-center justify-between gap-3">
       <div className="flex items-center gap-3 min-w-0">
-        <div className="size-10 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 shrink-0">
+        <div className="size-10 rounded-full bg-reward-subtle flex items-center justify-center text-reward-text shrink-0">
           <Gift className="size-5" />
         </div>
         <div className="min-w-0 space-y-0.5">
@@ -260,7 +260,7 @@ export function InlineReferralWidget() {
       <button
         type="button"
         onClick={handleCopy}
-        className="shrink-0 px-4 py-1.5 rounded-full border border-border text-foreground font-bold text-xs hover:bg-muted/40 transition-all cursor-pointer active:scale-95 shadow-2xs"
+        className="shrink-0 px-4 py-1.5 rounded-full border border-border text-foreground font-bold text-xs hover:bg-surface-muted transition-colors cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
       >
         Copy Link
       </button>
@@ -300,7 +300,7 @@ export function InlineArticlesWidget() {
           <Link
             key={art.id}
             href={`/articles/${art.slug}`}
-            className="group flex flex-col justify-between rounded-xl border border-border/40 bg-card p-3.5 hover:border-primary/40 hover:shadow-md transition-all cursor-pointer"
+            className="group flex flex-col justify-between rounded-xl border border-border/40 bg-card p-3.5 hover:border-brand-subtle-border transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
           >
             <div className="space-y-1.5">
               <div className="flex items-center justify-between gap-1 text-[10px]">

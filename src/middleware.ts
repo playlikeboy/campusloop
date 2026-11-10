@@ -1,22 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { isRateLimitedPath, matchRateRule } from "@/lib/rate-limits";
 import { getRedis } from "@/lib/redis";
 
 const LEGACY_APP_PREFIX = "/app";
-const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
-const RATE_LIMIT_WINDOW_SECONDS = 60;
-const RATE_LIMIT_MAX_REQUESTS = 120;
-const RATE_LIMIT_EXEMPT_PREFIXES = [
-  "/api/behavior/track",
-  "/api/feed/impressions",
-  "/api/webhooks/",
-  "/api/presence",
-  "/api/notifications/unread-count",
-];
-
-const SENSITIVE_AUTH_PREFIXES = ["/api/merchant/auth/login"];
-const SENSITIVE_AUTH_MAX_REQUESTS = 10;
-const SENSITIVE_AUTH_WINDOW_SECONDS = 60;
-
 // Lightweight in-memory fallback rate limiter when Redis is unconfigured or degraded
 const memoryRateLimitMap = new Map<string, { count: number; expiresAt: number }>();
 
@@ -59,70 +45,46 @@ function getLegacyAppDestination(pathname: string): string {
   return rest;
 }
 
-async function enforceMutationRateLimit(req: NextRequest): Promise<NextResponse | null> {
-  if (!MUTATING_METHODS.has(req.method) || !req.nextUrl.pathname.startsWith("/api/")) return null;
-  if (
-    RATE_LIMIT_EXEMPT_PREFIXES.some(
-      (prefix) => req.nextUrl.pathname === prefix || req.nextUrl.pathname.startsWith(`${prefix}/`)
-    )
-  )
-    return null;
+/** Applies the rule from src/lib/rate-limits.ts for this path and method. */
+async function enforceRateLimit(req: NextRequest): Promise<NextResponse | null> {
+  const { pathname } = req.nextUrl;
+  if (!isRateLimitedPath(pathname)) return null;
+  const rule = matchRateRule(pathname, req.method);
+  if (!rule) return null;
 
-  const isSensitiveAuth = SENSITIVE_AUTH_PREFIXES.some(
-    (prefix) => req.nextUrl.pathname === prefix || req.nextUrl.pathname.startsWith(`${prefix}/`)
-  );
-  const maxRequests = isSensitiveAuth ? SENSITIVE_AUTH_MAX_REQUESTS : RATE_LIMIT_MAX_REQUESTS;
-  const windowSeconds = isSensitiveAuth ? SENSITIVE_AUTH_WINDOW_SECONDS : RATE_LIMIT_WINDOW_SECONDS;
-
-  const clientKey = getClientKey(req);
-  const key = `rl:v1:${clientKey}:${req.method}:${req.nextUrl.pathname}`;
-
-  const redis = getRedis();
+  const key = `rl:v2:${getClientKey(req)}:${rule.prefix}:${rule.methods}`;
+  let allowed: boolean | null = null;
+  const redis = rule.store === "redis" ? getRedis() : null;
   if (redis) {
     try {
       const count = Number(await redis.incr(key));
-      if (count === 1) await redis.expire(key, windowSeconds);
-
-      if (count > maxRequests) {
-        return NextResponse.json(
-          { error: "Too many requests. Please slow down." },
-          {
-            status: 429,
-            headers: {
-              "retry-after": String(windowSeconds),
-              "x-ratelimit-limit": String(maxRequests),
-              "x-ratelimit-remaining": "0",
-            },
-          }
-        );
-      }
-      return null;
+      if (count === 1) await redis.expire(key, rule.windowSec);
+      allowed = count <= rule.max;
     } catch {
-      // Redis error: fall through to in-memory limiter
+      // Redis error: fall through to the in-memory limiter
     }
   }
+  if (allowed === null) allowed = checkMemoryRateLimit(key, rule.max, rule.windowSec);
+  if (allowed) return null;
 
-  // In-memory fallback
-  const isAllowed = checkMemoryRateLimit(key, maxRequests, windowSeconds);
-  if (!isAllowed) {
-    return NextResponse.json(
-      { error: "Too many requests. Please slow down." },
-      {
-        status: 429,
-        headers: {
-          "retry-after": String(windowSeconds),
-          "x-ratelimit-limit": String(maxRequests),
-          "x-ratelimit-remaining": "0",
-        },
-      }
-    );
-  }
-
-  return null;
+  return NextResponse.json(
+    { error: "Too many requests. Please slow down." },
+    {
+      status: 429,
+      headers: { "retry-after": String(rule.windowSec), "x-ratelimit-limit": String(rule.max), "x-ratelimit-remaining": "0" },
+    }
+  );
 }
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  // /overview was a duplicate of the pitch deck; one canonical URL for the deck.
+  if (pathname === "/overview" || pathname === "/overview/") {
+    const url = req.nextUrl.clone();
+    url.pathname = "/pitch";
+    return NextResponse.redirect(url, 308);
+  }
 
   // Legacy compatibility only: old /app/* URLs now resolve to their canonical clean route.
   if (pathname === LEGACY_APP_PREFIX || pathname.startsWith(`${LEGACY_APP_PREFIX}/`)) {
@@ -132,7 +94,7 @@ export async function middleware(req: NextRequest) {
   }
 
   // No clean-route -> /app rewrites. The route tree itself owns canonical URLs.
-  const limited = await enforceMutationRateLimit(req);
+  const limited = await enforceRateLimit(req);
   if (limited) return limited;
 
   return NextResponse.next();

@@ -54,12 +54,12 @@ export async function dispatchNotificationEmail(params: CreateNotificationParams
       actorName: actor.username,
       type: params.type as "MENTION" | "REPLY" | "MATCH",
       snippet: params.previewText || undefined,
-      actionUrl: `https://campusloop.space/app/notifications`,
+      actionUrl: `https://campusloop.space/notifications`,
     });
 
     await sendEmail({
       to: recipient.email,
-      from: "notifications@mail.campsy.app",
+      from: "notifications@mail.campusloop.space",
       fromName: "CampusLoop Notifications",
       subject,
       html,

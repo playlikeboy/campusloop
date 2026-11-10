@@ -92,12 +92,9 @@ export function AtlasClient() {
       <ContextualLivingNav />
 
       <main className="mx-auto w-full max-w-6xl space-y-7 px-4 py-5 sm:px-6 sm:py-8">
-        <section className="relative isolate overflow-hidden rounded-[28px] bg-[var(--surface)] p-5 shadow-sm ring-1 ring-border/70 sm:p-8">
-          <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 -z-10 size-72 rounded-full bg-primary/15 blur-3xl" />
-          <div aria-hidden="true" className="pointer-events-none absolute -bottom-28 left-1/3 -z-10 size-64 rounded-full bg-coral/15 blur-3xl" />
-
+        <section className="relative isolate overflow-hidden rounded-xl bg-surface p-5 shadow-sm sm:p-8">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-primary">
+            <div className="inline-flex items-center gap-2 rounded-full bg-brand-subtle px-3 py-1.5 text-xs font-semibold text-brand-text">
               <Sparkles className="size-3.5" aria-hidden="true" />
               Campus intelligence
             </div>
@@ -127,13 +124,13 @@ export function AtlasClient() {
                 placeholder="Try “Which beginner-friendly events start after 6 PM?”"
                 maxLength={500}
                 autoComplete="off"
-                className="h-12 w-full rounded-2xl border border-border/70 bg-background/90 pl-11 pr-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary/40"
+                className="h-12 w-full rounded-2xl border border-border/70 bg-bg pl-11 pr-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
               />
             </div>
             <button
               type="submit"
               disabled={loading || !prompt.trim()}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-primary px-5 text-sm font-bold text-primary-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-brand px-5 text-sm font-bold text-brand-fg transition-colors hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               {loading ? <span className="size-4 animate-spin rounded-full border-2 border-current border-r-transparent" aria-hidden="true" /> : <Sparkles className="size-4" aria-hidden="true" />}
               {loading ? "Searching records…" : "Ask Atlas"}
@@ -147,7 +144,7 @@ export function AtlasClient() {
                 type="button"
                 disabled={loading}
                 onClick={() => void handleQuery(suggestedPrompt)}
-                className="inline-flex min-h-9 items-center gap-2 rounded-xl border border-border/70 bg-background/75 px-3 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                className="inline-flex min-h-9 items-center gap-2 rounded-xl border border-border/70 bg-surface px-3 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <Icon className="size-3.5 text-primary" aria-hidden="true" />
                 {label}
@@ -166,7 +163,7 @@ export function AtlasClient() {
               <button
                 type="button"
                 onClick={() => void handleQuery(prompt)}
-                className="mt-3 min-h-9 rounded-xl bg-background px-3 text-xs font-bold text-foreground ring-1 ring-border transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                className="mt-3 min-h-9 rounded-xl bg-background px-3 text-xs font-bold text-foreground ring-1 ring-border transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 Try again
               </button>
@@ -176,7 +173,7 @@ export function AtlasClient() {
 
         {!response && !loading && !error ? (
           <section className="grid gap-4 md:grid-cols-[minmax(0,1.2fr)_minmax(260px,0.8fr)]">
-            <div className="rounded-[24px] bg-card p-5 ring-1 ring-border/60 sm:p-6">
+            <div className="rounded-xl bg-card p-5 ring-1 ring-border/60 sm:p-6">
               <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Compass className="size-5" aria-hidden="true" />
               </div>
@@ -190,7 +187,7 @@ export function AtlasClient() {
                 <span className="rounded-lg bg-muted/70 px-2.5 py-1.5">Eligibility</span>
               </div>
             </div>
-            <div className="rounded-[24px] bg-card p-5 ring-1 ring-border/60 sm:p-6">
+            <div className="rounded-xl bg-card p-5 ring-1 ring-border/60 sm:p-6">
               <div className="flex items-center gap-2 text-sm font-bold text-foreground">
                 <ShieldCheck className="size-4 text-primary" aria-hidden="true" />
                 Grounded answers
@@ -203,7 +200,7 @@ export function AtlasClient() {
         ) : null}
 
         {loading ? (
-          <div className="flex min-h-36 items-center justify-center gap-3 rounded-[24px] bg-card text-sm font-medium text-muted-foreground ring-1 ring-border/60" role="status" aria-live="polite">
+          <div className="flex min-h-36 items-center justify-center gap-3 rounded-xl bg-card text-sm font-medium text-muted-foreground ring-1 ring-border/60" role="status" aria-live="polite">
             <span className="size-5 animate-spin rounded-full border-2 border-primary border-r-transparent" aria-hidden="true" />
             Searching campus records…
           </div>
@@ -213,20 +210,18 @@ export function AtlasClient() {
           <section className="space-y-4" aria-labelledby="atlas-results-heading">
             <div className="flex flex-col gap-2 border-b border-border/60 pb-4 sm:flex-row sm:items-end sm:justify-between">
               <div className="min-w-0">
-                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary">Search results</p>
                 <h2 id="atlas-results-heading" className="mt-1 text-xl font-black tracking-tight text-foreground">Here’s what Atlas found</h2>
                 <p className="mt-1 truncate text-xs text-muted-foreground" title={response.query}>“{response.query}”</p>
               </div>
               <span className={cn(
                 "inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold",
-                sourceMode === "preview" ? "bg-amber-500/10 text-amber-700 dark:text-amber-300" : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+                sourceMode === "preview" ? "bg-warning-subtle text-warning" : "bg-success-subtle text-success"
               )}>
-                <span className="size-1.5 rounded-full bg-current" aria-hidden="true" />
                 {sourceMode === "preview" ? "Preview data · verify details" : "Live source configured"}
               </span>
             </div>
 
-            <div className="rounded-[24px] bg-card p-5 ring-1 ring-border/60 sm:p-6">
+            <div className="rounded-xl bg-card p-5 ring-1 ring-border/60 sm:p-6">
               <div className="flex items-center gap-2 text-sm font-bold text-foreground">
                 <CheckCircle2 className="size-4 text-primary" aria-hidden="true" />
                 Summary
@@ -242,7 +237,7 @@ export function AtlasClient() {
                 </div>
                 <div className="grid gap-3 md:grid-cols-2">
                   {matchedEvents.map((event: any, index: number) => (
-                    <article key={event._id || event.id || event.title || index} className="rounded-[20px] bg-card p-4 ring-1 ring-border/60">
+                    <article key={event._id || event.id || event.title || index} className="rounded-lg bg-card p-4 ring-1 ring-border/60">
                       <h4 className="font-bold leading-snug text-foreground">{event.title || "Campus event"}</h4>
                       <div className="mt-3 space-y-2 text-xs text-muted-foreground">
                         <p className="flex items-start gap-2">
@@ -276,7 +271,7 @@ export function AtlasClient() {
                 <h3 className="text-base font-black tracking-tight text-foreground">Related clubs</h3>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {matchedClubs.map((club: any, index: number) => (
-                    <article key={club._id || club.id || club.name || index} className="rounded-[20px] bg-card p-4 ring-1 ring-border/60">
+                    <article key={club._id || club.id || club.name || index} className="rounded-lg bg-card p-4 ring-1 ring-border/60">
                       <div className="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
                         <Users className="size-4" aria-hidden="true" />
                       </div>
@@ -292,7 +287,7 @@ export function AtlasClient() {
             ) : null}
 
             {matchedEvents.length === 0 && matchedClubs.length === 0 ? (
-              <div className="rounded-[24px] bg-card px-5 py-10 text-center ring-1 ring-border/60">
+              <div className="rounded-xl bg-card px-5 py-10 text-center ring-1 ring-border/60">
                 <Search className="mx-auto size-6 text-muted-foreground" aria-hidden="true" />
                 <h3 className="mt-3 font-bold text-foreground">No matching records yet</h3>
                 <p className="mt-1 text-sm text-muted-foreground">Try a broader topic, or remove one of your filters.</p>
@@ -300,8 +295,8 @@ export function AtlasClient() {
             ) : null}
 
             {response.excludedEvents?.length > 0 ? (
-              <details className="group rounded-[20px] bg-card ring-1 ring-border/60">
-                <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
+              <details className="group rounded-lg bg-card ring-1 ring-border/60">
+                <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                   <span>Why some events didn’t match ({response.excludedEvents.length})</span>
                   <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" aria-hidden="true" />
                 </summary>
@@ -317,8 +312,8 @@ export function AtlasClient() {
             ) : null}
 
             {evidenceSources.length > 0 ? (
-              <details className="group rounded-[20px] bg-card ring-1 ring-border/60">
-                <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
+              <details className="group rounded-lg bg-card ring-1 ring-border/60">
+                <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                   <span className="flex items-center gap-2">
                     <ShieldCheck className="size-4 text-primary" aria-hidden="true" />
                     Sources and evidence ({evidenceSources.length})
@@ -329,7 +324,7 @@ export function AtlasClient() {
                   {evidenceSources.slice(0, 12).map((source, index) => (
                     <div key={source.id + index} className="rounded-xl bg-muted/40 p-3">
                       <p className="text-xs font-bold text-foreground">{source.title}</p>
-                      <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-primary">{source.type}</p>
+                      <p className="mt-1 text-xs font-semibold text-brand-text">{source.type}</p>
                       <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{source.detail}</p>
                     </div>
                   ))}

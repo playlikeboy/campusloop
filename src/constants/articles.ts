@@ -55,6 +55,18 @@ export type ArticleCategoryKey = (typeof articleCategoryEnum)[number];
 
 export type ArticleCategoryGroupKey = "ALL" | "TECHNOLOGY" | "ACADEMICS" | "LIFESTYLE";
 
+export type ArticleTone = "brand" | "reward" | "crush" | "success" | "warning" | "neutral";
+
+/** Chip/badge utilities for a category tone. Pairs stay inside the semantic token set. */
+export const ARTICLE_TONE_CLASSES: Record<ArticleTone, string> = {
+  brand: "text-brand-text bg-brand-subtle border-brand-subtle-border",
+  reward: "text-reward-text bg-reward-subtle border-reward/30",
+  crush: "text-crush-text bg-crush-subtle border-crush/30",
+  success: "text-success bg-success-subtle border-success/20",
+  warning: "text-warning bg-warning-subtle border-warning/20",
+  neutral: "text-fg-muted bg-surface-muted border-border",
+};
+
 export interface ArticleCategoryMeta {
   key: ArticleCategoryKey;
   slug: string;
@@ -62,7 +74,7 @@ export interface ArticleCategoryMeta {
   description: string;
   group: "TECHNOLOGY" | "ACADEMICS" | "LIFESTYLE" | "GENERAL";
   icon: LucideIcon;
-  colorClass: string;
+  tone: ArticleTone;
 }
 
 export const ARTICLE_CATEGORY_GROUPS: { id: ArticleCategoryGroupKey; label: string; icon: LucideIcon }[] = [
@@ -81,7 +93,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "General campus thoughts, experiences, and open stories",
     group: "GENERAL",
     icon: Compass,
-    colorClass: "text-slate-500 bg-slate-500/10 border-slate-500/20",
+    tone: "neutral",
   },
   TECH_AND_CODE: {
     key: "TECH_AND_CODE",
@@ -90,7 +102,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Software engineering, web development, systems, and algorithms",
     group: "TECHNOLOGY",
     icon: Code2,
-    colorClass: "text-indigo-500 bg-indigo-500/10 border-indigo-500/20",
+    tone: "brand",
   },
   PLACEMENTS: {
     key: "PLACEMENTS",
@@ -99,7 +111,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "On-campus placement roadmaps, interview debriefs, and OA tips",
     group: "ACADEMICS",
     icon: Briefcase,
-    colorClass: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20",
+    tone: "success",
   },
   CAMPUS_LIFE: {
     key: "CAMPUS_LIFE",
@@ -108,7 +120,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Hostel survival, fests, club culture, and campus memories",
     group: "LIFESTYLE",
     icon: GraduationCap,
-    colorClass: "text-amber-500 bg-amber-500/10 border-amber-500/20",
+    tone: "warning",
   },
   RESEARCH: {
     key: "RESEARCH",
@@ -117,7 +129,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Academic papers, AI experiments, lab breakthroughs, and thesis",
     group: "ACADEMICS",
     icon: Microscope,
-    colorClass: "text-blue-500 bg-blue-500/10 border-blue-500/20",
+    tone: "brand",
   },
   INTERNSHIPS: {
     key: "INTERNSHIPS",
@@ -126,7 +138,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Summer internships, off-campus referrals, and cold emailing guides",
     group: "ACADEMICS",
     icon: Rocket,
-    colorClass: "text-purple-500 bg-purple-500/10 border-purple-500/20",
+    tone: "brand",
   },
   PROJECTS: {
     key: "PROJECTS",
@@ -135,7 +147,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Open source builds, side projects, hackathons, and tear-downs",
     group: "TECHNOLOGY",
     icon: Layers,
-    colorClass: "text-rose-500 bg-rose-500/10 border-rose-500/20",
+    tone: "brand",
   },
   GUIDES: {
     key: "GUIDES",
@@ -144,7 +156,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Step-by-step practical guides, tooling, and college hacks",
     group: "GENERAL",
     icon: Lightbulb,
-    colorClass: "text-teal-500 bg-teal-500/10 border-teal-500/20",
+    tone: "success",
   },
   OPINION: {
     key: "OPINION",
@@ -153,7 +165,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Perspectives on education, tech trends, and university life",
     group: "GENERAL",
     icon: MessageSquareQuote,
-    colorClass: "text-orange-500 bg-orange-500/10 border-orange-500/20",
+    tone: "warning",
   },
 
   // Phase 2: Technology and Development (10)
@@ -164,7 +176,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Foundational programming, software architecture, and modern developer tooling",
     group: "TECHNOLOGY",
     icon: Code2,
-    colorClass: "text-blue-500 bg-blue-500/10 border-blue-500/20",
+    tone: "brand",
   },
   AI_AND_ML: {
     key: "AI_AND_ML",
@@ -173,7 +185,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "LLMs, deep learning, PyTorch, model fine-tuning, and applied AI applications",
     group: "TECHNOLOGY",
     icon: Cpu,
-    colorClass: "text-purple-500 bg-purple-500/10 border-purple-500/20",
+    tone: "brand",
   },
   WEB_DEVELOPMENT: {
     key: "WEB_DEVELOPMENT",
@@ -182,7 +194,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Next.js, React, modern CSS, backend APIs, edge computing, and full-stack craft",
     group: "TECHNOLOGY",
     icon: Globe,
-    colorClass: "text-cyan-500 bg-cyan-500/10 border-cyan-500/20",
+    tone: "brand",
   },
   MOBILE_DEV: {
     key: "MOBILE_DEV",
@@ -191,7 +203,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "React Native, Flutter, Swift, Kotlin, and high-performance cross-platform apps",
     group: "TECHNOLOGY",
     icon: Smartphone,
-    colorClass: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20",
+    tone: "brand",
   },
   DATA_SCIENCE: {
     key: "DATA_SCIENCE",
@@ -200,7 +212,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Data pipelines, SQL mastery, exploratory data analysis, and predictive models",
     group: "TECHNOLOGY",
     icon: BarChart3,
-    colorClass: "text-amber-500 bg-amber-500/10 border-amber-500/20",
+    tone: "warning",
   },
   CYBERSECURITY: {
     key: "CYBERSECURITY",
@@ -209,7 +221,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "CTFs, ethical hacking, network defense, app sec, and digital rights",
     group: "TECHNOLOGY",
     icon: ShieldCheck,
-    colorClass: "text-red-500 bg-red-500/10 border-red-500/20",
+    tone: "neutral",
   },
   CLOUD_AND_DEVOPS: {
     key: "CLOUD_AND_DEVOPS",
@@ -218,7 +230,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Docker, Kubernetes, AWS, Cloudflare Workers, CI/CD, and site reliability",
     group: "TECHNOLOGY",
     icon: Cloud,
-    colorClass: "text-sky-500 bg-sky-500/10 border-sky-500/20",
+    tone: "brand",
   },
   OPEN_SOURCE: {
     key: "OPEN_SOURCE",
@@ -227,7 +239,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "GSoC roadmaps, first pull requests, community governance, and open collaboration",
     group: "TECHNOLOGY",
     icon: GitPullRequest,
-    colorClass: "text-green-500 bg-green-500/10 border-green-500/20",
+    tone: "success",
   },
   ROBOTICS: {
     key: "ROBOTICS",
@@ -236,7 +248,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Arduino, ESP32, ROS, embedded systems, microcontrollers, and hardware hacks",
     group: "TECHNOLOGY",
     icon: Bot,
-    colorClass: "text-teal-500 bg-teal-500/10 border-teal-500/20",
+    tone: "brand",
   },
   PRODUCT_DEV: {
     key: "PRODUCT_DEV",
@@ -245,7 +257,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Product discovery, system thinking, technical requirements, and execution",
     group: "TECHNOLOGY",
     icon: Layers,
-    colorClass: "text-violet-500 bg-violet-500/10 border-violet-500/20",
+    tone: "brand",
   },
 
   // Phase 2: Academics and Career (10)
@@ -256,7 +268,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Semester exam prep, PYQ debriefs, subject summaries, and high-CGPA guides",
     group: "ACADEMICS",
     icon: GraduationCap,
-    colorClass: "text-amber-500 bg-amber-500/10 border-amber-500/20",
+    tone: "warning",
   },
   DSA: {
     key: "DSA",
@@ -265,7 +277,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "LeetCode patterns, graph theory, DP blueprints, and time complexity deep dives",
     group: "ACADEMICS",
     icon: Binary,
-    colorClass: "text-indigo-500 bg-indigo-500/10 border-indigo-500/20",
+    tone: "brand",
   },
   JOBS_AND_CAREER: {
     key: "JOBS_AND_CAREER",
@@ -274,7 +286,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "On-campus placement seasons, off-campus hiring cycles, and salary insights",
     group: "ACADEMICS",
     icon: Briefcase,
-    colorClass: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20",
+    tone: "success",
   },
   FELLOWSHIPS: {
     key: "FELLOWSHIPS",
@@ -283,7 +295,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Research fellowships, tech internships, stipend comparisons, and applications",
     group: "ACADEMICS",
     icon: Award,
-    colorClass: "text-purple-500 bg-purple-500/10 border-purple-500/20",
+    tone: "brand",
   },
   HACKATHONS: {
     key: "HACKATHONS",
@@ -292,7 +304,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Winning hackathon playbooks, ideation templates, and team formation",
     group: "ACADEMICS",
     icon: Trophy,
-    colorClass: "text-yellow-500 bg-yellow-500/10 border-yellow-500/20",
+    tone: "warning",
   },
   INTERVIEW_PREP: {
     key: "INTERVIEW_PREP",
@@ -301,7 +313,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Technical mock interviews, HR rounds, behavioural prep, and coding debriefs",
     group: "ACADEMICS",
     icon: Target,
-    colorClass: "text-rose-500 bg-rose-500/10 border-rose-500/20",
+    tone: "brand",
   },
   CAREER_ADVICE: {
     key: "CAREER_ADVICE",
@@ -310,7 +322,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "ATS-beating resumes, LinkedIn optimization, cold outreach, and portfolio audits",
     group: "ACADEMICS",
     icon: Compass,
-    colorClass: "text-blue-500 bg-blue-500/10 border-blue-500/20",
+    tone: "brand",
   },
   SCHOLARSHIPS: {
     key: "SCHOLARSHIPS",
@@ -319,7 +331,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Merit-cum-means scholarships, state fellowships, and study-abroad stipends",
     group: "ACADEMICS",
     icon: Scroll,
-    colorClass: "text-teal-500 bg-teal-500/10 border-teal-500/20",
+    tone: "success",
   },
   SCIENCE_AND_RESEARCH: {
     key: "SCIENCE_AND_RESEARCH",
@@ -328,7 +340,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Undergraduate research papers, IEEE/ACM publications, and lab findings",
     group: "ACADEMICS",
     icon: Microscope,
-    colorClass: "text-indigo-500 bg-indigo-500/10 border-indigo-500/20",
+    tone: "brand",
   },
   STARTUPS: {
     key: "STARTUPS",
@@ -337,7 +349,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Student ventures, university incubators, grant funding, and pitch decks",
     group: "ACADEMICS",
     icon: Rocket,
-    colorClass: "text-orange-500 bg-orange-500/10 border-orange-500/20",
+    tone: "warning",
   },
 
   // Phase 2: Lifestyle and Community (18)
@@ -348,7 +360,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Hostel survival guides, mess food hacks, roommates, and late-night study sessions",
     group: "LIFESTYLE",
     icon: Home,
-    colorClass: "text-amber-500 bg-amber-500/10 border-amber-500/20",
+    tone: "warning",
   },
   CLUBS: {
     key: "CLUBS",
@@ -357,7 +369,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Technical societies, cultural clubs, fest organizing committees, and club inductions",
     group: "LIFESTYLE",
     icon: Users,
-    colorClass: "text-cyan-500 bg-cyan-500/10 border-cyan-500/20",
+    tone: "brand",
   },
   EVENTS_OPPORTUNITIES: {
     key: "EVENTS_OPPORTUNITIES",
@@ -366,7 +378,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Campus cultural fests, tech symposiums, speaker sessions, and workshops",
     group: "LIFESTYLE",
     icon: Calendar,
-    colorClass: "text-pink-500 bg-pink-500/10 border-pink-500/20",
+    tone: "warning",
   },
   GAMING: {
     key: "GAMING",
@@ -375,7 +387,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Valorant tournaments, BGMI scrims, LAN fests, PC builds, and collegiate leagues",
     group: "LIFESTYLE",
     icon: Gamepad2,
-    colorClass: "text-purple-500 bg-purple-500/10 border-purple-500/20",
+    tone: "brand",
   },
   MEMES: {
     key: "MEMES",
@@ -384,7 +396,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Relatable exam season memes, college banter, and campus pop culture",
     group: "LIFESTYLE",
     icon: Smile,
-    colorClass: "text-yellow-500 bg-yellow-500/10 border-yellow-500/20",
+    tone: "warning",
   },
   ENTERTAINMENT: {
     key: "ENTERTAINMENT",
@@ -393,7 +405,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Anime watchlists, movie reviews, pop culture debates, and weekend marathons",
     group: "LIFESTYLE",
     icon: Film,
-    colorClass: "text-rose-500 bg-rose-500/10 border-rose-500/20",
+    tone: "neutral",
   },
   MUSIC_AND_ARTS: {
     key: "MUSIC_AND_ARTS",
@@ -402,7 +414,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "College bands, visual arts, photography showcases, and musical jams",
     group: "LIFESTYLE",
     icon: Music,
-    colorClass: "text-violet-500 bg-violet-500/10 border-violet-500/20",
+    tone: "brand",
   },
   DESIGN: {
     key: "DESIGN",
@@ -411,7 +423,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "UI/UX casestudies, graphic design, Figma workflows, typography, and motion",
     group: "LIFESTYLE",
     icon: Palette,
-    colorClass: "text-fuchsia-500 bg-fuchsia-500/10 border-fuchsia-500/20",
+    tone: "brand",
   },
   BOOKS: {
     key: "BOOKS",
@@ -420,7 +432,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Book clubs, novel recommendations, poetry, and reflective student essays",
     group: "LIFESTYLE",
     icon: BookOpen,
-    colorClass: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20",
+    tone: "success",
   },
   SPORTS_AND_FITNESS: {
     key: "SPORTS_AND_FITNESS",
@@ -429,7 +441,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Inter-hostel sports leagues, badminton, football, cricket, and athletic meets",
     group: "LIFESTYLE",
     icon: Dumbbell,
-    colorClass: "text-orange-500 bg-orange-500/10 border-orange-500/20",
+    tone: "warning",
   },
   HEALTH: {
     key: "HEALTH",
@@ -438,7 +450,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Mental health hygiene, gym nutrition, stress management, and mindfulness",
     group: "LIFESTYLE",
     icon: HeartPulse,
-    colorClass: "text-red-500 bg-red-500/10 border-red-500/20",
+    tone: "success",
   },
   FINANCE: {
     key: "FINANCE",
@@ -447,7 +459,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Student budgeting, mutual funds, freelancing taxes, and pocket money investments",
     group: "LIFESTYLE",
     icon: Coins,
-    colorClass: "text-green-500 bg-green-500/10 border-green-500/20",
+    tone: "success",
   },
   PRODUCTIVITY: {
     key: "PRODUCTIVITY",
@@ -456,7 +468,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Notion setups, time blocking, deep work systems, and semester goal setting",
     group: "LIFESTYLE",
     icon: Zap,
-    colorClass: "text-yellow-500 bg-yellow-500/10 border-yellow-500/20",
+    tone: "warning",
   },
   TRAVEL: {
     key: "TRAVEL",
@@ -465,7 +477,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Budget student trips, mountain treks, local city food walks, and road journeys",
     group: "LIFESTYLE",
     icon: MapPin,
-    colorClass: "text-teal-500 bg-teal-500/10 border-teal-500/20",
+    tone: "success",
   },
   FOOD: {
     key: "FOOD",
@@ -474,7 +486,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Hostel electric kettle recipes, best late-night dhabas, and campus street food",
     group: "LIFESTYLE",
     icon: UtensilsCrossed,
-    colorClass: "text-amber-500 bg-amber-500/10 border-amber-500/20",
+    tone: "warning",
   },
   RELATIONSHIPS: {
     key: "RELATIONSHIPS",
@@ -483,7 +495,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Friendships, networking, campus dating, social anxiety, and roommate diplomacy",
     group: "LIFESTYLE",
     icon: Heart,
-    colorClass: "text-pink-500 bg-pink-500/10 border-pink-500/20",
+    tone: "neutral",
   },
   SUSTAINABILITY: {
     key: "SUSTAINABILITY",
@@ -492,7 +504,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Green campus drives, zero-waste dorms, climate action, and renewable tech",
     group: "LIFESTYLE",
     icon: Leaf,
-    colorClass: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20",
+    tone: "success",
   },
   SHOWCASES: {
     key: "SHOWCASES",
@@ -501,7 +513,7 @@ export const ARTICLE_CATEGORIES: Record<ArticleCategoryKey, ArticleCategoryMeta>
     description: "Showcasing peer side projects, startup demos, artwork, and creative portfolios",
     group: "LIFESTYLE",
     icon: Sparkles,
-    colorClass: "text-indigo-500 bg-indigo-500/10 border-indigo-500/20",
+    tone: "brand",
   },
 };
 

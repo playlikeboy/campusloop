@@ -119,10 +119,22 @@ export async function POST(req: NextRequest) {
       ? (originalName.split(".").pop() || "").toLowerCase().replace(/[^a-z0-9]/g, "")
       : "";
 
+    // Narrow, explicit carve-out: a static HTML study-material attachment is only ever
+    // allowed through the dedicated "academic_html" category, and is served back inline
+    // (see src/app/api/files/r2/[...key]/route.ts) under CSP `sandbox` — scripts never run.
+    // No other category may upload HTML/SVG/script content.
+    const isAcademicHtml = category === "academic_html";
+    if (isAcademicHtml && (fileExt !== "html" && fileExt !== "htm")) {
+      return NextResponse.json({ error: "Only .html or .htm files are accepted here." }, { status: 400 });
+    }
+    if (isAcademicHtml && size > 3 * 1024 * 1024) {
+      return NextResponse.json({ error: "HTML preview files are limited to 3MB." }, { status: 400 });
+    }
+
     // Reject dangerous executable scripts, SVGs, and active HTML content
     const isDangerousMime =
       mimeType.includes("image/svg+xml") ||
-      mimeType.includes("text/html") ||
+      (mimeType.includes("text/html") && !isAcademicHtml) ||
       mimeType.includes("application/xhtml+xml") ||
       mimeType.includes("javascript") ||
       mimeType.includes("application/x-msdownload") ||
@@ -130,7 +142,16 @@ export async function POST(req: NextRequest) {
       mimeType.includes("x-php") ||
       mimeType.includes("x-bat");
 
-    if (!fileExt || !ALLOWED_EXTENSIONS.has(fileExt) || isDangerousMime) {
+    if (
+      !isAcademicHtml &&
+      (!fileExt || !ALLOWED_EXTENSIONS.has(fileExt) || isDangerousMime)
+    ) {
+      return NextResponse.json(
+        { error: "This file type cannot be uploaded for security reasons." },
+        { status: 400 }
+      );
+    }
+    if (isAcademicHtml && isDangerousMime) {
       return NextResponse.json(
         { error: "This file type cannot be uploaded for security reasons." },
         { status: 400 }
@@ -291,6 +312,30 @@ export async function POST(req: NextRequest) {
         size,
         provider: "r2",
         isPrivate,
+      });
+    }
+
+    // ─── 5. Academic Static HTML Preview (sandboxed, scripts disabled on serve) ───
+    if (isAcademicHtml) {
+      const key = `academic-html/${safeUserId}/${today}/${randomId}${safeExt || ".html"}`;
+      const r2Result = await putR2Object(
+        key,
+        file.stream(),
+        "text/html",
+        {
+          uploadedBy: user.id,
+          originalName: originalName.slice(0, 100),
+          category: "academic_html",
+        },
+        size
+      );
+
+      return NextResponse.json({
+        url: r2Result.url,
+        type: "html",
+        name: originalName,
+        size,
+        provider: "r2",
       });
     }
 

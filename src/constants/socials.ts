@@ -1,45 +1,33 @@
 /**
- * CampusLoop Official Social Links & Channels
- * Priority Order: Instagram -> LinkedIn -> X (Twitter)
+ * Legacy alias. New code imports from "@/constants/social".
  */
+import { SOCIAL_LINKS as CANONICAL } from "@/constants/social";
 
 export const SOCIAL_LINKS = {
-  instagram: {
-    name: "Instagram",
-    handle: "@campusloop.space",
-    url: "https://www.instagram.com/campusloop.space/",
-  },
-  linkedin: {
-    name: "LinkedIn",
-    handle: "CampusLoop",
-    url: "https://www.linkedin.com/company/mycampusloop/?viewAsMember=true",
-  },
-  x: {
-    name: "X (Twitter)",
-    handle: "@mycampusloop",
-    url: "https://x.com/company/mycampusloop/",
-  },
+  instagram: { name: CANONICAL.instagram.label, handle: CANONICAL.instagram.handle, url: CANONICAL.instagram.url },
+  linkedin: { name: CANONICAL.linkedin.label, handle: CANONICAL.linkedin.handle, url: CANONICAL.linkedin.url },
+  x: { name: "X (Twitter)", handle: CANONICAL.x.handle, url: CANONICAL.x.url },
 } as const;
 
 export const SOCIAL_MEDIA_ITEMS = [
   {
     id: "instagram",
-    name: "Instagram",
-    handle: "@campusloop.space",
+    name: SOCIAL_LINKS.instagram.name,
+    handle: SOCIAL_LINKS.instagram.handle,
     url: SOCIAL_LINKS.instagram.url,
     label: "Follow on Instagram",
   },
   {
     id: "linkedin",
-    name: "LinkedIn",
-    handle: "CampusLoop",
+    name: SOCIAL_LINKS.linkedin.name,
+    handle: SOCIAL_LINKS.linkedin.handle,
     url: SOCIAL_LINKS.linkedin.url,
     label: "Connect on LinkedIn",
   },
   {
     id: "x",
     name: "X",
-    handle: "@mycampusloop",
+    handle: SOCIAL_LINKS.x.handle,
     url: SOCIAL_LINKS.x.url,
     label: "Follow on X",
   },

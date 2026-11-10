@@ -241,7 +241,7 @@ export function ArticleCommentsSection({
               type="button"
               disabled={!commentText.trim() || isSubmitting}
               onClick={() => handleAddComment(null)}
-              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-black hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 cursor-pointer shadow-xs"
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-black hover:opacity-90 active:scale-95 transition-ui disabled:opacity-50 cursor-pointer shadow-xs"
             >
               {isSubmitting ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
               <span>Comment</span>
@@ -249,7 +249,7 @@ export function ArticleCommentsSection({
           ) : (
             <Link
               href="/sign-in"
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-black hover:opacity-90 active:scale-95 transition-all cursor-pointer shadow-xs"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-black hover:opacity-90 active:scale-95 transition-ui cursor-pointer shadow-xs"
             >
               <LogIn className="size-3.5" />
               <span>Sign in to Comment</span>
@@ -324,7 +324,7 @@ export function ArticleCommentsSection({
                     aria-label={root.userVote > 0 ? "Remove upvote" : "Upvote comment"}
                     title={root.userVote > 0 ? "Upvoted" : "Upvote"}
                     className={cn(
-                      "flex items-center gap-1.5 py-1 px-2.5 -ml-1 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer active:scale-90",
+                      "flex items-center gap-1.5 py-1 px-2.5 -ml-1 rounded-lg text-xs font-bold transition-ui duration-150 cursor-pointer active:scale-90",
                       root.userVote > 0
                         ? "text-primary bg-primary/10 font-black shadow-2xs"
                         : "hover:text-foreground hover:bg-muted/50"
@@ -443,7 +443,7 @@ export function ArticleCommentsSection({
                               aria-label={reply.userVote > 0 ? "Remove upvote" : "Upvote reply"}
                               title={reply.userVote > 0 ? "Upvoted" : "Upvote"}
                               className={cn(
-                                "flex items-center gap-1.5 py-1 px-2 -ml-1 rounded-lg text-[11px] font-bold transition-all duration-150 cursor-pointer active:scale-90",
+                                "flex items-center gap-1.5 py-1 px-2 -ml-1 rounded-lg text-[11px] font-bold transition-ui duration-150 cursor-pointer active:scale-90",
                                 reply.userVote > 0
                                   ? "text-primary bg-primary/10 font-black shadow-2xs"
                                   : "text-muted-foreground hover:text-foreground hover:bg-muted/50"

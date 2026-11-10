@@ -243,7 +243,7 @@ export function ProfileClientView({
   async function handleRestorePost(postId: string) {
     try {
       await archivePost(postId);
-      toast.success("Post restored to public feeds! 🚀");
+      toast.success("Post restored to public feeds!");
       setArchivedPosts((prev) => prev.filter((p) => p.id !== postId));
       router.refresh();
     } catch {
@@ -392,7 +392,7 @@ export function ProfileClientView({
           body: JSON.stringify({ bannerUrl: croppedUrl }),
         });
         if (!res.ok) throw new Error("Failed to update cover banner");
-        toast.success("Cover banner updated! 🎨");
+        toast.success("Cover banner updated!");
         router.refresh();
       } catch (e) {
         setOptimisticBannerUrl(prev);
@@ -409,7 +409,7 @@ export function ProfileClientView({
           body: JSON.stringify({ avatarUrl: croppedUrl }),
         });
         if (!res.ok) throw new Error("Failed to update profile photo");
-        toast.success("Profile photo updated! 📸");
+        toast.success("Profile photo updated!");
         router.refresh();
       } catch (e) {
         setOptimisticAvatarUrl(prev);
@@ -429,7 +429,7 @@ export function ProfileClientView({
         body: JSON.stringify({ bannerUrl: photoUrl }),
       });
       if (!res.ok) throw new Error("Failed to update cover banner");
-      toast.success("Profile cover updated from Unsplash! 🎨");
+      toast.success("Profile cover updated from Unsplash!");
       router.refresh();
     } catch (e) {
       setOptimisticBannerUrl(prev);
@@ -471,14 +471,11 @@ export function ProfileClientView({
 
       <main className="mx-auto -mt-4 min-h-screen w-full max-w-5xl sm:-mt-6 lg:mt-0 lg:max-w-6xl">
         {/* ─── Profile Cover Banner (Cinematic Full-Bleed Canvas with Ambient Glow) ─── */}
-        <div className="relative h-44 sm:h-60 lg:h-72 w-full bg-[#16181C] overflow-hidden rounded-b-2xl sm:rounded-b-3xl shadow-sm">
+        <div className="relative h-44 sm:h-60 lg:h-72 w-full bg-surface-muted overflow-hidden rounded-b-2xl sm:rounded-b-3xl">
           {currentBannerUrl ? (
             <img src={currentBannerUrl} alt="Cover Banner" className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full bg-linear-to-b from-neutral-800/60 via-[#16181C] to-[#121417] relative">
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/15 via-transparent to-transparent" />
-              <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:24px_24px]" />
-            </div>
+            <div className="w-full h-full bg-surface-muted" />
           )}
 
           {/* Ambient protection gradient overlays */}
@@ -486,7 +483,7 @@ export function ProfileClientView({
 
           {/* Floating Campus Badge in Banner (Bottom Right) */}
           {campusShort && (
-            <div className="absolute bottom-3 right-4 z-10 hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/45 backdrop-blur-md border border-white/10 text-white/90 text-xs font-semibold shadow-md pointer-events-none">
+            <div className="absolute bottom-3 right-4 z-10 hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/45 backdrop-blur-sm border border-white/10 text-white/90 text-xs font-semibold shadow-md pointer-events-none">
               <Landmark className="size-3.5 text-primary" />
               <span>{campusShort}</span>
             </div>
@@ -496,7 +493,7 @@ export function ProfileClientView({
           <button
             type="button"
             onClick={() => router.back()}
-            className="absolute top-3 left-3 z-20 flex size-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md hover:bg-black/60 transition-all cursor-pointer shadow-md active:scale-95"
+            className="absolute top-3 left-3 z-20 flex size-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm hover:bg-black/60 transition-[opacity,transform] cursor-pointer shadow-md active:scale-95"
             title="Back"
             aria-label="Back"
           >
@@ -508,7 +505,7 @@ export function ProfileClientView({
             <button
               type="button"
               onClick={() => setShowQrModal(true)}
-              className="flex size-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md hover:bg-black/60 transition-all cursor-pointer shadow-md active:scale-95"
+              className="flex size-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm hover:bg-black/60 transition-[opacity,transform] cursor-pointer shadow-md active:scale-95"
               title="Profile QR Card"
               aria-label="Profile QR Card"
             >
@@ -518,7 +515,7 @@ export function ProfileClientView({
             <button
               type="button"
               onClick={() => setShowShareModal(true)}
-              className="flex size-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md hover:bg-black/60 transition-all cursor-pointer shadow-md active:scale-95"
+              className="flex size-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm hover:bg-black/60 transition-[opacity,transform] cursor-pointer shadow-md active:scale-95"
               title="Share Profile"
               aria-label="Share Profile"
             >
@@ -529,7 +526,7 @@ export function ProfileClientView({
               <button
                 type="button"
                 onClick={() => setShowProfileMenu((v) => !v)}
-                className="flex size-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md hover:bg-black/60 transition-all cursor-pointer shadow-md active:scale-95"
+                className="flex size-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm hover:bg-black/60 transition-[opacity,transform] cursor-pointer shadow-md active:scale-95"
                 title="More Options"
                 aria-label="More profile actions"
               >
@@ -596,7 +593,7 @@ export function ProfileClientView({
                 <button
                   type="button"
                   onClick={() => setShowUnsplashBannerPicker(true)}
-                  className="hidden sm:flex size-9 rounded-full bg-black/40 text-white backdrop-blur-md hover:bg-black/60 items-center justify-center transition-all cursor-pointer shadow-md active:scale-95"
+                  className="hidden sm:flex size-9 rounded-full bg-black/40 text-white backdrop-blur-sm hover:bg-black/60 items-center justify-center transition-[opacity,transform] cursor-pointer shadow-md active:scale-95"
                   title="Choose Cover from Unsplash"
                 >
                   <Sparkles className="size-4 text-primary" />
@@ -609,7 +606,7 @@ export function ProfileClientView({
                       setCropMode("banner");
                       setCropModalOpen(true);
                     }}
-                    className="size-9 rounded-full bg-black/40 text-white backdrop-blur-md hover:bg-black/60 flex items-center justify-center transition-all cursor-pointer shadow-md active:scale-95"
+                    className="size-9 rounded-full bg-black/40 text-white backdrop-blur-sm hover:bg-black/60 flex items-center justify-center transition-[opacity,transform] cursor-pointer shadow-md active:scale-95"
                     title="Reposition Banner"
                   >
                     <Move className="size-4" />
@@ -618,7 +615,7 @@ export function ProfileClientView({
                 <button
                   type="button"
                   onClick={() => bannerInputRef.current?.click()}
-                  className="size-9 rounded-full bg-black/40 text-white backdrop-blur-md hover:bg-black/60 flex items-center justify-center transition-all cursor-pointer shadow-md active:scale-95"
+                  className="size-9 rounded-full bg-black/40 text-white backdrop-blur-sm hover:bg-black/60 flex items-center justify-center transition-[opacity,transform] cursor-pointer shadow-md active:scale-95"
                   title="Change Cover Banner"
                 >
                   <Camera className="size-4" />
@@ -669,7 +666,7 @@ export function ProfileClientView({
               <button
                 type="button"
                 onClick={() => setShowShareModal(true)}
-                className="h-10 w-10 px-0 sm:h-9 sm:w-auto sm:px-3.5 rounded-full border border-border/70 bg-card hover:bg-muted text-xs font-bold text-foreground transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs active:scale-95"
+                className="h-10 w-10 px-0 sm:h-9 sm:w-auto sm:px-3.5 rounded-full border border-border/70 bg-card hover:bg-muted text-xs font-bold text-foreground transition-[opacity,transform] cursor-pointer flex items-center gap-1.5 shadow-2xs active:scale-95"
                 title="Share Profile"
               >
                 <Share2 className="size-3.5 text-muted-foreground" />
@@ -681,14 +678,14 @@ export function ProfileClientView({
                   <button
                     type="button"
                     onClick={() => setShowQrModal(true)}
-                    className="h-10 w-10 px-0 sm:h-9 sm:w-auto sm:px-3.5 rounded-full border border-border/70 bg-card hover:bg-muted text-xs font-bold text-foreground transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs active:scale-95"
+                    className="h-10 w-10 px-0 sm:h-9 sm:w-auto sm:px-3.5 rounded-full border border-border/70 bg-card hover:bg-muted text-xs font-bold text-foreground transition-[opacity,transform] cursor-pointer flex items-center gap-1.5 shadow-2xs active:scale-95"
                   >
                     <QrCode className="size-3.5 text-muted-foreground" />
                     <span className="hidden sm:inline">QR Card</span>
                   </button>
                   <Link
                     href="/profile/edit"
-                    className="h-9 px-5 rounded-full bg-primary hover:bg-primary/95 text-xs font-bold text-primary-foreground shadow-xs transition-all cursor-pointer inline-flex items-center gap-1.5 active:scale-95"
+                    className="h-9 px-5 rounded-full bg-primary hover:bg-primary/95 text-xs font-bold text-primary-foreground shadow-xs transition-[opacity,transform] cursor-pointer inline-flex items-center gap-1.5 active:scale-95"
                   >
                     <Edit3 className="size-3.5" />
                     <span>Edit profile</span>
@@ -709,7 +706,7 @@ export function ProfileClientView({
                   />
                   <Link
                     href={`/chat?userId=${profile.id}`}
-                    className="group relative inline-flex h-10 w-10 sm:h-9 sm:w-10 items-center justify-center rounded-full border border-border/70 bg-secondary hover:bg-secondary/80 text-secondary-foreground shadow-2xs hover:border-primary/40 hover:shadow-primary/10 transition-all cursor-pointer shrink-0 active:scale-95 before:absolute before:-inset-1.5 before:content-['']"
+                    className="group relative inline-flex h-10 w-10 sm:h-9 sm:w-10 items-center justify-center rounded-full border border-border/70 bg-secondary hover:bg-secondary/80 text-secondary-foreground shadow-2xs hover:border-primary/40 hover:shadow-primary/10 transition-[opacity,transform] cursor-pointer shrink-0 active:scale-95 before:absolute before:-inset-1.5 before:content-['']"
                     title="Message"
                     aria-label="Message"
                   >
@@ -809,7 +806,7 @@ export function ProfileClientView({
                 <div className="text-left leading-tight">
                   <span className="font-black text-foreground text-xs sm:text-sm flex items-center gap-1">
                     <span>{profileStreak?.currentStreak ?? 0}</span>
-                    <Flame className="size-3 text-amber-500 fill-amber-500/20 inline" />
+                    <Flame className="size-3 text-warning fill-warning inline" />
                   </span>
                   <span className="text-[10px] text-muted-foreground">Day streak</span>
                 </div>
@@ -867,7 +864,7 @@ export function ProfileClientView({
         <ProfileHighlights userId={profile.id} username={profile.username} isOwnProfile={isOwnProfile} />
 
         {/* ─── Profile Navigation Underline Tabs (Twitter Style) ─── */}
-        <div className="sticky top-[53px] z-20 mx-0 border-y border-border/30 bg-background/88 backdrop-blur-xl">
+        <div className="sticky top-[53px] z-20 mx-0 border-y border-border/30 bg-background/88 backdrop-blur-sm">
           <div className="flex items-center overflow-x-auto px-3 no-scrollbar">
             {[
               { id: "posts", label: "Posts" },
@@ -926,7 +923,7 @@ export function ProfileClientView({
                 {isOwnProfile && (
                   <Link
                     href="/post/new"
-                    className="inline-block py-2 px-4 rounded-xl bg-primary text-primary-foreground font-bold shadow-xs hover:bg-primary/90 transition-all cursor-pointer mt-2"
+                    className="inline-block py-2 px-4 rounded-xl bg-primary text-primary-foreground font-bold shadow-xs hover:bg-primary/90 transition-colors cursor-pointer mt-2"
                   >
                     Share your first thought on CampusLoop!
                   </Link>
@@ -964,7 +961,7 @@ export function ProfileClientView({
         {activeTab === "articles" && (
           <div className="p-4 space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <h3 className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
                 <BookOpen className="size-4 text-primary" /> Published Long Reads
               </h3>
               {isOwnProfile && (
@@ -1003,7 +1000,7 @@ export function ProfileClientView({
                 {isOwnProfile && (
                   <Link
                     href="/articles/new"
-                    className="inline-block py-2 px-4 rounded-xl bg-primary text-primary-foreground font-bold shadow-xs hover:bg-primary/90 transition-all cursor-pointer mt-2"
+                    className="inline-block py-2 px-4 rounded-xl bg-primary text-primary-foreground font-bold shadow-xs hover:bg-primary/90 transition-colors cursor-pointer mt-2"
                   >
                     Write your first article
                   </Link>
@@ -1047,8 +1044,8 @@ export function ProfileClientView({
             {userPlaylists.length > 0 && (
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <Layers className="size-4 text-indigo-400" />
-                  <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
+                  <Layers className="size-4 text-brand-text" />
+                  <h3 className="text-xs font-bold text-foreground">
                     Study Playlists &amp; Bundles ({userPlaylists.length})
                   </h3>
                 </div>
@@ -1065,7 +1062,7 @@ export function ProfileClientView({
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <BookOpen className="size-4 text-primary" />
-                  <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
+                  <h3 className="text-xs font-bold text-foreground">
                     Uploaded Notes, PYQs &amp; Books ({userResources.length})
                   </h3>
                 </div>
@@ -1080,7 +1077,7 @@ export function ProfileClientView({
             {/* Empty State */}
             {!isLoadingAcademics && userPlaylists.length === 0 && userResources.length === 0 && (
               <div className="text-center py-8 sm:py-12 border border-dashed rounded-2xl sm:rounded-3xl border-border bg-card text-muted-foreground text-sm font-semibold space-y-2 p-4 sm:p-6">
-                <div className="size-12 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center mx-auto">
+                <div className="size-12 rounded-2xl bg-brand-subtle text-brand-text flex items-center justify-center mx-auto">
                   <FolderPlus className="size-6" />
                 </div>
                 <p className="font-bold text-foreground">No shared notes or study playlists yet.</p>
@@ -1093,14 +1090,14 @@ export function ProfileClientView({
                   <div className="pt-2 flex items-center justify-center gap-2">
                     <Link
                       href="/academics/study-material/playlists/new"
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-indigo-500/40 text-indigo-400 text-xs font-bold hover:bg-indigo-500/10 transition-colors shadow-xs cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-brand text-brand-text text-xs font-bold hover:bg-brand-subtle transition-colors shadow-xs cursor-pointer"
                     >
                       <FolderPlus className="size-3.5" />
                       <span>Create Playlist</span>
                     </Link>
                     <Link
                       href="/academics"
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-500 transition-colors shadow-xs cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-brand text-white text-xs font-bold hover:bg-brand-hover transition-colors shadow-xs cursor-pointer"
                     >
                       <span>Upload Notes</span>
                     </Link>
@@ -1111,7 +1108,7 @@ export function ProfileClientView({
 
             {isLoadingAcademics && (
               <div className="py-12 flex flex-col items-center justify-center space-y-2 text-muted-foreground">
-                <Loader2 className="size-6 animate-spin text-indigo-400" />
+                <Loader2 className="size-6 animate-spin text-brand-text" />
                 <span className="text-xs font-medium">Loading academic vault materials...</span>
               </div>
             )}
@@ -1133,7 +1130,7 @@ export function ProfileClientView({
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   {idx === 0 && (
-                    <span className="absolute bottom-2 left-2 bg-primary/90 text-white text-[9px] font-black px-2 py-0.5 rounded-md backdrop-blur-md">
+                    <span className="absolute bottom-2 left-2 bg-primary/90 text-white text-[9px] font-black px-2 py-0.5 rounded-md backdrop-blur-sm">
                       Avatar
                     </span>
                   )}
@@ -1162,15 +1159,15 @@ export function ProfileClientView({
             {/* Campus Clout Standing & Tier Card */}
             <div className="rounded-2xl border border-border/50 bg-card p-4 sm:p-5 space-y-3.5 shadow-2xs">
               <div className="flex items-center justify-between">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                <h3 className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
                   <TrendingUp className="size-3.5 text-primary" /> Campus Clout Standing
                 </h3>
                 <span className="text-xs font-bold text-muted-foreground">Level {tier.level || 1}</span>
               </div>
 
               <div className="flex items-center gap-3.5">
-                <div className="size-11 rounded-full bg-amber-500/10 border border-amber-400/20 flex items-center justify-center text-amber-400 shrink-0">
-                  <Star className="size-5 fill-amber-400 text-amber-400" />
+                <div className="size-11 rounded-full bg-warning-subtle border border-warning flex items-center justify-center text-warning shrink-0">
+                  <Star className="size-5 fill-warning text-warning" />
                 </div>
 
                 <div className="min-w-0 flex-1">
@@ -1187,7 +1184,7 @@ export function ProfileClientView({
               {/* Progress Bar */}
               <div className="h-2 w-full rounded-full bg-muted/40 overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-primary transition-all duration-500"
+                  className="h-full rounded-full bg-primary transition-colors duration-500"
                   style={{
                     width: `${Math.min(100, Math.max(8, Math.round((points / (tier.maxPoints + 1)) * 100)))}%`,
                   }}
@@ -1198,7 +1195,7 @@ export function ProfileClientView({
                 <p className="flex items-center gap-1">
                   {points >= 1000 ? (
                     <>
-                      <Crown className="size-3 text-amber-400 inline" />
+                      <Crown className="size-3 text-warning inline" />
                       <span>Maximum Legend rank reached!</span>
                     </>
                   ) : (
@@ -1219,8 +1216,8 @@ export function ProfileClientView({
 
             {/* Loop Points Rules & Privileges */}
             <div className="rounded-2xl border border-border/50 bg-card p-4 sm:p-5 space-y-4 shadow-2xs">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-foreground flex items-center gap-1.5">
-                <Trophy className="size-4 text-amber-500" /> Loop Points (LP) Rules &amp; Privileges
+              <h3 className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                <Trophy className="size-4 text-warning" /> Loop Points (LP) Rules &amp; Privileges
               </h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
                 Earn Loop Points to unlock Verified Campus Star status, top your college leaderboard, and unlock
@@ -1252,8 +1249,8 @@ export function ProfileClientView({
         {/* ─── Archived Posts Tab (Private to Student) ─── */}
         {activeTab === "archived" && (
           <div className="space-y-3.5">
-            <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 flex items-center gap-3 text-xs text-muted-foreground">
-              <div className="size-8 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
+            <div className="rounded-2xl border border-warning bg-warning-subtle p-4 flex items-center gap-3 text-xs text-muted-foreground">
+              <div className="size-8 rounded-xl bg-warning-subtle text-warning flex items-center justify-center shrink-0">
                 <Archive className="size-4" />
               </div>
               <p>
@@ -1273,7 +1270,7 @@ export function ProfileClientView({
                 <div key={post.id} className="relative group">
                   <div className="rounded-3xl border border-border/60 bg-card overflow-hidden">
                     <div className="p-3 bg-muted/30 border-b border-border/40 flex items-center justify-between text-xs">
-                      <span className="font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                      <span className="font-bold text-warning flex items-center gap-1.5">
                         <Archive className="size-3.5" /> Archived Post
                       </span>
                       <div className="flex items-center gap-2">
@@ -1343,7 +1340,7 @@ export function ProfileClientView({
                   }}
                   className="w-full py-2.5 px-3.5 rounded-2xl border border-border/80 bg-muted/20 hover:bg-muted/50 text-xs font-bold text-foreground flex items-center gap-2.5 cursor-pointer transition-colors"
                 >
-                  <Eye className="size-4 text-blue-500" />
+                  <Eye className="size-4 text-brand-text" />
                   <span>View Full-Size Photo</span>
                 </button>
               )}
@@ -1406,7 +1403,7 @@ export function ProfileClientView({
       {/* ─── Lightbox Modal ─── */}
       {showPhotoLightbox && (
         <div
-          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-sm flex items-center justify-center p-4"
           onClick={() => setShowPhotoLightbox(null)}
         >
           <button

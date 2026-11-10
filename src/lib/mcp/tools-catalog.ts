@@ -686,4 +686,268 @@ export const CAMPUSLOOP_MCP_TOOLS: McpToolDefinition[] = [
       additionalProperties: false,
     },
   },
+
+  // ─── 8. EVENTS & OPPORTUNITIES ──────────────────────────────────────────────
+  {
+    name: "campusloop_get_events",
+    description: "Fetch upcoming and active campus events, hackathons, workshops, cultural fests, and competitions.",
+    category: "Events & Opportunities",
+    inputSchema: {
+      type: "object",
+      properties: {
+        scope: {
+          type: "string",
+          enum: ["CAMPUS", "GLOBAL"],
+          description: "Scope of events: student's institution only ('CAMPUS') or all Indian universities ('GLOBAL'). Defaults to CAMPUS.",
+        },
+        type: {
+          type: "string",
+          enum: ["ALL", "HACKATHON", "WORKSHOP", "CULTURAL", "SPORTS", "SEMINAR", "FEST", "MEETUP", "COMPETITION"],
+          description: "Filter by event category. Defaults to ALL.",
+        },
+        limit: {
+          type: "integer",
+          minimum: 1,
+          maximum: 50,
+          description: "Max number of events to return (default 20).",
+        },
+      },
+      required: [],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "campusloop_get_event_details",
+    description: "Get comprehensive details of a specific campus event including dates, venue, organizers, and perks.",
+    category: "Events & Opportunities",
+    inputSchema: {
+      type: "object",
+      properties: {
+        eventIdOrSlug: {
+          type: "string",
+          description: "The unique event ID or URL slug.",
+        },
+      },
+      required: ["eventIdOrSlug"],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "campusloop_create_event",
+    description: "Publish a new campus event, hackathon, workshop, or club meetup on CampusLoop.",
+    category: "Events & Opportunities",
+    inputSchema: {
+      type: "object",
+      properties: {
+        title: {
+          type: "string",
+          description: "Title of the event.",
+        },
+        description: {
+          type: "string",
+          description: "Full description, rules, agenda, and guidelines.",
+        },
+        clubName: {
+          type: "string",
+          description: "Hosting club, society, or organization name.",
+        },
+        eventType: {
+          type: "string",
+          enum: ["HACKATHON", "WORKSHOP", "CULTURAL", "SPORTS", "SEMINAR", "FEST", "MEETUP", "COMPETITION"],
+          description: "Category of the event.",
+        },
+        mode: {
+          type: "string",
+          enum: ["OFFLINE", "ONLINE", "HYBRID"],
+          description: "Event modality.",
+        },
+        venue: {
+          type: "string",
+          description: "Physical venue or hall (e.g. 'CAT Hall 2' or 'Auditorium').",
+        },
+        startDate: {
+          type: "string",
+          description: "Start timestamp in ISO 8601 format (e.g. '2026-11-01T10:00:00Z').",
+        },
+        endDate: {
+          type: "string",
+          description: "End timestamp in ISO 8601 format (e.g. '2026-11-02T18:00:00Z').",
+        },
+        entryFee: {
+          type: "string",
+          description: "Entry fee or 'Free'. Defaults to 'Free'.",
+        },
+      },
+      required: ["title", "description", "clubName", "eventType", "startDate", "endDate"],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "campusloop_register_event",
+    description: "Register or RSVP the authenticated student for an event or hackathon.",
+    category: "Events & Opportunities",
+    inputSchema: {
+      type: "object",
+      properties: {
+        eventId: {
+          type: "string",
+          description: "The event ID to register for.",
+        },
+      },
+      required: ["eventId"],
+      additionalProperties: false,
+    },
+  },
+
+  // ─── 9. ARTICLES & JOURNALISM ──────────────────────────────────────────────
+  {
+    name: "campusloop_get_articles",
+    description: "Fetch campus articles, student editorials, placement experiences, tech deep-dives, and campus guides.",
+    category: "Articles & Editorial",
+    inputSchema: {
+      type: "object",
+      properties: {
+        category: {
+          type: "string",
+          description: "Category filter (e.g. 'TECH_AND_CODE', 'PLACEMENTS', 'CAMPUS_LIFE', 'GUIDES'). Defaults to all.",
+        },
+        limit: {
+          type: "integer",
+          minimum: 1,
+          maximum: 50,
+          description: "Number of articles to fetch (default 20).",
+        },
+      },
+      required: [],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "campusloop_get_article_details",
+    description: "Get full article content markdown, author info, claps/upvotes, and metadata.",
+    category: "Articles & Editorial",
+    inputSchema: {
+      type: "object",
+      properties: {
+        articleIdOrSlug: {
+          type: "string",
+          description: "The article unique ID or URL slug.",
+        },
+      },
+      required: ["articleIdOrSlug"],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "campusloop_publish_article",
+    description: "Publish a new student article or placement guide on CampusLoop.",
+    category: "Articles & Editorial",
+    inputSchema: {
+      type: "object",
+      properties: {
+        title: {
+          type: "string",
+          description: "Article headline.",
+        },
+        content: {
+          type: "string",
+          description: "Full markdown content of the article.",
+        },
+        category: {
+          type: "string",
+          description: "Article category (e.g. 'TECH_AND_CODE', 'PLACEMENTS', 'CAMPUS_LIFE', 'GUIDES'). Defaults to 'GENERAL'.",
+        },
+        tags: {
+          type: "array",
+          items: { type: "string" },
+          description: "Tags for indexing (e.g. ['leetcode', 'faang', 'internship']).",
+        },
+        subtitle: {
+          type: "string",
+          description: "Optional secondary headline.",
+        },
+      },
+      required: ["title", "content"],
+      additionalProperties: false,
+    },
+  },
+
+  // ─── 10. STREAKS & HEATMAP ─────────────────────────────────────────────────
+  {
+    name: "campusloop_get_streaks",
+    description: "Fetch streak statistics, current streak count, longest streak, safe status today, and annual activity heatmap dates.",
+    category: "Streaks & Clout",
+    inputSchema: {
+      type: "object",
+      properties: {
+        profileId: {
+          type: "string",
+          description: "Optional profile ID. Defaults to authenticated student.",
+        },
+      },
+      required: [],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "campusloop_record_streak_activity",
+    description: "Qualify today's streak run by recording a daily campus activity (e.g. posting, reading notes, voting).",
+    category: "Streaks & Clout",
+    inputSchema: {
+      type: "object",
+      properties: {
+        eventType: {
+          type: "string",
+          enum: ["POST_CREATE", "POLL_VOTE", "COMMENT_CREATE", "ACADEMIC_UPLOAD", "DAILY_MISSION_COMPLETE"],
+          description: "Type of campus activity. Defaults to DAILY_MISSION_COMPLETE.",
+        },
+      },
+      required: [],
+      additionalProperties: false,
+    },
+  },
+
+  // ─── 11. COURSES & PLAYLISTS ───────────────────────────────────────────────
+  {
+    name: "campusloop_get_courses",
+    description: "Browse curated video courses across CSE, ECE, EEE, Business, MBA, and Mathematics.",
+    category: "Academics & Vault",
+    inputSchema: {
+      type: "object",
+      properties: {
+        category: {
+          type: "string",
+          description: "Course category (e.g. 'Computer Science', 'Business', 'ECE', 'Mathematics').",
+        },
+        query: {
+          type: "string",
+          description: "Search keyword in course title or description.",
+        },
+        limit: {
+          type: "integer",
+          minimum: 1,
+          maximum: 50,
+          description: "Max results to return (default 20).",
+        },
+      },
+      required: [],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "campusloop_get_course_details",
+    description: "Fetch course syllabus, curriculum sections, and video lectures.",
+    category: "Academics & Vault",
+    inputSchema: {
+      type: "object",
+      properties: {
+        courseIdOrSlug: {
+          type: "string",
+          description: "The course ID or URL slug.",
+        },
+      },
+      required: ["courseIdOrSlug"],
+      additionalProperties: false,
+    },
+  },
 ];

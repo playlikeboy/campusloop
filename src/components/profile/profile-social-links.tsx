@@ -65,7 +65,7 @@ export function ProfileSocialLinks({
           label: trimmedLabel,
           sub: trimmedLabel,
           href: safeUrl,
-          color: "#818cf8",
+          color: "var(--brand)",
           monogram: (trimmedLabel[0] ?? "L").toUpperCase(),
         };
       });
@@ -99,7 +99,7 @@ export function ProfileSocialLinks({
         const titleText = `${item.label} (${item.sub})`;
 
         const content = (
-          <span className="relative flex items-center justify-center size-8 sm:size-8.5 rounded-full bg-secondary/80 hover:bg-secondary text-foreground border border-border/60 hover:border-border transition-all duration-200 group shadow-2xs hover:scale-105 active:scale-95">
+          <span className="relative flex items-center justify-center size-8 sm:size-8.5 rounded-full bg-secondary/80 hover:bg-secondary text-foreground border border-border/60 hover:border-border transition-[opacity,transform] duration-200 group shadow-2xs hover:scale-105 active:scale-95">
             <SocialPlatformIcon
               platformKey={item.key}
               fallbackMonogram={item.monogram}
@@ -142,7 +142,7 @@ export function ProfileSocialLinks({
         <button
           type="button"
           onClick={() => setExpanded((prev) => !prev)}
-          className="inline-flex items-center justify-center size-8 sm:size-8.5 rounded-full bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground text-[11px] font-bold border border-border/60 transition-all cursor-pointer shadow-2xs hover:scale-105 active:scale-95"
+          className="inline-flex items-center justify-center size-8 sm:size-8.5 rounded-full bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground text-[11px] font-bold border border-border/60 transition-[opacity,transform] cursor-pointer shadow-2xs hover:scale-105 active:scale-95"
           title={expanded ? "Show less" : `Show ${hiddenCount} more links`}
           aria-label={expanded ? "Show less links" : `Show ${hiddenCount} more links`}
         >
@@ -153,7 +153,7 @@ export function ProfileSocialLinks({
       {isOwnProfile && (
         <Link
           href="/profile/edit"
-          className="inline-flex items-center justify-center size-8 sm:size-8.5 rounded-full border border-dashed border-border hover:border-primary/50 text-muted-foreground hover:text-primary transition-all hover:scale-105 active:scale-95 cursor-pointer"
+          className="inline-flex items-center justify-center size-8 sm:size-8.5 rounded-full border border-dashed border-border hover:border-primary/50 text-muted-foreground hover:text-primary transition-[opacity,transform] hover:scale-105 active:scale-95 cursor-pointer"
           title="Edit or add links"
           aria-label="Edit or add social links"
         >

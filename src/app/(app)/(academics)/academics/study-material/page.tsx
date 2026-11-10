@@ -4,7 +4,7 @@ import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 import { AcademicsClient } from "./academics-client";
 
 export const metadata: Metadata = {
-  title: "Academic Notes, PYQs & Cheat Sheets | Free Engineering PDF Download | CampusLoop",
+  title: "Academic Notes, PYQs & Cheat Sheets | Free Engineering PDF Download",
   description:
     "Find college notes, previous-year questions (PYQs), formula sheets and lab manuals by subject, branch and semester, with source links and community feedback to help you choose useful study materials.",
   keywords: [
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   ],
   alternates: { canonical: "https://campusloop.space/academics/study-material" },
   openGraph: {
-    title: "Academic Notes, PYQs & Cheat Sheets | CampusLoop Study Vault",
+    title: "Academic Notes, PYQs & Cheat Sheets",
     description:
       "Discover course notes, previous-year questions, formula sheets and lab manuals from campus contributors and public education sources.",
     url: "https://campusloop.space/academics/study-material",
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "CampusLoop Academics — Verified Study Vault for College Students",
     description:
-      "Free verified engineering & university course notes, semester-wise PYQs, cheat sheets, and practical lab manuals across 1,350+ campuses in India.",
+      "Free verified engineering & university course notes, semester-wise PYQs, cheat sheets, and practical lab manuals across Indian campuses.",
     images: ["https://campusloop.space/og-academics.png"],
   },
   robots: {
@@ -146,7 +146,7 @@ export default async function AcademicsPage({ searchParams }: AcademicsPageProps
         name: "Which universities and engineering colleges are covered?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "CampusLoop aggregates syllabus-aligned academic study materials across 1,350+ Indian colleges and universities, including BIT Mesra, AKTU Lucknow, VTU Belagavi, JNTU Hyderabad, MAKAUT West Bengal, SRM University, and AICTE model curricula.",
+          text: "CampusLoop aggregates syllabus-aligned academic study materials across Indian colleges and universities, including BIT Mesra, AKTU Lucknow, VTU Belagavi, JNTU Hyderabad, MAKAUT West Bengal, SRM University, and AICTE model curricula.",
         },
       },
       {

@@ -1,21 +1,23 @@
 import React from "react";
-import { Check } from "lucide-react";
+import { BadgeCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface VerifiedBadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
-  size?: "sm" | "md";
+  size?: "xs" | "sm" | "md" | "lg";
   title?: string;
 }
 
 export function VerifiedBadge({
   size = "md",
-  title = "Verified Student",
+  title = "Verified Student (College Email)",
   className,
   ...props
 }: VerifiedBadgeProps) {
   const sizeClasses = {
-    sm: "size-3.5 [&>svg]:size-2.5",
-    md: "size-4 [&>svg]:size-3",
+    xs: "size-3",
+    sm: "size-3.5",
+    md: "size-4",
+    lg: "size-5",
   }[size];
 
   return (
@@ -23,14 +25,10 @@ export function VerifiedBadge({
       role="img"
       aria-label={title}
       title={title}
-      className={cn(
-        "inline-flex items-center justify-center rounded-full bg-[var(--primary)] text-white shrink-0 select-none",
-        sizeClasses,
-        className
-      )}
+      className={cn("inline-flex items-center justify-center shrink-0 select-none", className)}
       {...props}
     >
-      <Check strokeWidth={3} className="text-white" />
+      <BadgeCheck className={cn(sizeClasses, "text-brand fill-brand/20")} />
     </span>
   );
 }

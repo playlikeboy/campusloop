@@ -28,7 +28,7 @@ export function ComparisonView({ block, raw }: { block: ComparisonBlock; raw: st
               <ul className="mt-3 space-y-1.5" aria-label={`${o.name} strengths`}>
                 {o.pros.map((p) => (
                   <li key={p} className="flex gap-2 text-sm text-foreground">
-                    <Plus className="mt-0.5 size-4 shrink-0 text-emerald-600 dark:text-emerald-400" aria-label="Pro" />
+                    <Plus className="mt-0.5 size-4 shrink-0 text-success" aria-label="Pro" />
                     {p}
                   </li>
                 ))}
@@ -79,7 +79,7 @@ export function StepsView({ block, raw }: { block: StepsBlock; raw: string }) {
     <BlockFrame title={block.title} raw={raw} type="steps">
       <div className="mb-3 flex items-center gap-3">
         <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
-          <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }} />
+          <div className="h-full rounded-full bg-primary transition-ui" style={{ width: `${progress}%` }} />
         </div>
         <span className="text-xs font-semibold tabular-nums text-muted-foreground">{done.size}/{block.steps.length}</span>
       </div>
@@ -116,10 +116,10 @@ export function StepsView({ block, raw }: { block: StepsBlock; raw: string }) {
 }
 
 const TONES = {
-  info: { icon: Info, cls: "bg-sky-500/10 text-sky-700 dark:text-sky-300", label: "Note" },
+  info: { icon: Info, cls: "bg-brand-subtle text-brand-text", label: "Note" },
   tip: { icon: Lightbulb, cls: "bg-primary/10 text-primary", label: "Tip" },
-  warning: { icon: AlertTriangle, cls: "bg-amber-500/10 text-amber-700 dark:text-amber-300", label: "Warning" },
-  success: { icon: CheckCircle2, cls: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300", label: "Good to know" },
+  warning: { icon: AlertTriangle, cls: "bg-warning-subtle text-warning", label: "Warning" },
+  success: { icon: CheckCircle2, cls: "bg-success-subtle text-success", label: "Good to know" },
 } as const;
 
 export function CalloutView({ block }: { block: CalloutBlock }) {
@@ -253,7 +253,7 @@ export function QuizView({ block, raw }: { block: QuizBlock; raw: string }) {
               onClick={() => setPicked(i)}
               className={cn(
                 "flex min-h-11 items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-                state === "correct" && "bg-emerald-500/15 text-emerald-800 dark:text-emerald-200",
+                state === "correct" && "bg-success-subtle text-success",
                 state === "wrong" && "bg-destructive/10 text-destructive",
                 state === "idle" && "bg-background/70 text-foreground enabled:hover:bg-muted enabled:cursor-pointer"
               )}

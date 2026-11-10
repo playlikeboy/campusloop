@@ -4,11 +4,12 @@ import { HousingClient } from "./housing-client";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 
 export const metadata: Metadata = {
-  title: "Housing & Flats | Student PGs & Roommates | CampusLoop",
+  robots: { index: true, follow: true },
+  title: "Housing & Flats | Student PGs & Roommates",
   description: "Find verified student PGs, apartments, shared flats, and roommates near college campus.",
   alternates: { canonical: "https://campusloop.space/housing" },
   openGraph: {
-    title: "Housing & Flats | Student PGs & Roommates | CampusLoop",
+    title: "Housing & Flats | Student PGs & Roommates",
     description: "Find verified student PGs, apartments, shared flats, and roommates near college campus.",
     url: "https://campusloop.space/housing",
     siteName: "CampusLoop Housing",
@@ -23,7 +24,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Housing & Flats | Student PGs & Roommates | CampusLoop",
+    title: "Housing & Flats | Student PGs & Roommates",
     description: "Find verified student PGs, apartments, shared flats, and roommates near college campus.",
     images: ["https://campusloop.space/og-housing.png"],
   },

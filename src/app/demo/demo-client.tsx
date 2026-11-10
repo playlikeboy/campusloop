@@ -19,7 +19,7 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
-import { CompanyNav } from "@/components/marketing/company-nav";
+import { MarketingNav } from "@/components/shells/marketing-shell";
 import {
   DocLayout,
   DocList,
@@ -57,7 +57,7 @@ const CORE_SURFACES = [
     desc: "100,000+ indexed study notes, PYQ question papers, branch & semester filters",
     icon: GraduationCap,
     badge: "Vault",
-    badgeColor: "bg-indigo-500/10 text-indigo-500 border-indigo-500/20",
+    badgeColor: "bg-brand-subtle text-brand-text border-brand/20",
   },
   {
     href: "/colleges",
@@ -65,7 +65,7 @@ const CORE_SURFACES = [
     desc: "1,350+ indexed Indian college hubs with instant search & hub request forms",
     icon: Building2,
     badge: "1,350+ Hubs",
-    badgeColor: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+    badgeColor: "bg-brand-subtle text-brand-text border-brand/20",
   },
   {
     href: "/dating",
@@ -73,7 +73,7 @@ const CORE_SURFACES = [
     desc: "Swipe deck for connecting with verified fellow students filtered by radius & gender",
     icon: Heart,
     badge: "Swipe Deck",
-    badgeColor: "bg-rose-500/10 text-rose-500 border-rose-500/20",
+    badgeColor: "bg-danger-subtle text-danger border-danger/20",
   },
   {
     href: "/communities",
@@ -81,7 +81,7 @@ const CORE_SURFACES = [
     desc: "Student-created societies, technical clubs, gaming squads & batch boards",
     icon: Users,
     badge: "Clubs & Squads",
-    badgeColor: "bg-purple-500/10 text-purple-500 border-purple-500/20",
+    badgeColor: "bg-brand-subtle text-brand-text border-brand/20",
   },
   {
     href: "/confessions",
@@ -89,7 +89,7 @@ const CORE_SURFACES = [
     desc: "Anonymous student thoughts & scoops protected with cryptographic identity escrow",
     icon: VenetianMask,
     badge: "Identity Escrow",
-    badgeColor: "bg-amber-500/10 text-amber-500 border-amber-500/20",
+    badgeColor: "bg-warning-subtle text-warning border-warning/20",
   },
   {
     href: "/events",
@@ -97,7 +97,7 @@ const CORE_SURFACES = [
     desc: "Hackathons, college cultural fests, tech symposiums, and registrations",
     icon: Calendar,
     badge: "Events",
-    badgeColor: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+    badgeColor: "bg-success-subtle text-success border-success/20",
   },
   {
     href: "/marketplace",
@@ -105,7 +105,7 @@ const CORE_SURFACES = [
     desc: "Student buy/sell dorm essentials, books, cycles, and local canteen orders",
     icon: ShoppingBag,
     badge: "BETA",
-    badgeColor: "bg-orange-500/10 text-orange-500 border-orange-500/20",
+    badgeColor: "bg-warning-subtle text-warning border-warning/20",
   },
 ];
 
@@ -141,7 +141,7 @@ export function DemoClient() {
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <MarketingHeader />
-      <CompanyNav />
+      <MarketingNav />
 
       <main className="flex-1 pt-14">
         <DocLayout sections={SECTIONS}>
@@ -163,7 +163,7 @@ export function DemoClient() {
 
             <div className="grid gap-3 pt-2 sm:grid-cols-2">
               {/* Email Card */}
-              <div className="rounded-2xl border border-border/60 bg-card/60 p-4 space-y-2">
+              <div className="rounded-2xl border border-border/60 bg-surface p-4 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
                     <Mail className="size-3.5" />
@@ -177,7 +177,7 @@ export function DemoClient() {
                     aria-label="Copy demo email"
                   >
                     {copiedEmail ? (
-                      <Check className="size-3.5 text-emerald-400" />
+                      <Check className="size-3.5 text-success" />
                     ) : (
                       <Copy className="size-3.5" />
                     )}
@@ -189,7 +189,7 @@ export function DemoClient() {
               </div>
 
               {/* Password Card */}
-              <div className="rounded-2xl border border-border/60 bg-card/60 p-4 space-y-2">
+              <div className="rounded-2xl border border-border/60 bg-surface p-4 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
                     <Lock className="size-3.5" />
@@ -203,7 +203,7 @@ export function DemoClient() {
                     aria-label="Copy demo password"
                   >
                     {copiedPass ? (
-                      <Check className="size-3.5 text-emerald-400" />
+                      <Check className="size-3.5 text-success" />
                     ) : (
                       <Copy className="size-3.5" />
                     )}
@@ -218,7 +218,7 @@ export function DemoClient() {
             <div className="flex flex-wrap items-center gap-2.5 pt-3">
               <Link
                 href="/sign-in?returnTo=/feeds"
-                className={cn(buttonVariants({ size: "default" }), "gap-2 cursor-pointer shadow-xs")}
+                className={cn(buttonVariants({ size: "md" }), "gap-2 cursor-pointer shadow-xs")}
               >
                 <span>Sign In to Evaluation Sandbox</span>
                 <ExternalLink className="size-3.5" />
@@ -233,12 +233,12 @@ export function DemoClient() {
                   )
                 }
                 className={cn(
-                  buttonVariants({ variant: "outline", size: "default" }),
+                  buttonVariants({ variant: "outline", size: "md" }),
                   "gap-2 cursor-pointer"
                 )}
               >
                 {copiedAll ? (
-                  <Check className="size-3.5 text-emerald-400" />
+                  <Check className="size-3.5 text-success" />
                 ) : (
                   <Copy className="size-3.5" />
                 )}
@@ -248,7 +248,7 @@ export function DemoClient() {
               <Link
                 href="/feeds"
                 className={cn(
-                  buttonVariants({ variant: "secondary", size: "default" }),
+                  buttonVariants({ variant: "secondary", size: "md" }),
                   "gap-1.5 cursor-pointer"
                 )}
               >
@@ -293,7 +293,7 @@ export function DemoClient() {
                 return (
                   <div
                     key={surface.href}
-                    className="group relative flex flex-col justify-between rounded-2xl border border-border/60 bg-card/60 p-4 transition-all hover:border-primary/40 hover:shadow-xs"
+                    className="group relative flex flex-col justify-between rounded-2xl border border-border/60 bg-surface p-4 transition-colors hover:border-primary/40 hover:shadow-xs"
                   >
                     <div>
                       <div className="flex items-center justify-between pb-2">

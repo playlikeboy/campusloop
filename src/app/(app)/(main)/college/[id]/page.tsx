@@ -8,6 +8,10 @@ import type { FeedPost } from "@/hooks/use-feed";
 import { sanitizeAnonRow } from "@/lib/anonymity";
 import { getShowSeededPosts } from "@/lib/platform-config";
 import { getCachedAuthUser, getCachedInstitution, getCachedUserProfile } from "@/lib/server-cache";
+import {
+  VERIFIED_STUDENT_EMAIL_DOMAINS,
+  getInstitutionEmailFormat,
+} from "@/lib/student-email-domains";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -24,9 +28,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
-  const title = `${college.name} Campus Hub | CampusLoop`;
+  const title = `${college.name} Campus Hub`;
   const description = `Connect with verified students at ${college.name} (${college.district || college.state || "India"}). Confessions, clubs, campus Q&A, and live feed.`;
-  const url = `https://campusloop.space/app/college/${college.slug || college.id}`;
+  const url = `https://campusloop.space/college/${college.slug || college.id}`;
 
   return {
     title,
@@ -243,6 +247,15 @@ export default async function MainCollegePage({ params }: PageProps) {
     }
   });
 
+  // Merge verified student domains from curated registry (e.g. branch subdomains for IIT ISM, IIT KGP, etc.)
+  const curatedDomains = VERIFIED_STUDENT_EMAIL_DOMAINS[college.slug?.toLowerCase() || ""] || [];
+  curatedDomains.forEach((d) => {
+    const clean = d.toLowerCase().trim();
+    if (!domainMap.has(clean)) {
+      domainMap.set(clean, { domain: clean, type: "STUDENT_EMAIL", isPrimary: false });
+    }
+  });
+
   if (domainMap.size === 0 && college.website) {
     try {
       const parsed = college.website.startsWith("http")
@@ -258,6 +271,7 @@ export default async function MainCollegePage({ params }: PageProps) {
   }
 
   const allowedDomains = Array.from(domainMap.values());
+  const emailFormatInfo = getInstitutionEmailFormat(college.slug || "");
 
   const formattedAcademics = collegeAcademics.map((item) => ({
     id: item.id,
@@ -280,7 +294,7 @@ export default async function MainCollegePage({ params }: PageProps) {
   }));
 
   const isEnrolledHere = Boolean(profile && profile.institutionId === college.id);
-  const canonicalCollegeUrl = `https://campusloop.space/app/college/${college.slug || college.id}`;
+  const canonicalCollegeUrl = `https://campusloop.space/college/${college.slug || college.id}`;
 
   return (
     <>
@@ -311,13 +325,13 @@ export default async function MainCollegePage({ params }: PageProps) {
                     "@type": "ListItem",
                     position: 1,
                     name: "Home",
-                    item: "https://campusloop.space/app",
+                    item: "https://campusloop.space",
                   },
                   {
                     "@type": "ListItem",
                     position: 2,
                     name: "Colleges",
-                    item: "https://campusloop.space/app/colleges",
+                    item: "https://campusloop.space/colleges",
                   },
                   {
                     "@type": "ListItem",
@@ -350,6 +364,7 @@ export default async function MainCollegePage({ params }: PageProps) {
           description: college.description,
         }}
         allowedDomains={allowedDomains}
+        emailFormatInfo={emailFormatInfo}
         initialPosts={formattedPosts}
         academics={formattedAcademics}
         students={students}

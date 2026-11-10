@@ -94,6 +94,7 @@ export async function payWithRazorpay(
       name: "CampusLoop",
       description: `Order ${data.description ?? ""}`.trim(),
       prefill: { name: prefill?.name ?? data.name, contact: prefill?.contact, email: prefill?.email },
+      // ds-allow: third-party checkout widget takes a hex
       theme: { color: "#22c55e" },
       handler: async (resp: RazorpaySuccess) => {
         try {

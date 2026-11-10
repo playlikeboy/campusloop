@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: PostsTypePageProps): Promise<
   else if (uppercaseType === "QUESTION") label = "Campus Q&A";
 
   return {
-    title: `${label} | CampusLoop`,
+    title: `${label}`,
     description: `Browse ${label.toLowerCase()} from verified students on CampusLoop.`,
     robots: { index: true, follow: true },
   };

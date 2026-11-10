@@ -356,16 +356,16 @@ describe("Reddit Campus Ingestion System", () => {
   // 13. Subreddit Source Configuration Lookup
   it("retrieves configured sources with correct priorities", () => {
     const allSources = getAllRedditSources();
-    expect(allSources.length).toBeGreaterThanOrEqual(16);
+    expect(allSources.length).toBeGreaterThanOrEqual(15);
 
     const btechtards = findRedditSource("Btechtards");
     expect(btechtards).toBeDefined();
     expect(btechtards?.priority).toBe(100);
     expect(btechtards?.categories).toContain("engineering");
 
-    const jeeneet = findRedditSource("r/JEENEETards");
-    expect(jeeneet).toBeDefined();
-    expect(jeeneet?.priority).toBe(95);
+    const collegerant = findRedditSource("r/CollegeRant");
+    expect(collegerant).toBeDefined();
+    expect(collegerant?.priority).toBe(85);
   });
 
   // 14. Missing Media Graceful Fallback

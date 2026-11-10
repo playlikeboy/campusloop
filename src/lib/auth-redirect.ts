@@ -42,8 +42,6 @@ export function sanitizeReturnTo(url: string | null | undefined): string | null 
       const isAllowedHost =
         parsed.hostname === "campusloop.space" ||
         parsed.hostname.endsWith(".campusloop.space") ||
-        parsed.hostname === "campsy.app" ||
-        parsed.hostname.endsWith(".campsy.app") ||
         parsed.hostname === "localhost" ||
         parsed.hostname === "127.0.0.1";
 

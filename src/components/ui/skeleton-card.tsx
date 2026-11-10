@@ -81,7 +81,7 @@ export function ConfessionsFeedSkeleton() {
         <div key={i} className="px-4 py-4 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="size-9 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0">
+              <div className="size-9 rounded-2xl bg-brand-subtle flex items-center justify-center shrink-0">
                 <Skeleton className="size-5 rounded-full" />
               </div>
               <div className="space-y-1">
@@ -131,7 +131,7 @@ export function PostDetailSkeleton() {
   return (
     <div className="relative w-full h-dvh overflow-hidden bg-background select-none">
       {/* Ambient Glow in Background */}
-      <div className="pointer-events-none absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] h-[340px] sm:w-[480px] sm:h-[480px] bg-purple-600/10 blur-[140px] rounded-full -z-10" />
+      <div className="pointer-events-none absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] h-[340px] sm:w-[480px] sm:h-[480px] bg-brand-subtle/60 blur-[140px] rounded-full -z-10" />
 
       {/* Top Header & Subheader Filter Tabs Skeleton */}
       <header className="absolute top-0 inset-x-0 z-30 px-4 pt-2.5 pb-1 bg-gradient-to-b from-background/95 via-background/85 to-transparent backdrop-blur-md">
@@ -184,7 +184,7 @@ export function PostDetailSkeleton() {
       </div>
 
       {/* Right Floating Side Action Rail Skeleton (Like, Comment, Loop, Bookmark, Share, More) */}
-      <div className="absolute inset-x-0 bottom-2 sm:inset-x-auto sm:right-4 sm:bottom-6 z-30 flex flex-row sm:flex-col items-center justify-center gap-1.5 sm:gap-2.5 px-3 sm:px-0 select-none shrink-0 rounded-2xl border border-border/50 bg-background/90 py-1.5 shadow-[0_8px_24px_rgba(15,23,42,0.10)] backdrop-blur-xl sm:rounded-none sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 sm:shadow-none sm:backdrop-blur-none">
+      <div className="absolute inset-x-0 bottom-2 sm:inset-x-auto sm:right-4 sm:bottom-6 z-30 flex flex-row sm:flex-col items-center justify-center gap-1.5 sm:gap-2.5 px-3 sm:px-0 select-none shrink-0 rounded-2xl border border-border/50 bg-background/90 py-1.5 shadow-sm backdrop-blur-xl sm:rounded-none sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 sm:shadow-none sm:backdrop-blur-none">
         {/* 1. Like */}
         <div className="flex flex-col items-center gap-1">
           <Skeleton className="size-10 sm:size-12 rounded-full border border-border/40" />
@@ -370,7 +370,7 @@ export function CollegesSkeleton() {
 export function DatingSkeleton() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[75vh] p-4 select-none">
-      <div className="w-full max-w-sm aspect-3/4 rounded-3xl border border-border/40 bg-card p-5 flex flex-col justify-between shadow-md relative overflow-hidden">
+      <div className="w-full max-w-sm aspect-3/4 rounded-3xl bg-surface p-5 flex flex-col justify-between shadow-sm relative overflow-hidden">
         <Skeleton className="absolute inset-0 w-full h-full rounded-3xl" />
         <div className="relative z-10 flex items-center justify-between">
           <Skeleton className="h-6 w-24 rounded-full" />

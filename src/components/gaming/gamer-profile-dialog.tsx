@@ -347,7 +347,7 @@ export function GamerProfileDialog({
                         <button
                           type="button"
                           onClick={() => handleRemoveGame(idx)}
-                          className="size-7 rounded-lg text-muted-foreground hover:text-rose-500 flex items-center justify-center transition"
+                          className="size-7 rounded-lg text-muted-foreground hover:text-danger flex items-center justify-center transition"
                         >
                           <Trash2 className="size-3.5" />
                         </button>

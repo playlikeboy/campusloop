@@ -2,7 +2,8 @@ import { ArrowLeft, ArrowRight, BookOpen, Check, ExternalLink, LineChart, Lightb
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CTABand, MarketingFooter, MarketingHeader } from "@/components/marketing/system";
+import { CTABand } from "@/components/marketing/system";
+import { MarketingShell } from "@/components/shells/marketing-shell";
 import { GUIDES, getGuide, getGuideSlugs, SITE_URL } from "@/lib/guide";
 
 export const dynamicParams = false;
@@ -17,7 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!g) notFound();
   const url = `${SITE_URL}/guide/${g.slug}`;
   return {
-    title: `${g.title}: how to use it and why — CampusLoop Guide`,
+    title: `${g.title} · CampusLoop`,
     description: `${g.summary} ${g.purpose}`.slice(0, 300),
     keywords: g.keywords,
     alternates: { canonical: url },
@@ -88,9 +89,8 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <div className="flex min-h-screen flex-col bg-background text-foreground selection:bg-primary/20">
-        <MarketingHeader />
-        <main className="mx-auto w-full max-w-3xl flex-1 px-4 sm:px-6 pt-24 sm:pt-32 pb-20">
+      <MarketingShell>
+        <main className="mx-auto w-full max-w-3xl flex-1 px-4 sm:px-6 py-12 sm:py-16">
           <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
             <Link href="/guide" className="inline-flex items-center gap-1 hover:text-foreground">
               <ArrowLeft className="size-3.5" aria-hidden /> Guide
@@ -247,8 +247,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
           secondaryHref="/guide"
           secondaryLabel="All features"
         />
-        <MarketingFooter />
-      </div>
+      </MarketingShell>
     </>
   );
 }

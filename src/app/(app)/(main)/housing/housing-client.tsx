@@ -160,7 +160,7 @@ export function HousingClient({ profileId }: Props) {
         {/* Housing Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-600 dark:text-amber-400">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-warning-subtle px-3 py-1 text-xs font-semibold text-warning">
               <Home className="size-3.5" />
               Verified Campus Housing &amp; Flatmates
             </div>
@@ -172,7 +172,7 @@ export function HousingClient({ profileId }: Props) {
             </p>
           </div>
 
-          <Button asChild size="default" className="gap-2 font-bold shadow-sm bg-amber-600 hover:bg-amber-500 text-white">
+          <Button asChild size="default" className="gap-2 font-bold shadow-sm bg-warning hover:bg-warning text-white">
             <Link href="/housing/new">
               <Plus className="size-4" />
               List a Room
@@ -257,7 +257,7 @@ export function HousingClient({ profileId }: Props) {
           <aside className="hidden lg:block space-y-6 rounded-2xl border border-border/40 bg-card p-5">
             <div className="flex items-center justify-between border-b border-border/40 pb-3">
               <div className="flex items-center gap-2">
-                <SlidersHorizontal className="size-4 text-amber-500" />
+                <SlidersHorizontal className="size-4 text-warning" />
                 <h2 className="text-sm font-bold text-foreground">Housing Filters</h2>
               </div>
               {activeFiltersCount > 0 ? (
@@ -280,7 +280,7 @@ export function HousingClient({ profileId }: Props) {
 
             {/* Budget */}
             <div className="space-y-2.5">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              <h3 className="text-xs font-bold text-muted-foreground">
                 Monthly Rent
               </h3>
               <div className="space-y-1.5">
@@ -292,12 +292,12 @@ export function HousingClient({ profileId }: Props) {
                     className={cn(
                       "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium transition text-left",
                       budget === b.id
-                        ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold"
+                        ? "bg-warning-subtle text-warning font-bold"
                         : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                     )}
                   >
                     <span>{b.label}</span>
-                    {budget === b.id ? <CheckCircle2 className="size-3.5 text-amber-500" /> : null}
+                    {budget === b.id ? <CheckCircle2 className="size-3.5 text-warning" /> : null}
                   </button>
                 ))}
               </div>
@@ -305,7 +305,7 @@ export function HousingClient({ profileId }: Props) {
 
             {/* Gender Preference */}
             <div className="border-t border-border/40 pt-4 space-y-2.5">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              <h3 className="text-xs font-bold text-muted-foreground">
                 Gender Preference
               </h3>
               <div className="space-y-1.5">
@@ -317,12 +317,12 @@ export function HousingClient({ profileId }: Props) {
                     className={cn(
                       "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium transition text-left",
                       gender === g.id
-                        ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold"
+                        ? "bg-warning-subtle text-warning font-bold"
                         : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                     )}
                   >
                     <span>{g.label}</span>
-                    {gender === g.id ? <CheckCircle2 className="size-3.5 text-amber-500" /> : null}
+                    {gender === g.id ? <CheckCircle2 className="size-3.5 text-warning" /> : null}
                   </button>
                 ))}
               </div>
@@ -330,7 +330,7 @@ export function HousingClient({ profileId }: Props) {
 
             {/* Room Type / Occupancy */}
             <div className="border-t border-border/40 pt-4 space-y-2.5">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              <h3 className="text-xs font-bold text-muted-foreground">
                 Occupancy / Room
               </h3>
               <div className="space-y-1.5">
@@ -342,12 +342,12 @@ export function HousingClient({ profileId }: Props) {
                     className={cn(
                       "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium transition text-left",
                       occupancy === o.id
-                        ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold"
+                        ? "bg-warning-subtle text-warning font-bold"
                         : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                     )}
                   >
                     <span>{o.label}</span>
-                    {occupancy === o.id ? <CheckCircle2 className="size-3.5 text-amber-500" /> : null}
+                    {occupancy === o.id ? <CheckCircle2 className="size-3.5 text-warning" /> : null}
                   </button>
                 ))}
               </div>
@@ -407,7 +407,7 @@ export function HousingClient({ profileId }: Props) {
                     ? `No listings match "${urlSearch}". Try searching other areas near campus.`
                     : "No rooms match these filters. Try adjusting your budget or gender preference."}
                 </p>
-                <Button asChild size="sm" className="mt-5 font-bold bg-amber-600 hover:bg-amber-500 text-white">
+                <Button asChild size="sm" className="mt-5 font-bold bg-warning hover:bg-warning text-white">
                   <Link href="/housing/new">
                     <Plus className="size-4 mr-1.5" />
                     List a Room / Flat
@@ -418,7 +418,7 @@ export function HousingClient({ profileId }: Props) {
 
             {isValidating && data ? (
               <div className="flex items-center justify-center gap-2 text-xs font-semibold text-muted-foreground">
-                <Loader2 className="size-3.5 animate-spin text-amber-500" />
+                <Loader2 className="size-3.5 animate-spin text-warning" />
                 Updating housing listings...
               </div>
             ) : null}
@@ -448,7 +448,7 @@ export function HousingClient({ profileId }: Props) {
             </div>
 
             <div className="space-y-3">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Budget</h3>
+              <h3 className="text-xs font-bold text-muted-foreground">Budget</h3>
               <div className="grid grid-cols-2 gap-2">
                 {BUDGET_FILTERS.map((b) => (
                   <button
@@ -461,7 +461,7 @@ export function HousingClient({ profileId }: Props) {
                     className={cn(
                       "rounded-xl px-3 py-2 text-xs font-semibold border transition text-center",
                       budget === b.id
-                        ? "bg-amber-600 text-white border-amber-600"
+                        ? "bg-warning text-white border-warning"
                         : "bg-card border-border/60 text-foreground"
                     )}
                   >
@@ -472,7 +472,7 @@ export function HousingClient({ profileId }: Props) {
             </div>
 
             <div className="space-y-3">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Preference</h3>
+              <h3 className="text-xs font-bold text-muted-foreground">Preference</h3>
               <div className="grid grid-cols-2 gap-2">
                 {GENDER_FILTERS.map((g) => (
                   <button
@@ -485,7 +485,7 @@ export function HousingClient({ profileId }: Props) {
                     className={cn(
                       "rounded-xl px-3 py-2 text-xs font-semibold border transition text-center",
                       gender === g.id
-                        ? "bg-amber-600 text-white border-amber-600"
+                        ? "bg-warning text-white border-warning"
                         : "bg-card border-border/60 text-foreground"
                     )}
                   >
@@ -498,7 +498,7 @@ export function HousingClient({ profileId }: Props) {
             <Button
               type="button"
               onClick={() => setMobileFilterOpen(false)}
-              className="w-full font-bold h-11 bg-amber-600 hover:bg-amber-500 text-white"
+              className="w-full font-bold h-11 bg-warning hover:bg-warning text-white"
             >
               Apply Housing Filters
             </Button>

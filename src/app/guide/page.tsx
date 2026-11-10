@@ -2,11 +2,12 @@ import { ArrowRight, Bot, LineChart, ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { GuideHubClient } from "@/components/guide/guide-hub-client";
-import { CTABand, MarketingFooter, MarketingHeader } from "@/components/marketing/system";
+import { CTABand } from "@/components/marketing/system";
+import { MarketingShell } from "@/components/shells/marketing-shell";
 import { GUIDE_CATEGORIES, GUIDES, PRODUCT_OVERVIEW, SITE_URL } from "@/lib/guide";
 
 export const metadata: Metadata = {
-  title: "CampusLoop Product Guide — Every Feature Explained",
+  title: "Guide · CampusLoop",
   description:
     "How to use every CampusLoop feature, why it exists and who it is for: feed, confessions, chat, Campus Match, communities, events, Academic Vault, marketplace, payments, privacy and more.",
   alternates: { canonical: `${SITE_URL}/guide` },
@@ -48,9 +49,8 @@ export default function GuideHubPage() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <div className="flex min-h-screen flex-col bg-background text-foreground selection:bg-primary/20">
-        <MarketingHeader />
-        <main className="mx-auto w-full max-w-5xl flex-1 px-4 sm:px-6 pt-24 sm:pt-32 pb-20">
+      <MarketingShell>
+        <main className="mx-auto w-full max-w-5xl flex-1 px-4 sm:px-6 py-12 sm:py-16">
           <header className="max-w-3xl">
             <p className="text-sm font-semibold text-primary">Product Guide</p>
             <h1 className="mt-2 text-3xl font-black tracking-tight text-foreground sm:text-5xl sm:leading-[1.08]">
@@ -119,8 +119,7 @@ export default function GuideHubPage() {
           secondaryHref="/colleges"
           secondaryLabel="Find your college"
         />
-        <MarketingFooter />
-      </div>
+      </MarketingShell>
     </>
   );
 }

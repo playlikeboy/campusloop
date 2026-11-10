@@ -15,13 +15,14 @@
 		"db:push": "drizzle-kit push",
 		"db:studio": "drizzle-kit studio",
 		"db:seed": "bun run scripts/seed-colleges.ts",
-		"db:unlist-seeds": "bun run scripts/unlist-seeded-posts.ts",
 		"deploy": "opennextjs-cloudflare build && node scripts/deploy.mjs deploy",
 		"upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
 		"preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
 		"cf-typegen": "wrangler types --env-interface CloudflareEnv ./cloudflare-env.d.ts",
 		"check": "biome check --write ./src",
-		"format": "biome format --write ./src"
+		"format": "biome format --write ./src",
+		"check:design": "bun run scripts/check-design.ts",
+		"check:design:strict": "bun run scripts/check-design.ts --strict"
 	},
 	"dependencies": {
 		"@animateicons/react": "^0.4.3",
@@ -46,6 +47,7 @@
 		"drizzle-orm": "^0.45.2",
 		"groq": "^6.16.0",
 		"hls.js": "^1.7.2",
+		"jose": "^6.2.13",
 		"lucide-react": "^1.22.0",
 		"motion": "^12.42.2",
 		"next": "16.2.6",

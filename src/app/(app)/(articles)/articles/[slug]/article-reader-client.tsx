@@ -21,7 +21,7 @@ import { ArticleToc } from "@/components/articles/article-toc";
 import { ReadingProgress } from "@/components/articles/reading-progress";
 import { MarkdownContent } from "@/components/common/markdown-content";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ARTICLES_CANONICAL_HOST, getCategoryMeta } from "@/constants/articles";
+import { ARTICLE_TONE_CLASSES, ARTICLES_CANONICAL_HOST, getCategoryMeta } from "@/constants/articles";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
@@ -238,8 +238,8 @@ export function ArticleReaderClient({
           <div className="flex items-center gap-2">
             <span
               className={cn(
-                "px-2.5 py-0.5 rounded-md text-[11px] font-bold uppercase tracking-wider border",
-                catMeta.colorClass
+                "px-2.5 py-0.5 rounded-sm text-xs font-semibold border",
+                ARTICLE_TONE_CLASSES[catMeta.tone]
               )}
             >
               {catMeta.label}
@@ -341,7 +341,7 @@ export function ArticleReaderClient({
                 className="p-2 rounded-full border border-border/50 bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                 title="Share article"
               >
-                {copied ? <Check className="size-4 text-emerald-500" /> : <Share2 className="size-4" />}
+                {copied ? <Check className="size-4 text-success" /> : <Share2 className="size-4" />}
               </button>
             </div>
           </div>
@@ -392,7 +392,7 @@ export function ArticleReaderClient({
               type="button"
               onClick={handleVote}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer",
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-ui cursor-pointer",
                 userVote === 1
                   ? "bg-primary text-primary-foreground shadow-xs"
                   : "bg-muted/50 hover:bg-muted text-foreground border border-border/40"
@@ -416,7 +416,7 @@ export function ArticleReaderClient({
               type="button"
               onClick={handleToggleSave}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer",
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-ui cursor-pointer",
                 isSaved
                   ? "border-primary/40 bg-primary/10 text-primary"
                   : "border-border/40 bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground"
@@ -429,9 +429,9 @@ export function ArticleReaderClient({
             <button
               type="button"
               onClick={handleShare}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/40 bg-muted/40 hover:bg-muted text-xs font-semibold text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/40 bg-muted/40 hover:bg-muted text-xs font-semibold text-muted-foreground hover:text-foreground transition-ui cursor-pointer"
             >
-              {copied ? <Check className="size-3.5 text-emerald-500" /> : <Share2 className="size-3.5" />}
+              {copied ? <Check className="size-3.5 text-success" /> : <Share2 className="size-3.5" />}
               <span>{copied ? "Copied" : "Share"}</span>
             </button>
           </div>

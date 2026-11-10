@@ -42,7 +42,9 @@ export function MerchantQrClient() {
         value: targetUrl,
         size: 1080,
         logoUrl: "/logo.png",
-        darkColor: "#0f172a",
+        // ds-allow: QR modules are rasterised to PNG; the scanner needs pure black on white, not theme tokens
+        darkColor: "#000000",
+        // ds-allow: see above
         lightColor: "#ffffff",
       });
 
@@ -93,7 +95,7 @@ export function MerchantQrClient() {
       `}</style>
 
       <div className="no-print">
-        <h1 className="text-xl font-black text-foreground tracking-tight flex items-center gap-2">
+        <h1 className="text-xl font-bold text-foreground tracking-tight flex items-center gap-2">
           <QrCode className="size-5 text-primary" />
           <span>Offline QR Codes &amp; Table Posters</span>
           <Zap className="size-4 text-primary animate-pulse" />
@@ -107,19 +109,19 @@ export function MerchantQrClient() {
       {/* ─── QR Code Poster Card ─── */}
       <div
         id="printable-qr-poster"
-        className="p-8 rounded-3xl bg-card border border-border flex flex-col items-center text-center space-y-5 shadow-xl max-w-sm mx-auto transition-all"
+        className="p-8 rounded-3xl bg-card border border-border flex flex-col items-center text-center space-y-5 shadow-xl max-w-sm mx-auto transition-colors"
       >
         <div className="space-y-1.5">
           <div className="flex items-center justify-center gap-2 pb-0.5">
             <img src="/logo.png" alt="CampusLoop" className="size-5 object-contain" />
-            <span className="text-xs font-black tracking-tight text-foreground">
+            <span className="text-xs font-bold tracking-tight text-foreground">
               Campus<span className="text-primary">Loop</span>
             </span>
           </div>
-          <span className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/25 inline-block">
+          <span className="text-[10px] font-bold text-success bg-success-subtle px-3 py-1 rounded-full border border-success/25 inline-block">
             Verified Campus Partner
           </span>
-          <h2 className="text-xl font-black text-foreground pt-1">{merchant?.name || "Campus Store"}</h2>
+          <h2 className="text-xl font-bold text-foreground pt-1">{merchant?.name || "Campus Store"}</h2>
           <p className="text-xs text-muted-foreground font-medium">
             Scan with camera to view live menu &amp; order
           </p>
@@ -132,13 +134,14 @@ export function MerchantQrClient() {
             size={220}
             logoUrl="/logo.png"
             bordered={false}
-            darkColor="#0f172a"
+            // ds-allow: QR modules must stay pure black for scanners
+            darkColor="#000000"
           />
         </div>
 
         <div className="space-y-1 text-center">
-          <p className="text-xs font-black text-foreground inline-flex items-center gap-1">
-            <Zap className="size-3 text-amber-500 fill-amber-500" />
+          <p className="text-xs font-bold text-foreground inline-flex items-center gap-1">
+            <Zap className="size-3 text-warning fill-warning" />
             <span>Quick Order · Instant Campus Delivery &amp; Pickup</span>
           </p>
           <p className="text-[10px] text-muted-foreground font-medium">
@@ -152,7 +155,7 @@ export function MerchantQrClient() {
             <button
               type="button"
               onClick={handlePrint}
-              className="flex-1 h-11 rounded-2xl bg-foreground text-background font-black text-xs flex items-center justify-center gap-2 cursor-pointer hover:opacity-90 transition-opacity shadow-sm active:scale-95"
+              className="flex-1 h-11 rounded-2xl bg-foreground text-background font-bold text-xs flex items-center justify-center gap-2 cursor-pointer hover:opacity-90 transition-opacity shadow-sm active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <Printer className="size-4" />
               <span>Print Poster</span>
@@ -162,7 +165,7 @@ export function MerchantQrClient() {
               type="button"
               disabled={isDownloading}
               onClick={handleDownloadQr}
-              className="flex-1 h-11 rounded-2xl bg-primary/10 text-primary border border-primary/20 font-black text-xs flex items-center justify-center gap-2 cursor-pointer hover:bg-primary/20 transition-all active:scale-95 disabled:opacity-50"
+              className="flex-1 h-11 rounded-2xl bg-primary/10 text-primary border border-primary/20 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer hover:bg-primary/20 transition-colors active:scale-95 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <Download className="size-4" />
               <span>Download PNG</span>
@@ -172,7 +175,7 @@ export function MerchantQrClient() {
           <button
             type="button"
             onClick={handleCopyLink}
-            className="w-full h-10 rounded-xl bg-muted hover:bg-muted/80 text-foreground font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+            className="w-full h-10 rounded-xl bg-muted hover:bg-muted/80 text-foreground font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <Copy className="size-3.5" />
             <span>Copy Store Link</span>

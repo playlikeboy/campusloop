@@ -1,6 +1,6 @@
 "use client";
 
-import { Users } from "lucide-react";
+import { Check, Users } from "lucide-react";
 import Link from "next/link";
 import { FollowButton } from "@/components/profile/follow-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -51,15 +51,15 @@ export function FollowListRow({
               {user.displayName}
             </span>
             {user.points >= 150 && (
-              <span className="text-brand text-xs font-bold" title="Verified Campus Star">
-                ✓
+              <span className="text-brand-text" title="Verified Campus Star" aria-label="Verified Campus Star">
+                <Check className="size-3.5" aria-hidden="true" />
               </span>
             )}
           </div>
           <div className="flex items-center gap-1.5">
             <span className="text-xs font-semibold text-muted-foreground">@{user.username}</span>
             {user.isFriendOfViewer && !user.isViewer && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+              <span className="inline-flex items-center gap-1 rounded-full bg-success-subtle px-1.5 py-0.5 text-xs font-bold text-success">
                 <Users className="size-2.5" /> Friends
               </span>
             )}
@@ -82,7 +82,7 @@ export function FollowListRow({
         ) : (
           <Link
             href={`/join?mode=signup&returnUrl=/@${user.username}`}
-            className="mt-0.5 shrink-0 inline-flex items-center justify-center rounded-full bg-primary h-8 px-3.5 text-[11px] font-bold text-primary-foreground shadow-2xs hover:bg-primary/90 transition-all cursor-pointer"
+            className="mt-0.5 shrink-0 inline-flex items-center justify-center rounded-full bg-primary h-8 px-3.5 text-[11px] font-bold text-primary-foreground shadow-2xs hover:bg-primary/90 transition-colors cursor-pointer"
           >
             Follow
           </Link>

@@ -19,16 +19,16 @@ export async function generateMetadata({ params }: AttendeesPageProps): Promise<
     });
 
     if (!event) {
-      return { title: "Attendee Roster | CampusLoop" };
+      return { title: "Attendee Roster" };
     }
 
     return {
-      title: `Attendees: ${event.title} | CampusLoop Organizer`,
+      title: `Attendees: ${event.title}`,
       description: `View confirmed registrations and export CSV for ${event.title}.`,
       robots: { index: false, follow: false },
     };
   } catch {
-    return { title: "Attendee Roster | CampusLoop" };
+    return { title: "Attendee Roster" };
   }
 }
 

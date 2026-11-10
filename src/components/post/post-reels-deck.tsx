@@ -426,7 +426,7 @@ export function PostReelsDeck({ initialItems, currentUserId, campusName }: PostR
       className="relative w-full h-full min-h-0 flex flex-col overflow-hidden bg-background"
     >
       {/* ─── Ambient Glow in Background ─── */}
-      <div className="pointer-events-none absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] h-[340px] sm:w-[480px] sm:h-[480px] bg-purple-600/10 blur-[140px] rounded-full -z-10" />
+      <div className="pointer-events-none absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] h-[340px] sm:w-[480px] sm:h-[480px] bg-brand/10 blur-[140px] rounded-full -z-10" />
 
       {/* ─── Top Header & Subheader Tabs ─── */}
       <header className="shrink-0 z-30 px-4 pt-2 pb-1 bg-gradient-to-b from-background/95 via-background/85 to-transparent backdrop-blur-md">

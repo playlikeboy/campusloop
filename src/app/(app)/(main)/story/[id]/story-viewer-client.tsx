@@ -232,7 +232,7 @@ export function StoryViewerClient({
       }
     }
     navigator.clipboard.writeText(url);
-    toast.success("Story link copied to clipboard! 🚀");
+    toast.success("Story link copied to clipboard!");
   }
 
   async function handleSendReply(e: React.FormEvent) {
@@ -256,7 +256,7 @@ export function StoryViewerClient({
         throw new Error("Failed to send message");
       }
 
-      toast.success(`Reply sent to @${story.author.username}! 💬`);
+      toast.success(`Reply sent to @${story.author.username}!`);
       setReplyText("");
       setIsPaused(false);
     } catch {
@@ -335,14 +335,14 @@ export function StoryViewerClient({
     }
   }
 
-  const bgClass = story.backgroundColor || "bg-linear-to-tr from-stone-900 to-neutral-900";
+  const bgClass = story.backgroundColor || "bg-black";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-95 md:bg-opacity-85 backdrop-blur-md select-none p-0 md:p-4 touch-manipulation">
+    <div className="dark fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-95 md:bg-opacity-85 backdrop-blur-md select-none p-0 md:p-4 touch-manipulation">
       {/* Prev Arrow Control (Desktop & Tablet) */}
       <button
         onClick={navigatePrev}
-        className="hidden md:flex h-12 w-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white items-center justify-center cursor-pointer transition-all mr-4 shadow-lg active:scale-90"
+        className="hidden md:flex h-12 w-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white items-center justify-center cursor-pointer transition-transform mr-4 shadow-lg active:scale-90"
         aria-label="Previous story"
       >
         <ChevronLeft className="size-6" />
@@ -376,7 +376,7 @@ export function StoryViewerClient({
         {/* Double-Click Animated Floating Heart Burst */}
         {showHeartBurst && (
           <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none animate-in zoom-in-75 fade-in duration-200">
-            <Heart className="size-28 text-rose-500 fill-rose-500 drop-shadow-[0_0_24px_rgba(244,63,94,0.8)] scale-110 transition-transform" />
+            <Heart className="size-28 text-danger fill-danger scale-110 transition-transform" />
           </div>
         )}
 
@@ -385,7 +385,7 @@ export function StoryViewerClient({
           {/* Segmented Progress Bar */}
           <div className="w-full h-1 bg-white/25 rounded-full overflow-hidden backdrop-blur-xs">
             <div
-              className="h-full bg-white transition-all duration-75 ease-linear rounded-full"
+              className="h-full bg-white transition-colors duration-75 ease-linear rounded-full"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -398,7 +398,7 @@ export function StoryViewerClient({
             >
               <Avatar className="h-9 w-9 border-2 border-white/40 shadow-md">
                 <AvatarImage src={story.author.avatarUrl || ""} />
-                <AvatarFallback className="text-xs font-bold bg-white text-primary">
+                <AvatarFallback className="text-xs font-bold bg-surface text-primary">
                   {story.author.displayName[0]}
                 </AvatarFallback>
               </Avatar>
@@ -501,16 +501,16 @@ export function StoryViewerClient({
           <button
             onClick={handleLike}
             className={cn(
-              "h-10 px-3 rounded-full flex items-center gap-1.5 backdrop-blur-md transition-all active:scale-90 cursor-pointer",
+              "h-10 px-3 rounded-full flex items-center gap-1.5 backdrop-blur-md transition-transform active:scale-90 cursor-pointer",
               liked
-                ? "bg-rose-500/30 border border-rose-500/50 text-rose-400"
+                ? "bg-danger/30 border border-danger/50 text-danger"
                 : "bg-white/15 border border-white/20 text-white hover:bg-white/25"
             )}
           >
             <Heart
               className={cn(
                 "size-4.5 transition-transform",
-                liked && "fill-rose-500 text-rose-500 scale-110"
+                liked && "fill-danger text-danger scale-110"
               )}
             />
             {likesCount > 0 && <span className="text-xs font-bold">{likesCount}</span>}
@@ -530,7 +530,7 @@ export function StoryViewerClient({
       {/* Next Arrow Control (Desktop & Tablet) */}
       <button
         onClick={navigateNext}
-        className="hidden md:flex h-12 w-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white items-center justify-center cursor-pointer transition-all ml-4 shadow-lg active:scale-90"
+        className="hidden md:flex h-12 w-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white items-center justify-center cursor-pointer transition-transform ml-4 shadow-lg active:scale-90"
         aria-label="Next story"
       >
         <ChevronRight className="size-6" />
@@ -539,10 +539,10 @@ export function StoryViewerClient({
       {/* ─── Highlights Management Modal ─── */}
       {showHighlightModal && (
         <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
-          <div className="bg-neutral-900 border border-neutral-800 w-full max-w-sm rounded-3xl p-5 text-white shadow-2xl space-y-4">
+          <div className="bg-surface border border-border w-full max-w-sm rounded-3xl p-5 text-fg space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold flex items-center gap-1.5">
-                <Bookmark className="size-4 text-amber-400" />
+                <Bookmark className="size-4 text-brand-text" />
                 <span>Story Highlights</span>
               </h3>
               <button
@@ -550,7 +550,7 @@ export function StoryViewerClient({
                   setShowHighlightModal(false);
                   setIsPaused(false);
                 }}
-                className="h-7 w-7 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-400 hover:text-white"
+                className="h-7 w-7 rounded-full bg-surface-muted hover:bg-surface-muted flex items-center justify-center text-fg-subtle hover:text-fg"
               >
                 <X className="size-4" />
               </button>
@@ -559,7 +559,7 @@ export function StoryViewerClient({
             {/* Existing Highlights */}
             {isLoadingHighlights ? (
               <div className="py-6 flex justify-center">
-                <Loader2 className="size-6 animate-spin text-neutral-500" />
+                <Loader2 className="size-6 animate-spin text-fg-muted" />
               </div>
             ) : highlights.length > 0 ? (
               <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
@@ -568,33 +568,33 @@ export function StoryViewerClient({
                     key={h.id}
                     onClick={() => handleAddToExistingHighlight(h.id)}
                     disabled={isSavingHighlight}
-                    className="w-full flex items-center justify-between p-2.5 rounded-xl bg-neutral-800/60 hover:bg-neutral-800 border border-neutral-700/50 text-left transition-colors cursor-pointer"
+                    className="w-full flex items-center justify-between p-2.5 rounded-xl bg-surface-muted/60 hover:bg-surface-muted border border-border/50 text-left transition-colors cursor-pointer"
                   >
                     <span className="text-xs font-semibold">{h.title}</span>
-                    <Plus className="size-3.5 text-neutral-400" />
+                    <Plus className="size-3.5 text-fg-subtle" />
                   </button>
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-neutral-400 text-center py-2">
+              <p className="text-xs text-fg-subtle text-center py-2">
                 No highlights created yet. Make your first one below!
               </p>
             )}
 
             {/* Create New Highlight Form */}
-            <form onSubmit={handleCreateNewHighlight} className="space-y-2 pt-2 border-t border-neutral-800">
+            <form onSubmit={handleCreateNewHighlight} className="space-y-2 pt-2 border-t border-border">
               <input
                 type="text"
                 placeholder="Highlight title (e.g. Campus Fest 2026)..."
                 value={newHighlightTitle}
                 onChange={(e) => setNewHighlightTitle(e.target.value)}
                 maxLength={30}
-                className="w-full h-9 rounded-xl bg-neutral-800 border border-neutral-700 px-3 text-xs text-white placeholder:text-neutral-500 focus:outline-none focus:border-amber-400"
+                className="w-full h-9 rounded-xl bg-surface-muted border border-border px-3 text-xs text-white placeholder:text-fg-muted focus:outline-none focus:border-brand"
               />
               <button
                 type="submit"
                 disabled={!newHighlightTitle.trim() || isSavingHighlight}
-                className="w-full h-9 rounded-xl bg-amber-400 hover:bg-amber-300 text-black text-xs font-bold flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer"
+                className="w-full h-9 rounded-xl bg-brand hover:bg-brand-hover text-brand-fg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer"
               >
                 {isSavingHighlight ? (
                   <Loader2 className="size-3.5 animate-spin" />

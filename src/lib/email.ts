@@ -1,6 +1,6 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
-export const CLOUDFLARE_EMAIL_DOMAIN = process.env.CLOUDFLARE_EMAIL_DOMAIN || "mail.campsy.app";
+export const CLOUDFLARE_EMAIL_DOMAIN = process.env.CLOUDFLARE_EMAIL_DOMAIN || "mail.campusloop.space";
 
 export interface EmailRecipient {
   email: string;
@@ -12,7 +12,7 @@ export interface SendEmailOptions {
   subject: string;
   text?: string;
   html?: string;
-  from?: string; // Any address on mail.campsy.app (e.g. welcome@mail.campsy.app, notifications@mail.campsy.app)
+  from?: string; // Any address on mail.campusloop.space (e.g. welcome@mail.campusloop.space, notifications@mail.campusloop.space)
   fromName?: string;
   replyTo?: string;
 }
@@ -26,7 +26,7 @@ export interface SendEmailResult {
 }
 
 /**
- * Normalizes any sender into a valid `@mail.campsy.app` email address.
+ * Normalizes any sender into a valid `@mail.campusloop.space` email address.
  * Supports prefixes like "welcome", "notifications", "support", or full addresses.
  */
 export function normalizeSenderAddress(from?: string): string {
@@ -35,11 +35,11 @@ export function normalizeSenderAddress(from?: string): string {
   }
   const clean = from.trim().toLowerCase();
   if (clean.includes("@")) {
-    // If it's already using mail.campsy.app or any domain, return or map
+    // If it's already using mail.campusloop.space or any domain, return or map
     if (clean.endsWith(`@${CLOUDFLARE_EMAIL_DOMAIN}`)) {
       return clean;
     }
-    // If it was using legacy domain, switch to mail.campsy.app
+    // If it was using legacy domain, switch to mail.campusloop.space
     const prefix = clean.split("@")[0];
     return `${prefix}@${CLOUDFLARE_EMAIL_DOMAIN}`;
   }
@@ -70,7 +70,7 @@ function normalizeRecipients(
  * https://api.cloudflare.com/client/v4/accounts/${accountId}/email/sending/send
  * Authenticated via CLOUDFLARE_API_TOKEN_EMAIL_SENDING.
  *
- * Sender Domain: mail.campsy.app (e.g. welcome@mail.campsy.app, notifications@mail.campsy.app)
+ * Sender Domain: mail.campusloop.space (e.g. welcome@mail.campusloop.space, notifications@mail.campusloop.space)
  */
 export async function sendEmail(options: SendEmailOptions): Promise<SendEmailResult> {
   const recipients = normalizeRecipients(options.to);

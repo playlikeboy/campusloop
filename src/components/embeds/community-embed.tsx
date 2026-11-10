@@ -68,13 +68,13 @@ export function CommunityEmbed({ slugOrId }: CommunityEmbedProps) {
 
   if (isLoading && !community) {
     return (
-      <div className="mt-3.5 p-4 rounded-3xl border border-purple-500/20 bg-[#12111d]/60 animate-pulse space-y-3">
+      <div className="mt-3.5 p-4 rounded-3xl border border-brand-subtle-border/20 bg-surface-muted/60 animate-pulse space-y-3">
         <div className="flex items-center gap-3">
-          <div className="size-14 rounded-2xl bg-purple-950/40" />
+          <div className="size-14 rounded-2xl bg-brand-subtle/40" />
           <div className="space-y-2 flex-1">
-            <div className="h-3 bg-purple-900/40 rounded w-20" />
-            <div className="h-4 bg-purple-900/50 rounded w-36" />
-            <div className="h-3 bg-purple-900/30 rounded w-48" />
+            <div className="h-3 bg-brand-subtle/40 rounded w-20" />
+            <div className="h-4 bg-brand-subtle/50 rounded w-36" />
+            <div className="h-3 bg-brand-subtle/30 rounded w-48" />
           </div>
         </div>
       </div>
@@ -123,7 +123,7 @@ export function CommunityEmbed({ slugOrId }: CommunityEmbedProps) {
   return (
     <div
       onClick={handleCardClick}
-      className="mt-3.5 block overflow-hidden rounded-3xl border border-border/60 bg-card p-4 sm:p-5 shadow-md space-y-4 select-none cursor-pointer group/comm hover:border-primary/40 hover:shadow-lg transition-all no-card-nav"
+      className="mt-3.5 block overflow-hidden rounded-3xl border border-border/60 bg-card p-4 sm:p-5 shadow-md space-y-4 select-none cursor-pointer group/comm hover:border-primary/40 hover:shadow-lg transition-colors no-card-nav"
       data-no-nav="true"
     >
       {/* Top Row: Community Icon, Badge, Share, Title & Description */}
@@ -145,7 +145,7 @@ export function CommunityEmbed({ slugOrId }: CommunityEmbedProps) {
         {/* Info Column */}
         <div className="flex-1 min-w-0 space-y-1">
           <div className="flex items-center justify-between gap-2">
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-primary/10 text-primary border border-primary/20">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20">
               Community
             </span>
             <button

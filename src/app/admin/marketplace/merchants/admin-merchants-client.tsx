@@ -40,8 +40,8 @@ export function AdminMerchantsClient() {
       {/* ─── Top Header ─── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-4">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-foreground flex items-center gap-2">
-            <Store className="size-6 text-emerald-500" />
+          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+            <Store className="size-6 text-success" />
             <span>Merchants &amp; Partner Directory</span>
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
@@ -55,7 +55,7 @@ export function AdminMerchantsClient() {
             sounds.tap();
             haptics.light();
           }}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-foreground text-background font-black text-xs hover:opacity-90 transition-opacity shadow-xs w-fit"
+          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-foreground text-background font-bold text-xs hover:opacity-90 transition-opacity shadow-xs w-fit"
         >
           <Plus className="size-3.5 stroke-3" />
           <span>Onboard New Merchant</span>
@@ -93,7 +93,7 @@ export function AdminMerchantsClient() {
       {/* ─── Merchants Table ─── */}
       <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-xs">
         <div className="p-4 border-b border-border flex items-center justify-between">
-          <h2 className="text-sm font-black text-foreground">Verified Merchants</h2>
+          <h2 className="text-sm font-bold text-foreground">Verified Merchants</h2>
           <span className="text-xs text-muted-foreground font-semibold">
             {filteredMerchants.length} stores active
           </span>
@@ -107,7 +107,7 @@ export function AdminMerchantsClient() {
         ) : filteredMerchants.length > 0 ? (
           <div className="divide-y divide-border overflow-x-auto">
             <table className="w-full min-w-[800px] text-left text-xs">
-              <thead className="bg-muted/40 text-muted-foreground font-bold uppercase tracking-wider text-[10px]">
+              <thead className="bg-muted/40 text-muted-foreground font-bold text-[10px]">
                 <tr>
                   <th className="p-3">Store Name</th>
                   <th className="p-3">Campus Hub</th>
@@ -125,7 +125,7 @@ export function AdminMerchantsClient() {
                   const user = m.loginUsername || m.slug;
                   return (
                     <tr key={m.id} className="hover:bg-muted/20 transition-colors">
-                      <td className="p-3 font-black text-foreground">
+                      <td className="p-3 font-bold text-foreground">
                         <Link
                           href={`/admin/marketplace/merchants/${m.id}`}
                           className="flex items-center gap-2.5 group hover:underline"
@@ -142,7 +142,7 @@ export function AdminMerchantsClient() {
                       <td className="p-3 text-muted-foreground font-medium">
                         {m.institution?.name?.split(",")[0] || "BIT Mesra"}
                       </td>
-                      <td className="p-3 font-bold uppercase text-[10px] text-primary">{m.categorySlug}</td>
+                      <td className="p-3 font-bold text-[10px] text-primary">{m.categorySlug}</td>
                       <td className="p-3">
                         <button
                           type="button"
@@ -161,14 +161,14 @@ export function AdminMerchantsClient() {
                         </button>
                       </td>
                       <td className="p-3 text-muted-foreground">{m.phone || "—"}</td>
-                      <td className="p-3 font-bold text-amber-500">
+                      <td className="p-3 font-bold text-warning">
                         <span className="inline-flex items-center gap-0.5">
-                          <Star className="size-3 fill-amber-400 text-amber-400" />
+                          <Star className="size-3 fill-warning text-warning" />
                           {m.rating}
                         </span>
                       </td>
                       <td className="p-3">
-                        <span className="px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-500 font-bold text-[10px]">
+                        <span className="px-2 py-0.5 rounded-md bg-success-subtle text-success font-bold text-[10px]">
                           {m.status}
                         </span>
                       </td>

@@ -141,7 +141,7 @@ export function MerchantNewBikeClient() {
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploadingImage}
-                className="size-24 rounded-2xl border-2 border-dashed border-border hover:border-foreground/40 bg-muted/20 flex flex-col items-center justify-center text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+                className="size-24 rounded-2xl border-2 border-dashed border-border hover:border-foreground/40 bg-muted/20 flex flex-col items-center justify-center text-muted-foreground hover:text-foreground transition-ui cursor-pointer"
               >
                 {isUploadingImage ? (
                   <Loader2 className="size-5 animate-spin" />
@@ -291,7 +291,7 @@ export function MerchantNewBikeClient() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full h-12 rounded-2xl bg-foreground text-background font-black text-sm hover:opacity-90 active:scale-98 transition-all flex items-center justify-center gap-2 shadow-lg cursor-pointer disabled:opacity-50"
+            className="w-full h-12 rounded-2xl bg-foreground text-background font-black text-sm hover:opacity-90 active:scale-98 transition-ui flex items-center justify-center gap-2 shadow-lg cursor-pointer disabled:opacity-50"
           >
             {isSubmitting ? (
               <>

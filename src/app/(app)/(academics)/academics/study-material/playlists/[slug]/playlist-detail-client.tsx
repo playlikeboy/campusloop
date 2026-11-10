@@ -19,6 +19,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AcademicPdfViewer } from "@/components/academics/academic-pdf-viewer";
+import { playlistCoverClass } from "@/components/academics/playlist-cover";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
@@ -179,7 +180,7 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
       if (data.isStarred) {
         sounds.pop();
         haptics.success();
-        toast.success("Saved to your study stacks! ⭐️");
+        toast.success("Saved to your study stacks!");
       }
     } catch {
       setPlaylist((p) => (p ? { ...p, isStarred: prevStarred, starsCount: prevCount } : null));
@@ -209,7 +210,7 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
   if (isLoading) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center space-y-3">
-        <Loader2 className="size-8 animate-spin text-indigo-400" />
+        <Loader2 className="size-8 animate-spin text-brand-text" />
         <p className="text-xs font-bold text-muted-foreground">Loading study playlist session...</p>
       </div>
     );
@@ -225,7 +226,7 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
         </p>
         <Link
           href="/academics/study-material"
-          className="px-5 py-2.5 rounded-full text-xs font-black bg-indigo-600 text-white hover:bg-indigo-500 shadow-md cursor-pointer transition-all"
+          className="px-5 py-2.5 rounded-full text-xs font-black bg-brand text-brand-fg hover:bg-brand-hover shadow-xs cursor-pointer transition-colors"
         >
           Back to Academics
         </Link>
@@ -240,14 +241,14 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
       {/* ─── Top Navigation & Meta Banner ─── */}
       <div
         className={cn(
-          "w-full rounded-2xl p-4 sm:p-5 bg-linear-to-r relative overflow-hidden shadow-sm space-y-3 text-white",
-          playlist.coverGradient || "from-neutral-900 via-neutral-800 to-neutral-900 border border-border/40"
+          "w-full rounded-xl p-4 sm:p-5 relative overflow-hidden space-y-3",
+          playlistCoverClass(playlist.coverGradient)
         )}
       >
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <Link
             href="/academics/study-material"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-black/40 hover:bg-black/60 backdrop-blur-md border border-white/15 transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-black/30 hover:bg-black/50 border border-white/15 transition-colors cursor-pointer"
           >
             <ArrowLeft className="size-3.5" />
             <span>Back to Academics</span>
@@ -259,13 +260,13 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
               onClick={handleStar}
               disabled={isStarring}
               className={cn(
-                "flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black transition-all backdrop-blur-md shadow-xs cursor-pointer active:scale-95",
+                "flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer active:scale-95",
                 playlist.isStarred
-                  ? "bg-amber-400 text-amber-950 font-black shadow-amber-400/20"
-                  : "bg-black/40 text-white hover:bg-black/60 border border-white/20"
+                  ? "bg-bg text-fg"
+                  : "bg-black/30 hover:bg-black/50 border border-white/20"
               )}
             >
-              <Star className={cn("size-3.5", playlist.isStarred && "fill-amber-950")} />
+              <Star className={cn("size-3.5", playlist.isStarred && "fill-current")} />
               <span>{playlist.isStarred ? "Saved Stack" : "Save Stack"}</span>
               <span className="text-[11px] opacity-90 tabular-nums">({playlist.starsCount})</span>
             </button>
@@ -273,7 +274,7 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
             <button
               type="button"
               onClick={handleShareWhatsApp}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-black/40 hover:bg-black/60 text-white border border-white/15 transition-colors cursor-pointer"
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-bold bg-black/30 hover:bg-black/50 border border-white/15 transition-colors cursor-pointer"
               title="Share to Class WhatsApp Group"
             >
               <Share2 className="size-3.5" />
@@ -283,8 +284,9 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
             <button
               type="button"
               onClick={handleCopyLink}
-              className="p-1.5 rounded-full bg-black/40 hover:bg-black/60 border border-white/20 transition-colors cursor-pointer"
+              className="p-1.5 rounded-full bg-black/30 hover:bg-black/50 border border-white/20 transition-colors cursor-pointer"
               title="Copy link"
+              aria-label="Copy link"
             >
               <ExternalLink className="size-3.5" />
             </button>
@@ -294,19 +296,19 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
         {/* Stack Title & Info */}
         <div className="space-y-1.5">
           <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="px-2 py-0.5 rounded-md bg-black/40 backdrop-blur-md text-[10px] font-bold uppercase tracking-wide border border-white/10">
+            <span className="px-2 py-0.5 rounded-md bg-black/30 text-[10px] font-bold border border-white/10">
               {playlist.category}
             </span>
-            <span className="px-2 py-0.5 rounded-md bg-black/30 backdrop-blur-xs text-[10px] font-bold">
+            <span className="px-2 py-0.5 rounded-md bg-black/30 text-[10px] font-bold">
               {playlist.branch}
             </span>
             {playlist.semester && (
-              <span className="px-2 py-0.5 rounded-md bg-black/30 backdrop-blur-xs text-[10px] font-bold">
+              <span className="px-2 py-0.5 rounded-md bg-black/30 text-[10px] font-bold">
                 Semester {playlist.semester}
               </span>
             )}
             {playlist.institution?.name && (
-              <span className="px-2 py-0.5 rounded-md bg-black/30 backdrop-blur-xs text-[10px] font-bold">
+              <span className="px-2 py-0.5 rounded-md bg-black/30 text-[10px] font-bold">
                 {playlist.institution.shortName || playlist.institution.name.split(",")[0]}
               </span>
             )}
@@ -317,14 +319,14 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
           </h1>
 
           {playlist.description && (
-            <p className="text-xs sm:text-sm text-white/85 leading-relaxed max-w-2xl pt-0.5 line-clamp-3">
+            <p className="text-xs sm:text-sm opacity-85 leading-relaxed max-w-2xl pt-0.5 line-clamp-3">
               {playlist.description}
             </p>
           )}
         </div>
 
         {/* Curator Pill */}
-        <div className="pt-2 border-t border-white/15 flex items-center justify-between text-[11px] text-white/80">
+        <div className="pt-2 border-t border-white/15 flex items-center justify-between text-[11px] opacity-80">
           <div className="flex items-center gap-2">
             <span className="font-medium opacity-70">By</span>
             <Link
@@ -365,15 +367,15 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
           {/* Left Column: Playlist Queue (4 cols on lg) */}
           <div
             className={cn(
-              "lg:col-span-4 rounded-2xl border border-border/50 bg-card p-3 space-y-2.5 transition-all",
+              "lg:col-span-4 rounded-xl border border-border bg-surface p-3 space-y-2.5 transition-colors",
               !isQueueOpen && "lg:col-span-1"
             )}
           >
             <div className="flex items-center justify-between px-1">
               <div className="flex items-center gap-2">
-                <ListOrdered className="size-4 text-indigo-400" />
+                <ListOrdered className="size-4 text-brand-text" />
                 <h2 className="text-xs font-bold tracking-tight text-foreground">{items.length} materials</h2>
-                <span className="px-1.5 py-0.5 rounded-md bg-indigo-500/15 text-indigo-400 text-[10px] font-bold">
+                <span className="px-1.5 py-0.5 rounded-md bg-brand-subtle text-brand-text text-[10px] font-bold">
                   {items.length}
                 </span>
               </div>
@@ -401,16 +403,16 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
                       setActiveIndex(idx);
                     }}
                     className={cn(
-                      "w-full flex items-start gap-2.5 p-2.5 rounded-2xl text-left transition-all cursor-pointer",
+                      "w-full flex items-start gap-2.5 p-2.5 rounded-lg text-left transition-colors cursor-pointer",
                       isActive
-                        ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/20"
+                        ? "bg-brand text-brand-fg"
                         : "border border-border/50 hover:bg-muted/60 text-muted-foreground hover:text-foreground"
                     )}
                   >
                     <span
                       className={cn(
                         "size-5 rounded-full font-mono text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5",
-                        isActive ? "bg-white text-indigo-600" : "bg-muted text-muted-foreground"
+                        isActive ? "bg-brand-fg text-brand-text" : "bg-surface-muted text-fg-muted"
                       )}
                     >
                       {idx + 1}
@@ -421,7 +423,7 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
                         <span
                           className={cn(
                             "px-1.5 py-0.5 rounded-md font-mono text-[9px] font-bold uppercase",
-                            isActive ? "bg-white/20 text-white" : "bg-indigo-500/15 text-indigo-400"
+                            isActive ? "bg-brand-fg/20 text-brand-fg" : "bg-brand-subtle text-brand-text"
                           )}
                         >
                           {item.resource.subjectCode}
@@ -429,7 +431,7 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
                         <span
                           className={cn(
                             "text-[10px] font-semibold",
-                            isActive ? "text-white/80" : "text-muted-foreground"
+                            isActive ? "text-brand-fg/80" : "text-fg-muted"
                           )}
                         >
                           {item.resource.resourceType}
@@ -439,7 +441,7 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
                       <p
                         className={cn(
                           "text-xs font-bold truncate mt-1",
-                          isActive ? "text-white" : "text-foreground"
+                          isActive ? "text-brand-fg" : "text-fg"
                         )}
                       >
                         {item.resource.title}
@@ -449,7 +451,7 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
                         <p
                           className={cn(
                             "text-[10px] line-clamp-1 mt-0.5 italic flex items-center gap-1",
-                            isActive ? "text-white/80" : "text-indigo-400"
+                            isActive ? "text-brand-fg/80" : "text-brand-text"
                           )}
                         >
                           <Lightbulb className="size-2.5 shrink-0" />
@@ -468,10 +470,10 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
             {currentItem && (
               <div className="space-y-3">
                 {/* Active Document Header Card */}
-                <div className="flex items-center justify-between gap-3 p-3 sm:p-4 rounded-3xl border border-border/60 bg-card">
+                <div className="flex items-center justify-between gap-3 p-3 sm:p-4 rounded-xl border border-border bg-surface">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded-md bg-indigo-500/15 text-indigo-400 font-mono text-xs font-black">
+                      <span className="px-2 py-0.5 rounded-md bg-brand-subtle text-brand-text font-mono text-xs font-black">
                         {currentItem.resource.subjectCode}
                       </span>
                       <span className="text-xs font-bold text-muted-foreground">
@@ -501,7 +503,7 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
                   title={currentItem.resource.title}
                   subjectCode={currentItem.resource.subjectCode}
                   resourceType={currentItem.resource.resourceType}
-                  pageUrl={`https://campusloop.space/app/academics/${(currentItem.resource as any).slug || currentItem.resource.id}`}
+                  pageUrl={`https://campusloop.space/academics/study-material/${(currentItem.resource as any).slug || currentItem.resource.id}`}
                 />
 
                 {/* Bottom Navigation Player Controls */}
@@ -510,7 +512,7 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
                     type="button"
                     onClick={prevItem}
                     disabled={activeIndex <= 0}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold border border-border/60 hover:bg-muted disabled:opacity-30 transition-all cursor-pointer"
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold border border-border/60 hover:bg-muted disabled:opacity-30 transition-colors cursor-pointer"
                   >
                     <ChevronLeft className="size-4" />
                     <span className="hidden sm:inline">Previous Material</span>
@@ -526,7 +528,7 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
                     type="button"
                     onClick={nextItem}
                     disabled={activeIndex >= items.length - 1}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-black bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-30 shadow-xs transition-all cursor-pointer"
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold bg-brand hover:bg-brand-hover text-brand-fg disabled:opacity-30 shadow-xs transition-colors cursor-pointer"
                   >
                     <span className="hidden sm:inline">Next Material</span>
                     <span className="sm:hidden">Next</span>
@@ -538,7 +540,7 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
           </div>
         </div>
       ) : (
-        <div className="rounded-3xl border border-dashed border-border/70 p-12 text-center space-y-3 bg-card/50">
+        <div className="rounded-xl border border-dashed border-border p-12 text-center space-y-3 bg-surface">
           <FolderPlus className="size-10 text-muted-foreground mx-auto opacity-40" />
           <h3 className="text-base font-black text-foreground">This Playlist is Currently Empty</h3>
           <p className="text-xs text-muted-foreground max-w-md mx-auto">
@@ -546,7 +548,7 @@ export function PlaylistDetailClient({ slugOrId }: { slugOrId: string }) {
           </p>
           <Link
             href="/academics/study-material"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black bg-indigo-600 text-white hover:bg-indigo-500 shadow-md cursor-pointer transition-all"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black bg-brand text-brand-fg hover:bg-brand-hover shadow-xs cursor-pointer transition-colors"
           >
             <Plus className="size-4" />
             <span>Browse Academics to Add</span>

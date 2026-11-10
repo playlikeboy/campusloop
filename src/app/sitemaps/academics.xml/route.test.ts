@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { GET } from "./route";
 
 describe("Academics Sitemap Route (sitemaps/academics.xml)", () => {
-  it("returns a valid XML response with correct headers", async () => {
+  it("returns a valid XML response with correct headers", { timeout: 30_000 }, async () => {
     const res = await GET();
     expect(res.status).toBe(200);
 

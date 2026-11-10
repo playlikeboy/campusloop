@@ -122,11 +122,11 @@ export function SecretCrushModal({ isOpen, onClose }: SecretCrushModalProps) {
       }
 
       if (resData.matched) {
-        toast.success("💕 It's a Secret Crush Match! You both secretly liked each other.", {
+        toast.success("It's a Secret Crush Match! You both secretly liked each other.", {
           duration: 6000,
         });
       } else {
-        toast.success("Secret crush locked in! 🔒 Your identity stays 100% hidden unless mutual.");
+        toast.success("Secret crush locked in! Your identity stays 100% hidden unless mutual.");
       }
 
       mutate();
@@ -162,13 +162,13 @@ export function SecretCrushModal({ isOpen, onClose }: SecretCrushModalProps) {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border/40 pb-4">
           <div className="flex items-center gap-3">
-            <div className="size-14 rounded-2xl bg-gradient-to-tr from-rose-500 via-pink-500 to-rose-400 flex items-center justify-center text-white shadow-md shrink-0">
-              <HeartIcon size={64} duration={1} color="#ffffff" />
+            <div className="size-14 rounded-2xl bg-crush flex items-center justify-center text-crush-fg shadow-md shrink-0">
+              <HeartIcon size={64} duration={1} color="currentColor" />
             </div>
             <div>
               <h2 className="text-base font-black tracking-tight text-foreground flex items-center gap-2">
                 Secret Crush Vault
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-500/10 text-rose-500 border border-rose-500/20">
+                <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-crush-subtle text-crush-text border border-crush">
                   Zero Doxxing
                 </span>
               </h2>
@@ -179,9 +179,10 @@ export function SecretCrushModal({ isOpen, onClose }: SecretCrushModalProps) {
           </div>
 
           <button
+            aria-label="Close"
             type="button"
             onClick={onClose}
-            className="size-8 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 size-8 min-h-11 min-w-11 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           >
             <X className="size-4" />
           </button>
@@ -189,13 +190,13 @@ export function SecretCrushModal({ isOpen, onClose }: SecretCrushModalProps) {
 
         {/* Anonymous Incoming Banner */}
         {receivedCrushesCount > 0 && (
-          <div className="flex items-center gap-3 p-3 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 animate-in fade-in">
-            <Flame className="size-5 shrink-0 text-rose-500 transition-transform duration-300 ease-out hover:scale-110" />
+          <div className="flex items-center gap-3 p-3 rounded-2xl bg-crush-subtle border border-crush text-crush-text animate-in fade-in">
+            <Flame className="size-5 shrink-0 text-crush-text transition-transform duration-300 ease-out hover:scale-110" />
             <p className="text-xs font-bold leading-tight">
               {receivedCrushesCount === 1
                 ? "1 student on your campus secretly added you!"
                 : `${receivedCrushesCount} students on your campus secretly added you!`}{" "}
-              <span className="font-normal text-rose-500/80">
+              <span className="font-normal text-crush-text">
                 Add your crushes below to discover if it&apos;s a match.
               </span>
             </p>
@@ -205,11 +206,11 @@ export function SecretCrushModal({ isOpen, onClose }: SecretCrushModalProps) {
         {/* Rules & Policy Pill Banner */}
         <div className="p-3 rounded-2xl bg-muted/40 border border-border/40 text-[11px] text-muted-foreground space-y-1">
           <div className="flex items-center justify-between font-bold text-foreground">
-            <span className="flex items-center gap-1 text-rose-500">
+            <span className="flex items-center gap-1 text-crush-text">
               <Lock className="size-3" />
               <span>{usedSlots}/5 Active Slots</span>
             </span>
-            <span className="text-[10px] uppercase tracking-wider bg-muted px-2 py-0.5 rounded-md text-foreground">
+            <span className="text-xs bg-muted px-2 py-0.5 rounded-md text-foreground">
               {attemptsUsedIn7Days}/5 Attempts this week
             </span>
           </div>
@@ -222,7 +223,7 @@ export function SecretCrushModal({ isOpen, onClose }: SecretCrushModalProps) {
         {/* Secret Crush Slots */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+            <span className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
               <Lock className="size-3.5" />
               Active Crushes ({usedSlots}/{maxSlots})
             </span>
@@ -231,7 +232,7 @@ export function SecretCrushModal({ isOpen, onClose }: SecretCrushModalProps) {
               <button
                 type="button"
                 onClick={() => setShowAddSearch(true)}
-                className="text-xs font-bold text-rose-500 hover:text-rose-600 flex items-center gap-1 cursor-pointer"
+                className="text-xs font-bold text-crush-text hover:text-crush-text flex items-center gap-1 cursor-pointer"
               >
                 <Plus className="size-3.5" />
                 Add Student
@@ -264,7 +265,7 @@ export function SecretCrushModal({ isOpen, onClose }: SecretCrushModalProps) {
                   placeholder="Search classmate name or username..."
                   value={searchQuery}
                   onChange={(e) => handleSearch(e.target.value)}
-                  className="w-full h-9 pl-9 pr-3 rounded-xl border border-border/50 bg-background text-xs font-semibold placeholder:text-muted-foreground/60 outline-none focus:border-rose-500 transition-all"
+                  className="w-full h-9 pl-9 pr-3 rounded-xl border border-border/50 bg-background text-xs font-semibold placeholder:text-muted-foreground/60 outline-none focus:border-crush transition-colors"
                   autoFocus
                 />
               </div>
@@ -296,7 +297,7 @@ export function SecretCrushModal({ isOpen, onClose }: SecretCrushModalProps) {
                         type="button"
                         disabled={isSubmitting}
                         onClick={() => addSecretCrush(u.id)}
-                        className="px-3 py-1 rounded-full bg-rose-500 hover:bg-rose-600 text-white text-xs font-black shadow-xs active:scale-95 transition-all flex items-center gap-1 cursor-pointer disabled:opacity-50 shrink-0"
+                        className="px-3 py-1 rounded-full bg-crush hover:bg-crush text-white text-xs font-black shadow-xs active:scale-95 transition-[opacity,transform] flex items-center gap-1 cursor-pointer disabled:opacity-50 shrink-0"
                       >
                         <Heart className="size-3 fill-white" />
                         <span>Crush</span>
@@ -323,14 +324,14 @@ export function SecretCrushModal({ isOpen, onClose }: SecretCrushModalProps) {
               crushes.map((c, idx) => (
                 <div
                   key={c.id}
-                  className="flex items-center justify-between gap-3 p-3 rounded-2xl border border-border/40 bg-muted/20 hover:bg-muted/30 transition-all shadow-2xs"
+                  className="flex items-center justify-between gap-3 p-3 rounded-2xl border border-border/40 bg-muted/20 hover:bg-muted/30 transition-colors shadow-2xs"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <span className="text-[10px] font-black text-muted-foreground w-4">#{idx + 1}</span>
 
                     <Avatar className="size-10 shrink-0 border border-border/40">
                       <AvatarImage src={c.target?.avatarUrl || ""} />
-                      <AvatarFallback className="text-xs font-bold bg-rose-500/10 text-rose-500">
+                      <AvatarFallback className="text-xs font-bold bg-crush-subtle text-crush-text">
                         {c.target?.displayName?.[0] || "?"}
                       </AvatarFallback>
                     </Avatar>
@@ -352,7 +353,7 @@ export function SecretCrushModal({ isOpen, onClose }: SecretCrushModalProps) {
                       <Link
                         href={`/chat?userId=${c.targetId}`}
                         onClick={onClose}
-                        className="px-3 py-1.5 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-black flex items-center gap-1 shadow-2xs transition-transform active:scale-95"
+                        className="px-3 py-1.5 rounded-full bg-success hover:bg-success text-white text-xs font-black flex items-center gap-1 shadow-2xs transition-transform active:scale-95"
                       >
                         <MessageCircle className="size-3.5" />
                         <span>Chat</span>
@@ -367,7 +368,7 @@ export function SecretCrushModal({ isOpen, onClose }: SecretCrushModalProps) {
                     <button
                       type="button"
                       onClick={() => removeCrush(c.id)}
-                      className="size-7 rounded-full hover:bg-muted/80 flex items-center justify-center text-muted-foreground hover:text-rose-500 transition-colors cursor-pointer"
+                      className="size-7 rounded-full hover:bg-muted/80 flex items-center justify-center text-muted-foreground hover:text-crush-text transition-colors cursor-pointer"
                       title="Remove from vault"
                     >
                       <Trash2 className="size-3.5" />
@@ -377,7 +378,7 @@ export function SecretCrushModal({ isOpen, onClose }: SecretCrushModalProps) {
               ))
             ) : (
               <div className="py-8 text-center space-y-2 border border-dashed border-border/50 rounded-2xl p-6">
-                <div className="size-12 rounded-2xl bg-rose-500/10 text-rose-500 flex items-center justify-center mx-auto">
+                <div className="size-12 rounded-2xl bg-crush-subtle text-crush-text flex items-center justify-center mx-auto">
                   <Heart className="size-6" />
                 </div>
                 <h3 className="text-xs font-black text-foreground">Your Secret Crush vault is empty</h3>
@@ -388,7 +389,7 @@ export function SecretCrushModal({ isOpen, onClose }: SecretCrushModalProps) {
                 <button
                   type="button"
                   onClick={() => setShowAddSearch(true)}
-                  className="mt-2 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-rose-500 hover:bg-rose-600 text-white text-xs font-black shadow-xs cursor-pointer active:scale-95 transition-all"
+                  className="mt-2 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-crush hover:bg-crush text-white text-xs font-black shadow-xs cursor-pointer active:scale-95 transition-[opacity,transform]"
                 >
                   <Plus className="size-3.5" />
                   <span>Add First Crush</span>

@@ -1,43 +1,65 @@
 import type { LucideIcon } from "lucide-react";
 import {
+  Activity,
+  Bell,
+  Bike,
+  BookOpen,
+  Bookmark,
   Building2,
   Cake,
   Calendar,
   Car,
+  Compass,
+  FileText,
+  Flame,
+  FlaskConical,
   Gamepad2,
+  Ghost,
+  GraduationCap,
+  Heart,
   HelpCircle,
+  Home,
   Hourglass,
+  Inbox,
+  KeyRound,
+  Link2,
+  Lock,
+  Mail,
+  Megaphone,
+  MessageCircle,
+  MessageSquare,
+  MoreHorizontal,
+  PlayCircle,
+  Plus,
   School,
-  Sliders,
+  ScrollText,
+  Search,
+  Server,
+  Settings,
+  ShieldAlert,
+  ShieldCheck,
+  ShoppingBag,
+  Sparkles,
+  Store,
   Terminal,
+  TrendingUp,
+  Users,
+  UtensilsCrossed,
+  Zap,
 } from "lucide-react";
-import {
-  AnimateBookmark,
-  AnimateBookOpen,
-  AnimateCalendar,
-  AnimateCompass,
-  AnimateFlame,
-  AnimateGraduationCap,
-  AnimateHeart,
-  AnimateHouse,
-  AnimateLock,
-  AnimateMessageCircle,
-  AnimatePlus,
-  AnimateSearch,
-  AnimateShieldCheck,
-  AnimateShoppingBag,
-  AnimateUser,
-  AnimateUsers,
-  AnimateZap,
-} from "@/components/ui/animated-icon";
+
+/** Semantic badge tones, rendered through the Badge primitive's variants. */
+export type NavBadgeTone = "brand" | "reward" | "crush" | "success" | "warning" | "neutral";
 
 export interface NavItem {
-  icon: LucideIcon | React.ComponentType<any>;
+  icon: LucideIcon;
   href: string;
   label: string;
   desc?: string;
   badge?: string;
-  badgeColor?: string;
+  badgeTone?: NavBadgeTone;
+  /** Opens in a new tab; href is an absolute URL. */
+  external?: boolean;
 }
 
 export interface NavGroup {
@@ -45,271 +67,331 @@ export interface NavGroup {
   items: NavItem[];
 }
 
+/** Desktop sidebar, in order. Everything else lives behind More. */
 export const DESKTOP_NAV_ITEMS: NavItem[] = [
-  { icon: AnimateHouse, href: "/feeds", label: "Home" },
-  {
-    icon: AnimateGraduationCap,
-    href: "/academics",
-    label: "Notes & PYQs",
-  },
-  { icon: AnimateUsers, href: "/communities", label: "Communities" },
-  {
-    icon: AnimateCalendar,
-    href: "/events",
-    label: "Events",
-  },
-  { icon: Building2, href: "/campus", label: "Campus" },
-  { icon: AnimateMessageCircle, href: "/chat", label: "Chat" },
-  { icon: AnimateUser, href: "/profile", label: "Profile" },
+  { icon: Home, href: "/feeds", label: "Home" },
+  { icon: GraduationCap, href: "/academics", label: "Academics" },
+  { icon: PlayCircle, href: "/courses", label: "Courses" },
+  { icon: Users, href: "/communities", label: "Communities" },
+  { icon: Calendar, href: "/events", label: "Events" },
+  { icon: School, href: "/colleges", label: "Colleges" },
+  { icon: Heart, href: "/matching", label: "Match" },
+  { icon: MessageCircle, href: "/chat", label: "Messages" },
+  { icon: Bell, href: "/notifications", label: "Notifications" },
+  { icon: MoreHorizontal, href: "/more", label: "More" },
 ];
 
-// Legacy mobile-nav constants retained for compatibility with older surfaces.
+/** Mobile bottom tab bar. Exactly five; Post is the prominent centre action. */
 export const MOBILE_BOTTOM_ITEMS: NavItem[] = [
-  { icon: AnimateHouse, href: "/feeds", label: "Home" },
-  { icon: Building2, href: "/colleges", label: "Colleges" },
-  { icon: AnimatePlus, href: "/post/new", label: "Post" },
-  { icon: AnimateMessageCircle, href: "/chat", label: "Chat" },
-  { icon: AnimateHeart, href: "/matching", label: "Matching" },
+  { icon: Home, href: "/feeds", label: "Home" },
+  { icon: School, href: "/colleges", label: "Colleges" },
+  { icon: Plus, href: "/post/new", label: "Post" },
+  { icon: MessageCircle, href: "/chat", label: "Chat" },
+  { icon: Heart, href: "/matching", label: "Match" },
 ];
 
 export const BETA_HUB_ITEMS: NavItem[] = [
   {
-    icon: AnimateShoppingBag,
+    icon: ShoppingBag,
     href: "/marketplace",
     label: "Campus Marketplace",
-    desc: "Buy, sell dorm essentials, books, cycles & order from campus canteens",
-    badge: "BETA",
-    badgeColor: "bg-amber-500/15 text-amber-500 border border-amber-500/30",
+    desc: "Buy and sell dorm essentials, books and cycles, or order from campus canteens",
+    badge: "Beta",
+    badgeTone: "warning",
   },
   {
-    icon: AnimateZap,
+    icon: Zap,
     href: "/random",
     label: "Random Loop",
-    desc: "Meet someone unexpected. Instant real-time serendipitous chat with verified peers",
-    badge: "BETA",
-    badgeColor: "bg-amber-500/15 text-amber-400 border border-amber-500/30",
+    desc: "Instant real-time chat with a verified peer you have not met yet",
+    badge: "Beta",
+    badgeTone: "warning",
   },
   {
     icon: Hourglass,
     href: "/capsule",
     label: "Time Capsule",
-    desc: "Batch memory vault locked until convocation & landmark dates",
-    badge: "VAULT",
-    badgeColor: "bg-indigo-500/15 text-indigo-400 border border-indigo-500/30",
+    desc: "Batch memory vault locked until convocation and landmark dates",
+    badge: "Vault",
+    badgeTone: "brand",
   },
   {
     icon: Gamepad2,
     href: "/gaming",
-    label: "Gaming & Esports Arena",
-    desc: "Campus BGMI, Valorant, FIFA tournaments & hostel gaming lobbies",
-    badge: "ESPORTS",
-    badgeColor: "bg-fuchsia-500/15 text-fuchsia-400 border border-fuchsia-500/30",
+    label: "Gaming and Esports",
+    desc: "Campus BGMI, Valorant and FIFA tournaments and hostel gaming lobbies",
+    badge: "Esports",
+    badgeTone: "neutral",
   },
   {
-    icon: AnimateZap,
+    icon: Sparkles,
     href: "/ai",
     label: "Campus AI Assistant",
-    desc: "Ask about campus fests, study roadmaps, hostel tips & navigate CampusLoop",
+    desc: "Ask about campus fests, study roadmaps, hostel tips and how to use CampusLoop",
     badge: "AI",
-    badgeColor: "bg-primary/15 text-primary border border-primary/30",
+    badgeTone: "brand",
   },
   {
-    icon: AnimateCompass,
+    icon: Compass,
     href: "/atlas",
     label: "CampusLoop Atlas",
-    desc: "Sanity-powered agent that reasons over real campus clubs, schedules & multi-constraint queries",
-    badge: "SANITY",
-    badgeColor: "bg-red-500/15 text-red-500 border border-red-500/30",
+    desc: "Agent that reasons over real campus clubs, schedules and multi-constraint queries",
+    badge: "Agent",
+    badgeTone: "brand",
   },
   {
     icon: Terminal,
     href: "/developer",
-    label: "Developer & MCP Hub",
-    desc: "Connect Cursor, Windsurf, Claude Desktop & AI agents via personal MCP server keys",
+    label: "Developer and MCP Hub",
+    desc: "Connect Cursor, Windsurf, Claude Desktop and AI agents with personal MCP server keys",
     badge: "MCP",
-    badgeColor: "bg-primary/15 text-primary border border-primary/30",
+    badgeTone: "neutral",
   },
 ];
 
 export const MORE_HUB_SECTIONS: NavGroup[] = [
   {
-    group: "Core Campus Hubs",
+    group: "Core campus hubs",
     items: [
       {
-        icon: AnimateGraduationCap,
+        icon: GraduationCap,
         href: "/academics",
         label: "Academic Vault",
-        desc: "Notes, PPTs, Books, PYQs, syllabus & branch study resources",
+        desc: "Notes, PPTs, books, PYQs, syllabus and branch study resources",
         badge: "+20 LP",
-        badgeColor: "bg-indigo-500/15 text-indigo-400 border border-indigo-500/30",
+        badgeTone: "reward",
       },
       {
-        icon: AnimateFlame,
+        icon: Flame,
         href: "/confessions",
         label: "Campus Confessions",
-        desc: "Unfiltered campus confessions, spicy scoops & secrets",
-        badge: "HOT",
-        badgeColor: "bg-rose-500/15 text-rose-400 border border-rose-500/30",
+        desc: "Anonymous campus confessions with sealed identity escrow",
+        badge: "Anon",
+        badgeTone: "neutral",
       },
       {
-        icon: AnimateUsers,
+        icon: Users,
         href: "/communities",
-        label: "Communities & Clubs",
-        desc: "Student-created clubs, technical societies & campus interest groups",
-        badge: "CLUBS",
-        badgeColor: "bg-purple-500/15 text-purple-400 border border-purple-500/30",
+        label: "Communities and Clubs",
+        desc: "Student-created clubs, technical societies and campus interest groups",
       },
       {
         icon: School,
         href: "/colleges",
         label: "Colleges Directory",
-        desc: "1,350+ indexed Indian college hubs, rankings & hub request forms",
-        badge: "1,350+",
-        badgeColor: "bg-blue-500/15 text-blue-400 border border-blue-500/30",
+        desc: "Indexed Indian college hubs, rankings and hub request forms",
+        badge: "Directory",
+        badgeTone: "neutral",
+      },
+      {
+        icon: Building2,
+        href: "/campus",
+        label: "Campus Hub",
+        desc: "Your college's feed, notices and people",
       },
     ],
   },
   {
-    group: "Campus Living & Utilities",
+    group: "Campus living and utilities",
     items: [
       {
         icon: Calendar,
         href: "/events",
-        label: "Events, Fests & Hackathons",
-        desc: "College fests, hackathons, workshops, recruitments & registrations",
-        badge: "EVENTS",
-        badgeColor: "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30",
+        label: "Events, Fests and Hackathons",
+        desc: "College fests, hackathons, workshops, recruitments and registrations",
       },
       {
-        icon: AnimateBookOpen,
+        icon: BookOpen,
         href: "/articles",
-        label: "Articles & Roadmaps",
-        desc: "Placement roadmaps, tech tutorials, interviews & campus long reads",
-        badge: "READS",
-        badgeColor: "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30",
+        label: "Articles and Roadmaps",
+        desc: "Placement roadmaps, tech tutorials, interviews and campus long reads",
+      },
+      {
+        icon: PlayCircle,
+        href: "/courses",
+        label: "Courses",
+        desc: "Free university and creator courses, imported playlist by playlist",
       },
       {
         icon: Building2,
         href: "/housing",
-        label: "Housing & Flatmates",
-        desc: "Verified student flatmates, hostel rooms, PGs & apartments near campus",
-        badge: "PG & FLATS",
-        badgeColor: "bg-orange-500/15 text-orange-400 border-orange-500/30",
+        label: "Housing and Flatmates",
+        desc: "Verified student flatmates, hostel rooms, PGs and apartments near campus",
       },
       {
-        icon: AnimateSearch,
+        icon: Search,
         href: "/lost-and-found",
-        label: "Lost & Found Hub",
-        desc: "Report and recover misplaced student ID cards, keys, earbuds & gadgets",
-        badge: "RECOVERY",
-        badgeColor: "bg-violet-500/15 text-violet-400 border-violet-500/30",
+        label: "Lost and Found",
+        desc: "Report and recover misplaced ID cards, keys, earbuds and gadgets",
       },
       {
         icon: Car,
         href: "/rideshare",
-        label: "Ride Share & Carpools",
-        desc: "Split cabs to airport, railway stations, weekend trips & daily commutes",
-        badge: "CAB",
-        badgeColor: "bg-cyan-500/15 text-cyan-400 border-cyan-500/30",
+        label: "Ride Share and Carpools",
+        desc: "Split cabs to the airport, railway station, weekend trips and daily commutes",
       },
       {
         icon: Cake,
         href: "/birthdays",
         label: "Campus Birthdays",
-        desc: "Celebrate fellow classmates and batchmates born today",
-        badge: "TODAY",
-        badgeColor: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30",
-      },
-      {
-        icon: Hourglass,
-        href: "/capsule",
-        label: "Time Capsule",
-        desc: "Batch memory vault locked until convocation & landmark dates",
-        badge: "VAULT",
-        badgeColor: "bg-indigo-500/15 text-indigo-400 border-indigo-500/30",
+        desc: "Celebrate classmates and batchmates born today",
       },
     ],
   },
   {
-    group: "Social, Discovery & Fun",
+    group: "Social, discovery and fun",
     items: [
       {
-        icon: AnimateFlame,
-        href: "/confessions",
-        label: "Campus Confessions",
-        desc: "Unfiltered campus thoughts with sealed identity escrow",
-        badge: "ANON",
-        badgeColor: "bg-rose-500/15 text-rose-400 border-rose-500/30",
+        icon: Heart,
+        href: "/matching",
+        label: "Campus Match",
+        desc: "Friends, study partners and shared interests, college-verified only",
+        badge: "Match",
+        badgeTone: "crush",
       },
       {
-        icon: AnimateLock,
+        icon: Lock,
         href: "/crush",
         label: "Secret Crush Vault",
-        desc: "5-slot intent-hidden encrypted campus crush match vault",
-        badge: "SECRET",
-        badgeColor: "bg-pink-500/15 text-pink-400 border-pink-500/30",
+        desc: "Five hidden slots; both sides learn only on a mutual match",
+        badge: "Secret",
+        badgeTone: "crush",
       },
       {
-        icon: AnimateZap,
-        href: "/random",
-        label: "Random Loop",
-        desc: "Meet someone unexpected. Instant real-time serendipitous chat with verified peers",
-        badge: "BETA",
-        badgeColor: "bg-amber-500/15 text-amber-400 border-amber-500/30",
+        icon: Compass,
+        href: "/explore",
+        label: "Explore",
+        desc: "Trending posts, hashtags and people across campuses",
       },
       {
-        icon: AnimateZap,
-        href: "/ai",
-        label: "Campus AI Assistant",
-        desc: "Ask about campus fests, study roadmaps, hostel tips & navigate CampusLoop",
-        badge: "AI",
-        badgeColor: "bg-primary/15 text-primary border-primary/30",
-      },
-      {
-        icon: Gamepad2,
-        href: "/gaming",
-        label: "Gaming & Esports Arena",
-        desc: "Campus BGMI, Valorant, FIFA tournaments & hostel gaming lobbies",
-        badge: "ESPORTS",
-        badgeColor: "bg-fuchsia-500/15 text-fuchsia-400 border-fuchsia-500/30",
+        icon: Sparkles,
+        href: "/ecosystem",
+        label: "Ecosystem",
+        desc: "Everything built by and for the CampusLoop community",
       },
     ],
   },
   {
-    group: "Account & Trust",
+    group: "Account and trust",
     items: [
       {
-        icon: AnimateBookmark,
+        icon: Bookmark,
         href: "/saved",
-        label: "Saved Posts",
-        desc: "Your private vault of bookmarked posts, threads & resources",
+        label: "Saved posts",
+        desc: "Your private vault of bookmarked posts, threads and resources",
       },
       {
-        icon: Sliders,
+        icon: Settings,
         href: "/settings",
-        label: "Settings & Privacy",
-        desc: "Account privacy, notification preferences & verification",
+        label: "Settings and privacy",
+        desc: "Account privacy, notification preferences and verification",
       },
       {
-        icon: Terminal,
-        href: "/developer",
-        label: "Developer & MCP Portal",
-        desc: "Connect Cursor, Windsurf, Claude Desktop & AI agents via personal MCP keys",
-        badge: "MCP",
-        badgeColor: "bg-primary/15 text-primary border border-primary/30",
-      },
-      {
-        icon: AnimateShieldCheck,
+        icon: ShieldCheck,
         href: "/safety",
-        label: "Safety & Community Guidelines",
-        desc: "Verified student network rules, identity escrow & moderation standards",
+        label: "Safety and community guidelines",
+        desc: "Verified student network rules, identity escrow and moderation standards",
       },
       {
         icon: HelpCircle,
         href: "/contact",
-        label: "Help & Feedback",
-        desc: "Reach out to CampusLoop core team or apply to become a campus ambassador",
+        label: "Help and feedback",
+        desc: "Reach the CampusLoop team or apply to become a campus ambassador",
       },
+    ],
+  },
+  {
+    group: "CampusLoop ecosystem",
+    items: [
+      {
+        icon: Terminal,
+        href: "https://dsaloop.campusloop.space",
+        label: "DSALoop",
+        desc: "Coding interview patterns, company tracks and a system design primer",
+        badge: "Product",
+        badgeTone: "success",
+        external: true,
+      },
+      {
+        icon: Heart,
+        href: "https://baby.campusloop.space",
+        label: "baby (AI journal)",
+        desc: "A calm journal and reflection companion. Private by default, no streaks",
+        badge: "Product",
+        badgeTone: "success",
+        external: true,
+      },
+    ],
+  },
+];
+
+/** Grouped links for the mobile drawer. Primary items first, then every hub not already in them. */
+export const DRAWER_SECTIONS: NavGroup[] = [
+  { group: "Main", items: DESKTOP_NAV_ITEMS.filter((i) => i.href !== "/more") },
+  ...MORE_HUB_SECTIONS.map((section) => ({
+    group: section.group,
+    items: section.items.filter((item) => !DESKTOP_NAV_ITEMS.some((d) => d.href === item.href)),
+  })).filter((section) => section.items.length > 0),
+];
+
+/* ───────────────────────── Admin console ───────────────────────── */
+
+export interface AdminNavItem {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  desc: string;
+  keywords?: string[];
+}
+
+/** Admin navigation: one source for the sidebar, mobile drawer and Cmd+K search. Real tools only. */
+export const ADMIN_NAV_SECTIONS: { title: string; items: AdminNavItem[] }[] = [
+  {
+    title: "Requests",
+    items: [
+      { href: "/admin", label: "Inbox", icon: Inbox, desc: "Everything waiting for a decision", keywords: ["dashboard", "pending", "requests", "todo"] },
+      { href: "/admin/review", label: "Review queue", icon: ShieldAlert, desc: "Posts held by the safety filter", keywords: ["moderation", "flagged"] },
+      { href: "/admin/reports", label: "Reports", icon: ShieldAlert, desc: "Content reported by students", keywords: ["abuse", "flags"] },
+      { href: "/admin/confessions", label: "Confessions", icon: Ghost, desc: "Anonymous posts and identity reveals", keywords: ["anonymous"] },
+      { href: "/admin/oauth-apps", label: "Developer apps", icon: KeyRound, desc: "Login with CampusLoop apps", keywords: ["oauth", "oidc", "login with campusloop", "clients"] },
+    ],
+  },
+  {
+    title: "People and campuses",
+    items: [
+      { href: "/admin/users", label: "Users", icon: Users, desc: "Search, verify, suspend or ban accounts", keywords: ["students", "ban"] },
+      { href: "/admin/colleges", label: "Colleges", icon: School, desc: "Campus hubs and email domains", keywords: ["institutions", "hubs"] },
+      { href: "/admin/outreach", label: "Outreach", icon: Mail, desc: "College contacts and campaigns", keywords: ["email", "campaign"] },
+      { href: "/admin/broadcasts", label: "Broadcasts", icon: Megaphone, desc: "Banners shown on campus feeds", keywords: ["announcement"] },
+    ],
+  },
+  {
+    title: "Content",
+    items: [
+      { href: "/admin/posts", label: "Posts", icon: FileText, desc: "All posts across campuses" },
+      { href: "/admin/comments", label: "Comments", icon: MessageSquare, desc: "All comments" },
+      { href: "/admin/academics", label: "Study material", icon: BookOpen, desc: "Notes and PYQs in the Academic Vault", keywords: ["notes", "pyq", "vault"] },
+      { href: "/admin/feed", label: "Feed boosts", icon: TrendingUp, desc: "Pin and boost posts in feeds", keywords: ["curation", "pin"] },
+      { href: "/admin/composio", label: "Reddit import", icon: Zap, desc: "Import campus subreddit discussions", keywords: ["reddit", "ingestion", "composio"] },
+      { href: "/admin/links", label: "Short links", icon: Link2, desc: "campusloop.space/s/ links and referral clicks", keywords: ["referral", "utm"] },
+    ],
+  },
+  {
+    title: "Marketplace",
+    items: [
+      { href: "/admin/marketplace", label: "Overview", icon: ShoppingBag, desc: "Orders and revenue" },
+      { href: "/admin/marketplace/merchants", label: "Merchants", icon: Store, desc: "Campus shops" },
+      { href: "/admin/marketplace/products", label: "Products", icon: UtensilsCrossed, desc: "Menus and listings" },
+      { href: "/admin/marketplace/rentals", label: "Bike rentals", icon: Bike, desc: "Rental fleet" },
+    ],
+  },
+  {
+    title: "Insights",
+    items: [
+      { href: "/admin/analytics", label: "Analytics", icon: Activity, desc: "Growth and engagement", keywords: ["metrics", "dau"] },
+      { href: "/admin/experiments", label: "Experiments", icon: FlaskConical, desc: "Feed ranking A/B results", keywords: ["ab test", "ranking"] },
+      { href: "/admin/system", label: "System health", icon: Server, desc: "Database, cache and edge checks", keywords: ["status", "diagnostics"] },
+      { href: "/admin/audit", label: "Audit log", icon: ScrollText, desc: "Every admin action", keywords: ["history"] },
     ],
   },
 ];

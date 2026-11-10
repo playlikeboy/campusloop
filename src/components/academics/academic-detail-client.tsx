@@ -19,6 +19,7 @@ import {
   ThumbsUp,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AcademicAiStudyBar } from "@/components/academics/academic-ai-study-bar";
@@ -54,6 +55,7 @@ export function AcademicDetailClient({
   currentUserId,
   canonicalUrl,
 }: AcademicDetailClientProps) {
+  const router = useRouter();
   const [resource] = useState(initialResource);
   const effectivePageUrl =
     canonicalUrl || `https://campusloop.space/academics/study-material/${initialResource.slug || initialResource.id}`;
@@ -334,9 +336,9 @@ export function AcademicDetailClient({
               toast.success(isSaved ? "Removed from Study Vault" : "Saved to Study Vault");
             }}
             className={cn(
-              "flex size-9 items-center justify-center rounded-full border transition-all cursor-pointer shadow-2xs active:scale-95",
+              "flex size-9 items-center justify-center rounded-full border transition-ui cursor-pointer shadow-2xs active:scale-95",
               isSaved
-                ? "bg-amber-500/15 text-amber-500 border-amber-500/30"
+                ? "bg-brand-subtle text-brand-text border-brand-subtle-border"
                 : "border-border/60 hover:bg-muted text-muted-foreground hover:text-foreground"
             )}
             title="Save to Study Vault"
@@ -352,7 +354,7 @@ export function AcademicDetailClient({
           <button
             type="button"
             onClick={handleShare}
-            className="flex size-9 items-center justify-center rounded-full border border-border/60 hover:bg-muted text-muted-foreground hover:text-foreground transition-all cursor-pointer shadow-2xs active:scale-95"
+            className="flex size-9 items-center justify-center rounded-full border border-border/60 hover:bg-muted text-muted-foreground hover:text-foreground transition-ui cursor-pointer shadow-2xs active:scale-95"
             title="Share note link"
           >
             <AnimatedIcon icon={Share2} animation="pop" size={15} />
@@ -361,7 +363,7 @@ export function AcademicDetailClient({
           <button
             type="button"
             onClick={handleDownload}
-            className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-black hover:bg-primary/90 transition-all cursor-pointer shadow-xs active:scale-95"
+            className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-black hover:bg-primary/90 transition-ui cursor-pointer shadow-xs active:scale-95"
           >
             <Download className="size-3.5" />
             <span>Download PDF</span>
@@ -471,6 +473,9 @@ export function AcademicDetailClient({
             semester={resource.semester || undefined}
             onDownload={handleDownload}
             pageUrl={effectivePageUrl}
+            onOpenPlayer={(attachment) =>
+              router.push(`/academics/study-material/${resource.id}/watch?a=${encodeURIComponent(attachment.id)}`)
+            }
           />
 
           {/* Attached Files & Supplementary Links Tray (Multi-File Notes) */}
@@ -541,7 +546,7 @@ export function AcademicDetailClient({
                   Student-verified corrections, missing solutions &amp; exam tips
                 </p>
               </div>
-              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/25">
+              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-success-subtle text-success border border-success/25">
                 {reliability}% Verified
               </span>
             </div>
@@ -562,7 +567,7 @@ export function AcademicDetailClient({
                     type="button"
                     onClick={() => setIsHelpful(true)}
                     className={cn(
-                      "px-3 py-0.5 rounded-full text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1",
+                      "px-3 py-0.5 rounded-full text-[11px] font-bold transition-ui cursor-pointer flex items-center gap-1",
                       isHelpful
                         ? "bg-primary/10 text-primary border border-primary/25"
                         : "text-muted-foreground hover:text-foreground border border-transparent"
@@ -575,7 +580,7 @@ export function AcademicDetailClient({
                     type="button"
                     onClick={() => setIsHelpful(false)}
                     className={cn(
-                      "px-3 py-0.5 rounded-full text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1",
+                      "px-3 py-0.5 rounded-full text-[11px] font-bold transition-ui cursor-pointer flex items-center gap-1",
                       !isHelpful
                         ? "bg-muted text-foreground border border-border/60"
                         : "text-muted-foreground hover:text-foreground border border-transparent"
@@ -597,7 +602,7 @@ export function AcademicDetailClient({
                   <button
                     type="submit"
                     disabled={isSubmittingComment || !commentText.trim()}
-                    className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-black disabled:opacity-40 hover:bg-primary/90 transition-all cursor-pointer shrink-0 shadow-xs"
+                    className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-black disabled:opacity-40 hover:bg-primary/90 transition-ui cursor-pointer shrink-0 shadow-xs"
                   >
                     Reply
                   </button>
@@ -673,7 +678,7 @@ export function AcademicDetailClient({
                 type="button"
                 onClick={() => handleVote("UP")}
                 className={cn(
-                  "flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-xs transition-all cursor-pointer border active:scale-95",
+                  "flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-xs transition-ui cursor-pointer border active:scale-95",
                   userVote === "UP"
                     ? "bg-primary text-primary-foreground border-primary font-black shadow-xs"
                     : "border-border/50 hover:bg-muted text-muted-foreground hover:text-foreground"
@@ -687,7 +692,7 @@ export function AcademicDetailClient({
                 type="button"
                 onClick={() => handleVote("DOWN")}
                 className={cn(
-                  "flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-bold text-xs transition-all cursor-pointer border active:scale-95",
+                  "flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-bold text-xs transition-ui cursor-pointer border active:scale-95",
                   userVote === "DOWN"
                     ? "bg-muted text-foreground border-foreground"
                     : "border-border/50 hover:bg-muted text-muted-foreground hover:text-foreground"
@@ -702,7 +707,7 @@ export function AcademicDetailClient({
             <button
               type="button"
               onClick={handleDownload}
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-black hover:bg-primary/90 transition-all cursor-pointer shadow-xs active:scale-95"
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-black hover:bg-primary/90 transition-ui cursor-pointer shadow-xs active:scale-95"
             >
               <Download className="size-4" />
               <span>Download Full Document</span>
@@ -711,7 +716,7 @@ export function AcademicDetailClient({
             <button
               type="button"
               onClick={() => setIsAddToPlaylistOpen(true)}
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-border/50 hover:bg-muted text-foreground text-xs font-bold transition-all cursor-pointer active:scale-95"
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-border/50 hover:bg-muted text-foreground text-xs font-bold transition-ui cursor-pointer active:scale-95"
             >
               <FolderPlus className="size-4" />
               <span>Add to Study Playlist</span>

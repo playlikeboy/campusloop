@@ -50,4 +50,11 @@ describe("routing middleware", () => {
     expect(res.status).toBe(200);
     expect(res.headers.get("location")).toBeNull();
   });
+
+  it("redirects /overview to the canonical /pitch deck", async () => {
+    const req = new NextRequest("https://campusloop.space/overview", { headers: { host: "campusloop.space" } });
+    const res = await middleware(req);
+    expect(res.status).toBe(308);
+    expect(res.headers.get("location")).toBe("https://campusloop.space/pitch");
+  });
 });

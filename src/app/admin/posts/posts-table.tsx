@@ -85,10 +85,10 @@ interface PostsTableProps {
 }
 
 const statusBadgeTone: Record<string, string> = {
-  PUBLISHED: "bg-emerald-500/15 text-emerald-500 border-emerald-500/30",
-  PENDING_REVIEW: "bg-orange-500/15 text-orange-500 border-orange-500/30",
-  HIDDEN: "bg-amber-500/15 text-amber-500 border-amber-500/30",
-  DELETED: "bg-red-500/15 text-red-500 border-red-500/30",
+  PUBLISHED: "bg-success-subtle text-success border-success/30",
+  PENDING_REVIEW: "bg-warning-subtle text-warning border-warning/30",
+  HIDDEN: "bg-warning-subtle text-warning border-warning/30",
+  DELETED: "bg-danger-subtle text-danger border-danger/30",
 };
 
 export function PostsTable({
@@ -223,10 +223,10 @@ export function PostsTable({
   return (
     <div className="space-y-4">
       {/* ─── Bulk Moderation Banner ─── */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-2xl border border-border/80 bg-card/60 backdrop-blur-md">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-2xl border border-border/80 bg-surface">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-success-subtle text-success border border-success/20">
               <UserCheck className="size-3.5" />
               <span>{realCount} Authentic Student Posts</span>
             </span>
@@ -247,7 +247,7 @@ export function PostsTable({
               <span className="text-[11px] font-bold text-foreground flex items-center gap-1.5">
                 <span
                   className={`inline-block size-2 rounded-full ${
-                    showSeededPosts ? "bg-emerald-500 animate-pulse" : "bg-muted-foreground"
+                    showSeededPosts ? "bg-success animate-pulse" : "bg-muted-foreground"
                   }`}
                 />
                 Show Seeded Posts on Website
@@ -278,7 +278,7 @@ export function PostsTable({
             type="button"
             onClick={() => setShowUnlistConfirm(true)}
             disabled={actionLoading === "bulk_unlist"}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 hover:bg-amber-500/25 border border-amber-500/30 text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-warning-subtle text-warning hover:bg-warning-subtle border border-warning/30 text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
           >
             <EyeOff className="size-3.5" />
             <span>Unlist All</span>
@@ -288,7 +288,7 @@ export function PostsTable({
             type="button"
             onClick={() => setShowRestoreConfirm(true)}
             disabled={actionLoading === "bulk_restore"}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground border border-border text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground border border-border text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
           >
             <RotateCcw className="size-3.5" />
             <span>Publish All</span>
@@ -398,7 +398,7 @@ export function PostsTable({
       <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[700px] text-left text-sm">
-            <thead className="bg-muted/50 border-b border-border text-xs uppercase tracking-wider text-muted-foreground">
+            <thead className="bg-muted/50 border-b border-border text-xs text-muted-foreground">
               <tr>
                 <th className="px-5 py-3 font-bold">Post Content</th>
                 <th className="px-4 py-3 font-bold">Author &amp; Origin</th>
@@ -420,12 +420,12 @@ export function PostsTable({
                     <td className="px-5 py-3.5 max-w-sm">
                       <div className="space-y-1">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-muted text-muted-foreground border border-border/60">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-muted text-muted-foreground border border-border/60">
                             {post.type}
                           </span>
                           {post.isAnonymous && (
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-400 border border-purple-500/20 inline-flex items-center gap-1">
-                              <VenetianMask className="size-3 text-purple-400" />
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-brand-subtle text-brand-text border border-brand/20 inline-flex items-center gap-1">
+                              <VenetianMask className="size-3 text-brand-text" />
                               <span>{post.pseudonym || "Anon"}</span>
                             </span>
                           )}
@@ -456,12 +456,12 @@ export function PostsTable({
                     <td className="px-4 py-3.5 whitespace-nowrap">
                       <div className="space-y-1">
                         {isReal ? (
-                          <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">
+                          <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-success-subtle text-success border border-success/30">
                             <UserCheck className="size-3" />
                             <span>Real Student</span>
                           </div>
                         ) : (
-                          <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-muted text-muted-foreground border border-border">
+                          <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-muted text-muted-foreground border border-border">
                             <Bot className="size-3" />
                             <span>Seeded Bot</span>
                           </div>
@@ -476,7 +476,7 @@ export function PostsTable({
                               @{post.author.username}
                             </p>
                             {post.author.email && (
-                              <p className="text-[9px] text-emerald-600 dark:text-emerald-400 font-mono truncate max-w-[150px]">
+                              <p className="text-[9px] text-success font-mono truncate max-w-[150px]">
                                 {post.author.email}
                               </p>
                             )}
@@ -486,7 +486,7 @@ export function PostsTable({
                         )}
 
                         {revealed[post.id] && (
-                          <div className="text-[10px] p-1.5 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 font-mono">
+                          <div className="text-[10px] p-1.5 rounded-lg bg-brand-subtle text-brand-text border border-brand/20 font-mono">
                             ID: @{revealed[post.id].username} ({revealed[post.id].displayName || "N/A"})
                           </div>
                         )}
@@ -496,7 +496,7 @@ export function PostsTable({
                     {/* Status Badge */}
                     <td className="px-4 py-3.5 whitespace-nowrap">
                       <span
-                        className={`text-[10px] font-black px-2.5 py-1 rounded-full border ${
+                        className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
                           statusBadgeTone[post.status] ?? "bg-muted text-muted-foreground border-border"
                         }`}
                       >
@@ -519,7 +519,7 @@ export function PostsTable({
                             type="button"
                             disabled={actionLoading === post.id}
                             onClick={() => handleToggleHide(post.id)}
-                            className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 text-[11px] font-bold transition-all cursor-pointer disabled:opacity-50"
+                            className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-warning-subtle hover:bg-warning-subtle text-warning border border-warning/30 text-[11px] font-bold transition-colors cursor-pointer disabled:opacity-50"
                             title="Hide / Unlist from website feeds"
                           >
                             <EyeOff className="size-3" />
@@ -530,7 +530,7 @@ export function PostsTable({
                             type="button"
                             disabled={actionLoading === post.id}
                             onClick={() => handleToggleHide(post.id)}
-                            className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 text-[11px] font-bold transition-all cursor-pointer disabled:opacity-50"
+                            className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-success-subtle hover:bg-success-subtle text-success border border-success/30 text-[11px] font-bold transition-colors cursor-pointer disabled:opacity-50"
                             title="Unhide / Publish to website feeds"
                           >
                             <Eye className="size-3" />
@@ -558,7 +558,7 @@ export function PostsTable({
                             disabled={actionLoading === post.id}
                             onClick={() => setRevealPostId(post.id)}
                             title="Reveal anonymous author (audit logged)"
-                            className="p-1.5 rounded-xl hover:bg-muted text-blue-500 transition-colors cursor-pointer"
+                            className="p-1.5 rounded-xl hover:bg-muted text-brand-text transition-colors cursor-pointer"
                           >
                             <Eye className="size-3.5" />
                           </button>

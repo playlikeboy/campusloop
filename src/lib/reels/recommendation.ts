@@ -113,7 +113,6 @@ const CAMPUS_SUBREDDITS = new Set([
   "Btechtards",
   "college",
   "EngineeringMemes",
-  "JEENEETards",
   "IndianTeenagers",
   "ProgrammerHumor",
   "IndianDankMemes",

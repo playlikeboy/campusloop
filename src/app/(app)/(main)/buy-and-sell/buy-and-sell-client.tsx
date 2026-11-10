@@ -175,7 +175,7 @@ export function BuyAndSellClient({ profileId }: Props) {
         {/* Marketplace Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-success-subtle px-3 py-1 text-xs font-semibold text-success">
               <ShoppingBag className="size-3.5" />
               Verified Campus Marketplace
             </div>
@@ -339,7 +339,7 @@ export function BuyAndSellClient({ profileId }: Props) {
 
             {/* Price Filter Group */}
             <div className="space-y-2.5">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              <h3 className="text-xs font-bold text-muted-foreground">
                 Price Range
               </h3>
               <div className="space-y-1.5">
@@ -366,7 +366,7 @@ export function BuyAndSellClient({ profileId }: Props) {
             <div className="border-t border-border/40 pt-4">
               <label className="flex items-center justify-between cursor-pointer text-xs font-medium text-foreground">
                 <span className="flex items-center gap-2">
-                  <CheckCircle2 className="size-4 text-emerald-500" />
+                  <CheckCircle2 className="size-4 text-success" />
                   Available Only
                 </span>
                 <input
@@ -483,7 +483,7 @@ export function BuyAndSellClient({ profileId }: Props) {
             </div>
 
             <div className="space-y-3">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              <h3 className="text-xs font-bold text-muted-foreground">
                 Price Range
               </h3>
               <div className="grid grid-cols-2 gap-2">

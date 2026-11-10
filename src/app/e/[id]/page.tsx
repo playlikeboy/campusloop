@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: EventShortLinkProps): Promise
     return { title: "Event" };
   }
 
-  // The root layout's title template already appends " | CampusLoop".
+  // The root layout's title template already appends "".
   const title = event.title;
   const description = event.description.slice(0, 160);
   const url = `https://campusloop.space/e/${id}`;

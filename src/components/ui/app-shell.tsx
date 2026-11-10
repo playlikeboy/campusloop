@@ -3,6 +3,8 @@
 import type { LucideIcon } from "lucide-react";
 import { Search, X } from "lucide-react";
 import Link from "next/link";
+import { EmptyState as SharedEmptyState } from "@/components/ui/empty-state";
+import { PageHeader as SharedPageHeader } from "@/components/ui/page-header";
 import { haptics } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
 
@@ -49,7 +51,7 @@ export function PageShell({
   return (
     <main
       className={cn(
-        "mx-auto flex min-h-screen w-full flex-col border-x border-border/60 bg-background pb-28 shadow-2xs",
+        "mx-auto flex min-h-screen w-full flex-col border-x border-border bg-bg pb-28",
         widthClass,
         className
       )}
@@ -61,6 +63,7 @@ export function PageShell({
 
 /* ── Header ───────────────────────────────────────────────────────────── */
 
+/** Sticky column header; wraps the shared PageHeader. `subtitle`/`action` map to its description/primaryAction. */
 export function PageHeader({
   title,
   subtitle,
@@ -77,20 +80,17 @@ export function PageHeader({
   className?: string;
 }) {
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-40 border-b border-border/55 bg-background/88 backdrop-blur-xl",
-        className
-      )}
-    >
-      <div className="flex items-center justify-between gap-2 px-4 py-3.5">
-        <div className="min-w-0">
-          <h1 className="font-display text-[19px] font-bold tracking-[-0.035em] text-foreground">{title}</h1>
-          {subtitle && <p className="truncate text-[13px] text-muted-foreground">{subtitle}</p>}
-        </div>
-        {action && <div className="shrink-0">{action}</div>}
-      </div>
-      {children}
+    <header className={cn("sticky top-0 z-(--z-sticky) border-b border-border bg-bg/90 backdrop-blur-xl", className)}>
+      <SharedPageHeader
+        title={title}
+        description={subtitle}
+        primaryAction={action}
+        size="md"
+        divider={false}
+        className="gap-0 px-4 pt-3.5 pb-0 [&>div:first-child]:pb-3.5"
+      >
+        {children}
+      </SharedPageHeader>
     </header>
   );
 }
@@ -184,10 +184,10 @@ export function FilterPills<T extends string>({
                 onChange(pill.id);
               }}
               className={cn(
-                "flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all active:scale-95",
+                "flex h-9 shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 text-xs font-semibold transition-colors outline-none active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
                 isActive
-                  ? "bg-primary/10 font-bold text-primary ring-1 ring-primary/15"
-                  : "border border-border/45 bg-muted/35 text-muted-foreground hover:bg-muted/70 hover:text-foreground"
+                  ? "bg-brand-subtle text-brand-text"
+                  : "bg-surface-muted text-fg-muted hover:bg-surface-sunken hover:text-fg"
               )}
             >
               {Icon && <Icon className="size-3.5" />}
@@ -224,14 +224,14 @@ export function SearchField({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="h-10 w-full rounded-2xl border border-border/55 bg-card/70 pl-10 pr-9 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/8"
+          className="h-11 w-full rounded-sm border border-border bg-surface pl-10 pr-10 text-base text-fg outline-none transition-colors placeholder:text-fg-subtle focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-ring/30"
         />
         {value && (
           <button
             type="button"
             onClick={() => onChange("")}
             aria-label="Clear search"
-            className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground"
+            className="absolute right-2 top-1/2 flex size-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-fg-muted outline-none transition-colors hover:bg-surface-muted hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <X className="size-4" />
           </button>
@@ -281,8 +281,9 @@ export function ListRow({
 
 /* ── States ───────────────────────────────────────────────────────────── */
 
+/** Column empty state; the shared EmptyState in compact form. */
 export function EmptyState({
-  icon: Icon,
+  icon,
   title,
   description,
   action,
@@ -292,16 +293,7 @@ export function EmptyState({
   description?: string;
   action?: React.ReactNode;
 }) {
-  return (
-    <div className="flex flex-col items-center gap-3 px-8 py-16 text-center">
-      <Icon className="size-8 text-muted-foreground" />
-      <div className="space-y-1">
-        <h3 className="text-[15px] font-bold text-foreground">{title}</h3>
-        {description && <p className="text-[13px] text-muted-foreground">{description}</p>}
-      </div>
-      {action && <div className="mt-1">{action}</div>}
-    </div>
-  );
+  return <SharedEmptyState icon={icon} title={title} description={description} action={action} size="compact" />;
 }
 
 /**
@@ -360,7 +352,7 @@ export function PrimaryAction({
   disabled?: boolean;
 }) {
   const classes = cn(
-    "flex h-9 shrink-0 cursor-pointer items-center gap-1.5 rounded-xl bg-primary px-4 text-xs font-bold text-primary-foreground transition-all hover:-translate-y-px hover:opacity-95 active:scale-95 disabled:opacity-50",
+    "flex h-9 shrink-0 cursor-pointer items-center gap-1.5 rounded-md bg-brand px-4 text-xs font-semibold text-brand-fg transition-colors outline-none hover:bg-brand-hover active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
     className
   );
 

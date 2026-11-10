@@ -1,8 +1,7 @@
 import { MapPin, MessageSquare, ShieldCheck, Users } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CleanFooter } from "@/components/landing/clean-footer";
-import { MinimalLandingNavbar } from "@/components/landing/minimal-landing-navbar";
+import { MarketingShell } from "@/components/shells/marketing-shell";
 import { hexclaveServerApp } from "@/hexclave/server";
 
 interface CollegeData {
@@ -147,7 +146,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     summary: "Verified campus hub and student community on CampusLoop.",
   };
 
-  const title = `${college.name} Campus Hub & Student Feed | CampusLoop`;
+  const title = `${college.name} Campus Hub & Student Feed`;
   const description = `Join the verified ${college.name} campus network. Anonymous confessions, live polls, hostel marketplace, and student discussions for @${college.slug}.`;
 
   return {
@@ -233,9 +232,8 @@ export default async function ProgrammaticCollegePage({ params }: PageProps) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <div className="flex min-h-screen flex-col bg-background text-foreground">
-        <MinimalLandingNavbar isAuthenticated={!!user} />
 
-        <main className="flex-1 pt-12 pb-24">
+        <MarketingShell className="flex-1 pt-12 pb-24">
           <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 space-y-10">
             {/* ─── Breadcrumb ─── */}
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -251,20 +249,20 @@ export default async function ProgrammaticCollegePage({ params }: PageProps) {
             </div>
 
             {/* ─── Campus Header Card ─── */}
-            <div className="relative rounded-3xl border border-zinc-200/90 dark:border-white/10 bg-white dark:bg-[#111622] p-6 sm:p-10 shadow-xs space-y-6 overflow-hidden">
+            <div className="relative rounded-3xl border border-border bg-surface  p-6 sm:p-10 shadow-xs space-y-6 overflow-hidden">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <span className="rounded-full bg-blue-500/10 px-3 py-1 text-xs font-bold text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                    <span className="rounded-full bg-brand-subtle px-3 py-1 text-xs font-bold text-brand-text border border-transparent">
                       {college.category}
                     </span>
                     {isActive ? (
-                      <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
-                        <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="rounded-full bg-success-subtle px-3 py-1 text-xs font-bold text-success border border-transparent flex items-center gap-1.5">
+                        <span className="size-1.5 rounded-full bg-success" />
                         Active Loop
                       </span>
                     ) : (
-                      <span className="rounded-full bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                      <span className="rounded-full bg-warning-subtle px-3 py-1 text-xs font-bold text-warning border border-transparent">
                         Pre-Launch Waitlist
                       </span>
                     )}
@@ -281,7 +279,7 @@ export default async function ProgrammaticCollegePage({ params }: PageProps) {
                     <MapPin className="size-4 text-muted-foreground" />
                     {college.location} • Est. {college.year}
                     {college.nirf && (
-                      <span className="ml-2 font-bold text-blue-600 dark:text-blue-400">
+                      <span className="ml-2 font-bold text-brand-text">
                         NIRF #{college.nirf}
                       </span>
                     )}
@@ -303,14 +301,14 @@ export default async function ProgrammaticCollegePage({ params }: PageProps) {
                   {isActive ? (
                     <Link
                       href={`/sign-up?college=${college.slug}`}
-                      className="rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 text-xs shadow-xs text-center"
+                      className="rounded-full bg-brand hover:bg-brand-hover text-brand-fg font-bold px-6 py-3 text-xs shadow-xs text-center"
                     >
                       Verify & Join Campus Loop &rarr;
                     </Link>
                   ) : (
                     <Link
                       href="/contact"
-                      className="rounded-full bg-amber-600 hover:bg-amber-700 text-white font-bold px-6 py-3 text-xs shadow-xs text-center"
+                      className="rounded-full bg-brand hover:bg-brand-hover text-brand-fg font-bold px-6 py-3 text-xs shadow-xs text-center"
                     >
                       Request Activation
                     </Link>
@@ -343,13 +341,13 @@ export default async function ProgrammaticCollegePage({ params }: PageProps) {
                 </div>
                 <div className="rounded-2xl border border-border/60 bg-muted/30 p-3.5">
                   <span className="text-[11px] text-muted-foreground block font-medium">Identity Escrow</span>
-                  <span className="text-base font-bold text-purple-600 dark:text-purple-400">
+                  <span className="text-base font-bold text-brand-text">
                     256-bit Encrypted
                   </span>
                 </div>
                 <div className="rounded-2xl border border-border/60 bg-muted/30 p-3.5">
                   <span className="text-[11px] text-muted-foreground block font-medium">Viewer Mode</span>
-                  <span className="text-base font-bold text-emerald-600 dark:text-emerald-400">
+                  <span className="text-base font-bold text-success">
                     Aspirants Welcome
                   </span>
                 </div>
@@ -359,7 +357,7 @@ export default async function ProgrammaticCollegePage({ params }: PageProps) {
             {/* ─── Hub Features Inside this Campus ─── */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="rounded-3xl border border-border/60 bg-card p-6 space-y-2">
-                <MessageSquare className="size-5 text-blue-600" />
+                <MessageSquare className="size-5 text-brand-text" />
                 <h3 className="text-base font-bold text-foreground">Confessions & Campus Feeds</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   Candid hostel discussions, professor reviews, and exam week memes free from administrative
@@ -368,7 +366,7 @@ export default async function ProgrammaticCollegePage({ params }: PageProps) {
               </div>
 
               <div className="rounded-3xl border border-border/60 bg-card p-6 space-y-2">
-                <Users className="size-5 text-purple-600" />
+                <Users className="size-5 text-brand-text" />
                 <h3 className="text-base font-bold text-foreground">Active Student Societies</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   Dedicated channels for tech teams, cultural societies, hostel wings, and hackathon project
@@ -377,7 +375,7 @@ export default async function ProgrammaticCollegePage({ params }: PageProps) {
               </div>
 
               <div className="rounded-3xl border border-border/60 bg-card p-6 space-y-2">
-                <ShieldCheck className="size-5 text-emerald-600" />
+                <ShieldCheck className="size-5 text-success" />
                 <h3 className="text-base font-bold text-foreground">Zero Outside Creeps</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   Every account is verified through official institutional email. Zero marketing agencies or
@@ -387,7 +385,7 @@ export default async function ProgrammaticCollegePage({ params }: PageProps) {
             </div>
 
             {/* ─── Final Join Banner ─── */}
-            <div className="rounded-3xl border border-blue-500/30 bg-blue-500/5 p-8 text-center space-y-4">
+            <div className="rounded-3xl border border-brand-subtle-border bg-brand-subtle p-8 text-center space-y-4">
               <h3 className="text-xl font-bold text-foreground">Study at {college.name}?</h3>
               <p className="text-xs sm:text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed">
                 Unlock your college loop now. Enter your official university email to receive an instant
@@ -396,16 +394,15 @@ export default async function ProgrammaticCollegePage({ params }: PageProps) {
               <div className="flex justify-center gap-3 pt-1">
                 <Link
                   href={`/sign-up?college=${college.slug}`}
-                  className="rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold px-7 py-3 text-xs shadow-xs"
+                  className="rounded-full bg-brand hover:bg-brand-hover text-brand-fg font-bold px-7 py-3 text-xs shadow-xs"
                 >
                   Verify With College Email &rarr;
                 </Link>
               </div>
             </div>
           </div>
-        </main>
+        </MarketingShell>
 
-        <CleanFooter />
       </div>
     </>
   );

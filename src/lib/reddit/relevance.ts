@@ -21,8 +21,6 @@ export const CAMPUS_RELEVANCE_KEYWORDS = [
   "engineering",
   "btech",
   "mtech",
-  "jee",
-  "neet",
   "gate",
   "coding",
   "dsa",
@@ -163,7 +161,6 @@ export function calculateRedditRelevance(
   const subLower = post.subreddit.toLowerCase();
   if (
     subLower === "btechtards" ||
-    subLower === "jeeneetards" ||
     subLower === "collegerant" ||
     subLower === "college"
   ) {

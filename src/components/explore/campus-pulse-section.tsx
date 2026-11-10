@@ -38,14 +38,14 @@ export function CampusPulseSection({
   return (
     <section id="explore-pulse" className="space-y-3.5 scroll-mt-20">
       <div className="flex items-center gap-2 px-1">
-        <Flame className="size-4.5 text-rose-500 shrink-0" />
+        <Flame className="size-4.5 text-danger shrink-0" />
         <h2 className="text-base font-bold tracking-tight text-foreground">Campus Pulse</h2>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Trending Topics Column */}
         <div className="lg:col-span-5 rounded-2xl border border-border/40 bg-card/60 p-4 sm:p-5 backdrop-blur-xs flex flex-col justify-between space-y-3 shadow-2xs">
-          <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+          <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
             <TrendingUp className="size-3.5 text-primary" />
             <span>Trending Topics</span>
           </div>
@@ -92,8 +92,8 @@ export function CampusPulseSection({
 
         {/* Top Discussions Column */}
         <div className="lg:col-span-7 rounded-2xl border border-border/40 bg-card/60 p-4 sm:p-5 backdrop-blur-xs flex flex-col justify-between space-y-3 shadow-2xs">
-          <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            <MessageSquare className="size-3.5 text-violet-500" />
+          <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+            <MessageSquare className="size-3.5 text-brand-text" />
             <span>Top Discussions</span>
           </div>
 

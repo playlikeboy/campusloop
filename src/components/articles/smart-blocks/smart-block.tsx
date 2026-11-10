@@ -27,7 +27,7 @@ export function SmartBlock({ type, body }: { type: string; body: string }) {
   if (!result.ok) {
     return (
       <div className="not-prose my-6 rounded-2xl bg-muted/50 p-4">
-        <p className="flex items-center gap-1.5 text-xs font-semibold text-amber-700 dark:text-amber-300">
+        <p className="flex items-center gap-1.5 text-xs font-semibold text-warning">
           <AlertTriangle className="size-3.5" aria-hidden />
           This {type} block could not be displayed: {result.error}
         </p>

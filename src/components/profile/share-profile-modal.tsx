@@ -25,6 +25,22 @@ interface ShareProfileModalProps {
   };
 }
 
+// The share card is a fixed dark PNG export, so it cannot follow theme tokens.
+const CARD = {
+  // ds-allow: canvas export, fixed dark card
+  bg: "#09090b",
+  // ds-allow: canvas export, fixed dark card
+  card: "#18181b",
+  // ds-allow: canvas export, fixed dark card
+  white: "#ffffff",
+  // ds-allow: canvas export, fixed dark card
+  muted: "#94a3b8",
+  // ds-allow: canvas export, fixed dark card
+  subtle: "#52525b",
+  // ds-allow: canvas export, fixed dark card
+  accent: "#38bdf8",
+};
+
 export function ShareProfileModal({ isOpen, onClose, profile }: ShareProfileModalProps) {
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
@@ -45,8 +61,8 @@ export function ShareProfileModal({ isOpen, onClose, profile }: ShareProfileModa
       width: 720,
       margin: 2,
       color: {
-        dark: "#09090b",
-        light: "#ffffff",
+        dark: CARD.bg,
+        light: CARD.white,
       },
       errorCorrectionLevel: "H",
     })
@@ -101,7 +117,7 @@ export function ShareProfileModal({ isOpen, onClose, profile }: ShareProfileModa
       canvas.height = height;
 
       // Dark minimalist background
-      ctx.fillStyle = "#09090b";
+      ctx.fillStyle = CARD.bg;
       ctx.fillRect(0, 0, width, height);
 
       // Subtle gradient header
@@ -112,11 +128,11 @@ export function ShareProfileModal({ isOpen, onClose, profile }: ShareProfileModa
       ctx.fillRect(0, 0, width, 300);
 
       // Brand Logo Header
-      ctx.fillStyle = "#ffffff";
+      ctx.fillStyle = CARD.white;
       ctx.font = "bold 32px system-ui, sans-serif";
       ctx.fillText("CampusLoop", 60, 80);
 
-      ctx.fillStyle = "#94a3b8";
+      ctx.fillStyle = CARD.muted;
       ctx.font = "500 16px system-ui, sans-serif";
       ctx.fillText("Verified Student Network", 60, 110);
 
@@ -126,7 +142,7 @@ export function ShareProfileModal({ isOpen, onClose, profile }: ShareProfileModa
       const cardW = width - 120;
       const cardH = 680;
 
-      ctx.fillStyle = "#18181b";
+      ctx.fillStyle = CARD.card;
       ctx.beginPath();
       ctx.roundRect(cardX, cardY, cardW, cardH, 32);
       ctx.fill();
@@ -137,16 +153,16 @@ export function ShareProfileModal({ isOpen, onClose, profile }: ShareProfileModa
       ctx.stroke();
 
       // Student info on card
-      ctx.fillStyle = "#ffffff";
+      ctx.fillStyle = CARD.white;
       ctx.font = "bold 34px system-ui, sans-serif";
       ctx.fillText(profile.displayName, cardX + 40, cardY + 70);
 
-      ctx.fillStyle = "#38bdf8";
+      ctx.fillStyle = CARD.accent;
       ctx.font = "600 20px system-ui, sans-serif";
       ctx.fillText(`@${profile.username}`, cardX + 40, cardY + 105);
 
       if (profile.institutionName) {
-        ctx.fillStyle = "#94a3b8";
+        ctx.fillStyle = CARD.muted;
         ctx.font = "500 18px system-ui, sans-serif";
         const campus = profile.institutionName.split(",")[0] || profile.institutionName;
         ctx.fillText(campus, cardX + 40, cardY + 140);
@@ -165,7 +181,7 @@ export function ShareProfileModal({ isOpen, onClose, profile }: ShareProfileModa
       const qrY = cardY + 180;
 
       // QR white backdrop
-      ctx.fillStyle = "#ffffff";
+      ctx.fillStyle = CARD.white;
       ctx.beginPath();
       ctx.roundRect(qrX - 16, qrY - 16, qrSize + 32, qrSize + 32, 24);
       ctx.fill();
@@ -173,14 +189,14 @@ export function ShareProfileModal({ isOpen, onClose, profile }: ShareProfileModa
       ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
 
       // URL under QR
-      ctx.fillStyle = "#94a3b8";
+      ctx.fillStyle = CARD.muted;
       ctx.font = "bold 18px system-ui, sans-serif";
       ctx.textAlign = "center";
       ctx.fillText(`campusloop.space/@${profile.username}`, width / 2, cardY + qrSize + 250);
       ctx.textAlign = "start";
 
       // Footer
-      ctx.fillStyle = "#52525b";
+      ctx.fillStyle = CARD.subtle;
       ctx.font = "500 16px system-ui, sans-serif";
       ctx.textAlign = "center";
       ctx.fillText("Scan with your camera to view verified profile", width / 2, height - 60);
@@ -191,7 +207,7 @@ export function ShareProfileModal({ isOpen, onClose, profile }: ShareProfileModa
       a.href = pngUrl;
       a.download = `CampusLoop-${profile.username}.png`;
       a.click();
-      toast.success("Student card downloaded! 📸");
+      toast.success("Student card downloaded!");
     } catch (e) {
       console.error(e);
       toast.error("Failed to generate student card image");
@@ -202,7 +218,7 @@ export function ShareProfileModal({ isOpen, onClose, profile }: ShareProfileModa
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md p-0 overflow-hidden border border-border/60 bg-card/95 backdrop-blur-2xl shadow-2xl rounded-3xl">
+      <DialogContent className="sm:max-w-md p-0 overflow-hidden border border-border/60 bg-card/95 backdrop-blur-sm shadow-2xl rounded-3xl">
         <DialogTitle className="sr-only">Share @{profile.username}&apos;s Profile</DialogTitle>
 
         {/* Header Preview Banner */}
@@ -279,7 +295,7 @@ export function ShareProfileModal({ isOpen, onClose, profile }: ShareProfileModa
               <button
                 type="button"
                 onClick={() => handleCopy(activeUrl, "Profile link")}
-                className="h-8 px-3 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 shadow-2xs cursor-pointer active:scale-95"
+                className="h-8 px-3 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 text-xs font-bold transition-[opacity,transform] flex items-center gap-1.5 shrink-0 shadow-2xs cursor-pointer active:scale-95"
               >
                 {copiedLink === activeUrl ? (
                   <>
@@ -298,7 +314,7 @@ export function ShareProfileModal({ isOpen, onClose, profile }: ShareProfileModa
 
           {/* Social Share Quick Channels */}
           <div className="space-y-1.5">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Share Directly</p>
+            <p className="text-xs font-bold text-muted-foreground">Share Directly</p>
             <div className="grid grid-cols-4 gap-2">
               <a
                 href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
@@ -306,9 +322,9 @@ export function ShareProfileModal({ isOpen, onClose, profile }: ShareProfileModa
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex flex-col items-center justify-center gap-1.5 py-2.5 px-2 rounded-2xl border border-border/50 bg-secondary/50 hover:bg-secondary text-foreground hover:border-emerald-500/40 transition-all cursor-pointer group shadow-2xs"
+                className="flex flex-col items-center justify-center gap-1.5 py-2.5 px-2 rounded-2xl border border-border/50 bg-secondary/50 hover:bg-secondary text-foreground hover:border-success transition-colors cursor-pointer group shadow-2xs"
               >
-                <div className="size-8 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div className="size-8 rounded-full bg-success-subtle text-success flex items-center justify-center group-hover:scale-110 transition-transform">
                   <svg className="size-4 fill-current" viewBox="0 0 24 24">
                     <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.669-.699c.961.547 1.77.84 2.79.84h.001c3.181 0 5.768-2.586 5.768-5.766 0-3.18-2.587-5.766-5.768-5.766zm9.969 5.828c0 5.514-4.486 10-10 10-1.742 0-3.376-.452-4.807-1.241l-5.193 1.359 1.385-5.062c-.889-1.488-1.385-3.228-1.385-5.056 0-5.514 4.486-10 10-10s10 4.486 10 10z" />
                   </svg>
@@ -322,9 +338,9 @@ export function ShareProfileModal({ isOpen, onClose, profile }: ShareProfileModa
                 )}&url=${encodeURIComponent(activeUrl)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex flex-col items-center justify-center gap-1.5 py-2.5 px-2 rounded-2xl border border-border/50 bg-secondary/50 hover:bg-secondary text-foreground hover:border-sky-500/40 transition-all cursor-pointer group shadow-2xs"
+                className="flex flex-col items-center justify-center gap-1.5 py-2.5 px-2 rounded-2xl border border-border/50 bg-secondary/50 hover:bg-secondary text-foreground hover:border-brand transition-colors cursor-pointer group shadow-2xs"
               >
-                <div className="size-8 rounded-full bg-sky-500/10 text-sky-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div className="size-8 rounded-full bg-brand-subtle text-brand-text flex items-center justify-center group-hover:scale-110 transition-transform">
                   <XIcon className="size-3.5" />
                 </div>
                 <span className="text-[11px] font-bold text-foreground">X / Twitter</span>
@@ -334,9 +350,9 @@ export function ShareProfileModal({ isOpen, onClose, profile }: ShareProfileModa
                 href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(activeUrl)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex flex-col items-center justify-center gap-1.5 py-2.5 px-2 rounded-2xl border border-border/50 bg-secondary/50 hover:bg-secondary text-foreground hover:border-blue-500/40 transition-all cursor-pointer group shadow-2xs"
+                className="flex flex-col items-center justify-center gap-1.5 py-2.5 px-2 rounded-2xl border border-border/50 bg-secondary/50 hover:bg-secondary text-foreground hover:border-brand transition-colors cursor-pointer group shadow-2xs"
               >
-                <div className="size-8 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div className="size-8 rounded-full bg-brand-subtle text-brand-text flex items-center justify-center group-hover:scale-110 transition-transform">
                   <LinkedinIcon className="size-4" />
                 </div>
                 <span className="text-[11px] font-bold text-foreground">LinkedIn</span>
@@ -345,7 +361,7 @@ export function ShareProfileModal({ isOpen, onClose, profile }: ShareProfileModa
               <button
                 type="button"
                 onClick={handleNativeShare}
-                className="flex flex-col items-center justify-center gap-1.5 py-2.5 px-2 rounded-2xl border border-border/50 bg-secondary/50 hover:bg-secondary text-foreground hover:border-primary/40 transition-all cursor-pointer group shadow-2xs"
+                className="flex flex-col items-center justify-center gap-1.5 py-2.5 px-2 rounded-2xl border border-border/50 bg-secondary/50 hover:bg-secondary text-foreground hover:border-primary/40 transition-colors cursor-pointer group shadow-2xs"
               >
                 <div className="size-8 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
                   <Share2 className="size-4" />
@@ -359,7 +375,7 @@ export function ShareProfileModal({ isOpen, onClose, profile }: ShareProfileModa
           <div className="rounded-2xl border border-border/50 bg-secondary/30 p-3.5 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
               {qrDataUrl ? (
-                <div className="size-14 rounded-xl bg-white p-1 shrink-0 shadow-sm border border-white/10 flex items-center justify-center">
+                <div className="size-14 rounded-xl bg-surface p-1 shrink-0 shadow-sm border border-white/10 flex items-center justify-center">
                   <img src={qrDataUrl} alt="QR Code" className="size-full object-contain" />
                 </div>
               ) : (
@@ -377,7 +393,7 @@ export function ShareProfileModal({ isOpen, onClose, profile }: ShareProfileModa
               type="button"
               onClick={handleDownloadCard}
               disabled={isGeneratingImage || !qrDataUrl}
-              className="h-8 px-3 rounded-xl border border-border bg-card hover:bg-muted text-xs font-bold text-foreground transition-all flex items-center gap-1.5 shrink-0 shadow-2xs cursor-pointer active:scale-95 disabled:opacity-50"
+              className="h-8 px-3 rounded-xl border border-border bg-card hover:bg-muted text-xs font-bold text-foreground transition-[opacity,transform] flex items-center gap-1.5 shrink-0 shadow-2xs cursor-pointer active:scale-95 disabled:opacity-50"
             >
               <Download className="size-3.5 text-primary" />
               <span>{isGeneratingImage ? "Saving..." : "Save Card"}</span>

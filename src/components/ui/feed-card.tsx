@@ -329,10 +329,10 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
       onMouseEnter={() => router.prefetch(`/post/${post.id}`)}
       className={cn(
         "relative w-full max-w-full min-w-0 border-b border-border/40 px-4 pt-3 pb-1.5 sm:px-5 cursor-pointer transition-colors select-none overflow-x-clip",
-        isBroadcast && broadcastPriority === "URGENT" && "bg-rose-500/5",
-        isBroadcast && broadcastPriority === "WARNING" && "bg-amber-500/5",
-        isBroadcast && broadcastPriority === "INFO" && "bg-blue-500/5",
-        isBroadcast && broadcastPriority === "ANNOUNCEMENT" && "bg-[var(--primary-soft)]",
+        isBroadcast && broadcastPriority === "URGENT" && "bg-danger-subtle/50",
+        isBroadcast && broadcastPriority === "WARNING" && "bg-warning-subtle/50",
+        isBroadcast && broadcastPriority === "INFO" && "bg-brand-subtle/50",
+        isBroadcast && broadcastPriority === "ANNOUNCEMENT" && "bg-brand-subtle",
         !isBroadcast && "hover:bg-muted/25"
       )}
     >
@@ -343,10 +343,10 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
             <span
               className={cn(
                 "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border",
-                broadcastPriority === "URGENT" && "bg-rose-500/20 text-rose-500 border-rose-500/30",
-                broadcastPriority === "WARNING" && "bg-amber-500/20 text-amber-500 border-amber-500/30",
-                broadcastPriority === "INFO" && "bg-blue-500/20 text-blue-500 border-blue-500/30",
-                broadcastPriority === "ANNOUNCEMENT" && "bg-primary/20 text-primary border-primary/30"
+                broadcastPriority === "URGENT" && "bg-danger-subtle text-danger border-danger/30",
+                broadcastPriority === "WARNING" && "bg-warning-subtle text-warning border-warning/30",
+                broadcastPriority === "INFO" && "bg-brand-subtle text-brand-text border-brand-subtle-border",
+                broadcastPriority === "ANNOUNCEMENT" && "bg-brand-subtle text-brand-text border-brand-subtle-border"
               )}
             >
               {broadcastPriority === "URGENT" ? (
@@ -388,7 +388,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
       {/* Double Tap Flame Vibe Pop Overlay */}
       <AnimatePresence>
         {showDoubleTapHeart && (
-          <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none bg-orange-500/5 backdrop-blur-[1px]">
+          <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none bg-reward-subtle/40 backdrop-blur-[1px]">
             <motion.div
               initial={{ scale: 0.2, opacity: 0, rotate: -15 }}
               animate={{ scale: [0.2, 1.45, 1.1], opacity: [0, 1, 0.95], rotate: [0, 8, 0] }}
@@ -396,7 +396,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
               transition={{ duration: 0.55, ease: "easeOut" }}
               className="relative"
             >
-              <Flame className="h-20 w-20 fill-orange-500 text-orange-500 drop-shadow-[0_0_28px_rgba(249,115,22,0.85)]" />
+              <Flame className="h-20 w-20 fill-reward text-reward" />
             </motion.div>
           </div>
         )}
@@ -405,7 +405,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
       {/* Repost Banner Header */}
       {post.repostOfId && (
         <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/75 font-medium pb-1.5 pl-1 select-none">
-          <Repeat2 className="size-3 text-emerald-500/80 shrink-0" />
+          <Repeat2 className="size-3 text-success/80 shrink-0" />
           <span>{authorName} Reposted</span>
         </div>
       )}
@@ -418,9 +418,9 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
             <Link
               href={`/@${post.author.username}`}
               onClick={(e) => e.stopPropagation()}
-              className="relative block cursor-pointer group"
+              className={cn("relative block cursor-pointer group rounded-full", "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg")}
             >
-              <Avatar className="size-10 rounded-full border-0 shadow-2xs group-hover:opacity-90 transition-opacity">
+              <Avatar className="size-10 rounded-full border-0 shadow-xs group-hover:opacity-90 transition-opacity">
                 <AvatarImage src={avatarUrl || ""} />
                 <AvatarFallback className="font-bold text-xs bg-muted text-foreground">
                   {avatarFallback}
@@ -428,7 +428,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
               </Avatar>
               {post.externalPost && (
                 <div
-                  className="absolute -bottom-1 -right-1 size-4 rounded-full bg-[#FF4500] border-2 border-background flex items-center justify-center text-white shadow-xs"
+                  className="absolute -bottom-1 -right-1 size-4 rounded-full bg-reward border-2 border-surface flex items-center justify-center text-reward-fg shadow-xs"
                   title={`From r/${post.externalPost.subreddit || "reddit"}`}
                 >
                   <svg className="size-2.5" viewBox="0 0 24 24" fill="currentColor">
@@ -443,19 +443,19 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="block cursor-pointer"
+              className={cn("block cursor-pointer rounded-full", "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg")}
               title={`From r/${post.externalPost.subreddit || "reddit"}`}
             >
-              <div className="size-10 rounded-full border border-orange-500/30 bg-orange-500/10 flex items-center justify-center text-orange-500 hover:scale-105 hover:bg-orange-500/20 transition-all shadow-xs">
+              <div className="size-10 rounded-full bg-reward-subtle flex items-center justify-center text-reward-text hover:scale-105 transition-transform shadow-xs">
                 <svg className="size-5" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.702zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z" />
                   </svg>
                 </div>
               </a>
             ) : isBotPost ? (
-              <Avatar className="size-10 rounded-full border border-sky-500/30 bg-sky-500/10">
+              <Avatar className="size-10 rounded-full border border-brand-subtle-border bg-brand-subtle">
                 <AvatarFallback className="bg-transparent flex items-center justify-center">
-                  <Bot className="size-5 text-sky-500 dark:text-sky-400" />
+                  <Bot className="size-5 text-brand-text" />
                 </AvatarFallback>
               </Avatar>
             ) : !post.isAnonymous ? (
@@ -468,9 +468,9 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
                 </Avatar>
               </Link>
             ) : (
-              <Avatar className="size-10 rounded-full border border-purple-500/30 bg-purple-500/10">
+              <Avatar className="size-10 rounded-full border border-border bg-surface-muted">
                 <AvatarFallback className="bg-transparent flex items-center justify-center">
-                  <VenetianMask className="size-5 text-purple-400" />
+                  <VenetianMask className="size-5 text-fg-muted" />
                 </AvatarFallback>
               </Avatar>
             )
@@ -513,7 +513,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
                 href={ctaButton.url}
                 target={ctaButton.url.startsWith("http") ? "_blank" : undefined}
                 rel={ctaButton.url.startsWith("http") ? "noopener noreferrer" : undefined}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-foreground text-background text-xs font-bold hover:opacity-90 transition-all shadow-xs cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-fg text-bg text-xs font-bold hover:opacity-90 transition-opacity shadow-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
               >
                 <span>{ctaButton.label}</span>
                 <ArrowRight className="size-3" />
@@ -621,10 +621,10 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
                       e.stopPropagation();
                       setShowLikesModal(true);
                     }}
-                    className="flex items-center gap-1.5 pb-1.5 text-xs text-muted-foreground hover:text-foreground cursor-pointer group w-fit"
+                    className="flex items-center gap-1.5 pb-1.5 text-xs text-muted-foreground hover:text-foreground cursor-pointer group w-fit rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
                   >
-                    <div className="size-4 rounded-full bg-orange-500/15 flex items-center justify-center text-orange-500 shrink-0 shadow-2xs">
-                      <Flame className="size-2.5 fill-orange-500 text-orange-500" />
+                    <div className="size-4 rounded-full bg-reward-subtle flex items-center justify-center text-reward-text shrink-0">
+                      <Flame className="size-2.5 fill-reward text-reward" />
                     </div>
                     <span className="font-semibold text-[11px] group-hover:underline">
                       {effectiveVotesCount === 1

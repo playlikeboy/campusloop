@@ -191,14 +191,14 @@ export function RequestsClient() {
           <div className="rounded-2xl border border-border/80 bg-card p-3.5 space-y-2 shadow-2xs">
             <div className="flex items-center justify-between text-xs font-bold">
               <span className="flex items-center gap-1 text-foreground">
-                <Crown className="size-3.5 text-amber-500" />
+                <Crown className="size-3.5 text-warning" />
                 <span>Vault Capacity: {usedSlots}/{maxSlots} Slots</span>
               </span>
               <span className="text-[11px] text-muted-foreground font-medium">{slotProgress.points} LP</span>
             </div>
             <div className="h-2 w-full rounded-full bg-muted/60 overflow-hidden">
               <div
-                className="h-full bg-primary rounded-full transition-all duration-500"
+                className="h-full bg-primary rounded-full transition-colors duration-500"
                 style={{ width: `${slotProgress.progressPercent}%` }}
               />
             </div>
@@ -208,7 +208,7 @@ export function RequestsClient() {
         {/* Secret Crush Slots List */}
         <div className="space-y-2.5">
           <div className="flex items-center justify-between px-1">
-            <span className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+            <span className="text-xs font-bold text-muted-foreground">
               Your Secret Crushes ({usedSlots}/{maxSlots})
             </span>
           </div>
@@ -225,7 +225,7 @@ export function RequestsClient() {
                       haptics.light();
                       setShowSearchModal(true);
                     }}
-                    className="flex w-full items-center justify-between p-3.5 rounded-2xl border border-dashed border-border/80 hover:border-primary/60 bg-muted/20 hover:bg-primary/5 transition-all text-left cursor-pointer group"
+                    className="flex w-full items-center justify-between p-3.5 rounded-2xl border border-dashed border-border/80 hover:border-primary/60 bg-muted/20 hover:bg-primary/5 transition-colors text-left cursor-pointer group"
                   >
                     <div className="flex items-center gap-3">
                       <div className="flex size-10 items-center justify-center rounded-xl bg-muted/60 text-muted-foreground group-hover:text-primary transition-colors">
@@ -245,7 +245,7 @@ export function RequestsClient() {
               return (
                 <div
                   key={item.id}
-                  className={`flex items-center justify-between p-3.5 rounded-2xl border transition-all ${
+                  className={`flex items-center justify-between p-3.5 rounded-2xl border transition-colors ${
                     item.isMutual
                       ? "border-primary/50 bg-primary/10 shadow-2xs"
                       : "border-border/80 bg-card"
@@ -264,7 +264,7 @@ export function RequestsClient() {
                           {item.target.displayName}
                         </p>
                         {item.isMutual && (
-                          <span className="rounded-full bg-pink-600 text-white text-[9px] font-black px-2 py-0.5">
+                          <span className="rounded-full bg-crush text-white text-[9px] font-black px-2 py-0.5">
                             Mutual Match!
                           </span>
                         )}
@@ -279,7 +279,7 @@ export function RequestsClient() {
                     {item.isMutual ? (
                       <Link
                         href="/chat"
-                        className="flex size-8 items-center justify-center rounded-xl bg-pink-600 text-white shadow-xs cursor-pointer active:scale-95 transition-all"
+                        className="flex size-8 items-center justify-center rounded-xl bg-crush text-white shadow-xs cursor-pointer active:scale-95 transition-[opacity,transform]"
                       >
                         <MessageSquare className="size-4" />
                       </Link>
@@ -308,7 +308,7 @@ export function RequestsClient() {
           <div className="w-full max-w-md rounded-t-3xl sm:rounded-3xl border border-border/80 bg-card p-4 sm:p-6 shadow-2xl max-h-[85vh] flex flex-col">
             <div className="flex items-center justify-between pb-3 border-b border-border/40">
               <div className="flex items-center gap-2">
-                <Lock className="size-4 text-purple-600" />
+                <Lock className="size-4 text-brand-text" />
                 <h3 className="text-sm font-black text-foreground">Lock A Secret Crush</h3>
               </div>
               <button
@@ -328,14 +328,14 @@ export function RequestsClient() {
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
                 autoFocus
-                className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-border/60 bg-background text-xs font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500/30"
+                className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-border/60 bg-background text-xs font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
 
             <div className="mt-3 flex-1 overflow-y-auto space-y-2 min-h-[160px] max-h-[300px]">
               {isSearching ? (
                 <div className="flex items-center justify-center py-8 text-muted-foreground">
-                  <Loader2 className="size-5 animate-spin text-purple-600" />
+                  <Loader2 className="size-5 animate-spin text-brand-text" />
                 </div>
               ) : searchResults.length > 0 ? (
                 searchResults.map((user) => (
@@ -359,7 +359,7 @@ export function RequestsClient() {
                       type="button"
                       onClick={() => handleAddCrush(user.id)}
                       disabled={isSubmitting}
-                      className="px-3 py-1.5 rounded-full bg-purple-600 hover:bg-purple-700 text-white text-[11px] font-black shrink-0 cursor-pointer disabled:opacity-50 transition-all active:scale-95"
+                      className="px-3 py-1.5 rounded-full bg-brand hover:bg-brand-hover text-white text-[11px] font-black shrink-0 cursor-pointer disabled:opacity-50 transition-[opacity,transform] active:scale-95"
                     >
                       Lock In
                     </button>

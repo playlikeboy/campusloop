@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/animated-icon";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { VerifiedBadge } from "@/components/ui/verified-badge";
+import { isCollegeVerifiedUser } from "@/lib/user-verification";
 import type { FeedPost } from "@/hooks/use-feed";
 import { cn, formatTimeAgo, getCollegeShortName } from "@/lib/utils";
 
@@ -133,7 +134,9 @@ export function FeedCardHeader({
         : null;
 
   const isVerified = Boolean(
-    !isBotPost && !post.isAnonymous && ((post.author?.points || 0) >= 150 || post.author?.role === "ADMIN")
+    !isBotPost &&
+      !post.isAnonymous &&
+      (post.author?.isCollegeVerified || isCollegeVerifiedUser(post.author))
   );
 
   const institutionDisplayName = getCollegeShortName(post.institution) || null;
@@ -161,7 +164,7 @@ export function FeedCardHeader({
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="font-bold text-[15px] text-foreground hover:text-orange-500 hover:underline truncate max-w-[160px] sm:max-w-[220px] shrink-0"
+              className="font-bold text-[15px] text-foreground hover:text-warning hover:underline truncate max-w-[160px] sm:max-w-[220px] shrink-0"
             >
               {authorName}
             </a>
@@ -180,7 +183,7 @@ export function FeedCardHeader({
               type="button"
               onClick={handleToggleFollow}
               className={cn(
-                "h-5 px-2 rounded-full text-[10px] font-semibold transition-all cursor-pointer shrink-0 active:scale-95",
+                "h-5 px-2 rounded-full text-[10px] font-semibold transition-transform cursor-pointer shrink-0 active:scale-95",
                 isFollowing
                   ? "bg-muted/60 text-muted-foreground hover:bg-muted/80 border border-border/40"
                   : "bg-primary/15 text-primary hover:bg-primary/25 border border-primary/25"
@@ -191,14 +194,14 @@ export function FeedCardHeader({
           )}
 
           {isBotPost && (
-            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/25 text-[9px] font-black uppercase tracking-wider shrink-0 shadow-2xs">
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-brand/10 text-brand-text border border-brand-subtle-border/25 text-[9px] font-black shrink-0 shadow-2xs">
               <Bot className="size-2.5" />
               <span>BOT</span>
             </span>
           )}
 
           {post.isAnonymous && !isBotPost && (
-            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/25 text-[9px] font-bold uppercase tracking-wider shrink-0 shadow-2xs">
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-brand/10 text-brand-text border border-brand-subtle-border/25 text-[9px] font-bold shrink-0 shadow-2xs">
               <VenetianMask className="size-2.5" />
               <span>Anon</span>
             </span>
@@ -216,7 +219,7 @@ export function FeedCardHeader({
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border border-orange-500/20 text-[10px] font-bold shrink-0 transition-colors"
+              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-warning/10 hover:bg-warning/20 text-warning border border-warning/20 text-[10px] font-bold shrink-0 transition-colors"
               title={`From r/${post.externalPost?.subreddit || "reddit"}`}
             >
               <span>r/{post.externalPost?.subreddit}</span>
@@ -245,12 +248,12 @@ export function FeedCardHeader({
             </span>
           )}
           {post.type === "CONFESSION" && (
-            <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 shrink-0">
+            <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-brand/10 text-brand-text border border-brand-subtle-border/20 shrink-0">
               Confession
             </span>
           )}
           {post.type === "MEME" && (
-            <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shrink-0">
+            <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-warning/10 text-warning border border-warning/20 shrink-0">
               Meme
             </span>
           )}
@@ -293,13 +296,13 @@ export function FeedCardHeader({
                       type="button"
                       onClick={() => void handleUndoRepost()}
                       disabled={isUndoingRepost}
-                      className="w-full text-left px-3.5 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-500/10 transition-colors cursor-pointer disabled:opacity-50 flex items-center gap-2"
+                      className="w-full text-left px-3.5 py-2 text-xs font-semibold text-danger hover:bg-danger/10 transition-colors cursor-pointer disabled:opacity-50 flex items-center gap-2"
                     >
                       <AnimatedIcon
                         icon={AnimateRepeat2}
                         animation="nudge-right"
                         size={16}
-                        className="text-rose-500"
+                        className="text-danger"
                       />
                       <span>{isUndoingRepost ? "Undoing repost…" : "Undo repost"}</span>
                     </button>
@@ -316,7 +319,7 @@ export function FeedCardHeader({
                         icon={AnimateRepeat2}
                         animation="nudge-right"
                         size={16}
-                        className="text-emerald-500"
+                        className="text-success"
                       />
                       <span>Repost or Quote</span>
                     </button>
@@ -330,7 +333,7 @@ export function FeedCardHeader({
                     }}
                     className="w-full text-left px-3.5 py-2 text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer flex items-center gap-2"
                   >
-                    <Link2 className="size-4 text-blue-500" />
+                    <Link2 className="size-4 text-brand-text" />
                     <span>Copy Link</span>
                   </button>
 
@@ -349,7 +352,7 @@ export function FeedCardHeader({
                     }}
                     className="w-full text-left px-3.5 py-2 text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer flex items-center gap-2"
                   >
-                    <Copy className="size-4 text-purple-500" />
+                    <Copy className="size-4 text-brand-text" />
                     <span>Copy Text</span>
                   </button>
 
@@ -385,7 +388,7 @@ export function FeedCardHeader({
                         disabled={isArchiving}
                         className="w-full text-left px-3.5 py-2 text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer flex items-center gap-2"
                       >
-                        <Archive className="size-4 text-amber-500" />
+                        <Archive className="size-4 text-warning" />
                         <span>{post.status === "ARCHIVED" ? "Restore to Feed" : "Archive Post"}</span>
                       </button>
 

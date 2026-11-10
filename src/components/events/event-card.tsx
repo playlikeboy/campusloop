@@ -59,33 +59,33 @@ export function isEventClosed(event: EventItem, nowMs = Date.now()) {
 function categoryArtwork(eventType: string) {
   const type = String(eventType || "").toUpperCase();
   if (["INTERNSHIP", "JOB"].includes(type)) {
-    return { gradient: "from-sky-700 via-blue-600 to-indigo-400", kicker: "CAREER GROWTH", Icon: BriefcaseBusiness };
+    return { gradient: "bg-brand", kicker: "Career growth", Icon: BriefcaseBusiness };
   }
   if (["SCHOLARSHIP", "FELLOWSHIP", "GRANT"].includes(type)) {
-    return { gradient: "from-amber-500 via-orange-500 to-pink-500", kicker: "FUND YOUR FUTURE", Icon: GraduationCap };
+    return { gradient: "bg-brand", kicker: "Fund your future", Icon: GraduationCap };
   }
   if (type === "HACKATHON") {
-    return { gradient: "from-violet-700 via-indigo-500 to-cyan-400", kicker: "BUILD · SHIP · WIN", Icon: Rocket };
+    return { gradient: "bg-brand", kicker: "Build, ship, win", Icon: Rocket };
   }
   if (["COMPETITION", "CONTEST"].includes(type)) {
-    return { gradient: "from-orange-600 via-rose-500 to-amber-400", kicker: "SHOW WHAT YOU CAN DO", Icon: Trophy };
+    return { gradient: "bg-brand", kicker: "Show what you can do", Icon: Trophy };
   }
   if (type === "WORKSHOP") {
-    return { gradient: "from-cyan-700 via-teal-500 to-emerald-400", kicker: "LEARN BY DOING", Icon: Wrench };
+    return { gradient: "bg-brand", kicker: "Learn by doing", Icon: Wrench };
   }
   if (type === "SEMINAR") {
-    return { gradient: "from-blue-700 via-indigo-500 to-violet-400", kicker: "IDEAS & INSIGHTS", Icon: MessageSquareText };
+    return { gradient: "bg-brand", kicker: "Ideas and insights", Icon: MessageSquareText };
   }
   if (type === "MEETUP") {
-    return { gradient: "from-teal-700 via-cyan-500 to-blue-400", kicker: "MEET YOUR PEOPLE", Icon: Users };
+    return { gradient: "bg-brand", kicker: "Meet your people", Icon: Users };
   }
   if (["CULTURAL", "FEST"].includes(type)) {
-    return { gradient: "from-fuchsia-700 via-pink-500 to-rose-400", kicker: "CAMPUS CULTURE", Icon: Palette };
+    return { gradient: "bg-brand", kicker: "Campus culture", Icon: Palette };
   }
   if (type === "SPORTS") {
-    return { gradient: "from-lime-700 via-green-500 to-emerald-400", kicker: "PLAY TO WIN", Icon: Dumbbell };
+    return { gradient: "bg-brand", kicker: "Play to win", Icon: Dumbbell };
   }
-  return { gradient: "from-slate-800 via-slate-700 to-indigo-500", kicker: "YOUR NEXT OPPORTUNITY", Icon: Sparkles };
+  return { gradient: "bg-brand", kicker: "Your next opportunity", Icon: Sparkles };
 }
 
 function safePosterUrl(value: string | null | undefined): string | null {
@@ -109,13 +109,11 @@ function EventArtwork({ event, variant }: { event: EventItem; variant: "row" | "
   const { gradient, kicker, Icon } = categoryArtwork(event.eventType);
 
   return (
-    <div className={"relative size-full overflow-hidden bg-gradient-to-br " + gradient}>
+    <div className={"relative size-full overflow-hidden " + gradient}>
       {!hasPoster && (
         <>
-          <div className="pointer-events-none absolute -right-12 -top-12 size-40 rounded-full border border-white/15 bg-white/10 blur-2xl" />
-          <div className="pointer-events-none absolute -bottom-20 -left-10 size-44 rounded-full bg-black/10 blur-2xl" />
           <div className={"relative flex h-full flex-col justify-between p-4 " + (variant === "row" ? "items-center justify-center p-1.5" : "")}>
-            <span className={"text-[10px] font-semibold uppercase tracking-[0.18em] text-white/75 " + (variant === "row" ? "hidden" : "")}>
+            <span className={"text-xs font-semibold text-brand-fg/80 " + (variant === "row" ? "hidden" : "")}>
               {kicker}
             </span>
             <div className={"flex items-center justify-between gap-3 " + (variant === "row" ? "justify-center" : "")}>
@@ -190,7 +188,7 @@ export function EventCard({ event, variant = "row" }: EventCardProps) {
   const action = closed ? (
     <span className="inline-flex min-h-10 sm:min-h-8 items-center rounded-full bg-muted px-3 text-xs font-semibold text-muted-foreground">Closed</span>
   ) : isRegistered ? (
-    <span className="inline-flex min-h-10 sm:min-h-8 items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+    <span className="inline-flex min-h-10 sm:min-h-8 items-center gap-1.5 rounded-full bg-success-subtle px-3 text-xs font-semibold text-success">
       <Check className="size-3.5" /> Joined
     </span>
   ) : event.participationType === "TEAM" ? (
@@ -208,7 +206,7 @@ export function EventCard({ event, variant = "row" }: EventCardProps) {
           <div className="relative aspect-[16/9] overflow-hidden bg-muted/40">
             <EventArtwork event={event} variant="grid" />
             <span className="absolute left-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-[10px] font-semibold text-white">{event.eventType.toLowerCase().replace(/_/g, " ")}</span>
-            {live && <span className="absolute right-3 top-3 rounded-full bg-rose-500 px-2.5 py-1 text-[10px] font-bold text-white">Live</span>}
+            {live && <span className="absolute right-3 top-3 rounded-full bg-danger px-2.5 py-1 text-[10px] font-bold text-white">Live</span>}
           </div>
           <div className="space-y-2.5 p-4">
             <p className="truncate text-xs text-muted-foreground">{event.clubName}</p>
@@ -221,7 +219,7 @@ export function EventCard({ event, variant = "row" }: EventCardProps) {
             {(event.prizesDescription || event.entryFee) && (
               <div className="flex items-center justify-between gap-2 text-xs">
                 <span className="truncate font-medium text-foreground">{event.entryFee || "Free"}</span>
-                {event.prizesDescription && <span className="inline-flex min-w-0 items-center gap-1 truncate font-medium text-amber-600 dark:text-amber-400"><Trophy className="size-3.5 shrink-0" />{event.prizesDescription}</span>}
+                {event.prizesDescription && <span className="inline-flex min-w-0 items-center gap-1 truncate font-medium text-warning"><Trophy className="size-3.5 shrink-0" />{event.prizesDescription}</span>}
               </div>
             )}
           </div>
@@ -238,7 +236,7 @@ export function EventCard({ event, variant = "row" }: EventCardProps) {
     <article className="flex gap-3 rounded-2xl bg-card p-3 transition-colors hover:bg-muted/20 sm:items-center sm:gap-4 sm:p-3.5">
       <Link href={href} className="relative size-[76px] shrink-0 overflow-hidden rounded-xl bg-muted/40 sm:size-24">
         <EventArtwork event={event} variant="row" />
-        {live && <span className="absolute bottom-1.5 left-1.5 rounded-full bg-rose-500 px-1.5 py-0.5 text-[9px] font-bold text-white">LIVE</span>}
+        {live && <span className="absolute bottom-1.5 left-1.5 rounded-full bg-danger px-1.5 py-0.5 text-[9px] font-bold text-white">LIVE</span>}
       </Link>
       <div className="min-w-0 flex-1">
         <div className="mb-1 flex min-w-0 items-center gap-2">
@@ -249,7 +247,7 @@ export function EventCard({ event, variant = "row" }: EventCardProps) {
         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
           <span className="inline-flex items-center gap-1.5"><CalendarDays className="size-3.5" />{eventDate(event.startDate)}</span>
           <span>{modeLabel}</span>
-          {event.prizesDescription && <span className="inline-flex max-w-full items-center gap-1 truncate font-medium text-amber-600 dark:text-amber-400"><Trophy className="size-3 shrink-0" /><span className="truncate">{event.prizesDescription}</span></span>}
+          {event.prizesDescription && <span className="inline-flex max-w-full items-center gap-1 truncate font-medium text-warning"><Trophy className="size-3 shrink-0" /><span className="truncate">{event.prizesDescription}</span></span>}
         </div>
         <div className="mt-2.5 flex items-center justify-between gap-2">
           <span className="inline-flex min-w-0 items-center gap-1.5 truncate text-[11px] text-muted-foreground">

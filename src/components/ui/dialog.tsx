@@ -60,7 +60,7 @@ export function DialogContent({ className, children }: { className?: string; chi
         type="button"
         onClick={() => ctx?.onOpenChange(false)}
         aria-label="Close dialog"
-        className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 size-9 rounded-full bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 size-9 rounded-full bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
       >
         <X className="size-4" />
       </button>

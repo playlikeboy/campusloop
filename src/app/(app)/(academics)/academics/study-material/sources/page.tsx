@@ -4,7 +4,7 @@ import Link from "next/link";
 import { AcademicSourcesDirectory } from "@/components/academics/academic-sources-directory";
 
 export const metadata: Metadata = {
-  title: "Directory of Working Engineering Notes & PYQ Websites | CampusLoop",
+  title: "Directory of Working Engineering Notes & PYQ Websites",
   description:
     "Curated directory of active, working college websites for free engineering notes, past question papers (PYQs), lab manuals, and syllabus modules across Indian universities.",
   keywords: [
@@ -18,12 +18,12 @@ export const metadata: Metadata = {
     "Free college notes PDF download sites",
     "Previous year question papers archive",
   ],
-  alternates: { canonical: "https://campusloop.space/app/academics/sources" },
+  alternates: { canonical: "https://campusloop.space/academics/study-material/sources" },
   openGraph: {
-    title: "Directory of Engineering Notes & Question Paper Archives | CampusLoop",
+    title: "Directory of Engineering Notes & Question Paper Archives",
     description:
       "Curated directory of verified working websites for free engineering notes, semester PYQs, and lab manuals.",
-    url: "https://campusloop.space/app/academics/sources",
+    url: "https://campusloop.space/academics/study-material/sources",
     siteName: "CampusLoop Academics",
     locale: "en_IN",
     type: "website",
@@ -41,7 +41,7 @@ export default function AcademicSourcesPage() {
     name: "Curated Directory of Engineering Academic Sources & PYQ Archives",
     description:
       "Comprehensive directory of verified working university portals and student archives for free engineering lecture notes and previous year exam papers.",
-    url: "https://campusloop.space/app/academics/sources",
+    url: "https://campusloop.space/academics/study-material/sources",
     inLanguage: "en-IN",
   };
 

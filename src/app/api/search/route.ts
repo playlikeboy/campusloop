@@ -16,6 +16,7 @@ import {
 import { hexclaveServerApp } from "@/hexclave/server";
 import { formatApiFeedPosts } from "@/lib/feed";
 import { getShowSeededPosts } from "@/lib/platform-config";
+import { rememberSearch } from "@/lib/search-history";
 import { detectSearchIntent } from "@/lib/search/intent";
 import type {
   SearchCategoryFilter,
@@ -69,8 +70,10 @@ export async function GET(request: Request) {
       if (user) {
         const profile = await db.query.userProfiles.findFirst({
           where: eq(userProfiles.userId, user.id),
-          columns: { institutionId: true },
+          columns: { id: true, institutionId: true },
         });
+        // Remembered searches personalise feed slots such as course picks.
+        if (profile) await rememberSearch(profile.id, rawQ);
         if (profile?.institutionId) {
           userInstitutionId = profile.institutionId;
         }

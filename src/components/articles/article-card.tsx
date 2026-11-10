@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ARTICLES_CANONICAL_HOST, getCategoryMeta } from "@/constants/articles";
+import { ARTICLE_TONE_CLASSES, ARTICLES_CANONICAL_HOST, getCategoryMeta } from "@/constants/articles";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
@@ -146,7 +146,7 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
 
   if (featured) {
     return (
-      <article className="group relative overflow-hidden rounded-2xl border border-border/50 bg-card/60 transition-all hover:border-primary/40 hover:bg-card hover:shadow-md">
+      <article className="group relative overflow-hidden rounded-xl border border-border bg-surface transition-colors hover:border-brand-subtle-border">
         <div className="flex flex-col md:flex-row gap-6 p-6">
           {/* Featured Cover */}
           {article.coverImageUrl && (
@@ -162,8 +162,8 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
               <div className="absolute top-2.5 left-2.5">
                 <span
                   className={cn(
-                    "px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border backdrop-blur-md",
-                    catMeta.colorClass
+                    "px-2 py-0.5 rounded-sm text-xs font-semibold border",
+                    ARTICLE_TONE_CLASSES[catMeta.tone]
                   )}
                 >
                   {catMeta.label}
@@ -266,7 +266,7 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
                   aria-label="Share article"
                   className="p-1.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
                 >
-                  {copied ? <Check className="size-3.5 text-emerald-500" /> : <Share2 className="size-3.5" />}
+                  {copied ? <Check className="size-3.5 text-success" /> : <Share2 className="size-3.5" />}
                 </button>
               </div>
             </div>
@@ -320,7 +320,7 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
           <div className="flex flex-wrap items-center justify-between gap-2 pt-2 text-xs text-muted-foreground">
             <div className="flex items-center gap-2.5">
               <span
-                className={cn("px-2 py-0.5 rounded text-[10px] font-semibold border", catMeta.colorClass)}
+                className={cn("px-2 py-0.5 rounded-sm text-xs font-semibold border", ARTICLE_TONE_CLASSES[catMeta.tone])}
               >
                 {catMeta.label}
               </span>
@@ -374,7 +374,7 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
                 aria-label="Share article"
                 className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
               >
-                {copied ? <Check className="size-3.5 text-emerald-500" /> : <Share2 className="size-3.5" />}
+                {copied ? <Check className="size-3.5 text-success" /> : <Share2 className="size-3.5" />}
               </button>
             </div>
           </div>

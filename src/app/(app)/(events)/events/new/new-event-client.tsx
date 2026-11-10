@@ -68,56 +68,56 @@ const EVENT_TYPES: EventTypeOption[] = [
     label: "Hackathon",
     desc: "Coding sprints, builds & demos",
     icon: Code2,
-    accent: "text-indigo-500 border-indigo-500/30 bg-indigo-500/10",
+    accent: "text-brand-text border-brand bg-brand-subtle",
   },
   {
     id: "WORKSHOP",
     label: "Workshop",
     desc: "Hands-on tech & creative bootcamps",
     icon: BookOpen,
-    accent: "text-cyan-500 border-cyan-500/30 bg-cyan-500/10",
+    accent: "text-brand-text border-brand bg-brand-subtle",
   },
   {
     id: "FEST",
     label: "College Fest",
     desc: "Annual fests, cultural nights & expos",
     icon: Sparkles,
-    accent: "text-amber-500 border-amber-500/30 bg-amber-500/10",
+    accent: "text-warning border-warning bg-warning-subtle",
   },
   {
     id: "COMPETITION",
     label: "Competition",
     desc: "Debates, case-comps & design wars",
     icon: Trophy,
-    accent: "text-violet-500 border-violet-500/30 bg-violet-500/10",
+    accent: "text-brand-text border-brand bg-brand-subtle",
   },
   {
     id: "SEMINAR",
     label: "Seminar / Talk",
     desc: "Guest lectures & alumni keynotes",
     icon: Mic,
-    accent: "text-emerald-500 border-emerald-500/30 bg-emerald-500/10",
+    accent: "text-success border-success bg-success-subtle",
   },
   {
     id: "MEETUP",
     label: "Meetup",
     desc: "Informal student gatherings & mixers",
     icon: Users,
-    accent: "text-blue-500 border-blue-500/30 bg-blue-500/10",
+    accent: "text-brand-text border-brand bg-brand-subtle",
   },
   {
     id: "CULTURAL",
     label: "Cultural",
     desc: "Music, dance, theatre & photography",
     icon: Palette,
-    accent: "text-rose-500 border-rose-500/30 bg-rose-500/10",
+    accent: "text-danger border-danger bg-danger-subtle",
   },
   {
     id: "SPORTS",
     label: "Sports / Esports",
     desc: "Tournaments, gaming & athletics",
     icon: Flame,
-    accent: "text-orange-500 border-orange-500/30 bg-orange-500/10",
+    accent: "text-warning border-warning bg-warning-subtle",
   },
 ];
 
@@ -580,7 +580,7 @@ export function NewEventClient() {
   return (
     <div className="min-h-screen bg-background text-foreground pb-24 selection:bg-primary/20">
       {/* ─── Sticky Top Control Bar ───────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 border-b border-border/50 bg-background/85 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 border-b border-border/50 bg-background/85 backdrop-blur-sm">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
             <button
@@ -612,7 +612,7 @@ export function NewEventClient() {
                 type="button"
                 onClick={() => setMobileTab("edit")}
                 className={cn(
-                  "rounded-full px-2.5 py-1 text-xs font-bold transition-all cursor-pointer",
+                  "rounded-full px-2.5 py-1 text-xs font-bold transition-colors cursor-pointer",
                   mobileTab === "edit"
                     ? "bg-background text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
@@ -624,7 +624,7 @@ export function NewEventClient() {
                 type="button"
                 onClick={() => setMobileTab("preview")}
                 className={cn(
-                  "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold transition-all cursor-pointer",
+                  "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold transition-colors cursor-pointer",
                   mobileTab === "preview"
                     ? "bg-background text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
@@ -719,7 +719,7 @@ export function NewEventClient() {
                     haptics.light();
                   }}
                   className={cn(
-                    "flex items-center justify-center gap-2 py-2.5 px-3 rounded-2xl text-xs font-bold transition-all cursor-pointer",
+                    "flex items-center justify-center gap-2 py-2.5 px-3 rounded-2xl text-xs font-bold transition-colors cursor-pointer",
                     !isExternalOpportunity
                       ? "bg-primary text-primary-foreground shadow-xs"
                       : "bg-muted/40 text-muted-foreground hover:text-foreground"
@@ -737,7 +737,7 @@ export function NewEventClient() {
                     haptics.light();
                   }}
                   className={cn(
-                    "flex items-center justify-center gap-2 py-2.5 px-3 rounded-2xl text-xs font-bold transition-all cursor-pointer",
+                    "flex items-center justify-center gap-2 py-2.5 px-3 rounded-2xl text-xs font-bold transition-colors cursor-pointer",
                     isExternalOpportunity
                       ? "bg-primary text-primary-foreground shadow-xs"
                       : "bg-muted/40 text-muted-foreground hover:text-foreground"
@@ -834,7 +834,7 @@ export function NewEventClient() {
                           haptics.light();
                         }}
                         className={cn(
-                          "group flex flex-col items-start p-3 rounded-2xl border text-left transition-all cursor-pointer active:scale-97",
+                          "group flex flex-col items-start p-3 rounded-2xl border text-left transition-[opacity,transform] cursor-pointer active:scale-97",
                           isSelected
                             ? "border-primary bg-primary/10 ring-2 ring-primary/40 shadow-xs"
                             : "border-border/50 bg-muted/20 hover:border-border hover:bg-muted/40"
@@ -889,7 +889,7 @@ export function NewEventClient() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80" />
                     <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur-md">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur-sm">
                         <selectedCategory.icon className="size-3 text-primary" />
                         {selectedCategory.label}
                       </span>
@@ -940,7 +940,7 @@ export function NewEventClient() {
                         haptics.light();
                       }}
                       className={cn(
-                        "group relative aspect-16/9 overflow-hidden rounded-xl border text-left transition-all cursor-pointer",
+                        "group relative aspect-16/9 overflow-hidden rounded-xl border text-left transition-colors cursor-pointer",
                         bannerUrl === preset.url
                           ? "border-primary ring-2 ring-primary/40 shadow-xs"
                           : "border-border/40 hover:border-border"
@@ -1034,7 +1034,7 @@ export function NewEventClient() {
                           haptics.light();
                         }}
                         className={cn(
-                          "flex items-center gap-3 p-3.5 rounded-2xl border text-left transition-all cursor-pointer active:scale-97",
+                          "flex items-center gap-3 p-3.5 rounded-2xl border text-left transition-[opacity,transform] cursor-pointer active:scale-97",
                           isSelected
                             ? "border-primary bg-primary/10 ring-2 ring-primary/40 shadow-xs"
                             : "border-border/50 bg-muted/20 hover:border-border hover:bg-muted/40"
@@ -1242,7 +1242,7 @@ export function NewEventClient() {
                           haptics.light();
                         }}
                         className={cn(
-                          "flex items-center gap-3 p-3.5 rounded-2xl border text-left transition-all cursor-pointer active:scale-97",
+                          "flex items-center gap-3 p-3.5 rounded-2xl border text-left transition-[opacity,transform] cursor-pointer active:scale-97",
                           isSelected
                             ? "border-primary bg-primary/10 ring-2 ring-primary/40 shadow-xs"
                             : "border-border/50 bg-muted/20 hover:border-border hover:bg-muted/40"
@@ -1376,7 +1376,7 @@ export function NewEventClient() {
                       haptics.light();
                     }}
                     className={cn(
-                      "flex flex-col items-start p-3 rounded-2xl border text-left transition-all cursor-pointer active:scale-97",
+                      "flex flex-col items-start p-3 rounded-2xl border text-left transition-[opacity,transform] cursor-pointer active:scale-97",
                       isAllColleges === opt.value
                         ? "border-primary bg-primary/10 ring-2 ring-primary/40 shadow-xs"
                         : "border-border/50 bg-muted/20 hover:border-border hover:bg-muted/40"
@@ -1426,7 +1426,7 @@ export function NewEventClient() {
                           haptics.light();
                         }}
                         className={cn(
-                          "flex items-start gap-2.5 p-3 rounded-2xl border text-left transition-all cursor-pointer active:scale-97",
+                          "flex items-start gap-2.5 p-3 rounded-2xl border text-left transition-[opacity,transform] cursor-pointer active:scale-97",
                           isSelected
                             ? "border-primary bg-primary/10 ring-2 ring-primary/40 shadow-xs"
                             : "border-border/50 bg-muted/20 hover:border-border hover:bg-muted/40"
@@ -1461,7 +1461,7 @@ export function NewEventClient() {
               {/* Prize Pool */}
               <div>
                 <label className="flex items-center gap-1.5 text-xs font-bold text-foreground">
-                  <Trophy className="size-3.5 text-amber-500" />
+                  <Trophy className="size-3.5 text-warning" />
                   Prize Pool Description
                 </label>
                 <Input
@@ -1626,17 +1626,17 @@ export function NewEventClient() {
               <div className="flex items-center justify-between border-b border-border/40 pb-3">
                 <div className="flex items-center gap-2">
                   <Eye className="size-4 text-primary" />
-                  <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+                  <h3 className="text-xs font-bold text-muted-foreground">
                     Live Feed Card Preview
                   </h3>
                 </div>
-                <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                <span className="rounded-full bg-success-subtle px-2 py-0.5 text-[10px] font-bold text-success">
                   Student View
                 </span>
               </div>
 
               {/* Event Card Mockup */}
-              <div className="overflow-hidden rounded-2xl border border-border/60 bg-background shadow-sm transition-all">
+              <div className="overflow-hidden rounded-2xl border border-border/60 bg-background shadow-sm transition-colors">
                 {/* Banner */}
                 <div className="relative aspect-16/9 w-full bg-muted/40 overflow-hidden">
                   {bannerUrl ? (
@@ -1650,11 +1650,11 @@ export function NewEventClient() {
 
                   {/* Badges on Banner */}
                   <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1.5">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-0.5 text-[10px] font-black text-white backdrop-blur-md">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-0.5 text-[10px] font-black text-white backdrop-blur-sm">
                       <selectedCategory.icon className="size-2.5 text-primary" />
                       {selectedCategory.label}
                     </span>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur-md">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur-sm">
                       {mode === "OFFLINE" ? "In-Person" : mode === "ONLINE" ? "Virtual" : "Hybrid"}
                     </span>
                   </div>
@@ -1662,8 +1662,8 @@ export function NewEventClient() {
                   <div className="absolute top-2.5 right-2.5">
                     <span
                       className={cn(
-                        "rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wider backdrop-blur-md",
-                        isPaid ? "bg-amber-500/80 text-white" : "bg-emerald-500/80 text-white"
+                        "rounded-full px-2 py-0.5 text-xs font-bold backdrop-blur-sm",
+                        isPaid ? "bg-warning/80 text-white" : "bg-success/80 text-white"
                       )}
                     >
                       {isPaid ? entryFee.trim() || "Paid" : "Free"}
@@ -1709,8 +1709,8 @@ export function NewEventClient() {
 
                     {prizesDescription.trim() && (
                       <div className="flex items-center gap-2">
-                        <Trophy className="size-3.5 text-amber-500 shrink-0" />
-                        <span className="line-clamp-1 font-bold text-amber-600 dark:text-amber-400">
+                        <Trophy className="size-3.5 text-warning shrink-0" />
+                        <span className="line-clamp-1 font-bold text-warning">
                           {prizesDescription}
                         </span>
                       </div>
@@ -1751,7 +1751,7 @@ export function NewEventClient() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="size-4 text-primary" />
-                  <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+                  <h3 className="text-xs font-bold text-muted-foreground">
                     Host Readiness
                   </h3>
                 </div>
@@ -1761,7 +1761,7 @@ export function NewEventClient() {
               {/* Progress Bar */}
               <div className="h-2 w-full rounded-full bg-muted/40 overflow-hidden">
                 <div
-                  className="h-full bg-primary transition-all duration-500 rounded-full"
+                  className="h-full bg-primary transition-colors duration-500 rounded-full"
                   style={{ width: `${readinessPercent}%` }}
                 />
               </div>

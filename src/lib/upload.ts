@@ -6,7 +6,7 @@
 
 const IMGBB_API_KEY = process.env.NEXT_PUBLIC_IMGBB_API_KEY || process.env.IMGBB_API_KEY || "";
 
-export type MediaType = "image" | "video" | "audio" | "document" | "file";
+export type MediaType = "image" | "video" | "audio" | "document" | "file" | "html" | "academic_html";
 
 export interface MediaUploadResult {
   url: string;
@@ -256,6 +256,8 @@ export async function uploadMediaFile(
     audio: { max: 30 * 1024 * 1024, label: "30MB" },
     document: { max: 50 * 1024 * 1024, label: "50MB" },
     file: { max: 50 * 1024 * 1024, label: "50MB" },
+    html: { max: 3 * 1024 * 1024, label: "3MB" },
+    academic_html: { max: 3 * 1024 * 1024, label: "3MB" },
   };
 
   const limit = maxLimits[category] || maxLimits.file;

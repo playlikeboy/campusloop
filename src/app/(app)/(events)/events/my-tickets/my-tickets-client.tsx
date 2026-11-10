@@ -59,7 +59,7 @@ export function MyTicketsClient({
   );
 
   const events = data?.events || [];
-  const now = Date.now();
+  const [now] = useState(() => Date.now());
 
   const filteredEvents = events.filter((ev) => {
     const endMs = new Date(ev.endDate).getTime();
@@ -127,7 +127,7 @@ export function MyTicketsClient({
 
           <Link
             href="/events"
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-all shadow-xs"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-colors shadow-xs"
           >
             <span>Explore Events</span>
           </Link>
@@ -140,7 +140,7 @@ export function MyTicketsClient({
           type="button"
           onClick={() => setFilter("UPCOMING")}
           className={cn(
-            "px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer",
+            "px-4 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer",
             filter === "UPCOMING"
               ? "bg-foreground text-background"
               : "bg-muted/40 text-muted-foreground hover:text-foreground border border-border/40"
@@ -153,7 +153,7 @@ export function MyTicketsClient({
           type="button"
           onClick={() => setFilter("PAST")}
           className={cn(
-            "px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer",
+            "px-4 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer",
             filter === "PAST"
               ? "bg-foreground text-background"
               : "bg-muted/40 text-muted-foreground hover:text-foreground border border-border/40"
@@ -190,7 +190,7 @@ export function MyTicketsClient({
             return (
               <div
                 key={ev.id}
-                className="relative rounded-2xl border border-border/50 bg-card/60 backdrop-blur-sm overflow-hidden shadow-2xs hover:border-primary/40 transition-all"
+                className="relative rounded-2xl border border-border/50 bg-card/60 backdrop-blur-sm overflow-hidden shadow-2xs hover:border-primary/40 transition-colors"
               >
                 {/* Perforated Notch Left & Right */}
                 <div className="hidden sm:block absolute -left-2.5 top-1/2 -translate-y-1/2 size-5 rounded-full bg-background border border-border/60 z-10" />
@@ -223,8 +223,8 @@ export function MyTicketsClient({
                             className={cn(
                               "px-2 py-0.5 rounded text-[10px] font-bold uppercase",
                               regStatus === "ATTENDED"
-                                ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
-                                : "bg-blue-500/10 text-blue-500 border border-blue-500/20"
+                                ? "bg-success-subtle text-success border border-success"
+                                : "bg-brand-subtle text-brand-text border border-brand"
                             )}
                           >
                             {regStatus === "ATTENDED" ? "Checked In" : "Confirmed Pass"}
@@ -325,7 +325,7 @@ export function MyTicketsClient({
           </div>
           <Link
             href="/events"
-            className="inline-flex px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-all shadow-xs"
+            className="inline-flex px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-colors shadow-xs"
           >
             Explore upcoming campus hackathons & fests →
           </Link>

@@ -212,7 +212,7 @@ export function EditEventClient({ eventId, initialSlug }: EditEventClientProps) 
             type="button"
             disabled={isSaving}
             onClick={handleSubmit}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-bold transition-ui shadow-xs cursor-pointer disabled:opacity-50"
           >
             {isSaving ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}
             <span>{isSaving ? "Saving..." : "Save Changes"}</span>
@@ -323,7 +323,7 @@ export function EditEventClient({ eventId, initialSlug }: EditEventClientProps) 
               type="button"
               onClick={() => setMode("OFFLINE")}
               className={cn(
-                "p-3 rounded-xl border text-xs font-bold text-center transition-all cursor-pointer",
+                "p-3 rounded-xl border text-xs font-bold text-center transition-ui cursor-pointer",
                 mode === "OFFLINE"
                   ? "border-primary bg-primary/10 text-primary"
                   : "border-border/40 bg-card text-muted-foreground hover:text-foreground"
@@ -335,7 +335,7 @@ export function EditEventClient({ eventId, initialSlug }: EditEventClientProps) 
               type="button"
               onClick={() => setMode("ONLINE")}
               className={cn(
-                "p-3 rounded-xl border text-xs font-bold text-center transition-all cursor-pointer",
+                "p-3 rounded-xl border text-xs font-bold text-center transition-ui cursor-pointer",
                 mode === "ONLINE"
                   ? "border-primary bg-primary/10 text-primary"
                   : "border-border/40 bg-card text-muted-foreground hover:text-foreground"
@@ -347,7 +347,7 @@ export function EditEventClient({ eventId, initialSlug }: EditEventClientProps) 
               type="button"
               onClick={() => setMode("HYBRID")}
               className={cn(
-                "p-3 rounded-xl border text-xs font-bold text-center transition-all cursor-pointer",
+                "p-3 rounded-xl border text-xs font-bold text-center transition-ui cursor-pointer",
                 mode === "HYBRID"
                   ? "border-primary bg-primary/10 text-primary"
                   : "border-border/40 bg-card text-muted-foreground hover:text-foreground"
@@ -502,7 +502,7 @@ export function EditEventClient({ eventId, initialSlug }: EditEventClientProps) 
           <button
             type="submit"
             disabled={isSaving}
-            className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+            className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-bold transition-ui shadow-xs cursor-pointer disabled:opacity-50"
           >
             {isSaving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
             <span>{isSaving ? "Saving..." : "Save Changes"}</span>

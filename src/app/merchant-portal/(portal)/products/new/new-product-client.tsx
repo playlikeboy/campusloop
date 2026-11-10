@@ -122,7 +122,7 @@ export function NewProductClient() {
           <ArrowLeft className="size-4.5" />
         </button>
         <div>
-          <h1 className="text-base font-black text-foreground tracking-tight leading-none">
+          <h1 className="text-base font-bold text-foreground tracking-tight leading-none">
             Add New Product
           </h1>
           <p className="text-[11px] text-muted-foreground font-medium mt-0.5">
@@ -134,7 +134,7 @@ export function NewProductClient() {
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Product Photo */}
         <div className="space-y-2">
-          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          <label className="text-xs font-bold text-muted-foreground">
             Product Photo
           </label>
           <div className="flex items-center gap-3">
@@ -154,7 +154,7 @@ export function NewProductClient() {
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploadingImage}
-                className="size-24 rounded-2xl border-2 border-dashed border-border/70 hover:border-foreground/40 bg-muted/20 hover:bg-muted/40 flex flex-col items-center justify-center text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+                className="size-24 rounded-2xl border-2 border-dashed border-border/70 hover:border-foreground/40 bg-muted/20 hover:bg-muted/40 flex flex-col items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
               >
                 {isUploadingImage ? (
                   <Loader2 className="size-5 animate-spin" />
@@ -179,7 +179,7 @@ export function NewProductClient() {
         {/* Name & Category */}
         <div className="space-y-3">
           <div className="space-y-1.5">
-            <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            <label className="text-xs font-bold text-muted-foreground">
               Product Name *
             </label>
             <input
@@ -193,7 +193,7 @@ export function NewProductClient() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            <label className="text-xs font-bold text-muted-foreground">
               Menu Category *
             </label>
             <input
@@ -210,7 +210,7 @@ export function NewProductClient() {
         {/* Pricing */}
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            <label className="text-xs font-bold text-muted-foreground">
               Selling Price (₹) *
             </label>
             <input
@@ -220,12 +220,12 @@ export function NewProductClient() {
               value={price}
               onChange={(e) => setPrice(e.target.value)}
               placeholder="90"
-              className="w-full h-11 rounded-2xl bg-card border border-border/50 px-3.5 text-xs font-black text-foreground focus:border-foreground outline-none"
+              className="w-full h-11 rounded-2xl bg-card border border-border/50 px-3.5 text-xs font-bold text-foreground focus:border-foreground outline-none"
             />
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            <label className="text-xs font-bold text-muted-foreground">
               Original MRP (Optional)
             </label>
             <input
@@ -242,7 +242,7 @@ export function NewProductClient() {
         {/* Description & Prep Time */}
         <div className="space-y-3">
           <div className="space-y-1.5">
-            <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            <label className="text-xs font-bold text-muted-foreground">
               Preparation Time
             </label>
             <input
@@ -255,7 +255,7 @@ export function NewProductClient() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            <label className="text-xs font-bold text-muted-foreground">
               Item Description
             </label>
             <textarea
@@ -270,7 +270,7 @@ export function NewProductClient() {
 
         {/* Add-ons Builder */}
         <div className="space-y-2 pt-2 border-t border-border/30">
-          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          <label className="text-xs font-bold text-muted-foreground">
             Add-ons &amp; Extras (Optional)
           </label>
           <div className="flex gap-2">
@@ -291,7 +291,7 @@ export function NewProductClient() {
             <button
               type="button"
               onClick={handleAddAddon}
-              className="px-3.5 h-10 rounded-2xl bg-muted hover:bg-muted/80 text-foreground font-bold text-xs cursor-pointer"
+              className="px-3.5 h-10 rounded-2xl bg-muted hover:bg-muted/80 text-foreground font-bold text-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               + Add
             </button>
@@ -306,7 +306,7 @@ export function NewProductClient() {
                 >
                   <span>{a.name}</span>
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-emerald-500">+₹{a.price}</span>
+                    <span className="font-bold text-success">+₹{a.price}</span>
                     <button
                       type="button"
                       onClick={() => handleRemoveAddon(idx)}
@@ -326,7 +326,7 @@ export function NewProductClient() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full h-12 rounded-2xl bg-foreground text-background font-black text-sm hover:opacity-90 active:scale-98 transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
+            className="w-full h-12 rounded-2xl bg-foreground text-background font-bold text-sm hover:opacity-90 active:scale-98 transition-colors flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             {isSubmitting ? (
               <>

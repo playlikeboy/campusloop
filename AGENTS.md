@@ -72,10 +72,11 @@ CampusLoop is designed to empower college students with a safe, engaging, and fe
 - If Redis is unavailable or unconfigured, all endpoints must continue functioning seamlessly with zero disruption.
 
 ### 10. Official Social Media Channels Priority
-- Always prioritize official social media links in the order:
+- The single source is `SOCIAL_LINKS` / `SOCIAL_SAME_AS` in `src/constants/social.ts`. Never hardcode a social URL in a component, footer, JSON-LD `sameAs` or email template; import the constant.
+- Priority order:
   1. **Instagram (Highlighted)**: `https://www.instagram.com/campusloop.space/` (`@campusloop.space`)
-  2. **LinkedIn**: `https://www.linkedin.com/company/mycampusloop/?viewAsMember=true` (`CampusLoop`)
-  3. **X (Twitter)**: `https://x.com/company/mycampusloop/` (`@mycampusloop`)
+  2. **LinkedIn**: `https://www.linkedin.com/company/mycampusloop/` (`CampusLoop`)
+  3. **X**: `https://x.com/mycampusloop` (`@mycampusloop`)
 
 ### 11. Iconography Standard: Zero Raw Emojis & Professionally Creative Form UX
 - **NEVER** use raw emoji characters in UI labels, badges, tabs, buttons, or toast notifications. Emojis look amateurish and inconsistent across platforms.
@@ -90,12 +91,14 @@ CampusLoop is designed to empower college students with a safe, engaging, and fe
 
 ### 13. Borderless Clean Design & Admin Console Architecture
 - **Borderless Aesthetic**: High-density timelines and exploration hubs (`/birthdays`, `/discover`, feed cards) avoid harsh bounding borders. Use subtle tonal backgrounds (`bg-card/60`), soft ambient shadows (`shadow-2xs`), and borderless pill switchers.
-- **Admin Operations Hub**: The Admin Console (`/admin`) is organized into dedicated operational domains:
-  - **Operations & Safety**: Dashboard, Review Queue, Reports, Academics Vault (`/admin/academics`).
-  - **Content & Campus**: Feed Curation, Posts, Comments, Users, Colleges, Campus Broadcasts (`/admin/broadcasts`).
-  - **Integrations & Studio**: Composio Hub (`/admin/composio` — Reddit sync, Cloudflare CDN edge controls, webhook alerts, exports), Embeds Inspector (`/admin/embeds`), Short Links & Refs.
-  - **Marketplace**: Overview, Merchants, Products, Rentals.
-  - **Telemetry & System**: Platform Analytics & Pulse (`/admin/analytics`), System Health Matrix (`/admin/system`), Audit Log (`/admin/audit`).
+- **Admin Operations Hub**: The Admin Console (`/admin`) lists real tools only. Navigation lives in `ADMIN_NAV_SECTIONS` (`src/app/admin/_components/admin-sidebar.tsx`), which also feeds the mobile drawer and Cmd+K search:
+  - **Requests**: Inbox (`/admin`: held posts, reports, college hub requests, developer apps), Review queue, Reports, Confessions, Developer apps (`/admin/oauth-apps`).
+  - **People & campuses**: Users, Colleges, Outreach, Broadcasts.
+  - **Content**: Posts, Comments, Study material, Feed boosts, Reddit import (`/admin/composio`), Short links.
+  - **Marketplace**: Overview, Merchants, Products, Bike rentals.
+  - **Insights**: Analytics, Experiments, System health, Audit log.
+  - Never add placeholder pages or hardcoded "healthy/99.9%" stats; every number shown must come from the database.
+- **Rate limits**: all public endpoint limits live in `src/lib/rate-limits.ts` and are enforced by `src/middleware.ts`. Add a rule there instead of limiting inside a route.
 
 ### 14. Impeccable Design Guidelines & Quality Floor (https://impeccable.style/#why)
 - **Eliminate AI Slop & Cookie-Cutter Layouts**: Never generate repetitive same-size 3-card rows, cheesy gradient-text hero metrics, or faux-brutalist zero-blur block shadows. Interfaces must feel custom-crafted, intentional, and production-grade.
@@ -159,3 +162,17 @@ campusloop/
         └── campusloop-guide/
             └── SKILL.md       # Comprehensive AI Agent skill handbook
 ```
+
+## graphify
+
+This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+
+When the user types `/graphify`, use the installed graphify skill or instructions before doing anything else.
+
+Rules:
+- When graphify-out/graph.json exists, run `graphify query "<question>"` before your first grep, search or source-file read for a codebase question, and put this rule in every subagent prompt that explores code. Read raw files only for lines the graph or an earlier read already located. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
+- Dirty graphify-out/ files are expected after hooks or incremental updates; dirty graph files are not a reason to skip graphify. Only skip graphify if the task is about stale or incorrect graph output, or the user explicitly says not to use it.
+- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
+- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
+- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
+- A committed graphify-out/graph.json is rewritten whole on every build, so a large diff to it in a pull request is expected. Do not flag it as churn or suggest skipping the graph rebuild or its hooks.

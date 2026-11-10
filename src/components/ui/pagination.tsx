@@ -54,7 +54,7 @@ export function Pagination({
         onClick={() => goTo(safePage - 1)}
         disabled={safePage === 1}
         aria-label="Go to previous page"
-        className="inline-flex h-9 min-w-9 items-center justify-center rounded-xl bg-card/70 px-2 text-muted-foreground shadow-2xs transition hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-35"
+        className="inline-flex h-9 min-w-9 items-center justify-center rounded-md bg-surface-muted px-2 text-fg-muted transition-colors hover:bg-surface-sunken hover:text-fg disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
       >
         <ChevronLeft className="size-4" />
       </button>
@@ -76,10 +76,10 @@ export function Pagination({
             aria-current={item === safePage ? "page" : undefined}
             aria-label={"Go to page " + item}
             className={cn(
-              "inline-flex h-9 min-w-9 items-center justify-center rounded-xl px-2 text-xs font-bold transition",
+              "inline-flex h-9 min-w-9 items-center justify-center rounded-md px-2 text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
               item === safePage
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "bg-card/70 text-muted-foreground shadow-2xs hover:bg-muted hover:text-foreground"
+                ? "bg-brand text-brand-fg"
+                : "bg-surface-muted text-fg-muted hover:bg-surface-sunken hover:text-fg"
             )}
           >
             {item}
@@ -92,7 +92,7 @@ export function Pagination({
         onClick={() => goTo(safePage + 1)}
         disabled={safePage === safeTotal}
         aria-label="Go to next page"
-        className="inline-flex h-9 min-w-9 items-center justify-center rounded-xl bg-card/70 px-2 text-muted-foreground shadow-2xs transition hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-35"
+        className="inline-flex h-9 min-w-9 items-center justify-center rounded-md bg-surface-muted px-2 text-fg-muted transition-colors hover:bg-surface-sunken hover:text-fg disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
       >
         <ChevronRight className="size-4" />
       </button>

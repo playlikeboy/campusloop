@@ -185,7 +185,7 @@ export function AttendeesClient({ eventId, initialSlug, eventTitle }: AttendeesC
 
           <Link
             href={`/events/manage/${slug}/check-in`}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-xs"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-success hover:bg-success text-white text-xs font-bold transition-colors shadow-xs"
           >
             <UserCheck className="size-3.5" />
             <span>Check-in</span>
@@ -204,21 +204,21 @@ export function AttendeesClient({ eventId, initialSlug, eventTitle }: AttendeesC
 
         <div className="p-3.5 rounded-2xl border border-border/40 bg-card/40 space-y-0.5">
           <span className="text-xs text-muted-foreground font-semibold flex items-center gap-1">
-            <CheckCircle2 className="size-3 text-blue-500" /> Confirmed
+            <CheckCircle2 className="size-3 text-brand-text" /> Confirmed
           </span>
           <p className="text-xl font-black text-foreground">{confirmedCount}</p>
         </div>
 
         <div className="p-3.5 rounded-2xl border border-border/40 bg-card/40 space-y-0.5">
           <span className="text-xs text-muted-foreground font-semibold flex items-center gap-1">
-            <UserCheck className="size-3 text-emerald-500" /> Attended / Present
+            <UserCheck className="size-3 text-success" /> Attended / Present
           </span>
           <p className="text-xl font-black text-foreground">{attendedCount}</p>
         </div>
 
         <div className="p-3.5 rounded-2xl border border-border/40 bg-card/40 space-y-0.5">
           <span className="text-xs text-muted-foreground font-semibold flex items-center gap-1">
-            <Clock className="size-3 text-amber-500" /> Attendance Rate
+            <Clock className="size-3 text-warning" /> Attendance Rate
           </span>
           <p className="text-xl font-black text-foreground">
             {registrations.length > 0 ? Math.round((attendedCount / registrations.length) * 100) : 0}%
@@ -255,7 +255,7 @@ export function AttendeesClient({ eventId, initialSlug, eventTitle }: AttendeesC
               type="button"
               onClick={() => setStatusFilter(tab)}
               className={cn(
-                "px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap",
+                "px-3 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer whitespace-nowrap",
                 statusFilter === tab
                   ? "bg-foreground text-background"
                   : "bg-muted/40 text-muted-foreground hover:text-foreground border border-border/40"
@@ -347,7 +347,7 @@ export function AttendeesClient({ eventId, initialSlug, eventTitle }: AttendeesC
                         className={cn(
                           "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase",
                           reg.status === "ATTENDED"
-                            ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
+                            ? "bg-success-subtle text-success border border-success"
                             : reg.status === "CANCELLED"
                               ? "bg-destructive/10 text-destructive border border-destructive/20"
                               : "bg-primary/10 text-primary border border-primary/20"
@@ -364,7 +364,7 @@ export function AttendeesClient({ eventId, initialSlug, eventTitle }: AttendeesC
                             type="button"
                             disabled={updatingId === reg.id}
                             onClick={() => handleUpdateStatus(reg.id, "ATTENDED")}
-                            className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold transition-all cursor-pointer"
+                            className="px-2.5 py-1 rounded-lg bg-success hover:bg-success text-white text-[11px] font-bold transition-colors cursor-pointer"
                             title="Mark as Checked In"
                           >
                             Mark Present
@@ -437,7 +437,7 @@ export function AttendeesClient({ eventId, initialSlug, eventTitle }: AttendeesC
                     className={cn(
                       "px-2 py-0.5 rounded text-[10px] font-bold uppercase shrink-0",
                       reg.status === "ATTENDED"
-                        ? "bg-emerald-500/10 text-emerald-500"
+                        ? "bg-success-subtle text-success"
                         : reg.status === "CANCELLED"
                           ? "bg-destructive/10 text-destructive"
                           : "bg-primary/10 text-primary"
@@ -464,7 +464,7 @@ export function AttendeesClient({ eventId, initialSlug, eventTitle }: AttendeesC
                         type="button"
                         disabled={updatingId === reg.id}
                         onClick={() => handleUpdateStatus(reg.id, "ATTENDED")}
-                        className="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold cursor-pointer"
+                        className="px-3 py-1 rounded-lg bg-success hover:bg-success text-white text-xs font-bold cursor-pointer"
                       >
                         Check In
                       </button>

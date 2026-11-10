@@ -106,7 +106,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
       onClick={onClose}
     >
       <div
-        className="w-full max-w-2xl overflow-hidden rounded-2xl border border-border/60 bg-background shadow-2xl transition-all"
+        className="w-full max-w-2xl overflow-hidden rounded-2xl border border-border/60 bg-background shadow-2xl transition-colors"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -159,7 +159,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
                 setActiveCategory(cat.id);
               }}
               className={cn(
-                "rounded-full px-3 py-1 text-xs font-semibold transition-all cursor-pointer shrink-0",
+                "rounded-full px-3 py-1 text-xs font-semibold transition-colors cursor-pointer shrink-0",
                 activeCategory === cat.id
                   ? "bg-primary text-primary-foreground shadow-2xs font-bold"
                   : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -185,7 +185,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
                     key={hint}
                     type="button"
                     onClick={() => setQuery(hint)}
-                    className="rounded-lg border border-border/50 bg-muted/30 px-2.5 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer transition-all"
+                    className="rounded-lg border border-border/50 bg-muted/30 px-2.5 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer transition-colors"
                   >
                     {hint}
                   </button>
@@ -211,7 +211,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
               {/* Students / People */}
               {users.length > 0 && (
                 <div className="space-y-1">
-                  <p className="px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <p className="px-3 py-1 text-[11px] font-bold text-muted-foreground">
                     Students ({users.length})
                   </p>
                   {users.slice(0, 4).map((u: any) => (
@@ -219,7 +219,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
                       key={u.id}
                       type="button"
                       onClick={() => navigateTo(`/@${u.username}`)}
-                      className="w-full flex items-center gap-3 rounded-xl p-2.5 hover:bg-muted/60 transition-all text-left cursor-pointer"
+                      className="w-full flex items-center gap-3 rounded-xl p-2.5 hover:bg-muted/60 transition-colors text-left cursor-pointer"
                     >
                       <Avatar className="size-8 rounded-full border border-border/50 shrink-0">
                         <AvatarImage src={getAvatarUrl(u.avatarUrl, u.username)} />
@@ -239,7 +239,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
               {/* Communities / Clubs */}
               {communities.length > 0 && (
                 <div className="space-y-1">
-                  <p className="px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <p className="px-3 py-1 text-[11px] font-bold text-muted-foreground">
                     Clubs &amp; Communities ({communities.length})
                   </p>
                   {communities.slice(0, 4).map((c: any) => (
@@ -247,9 +247,9 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
                       key={c.id}
                       type="button"
                       onClick={() => navigateTo(`/communities/${c.id}`)}
-                      className="w-full flex items-center gap-3 rounded-xl p-2.5 hover:bg-muted/60 transition-all text-left cursor-pointer"
+                      className="w-full flex items-center gap-3 rounded-xl p-2.5 hover:bg-muted/60 transition-colors text-left cursor-pointer"
                     >
-                      <div className="flex size-8 items-center justify-center rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 shrink-0">
+                      <div className="flex size-8 items-center justify-center rounded-xl bg-brand/10 text-brand-text shrink-0">
                         <Users className="size-4" />
                       </div>
                       <div className="min-w-0 flex-1">
@@ -264,7 +264,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
               {/* Events */}
               {events.length > 0 && (
                 <div className="space-y-1">
-                  <p className="px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <p className="px-3 py-1 text-[11px] font-bold text-muted-foreground">
                     Events &amp; Fests ({events.length})
                   </p>
                   {events.slice(0, 3).map((e: any) => (
@@ -272,9 +272,9 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
                       key={e.id}
                       type="button"
                       onClick={() => navigateTo(`/events/${e.id}`)}
-                      className="w-full flex items-center gap-3 rounded-xl p-2.5 hover:bg-muted/60 transition-all text-left cursor-pointer"
+                      className="w-full flex items-center gap-3 rounded-xl p-2.5 hover:bg-muted/60 transition-colors text-left cursor-pointer"
                     >
-                      <div className="flex size-8 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shrink-0">
+                      <div className="flex size-8 items-center justify-center rounded-xl bg-success/10 text-success shrink-0">
                         <Calendar className="size-4" />
                       </div>
                       <div className="min-w-0 flex-1">
@@ -289,7 +289,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
               {/* Academics Resources */}
               {academics.length > 0 && (
                 <div className="space-y-1">
-                  <p className="px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <p className="px-3 py-1 text-[11px] font-bold text-muted-foreground">
                     Academic Vault ({academics.length})
                   </p>
                   {academics.slice(0, 3).map((a: any) => (
@@ -297,9 +297,9 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
                       key={a.id}
                       type="button"
                       onClick={() => navigateTo(`/academics/study-material/${a.id || ""}`)}
-                      className="w-full flex items-center gap-3 rounded-xl p-2.5 hover:bg-muted/60 transition-all text-left cursor-pointer"
+                      className="w-full flex items-center gap-3 rounded-xl p-2.5 hover:bg-muted/60 transition-colors text-left cursor-pointer"
                     >
-                      <div className="flex size-8 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 shrink-0">
+                      <div className="flex size-8 items-center justify-center rounded-xl bg-brand/10 text-brand-text shrink-0">
                         <BookOpen className="size-4" />
                       </div>
                       <div className="min-w-0 flex-1">

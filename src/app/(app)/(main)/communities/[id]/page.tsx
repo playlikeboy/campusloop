@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // 404 here so the status is set before streaming starts.
   if (!comm) notFound();
 
-  const title = `c/${comm.name} Sub-Hub | CampusLoop`;
+  const title = `c/${comm.name} Sub-Hub`;
   const description =
     comm.description ||
     `Join c/${comm.name} student sub-community on CampusLoop for hot posts, confessions, and campus discussions.`;

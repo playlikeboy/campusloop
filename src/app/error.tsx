@@ -36,14 +36,14 @@ export default function GlobalAppError({
         <button
           type="button"
           onClick={reset}
-          className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-full bg-primary px-5 text-xs font-black text-primary-foreground shadow-md transition-all hover:bg-primary/95 active:scale-95"
+          className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-full bg-primary px-5 text-xs font-black text-primary-foreground shadow-md transition-ui hover:bg-primary/95 active:scale-95"
         >
           <RefreshCw className="size-4" />
           Try again
         </button>
         <Link
           href="/app"
-          className="inline-flex h-10 items-center gap-2 rounded-full border border-border bg-card px-5 text-xs font-black text-foreground transition-all hover:bg-muted active:scale-95"
+          className="inline-flex h-10 items-center gap-2 rounded-full border border-border bg-card px-5 text-xs font-black text-foreground transition-ui hover:bg-muted active:scale-95"
         >
           <Home className="size-4" />
           Back to feed

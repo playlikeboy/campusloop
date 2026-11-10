@@ -17,6 +17,8 @@ interface CourseSpec {
   site: string;
   /** Pinned playlist when the newest edition is still mid-semester. */
   playlist?: string;
+  /** Read the lecture link from each weeks/N page (when the playlist holds trailers, not lectures). */
+  fromWeeks?: boolean;
   category: string;
   level: "BEGINNER" | "INTERMEDIATE" | "ALL";
   tags: string[];
@@ -34,7 +36,7 @@ const COURSES: CourseSpec[] = [
   { key: "cs50t", site: "https://cs50.harvard.edu/technology/", category: "Computer Science", level: "BEGINNER", tags: ["technology", "internet", "hardware"] },
   { key: "cs50b", site: "https://cs50.harvard.edu/business/", category: "Business", level: "BEGINNER", tags: ["business", "technology"] },
   { key: "cs50law", site: "https://cs50.harvard.edu/law/", category: "Law & Policy", level: "BEGINNER", tags: ["law", "technology"] },
-  { key: "cs50g", site: "https://cs50.harvard.edu/games/", category: "Game Development", level: "INTERMEDIATE", tags: ["games", "lua", "unity"] },
+  { key: "cs50g", site: "https://cs50.harvard.edu/games/", fromWeeks: true, category: "Game Development", level: "INTERMEDIATE", tags: ["games", "lua", "unity"] },
   { key: "cs50m", site: "https://cs50.harvard.edu/mobile/", category: "Mobile Development", level: "INTERMEDIATE", tags: ["react-native", "javascript", "mobile"] },
 ];
 
@@ -107,7 +109,26 @@ async function playlistLectures(listId: string): Promise<Lecture[]> {
     const badges = deepFind(it, (k) => k === "thumbnailBadgeViewModel").map((b) => (b as { text?: string }).text ?? "");
     const durationSec = badges.map(toSeconds).find((n): n is number => n !== null);
     if (!title || !durationSec) continue; // upcoming or live: no duration yet
+    if (/\b(teaser|trailer)\b/i.test(title)) continue; // promos, not lectures
     if (!lectures.some((l) => l.videoId === it.contentId)) lectures.push({ title, videoId: it.contentId, durationSec });
+  }
+  return lectures;
+}
+
+/** One lecture per weeks/N page: the first youtu.be link, titled via oEmbed, timed via the watch page. */
+async function weekLectures(site: string, html: string): Promise<Lecture[]> {
+  const weeks = [...new Set([...html.matchAll(/href="(?:\.\/)?weeks\/(\d+)\/"/g)].map((m) => Number(m[1])))].sort((a, b) => a - b);
+  const lectures: Lecture[] = [];
+  for (const w of weeks) {
+    const page = await text(new URL(`weeks/${w}/`, site).toString());
+    const videoId = page.match(/youtu\.be\/([A-Za-z0-9_-]{11})/)?.[1];
+    if (!videoId) continue;
+    const o = await fetch(`https://www.youtube.com/oembed?format=json&url=https://www.youtube.com/watch?v=${videoId}`, { headers: UA });
+    if (!o.ok) continue;
+    const title = ((await o.json()) as { title?: string }).title ?? `Week ${w}`;
+    const watch = await text(`https://www.youtube.com/watch?v=${videoId}&hl=en`);
+    const durationSec = Number(watch.match(/"lengthSeconds":"(\d+)"/)?.[1] ?? 0);
+    if (durationSec > 0) lectures.push({ title, videoId, durationSec });
   }
   return lectures;
 }
@@ -125,7 +146,7 @@ for (const c of COURSES) {
   if (!listId) throw new Error(`no playlist on ${c.site}`);
   const title = decode(html.match(/<title>([^<]*)<\/title>/)?.[1] ?? c.key).trim();
   const description = decode(meta(html, "description") ?? meta(html, "og:description") ?? "").trim();
-  const all = await playlistLectures(listId);
+  const all = c.fromWeeks ? await weekLectures(c.site, html) : await playlistLectures(listId);
   const lectures: Lecture[] = [];
   for (const l of all) {
     if (await oembedOk(l.videoId)) lectures.push(l);

@@ -87,7 +87,7 @@ export function AcademicActiveFilters({
       {activeChips.map((chip) => (
         <span
           key={chip.key}
-          className="inline-flex items-center gap-1 pl-2.5 pr-1.5 py-0.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-bold transition-all animate-in fade-in zoom-in-95 duration-150"
+          className="inline-flex items-center gap-1 pl-2.5 pr-1.5 py-0.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-bold transition-ui animate-in fade-in zoom-in-95 duration-150"
         >
           <span>{chip.label}</span>
           <button

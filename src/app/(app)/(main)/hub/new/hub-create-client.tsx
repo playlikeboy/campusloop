@@ -46,7 +46,7 @@ const HUB_CATEGORIES: Array<{
     id: "lost_found",
     label: "Lost & Found",
     icon: PackageSearch,
-    color: "text-amber-500 bg-amber-500/10 border-amber-500/30",
+    color: "text-warning bg-warning-subtle border-warning",
     badge: "Report Item",
     href: "/lost-and-found",
   },
@@ -54,7 +54,7 @@ const HUB_CATEGORIES: Array<{
     id: "marketplace",
     label: "Buy & Sell",
     icon: ShoppingBag,
-    color: "text-emerald-500 bg-emerald-500/10 border-emerald-500/30",
+    color: "text-success bg-success-subtle border-success",
     badge: "Sell Gear",
     href: "/buy-and-sell",
   },
@@ -62,7 +62,7 @@ const HUB_CATEGORIES: Array<{
     id: "gaming",
     label: "Gaming Arena",
     icon: Gamepad2,
-    color: "text-purple-500 bg-purple-500/10 border-purple-500/30",
+    color: "text-brand-text bg-brand-subtle border-brand",
     badge: "Host Lobby",
     href: "/gaming",
   },
@@ -70,7 +70,7 @@ const HUB_CATEGORIES: Array<{
     id: "rideshare",
     label: "Ride Share",
     icon: Car,
-    color: "text-sky-500 bg-sky-500/10 border-sky-500/30",
+    color: "text-brand-text bg-brand-subtle border-brand",
     badge: "Offer Ride",
     href: "/rideshare",
   },
@@ -78,7 +78,7 @@ const HUB_CATEGORIES: Array<{
     id: "housing",
     label: "Housing & Flats",
     icon: Home,
-    color: "text-rose-500 bg-rose-500/10 border-rose-500/30",
+    color: "text-danger bg-danger-subtle border-danger",
     badge: "List Room",
     href: "/housing",
   },
@@ -86,7 +86,7 @@ const HUB_CATEGORIES: Array<{
     id: "academics",
     label: "Academic Notes",
     icon: BookOpen,
-    color: "text-blue-500 bg-blue-500/10 border-blue-500/30",
+    color: "text-brand-text bg-brand-subtle border-brand",
     badge: "Share Material",
     href: "/academics",
   },
@@ -299,7 +299,7 @@ export function HubCreateClient({ initialType = "lost_found", profileId }: HubCr
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col min-h-screen pb-24 border-x border-border/20 bg-background text-foreground select-none">
       {/* ─── Sticky Header ─── */}
-      <header className="sticky top-12 lg:top-0 z-30 bg-background/95 backdrop-blur-xl border-b border-border/30 px-4 py-3 flex items-center justify-between">
+      <header className="sticky top-12 lg:top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border/30 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -318,7 +318,7 @@ export function HubCreateClient({ initialType = "lost_found", profileId }: HubCr
           type="button"
           disabled={isSubmitting || !title.trim()}
           onClick={handleSubmit}
-          className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-all shadow-xs cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+          className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-[opacity,transform] shadow-xs cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
         >
           {isSubmitting ? (
             <>
@@ -350,7 +350,7 @@ export function HubCreateClient({ initialType = "lost_found", profileId }: HubCr
                   haptics.light();
                 }}
                 className={cn(
-                  "flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer border",
+                  "flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer border",
                   isSelected
                     ? "bg-primary text-primary-foreground border-primary shadow-xs"
                     : "bg-card border-border/40 text-muted-foreground hover:text-foreground hover:bg-muted/60"
@@ -368,7 +368,7 @@ export function HubCreateClient({ initialType = "lost_found", profileId }: HubCr
       <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-5">
         {/* Title Input */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          <label className="text-xs font-bold text-muted-foreground">
             Headline Title *
           </label>
           <input
@@ -389,7 +389,7 @@ export function HubCreateClient({ initialType = "lost_found", profileId }: HubCr
                         ? "e.g. 1 BHK Flat Available near Gate 2"
                         : "e.g. Endsem Notes & Previous Year Questions for CS201"
             }
-            className="w-full h-11 px-4 rounded-2xl border border-border/60 bg-muted/20 text-sm font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-all"
+            className="w-full h-11 px-4 rounded-2xl border border-border/60 bg-muted/20 text-sm font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-colors"
           />
         </div>
 
@@ -397,7 +397,7 @@ export function HubCreateClient({ initialType = "lost_found", profileId }: HubCr
         {["lost_found", "marketplace", "housing", "academics"].includes(hubType) && (
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              <label className="text-xs font-bold text-muted-foreground">
                 Item / Listing Photo (Recommended)
               </label>
               <span className="text-[10px] text-muted-foreground">Photos boost engagement by 80%</span>
@@ -427,7 +427,7 @@ export function HubCreateClient({ initialType = "lost_found", profileId }: HubCr
               <div
                 onClick={() => !isUploadingImage && fileInputRef.current?.click()}
                 className={cn(
-                  "flex items-center justify-center gap-3 p-4 border-2 border-dashed border-border/70 rounded-2xl bg-muted/10 hover:bg-muted/30 transition-all cursor-pointer group text-center",
+                  "flex items-center justify-center gap-3 p-4 border-2 border-dashed border-border/70 rounded-2xl bg-muted/10 hover:bg-muted/30 transition-colors cursor-pointer group text-center",
                   isUploadingImage && "opacity-60 cursor-not-allowed"
                 )}
               >
@@ -462,9 +462,9 @@ export function HubCreateClient({ initialType = "lost_found", profileId }: HubCr
                   type="button"
                   onClick={() => setLfType("LOST")}
                   className={cn(
-                    "flex-1 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer",
+                    "flex-1 py-2 rounded-xl text-xs font-bold border transition-colors cursor-pointer",
                     lfType === "LOST"
-                      ? "bg-rose-500/10 border-rose-500/40 text-rose-500"
+                      ? "bg-danger-subtle border-danger text-danger"
                       : "bg-muted/20 border-border/50 text-muted-foreground"
                   )}
                 >
@@ -474,9 +474,9 @@ export function HubCreateClient({ initialType = "lost_found", profileId }: HubCr
                   type="button"
                   onClick={() => setLfType("FOUND")}
                   className={cn(
-                    "flex-1 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer",
+                    "flex-1 py-2 rounded-xl text-xs font-bold border transition-colors cursor-pointer",
                     lfType === "FOUND"
-                      ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-500"
+                      ? "bg-success-subtle border-success text-success"
                       : "bg-muted/20 border-border/50 text-muted-foreground"
                   )}
                 >
@@ -539,7 +539,7 @@ export function HubCreateClient({ initialType = "lost_found", profileId }: HubCr
           <div className="space-y-4">
             <div className="space-y-2">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Play format</label>
+                <label className="text-xs font-bold text-muted-foreground">Play format</label>
                 <span className="text-[11px] text-muted-foreground">Pick what you’re organizing</span>
               </div>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -600,7 +600,8 @@ export function HubCreateClient({ initialType = "lost_found", profileId }: HubCr
                   type="text"
                   value={gamerTag}
                   onChange={(event) => setGamerTag(event.target.value)}
-                  placeholder="e.g. Player#123"
+                  // ds-allow: gamer-tag placeholder text, not a colour
+                placeholder="e.g. Player#123"
                   autoComplete="off"
                   className="h-10 w-full rounded-xl border border-border/60 bg-muted/20 px-3.5 text-xs font-semibold text-foreground outline-none focus:border-primary"
                 />
@@ -697,7 +698,7 @@ export function HubCreateClient({ initialType = "lost_found", profileId }: HubCr
           <div className="space-y-3.5">
             {/* Resource Type Pills */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              <label className="text-xs font-bold text-muted-foreground">
                 Resource Type *
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -716,9 +717,9 @@ export function HubCreateClient({ initialType = "lost_found", profileId }: HubCr
                       setResourceType(type.id as any);
                     }}
                     className={cn(
-                      "p-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5",
+                      "p-2.5 rounded-xl border text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5",
                       resourceType === type.id
-                        ? "bg-indigo-600 text-white border-indigo-600 font-black shadow-xs"
+                        ? "bg-brand text-white border-brand font-black shadow-xs"
                         : "bg-muted/40 text-muted-foreground border-border/40 hover:text-foreground"
                     )}
                   >
@@ -801,7 +802,7 @@ export function HubCreateClient({ initialType = "lost_found", profileId }: HubCr
 
         {/* Description Textarea */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          <label className="text-xs font-bold text-muted-foreground">
             Details & Description
           </label>
           <textarea
@@ -809,7 +810,7 @@ export function HubCreateClient({ initialType = "lost_found", profileId }: HubCr
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Add helpful details, contact preferences, timings, or specs for your batchmates..."
-            className="w-full p-4 rounded-2xl border border-border/60 bg-muted/20 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-all resize-none"
+            className="w-full p-4 rounded-2xl border border-border/60 bg-muted/20 text-xs font-medium text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-colors resize-none"
           />
         </div>
       </form>

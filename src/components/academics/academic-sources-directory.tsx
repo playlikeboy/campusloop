@@ -228,7 +228,7 @@ export function AcademicSourcesDirectory({ onOpenUploadModal }: AcademicSourcesD
                   gtagEvent("academic_source_submit_clicked", { source: "banner" });
                   onOpenUploadModal();
                 }}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-foreground text-background hover:opacity-90 font-bold text-xs shadow-2xs transition-all active:scale-95 cursor-pointer"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-foreground text-background hover:opacity-90 font-bold text-xs shadow-2xs transition-ui active:scale-95 cursor-pointer"
               >
                 <UploadCloud className="size-4" />
                 <span>Submit Missing Source / Notes</span>
@@ -243,17 +243,14 @@ export function AcademicSourcesDirectory({ onOpenUploadModal }: AcademicSourcesD
         {/* Live Aggregation Badges */}
         <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-4 border-t border-border/40 text-xs">
           <div className="flex items-center gap-2">
-            <span className="flex size-2 rounded-full bg-emerald-500 animate-pulse" />
             <span className="text-muted-foreground">BIT Mesra:</span>
             <strong className="text-foreground font-mono">7,800+ PYQs</strong>
           </div>
           <div className="flex items-center gap-2">
-            <span className="flex size-2 rounded-full bg-emerald-500 animate-pulse" />
             <span className="text-muted-foreground">Engineering Branches:</span>
             <strong className="text-foreground font-mono">25 Depts</strong>
           </div>
           <div className="flex items-center gap-2">
-            <span className="flex size-2 rounded-full bg-emerald-500 animate-pulse" />
             <span className="text-muted-foreground">Exam Years:</span>
             <strong className="text-foreground font-mono">2018–2025</strong>
           </div>
@@ -277,7 +274,7 @@ export function AcademicSourcesDirectory({ onOpenUploadModal }: AcademicSourcesD
                 setActiveCategory(cat.id);
               }}
               className={cn(
-                "px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer",
+                "px-3 py-1.5 rounded-xl text-xs font-bold transition-ui whitespace-nowrap cursor-pointer",
                 activeCategory === cat.id
                   ? "bg-foreground text-background shadow-xs"
                   : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground"
@@ -305,7 +302,7 @@ export function AcademicSourcesDirectory({ onOpenUploadModal }: AcademicSourcesD
         {filteredSources.map((source) => (
           <div
             key={source.id}
-            className="group relative flex flex-col justify-between rounded-2xl border border-border/40 bg-card/60 p-5 hover:border-border transition-all shadow-2xs"
+            className="group relative flex flex-col justify-between rounded-2xl border border-border/40 bg-card/60 p-5 hover:border-border transition-ui shadow-2xs"
           >
             <div className="space-y-3">
               {/* Header Badge */}
@@ -320,7 +317,7 @@ export function AcademicSourcesDirectory({ onOpenUploadModal }: AcademicSourcesD
                   <p className="text-xs font-semibold text-muted-foreground/90">{source.university}</p>
                 </div>
 
-                <span className="flex items-center gap-1 text-[11px] font-black px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-500 border border-emerald-500/30 shrink-0">
+                <span className="flex items-center gap-1 text-[11px] font-black px-2.5 py-1 rounded-full bg-success-subtle text-success border border-success/30 shrink-0">
                   <CheckCircle2 className="size-3" />
                   <span>{source.indexedCount}</span>
                 </span>
@@ -359,7 +356,7 @@ export function AcademicSourcesDirectory({ onOpenUploadModal }: AcademicSourcesD
                     action: "browse_internal",
                   });
                 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-foreground text-background hover:opacity-90 font-bold text-xs transition-all cursor-pointer shadow-2xs"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-foreground text-background hover:opacity-90 font-bold text-xs transition-ui cursor-pointer shadow-2xs"
               >
                 <FileText className="size-3.5" />
                 <span>Browse Materials</span>

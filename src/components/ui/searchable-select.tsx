@@ -156,7 +156,7 @@ export function SearchableSelect({
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={searchPlaceholder}
-              className="w-full bg-transparent py-2.5 pl-9 pr-8 text-sm text-foreground outline-none focus-visible:ring-1 focus-visible:ring-primary placeholder:text-muted-foreground/60"
+              className="w-full bg-transparent py-2.5 pl-9 pr-8 text-sm text-foreground rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/30 placeholder:text-fg-subtle"
             />
             {query && (
               <button

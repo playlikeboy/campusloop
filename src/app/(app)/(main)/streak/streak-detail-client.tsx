@@ -3,6 +3,7 @@
 import {
   ArrowLeft,
   Award,
+  Calendar,
   Check,
   ChevronRight,
   Crown,
@@ -54,7 +55,7 @@ export function StreakDetailClient({ profileId }: StreakDetailClientProps) {
   if (isError || !streak) {
     return (
       <main className="mx-auto flex min-h-[60vh] w-full max-w-xl flex-col items-center justify-center px-4 py-12 text-center">
-        <div className="flex size-14 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
+        <div className="flex size-14 items-center justify-center rounded-2xl bg-reward/10 text-reward-text">
           <Flame className="size-7" />
         </div>
         <h1 className="mt-4 text-lg font-bold text-foreground">Streaks couldn’t load</h1>
@@ -102,9 +103,7 @@ export function StreakDetailClient({ profileId }: StreakDetailClientProps) {
 
   // State-based motivating subtitle
   let stateSubtitle = "Keep your campus loop going.";
-  if (currentStreak === 0) {
-    stateSubtitle = "Start your first streak with one authentic action today.";
-  } else if (isSafeToday) {
+  if (isSafeToday) {
     stateSubtitle = "Today’s streak is safe. No further action needed.";
   } else if (longestStreak > currentStreak && currentStreak === 1) {
     stateSubtitle = `New run started. Your previous best was ${longestStreak} days.`;
@@ -150,9 +149,13 @@ export function StreakDetailClient({ profileId }: StreakDetailClientProps) {
           <span>Back</span>
         </button>
 
-        <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-          Campus Loop System
-        </span>
+        <Link
+          href="/streaks"
+          className="inline-flex items-center gap-1.5 rounded-full border border-border/40 bg-card/60 px-3 py-1 text-xs font-bold text-foreground hover:bg-muted/60 transition-colors shadow-2xs"
+        >
+          <Calendar className="size-3.5 text-primary" />
+          <span>Annual Heatmap</span>
+        </Link>
       </div>
 
       {/* ─── 1. HEADER: Primary Streak Metric & Motivating State ─── */}
@@ -165,16 +168,16 @@ export function StreakDetailClient({ profileId }: StreakDetailClientProps) {
             className={cn(
               "flex size-8 items-center justify-center rounded-xl",
               isSafeToday
-                ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
-                : "bg-amber-500/15 text-amber-500"
+                ? "bg-success/15 text-success"
+                : "bg-reward/15 text-reward-text"
             )}
           >
             <Flame
               className={cn(
                 "size-5 stroke-[2.2]",
                 isSafeToday
-                  ? "fill-emerald-500/20 text-emerald-600 dark:text-emerald-400"
-                  : "fill-amber-500/20 text-amber-500"
+                  ? "fill-success/20 text-success"
+                  : "fill-reward/20 text-reward-text"
               )}
             />
           </div>
@@ -189,7 +192,7 @@ export function StreakDetailClient({ profileId }: StreakDetailClientProps) {
           <span>·</span>
           <span>
             Status:{" "}
-            <strong className={isSafeToday ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}>
+            <strong className={isSafeToday ? "text-success" : "text-reward-text"}>
               {isSafeToday ? "Safe Today" : "Action Needed"}
             </strong>
           </span>
@@ -200,7 +203,7 @@ export function StreakDetailClient({ profileId }: StreakDetailClientProps) {
 
       {/* ─── 2. WEEK RHYTHM (7-Day Activity Rhythm) ─── */}
       <div className="space-y-3">
-        <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+        <h2 className="text-xs font-bold text-muted-foreground">
           Seven-Day Rhythm
         </h2>
 
@@ -222,9 +225,9 @@ export function StreakDetailClient({ profileId }: StreakDetailClientProps) {
                 className={cn(
                   "size-8 rounded-full flex items-center justify-center transition-colors text-xs font-bold",
                   day.isCompleted
-                    ? "bg-emerald-500 text-white"
+                    ? "bg-success text-white"
                     : day.isToday
-                      ? "border-2 border-amber-500 text-amber-500 bg-amber-500/10"
+                      ? "border-2 border-reward text-reward-text bg-reward/10"
                       : "border border-border/60 bg-muted/30 text-transparent"
                 )}
               >
@@ -239,7 +242,7 @@ export function StreakDetailClient({ profileId }: StreakDetailClientProps) {
       {nextMilestone && (
         <div className="space-y-3">
           <div className="flex items-baseline justify-between text-xs">
-            <h2 className="font-bold uppercase tracking-wider text-muted-foreground">
+            <h2 className="font-bold text-muted-foreground">
               Next Milestone
             </h2>
             <span className="font-bold text-foreground">
@@ -269,7 +272,7 @@ export function StreakDetailClient({ profileId }: StreakDetailClientProps) {
             {/* Progress Bar */}
             <div className="h-2 w-full rounded-full bg-muted/40 overflow-hidden">
               <div
-                className="h-full rounded-full bg-primary transition-all duration-300"
+                className="h-full rounded-full bg-primary transition-colors duration-300"
                 style={{
                   width: `${Math.min(100, Math.max(6, Math.round((currentStreak / nextMilestone.days) * 100)))}%`,
                 }}
@@ -281,7 +284,7 @@ export function StreakDetailClient({ profileId }: StreakDetailClientProps) {
 
       {/* ─── 4. HISTORY (Calm 28-Day Contribution Calendar) ─── */}
       <div className="space-y-3">
-        <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+        <h2 className="text-xs font-bold text-muted-foreground">
           Recent Activity (Last 28 Days)
         </h2>
 
@@ -293,9 +296,9 @@ export function StreakDetailClient({ profileId }: StreakDetailClientProps) {
                 className={cn(
                   "aspect-square rounded-xl flex flex-col items-center justify-center text-xs font-semibold transition-colors",
                   d.isCompleted
-                    ? "bg-emerald-500 text-white font-bold"
+                    ? "bg-success text-white font-bold"
                     : d.isCurrent
-                      ? "border-2 border-amber-500 text-amber-500 bg-amber-500/10 font-bold"
+                      ? "border-2 border-reward text-reward-text bg-reward/10 font-bold"
                       : "border border-border/40 text-muted-foreground bg-muted/20"
                 )}
                 title={`${d.dateStr}: ${d.isCompleted ? "Active" : d.isCurrent ? "Today" : "Inactive"}`}
@@ -312,11 +315,11 @@ export function StreakDetailClient({ profileId }: StreakDetailClientProps) {
               Inactive
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="size-2.5 rounded bg-emerald-500" />
+              <span className="size-2.5 rounded bg-success" />
               Completed
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="size-2.5 rounded border border-amber-500 bg-amber-500/20" />
+              <span className="size-2.5 rounded border border-reward bg-reward/20" />
               Today
             </span>
           </div>
@@ -325,7 +328,7 @@ export function StreakDetailClient({ profileId }: StreakDetailClientProps) {
 
       {/* ─── 5. MILESTONE PROGRESSION TIMELINE ─── */}
       <div className="space-y-3">
-        <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+        <h2 className="text-xs font-bold text-muted-foreground">
           Milestones Ladder
         </h2>
 
@@ -368,7 +371,7 @@ export function StreakDetailClient({ profileId }: StreakDetailClientProps) {
                   className={cn(
                     "text-xs font-bold shrink-0 px-2 py-1 rounded-lg",
                     isUnlocked
-                      ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+                      ? "bg-success/15 text-success"
                       : "bg-muted/40 text-muted-foreground"
                   )}
                 >
@@ -382,7 +385,7 @@ export function StreakDetailClient({ profileId }: StreakDetailClientProps) {
 
       {/* ─── 6. RULES: Qualifying Activities ─── */}
       <div className="space-y-3">
-        <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+        <h2 className="text-xs font-bold text-muted-foreground">
           How Streaks Work
         </h2>
 
@@ -420,7 +423,7 @@ export function StreakDetailClient({ profileId }: StreakDetailClientProps) {
               <div className="flex items-center gap-2 shrink-0">
                 <Link
                   href={todayMission.ctaHref}
-                  className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground shadow-xs hover:bg-primary/95 transition-all active:scale-98 cursor-pointer"
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground shadow-xs hover:bg-primary/95 transition-transform active:scale-98 cursor-pointer"
                 >
                   <span>{todayMission.ctaLabel}</span>
                   <ChevronRight className="size-3.5" />
@@ -431,7 +434,7 @@ export function StreakDetailClient({ profileId }: StreakDetailClientProps) {
                     type="button"
                     onClick={handleQuickQualify}
                     disabled={isSubmitting}
-                    className="inline-flex items-center justify-center rounded-xl border border-border/50 bg-background px-3 py-2 text-xs font-semibold text-foreground hover:bg-muted/60 transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+                    className="inline-flex items-center justify-center rounded-xl border border-border/50 bg-background px-3 py-2 text-xs font-semibold text-foreground hover:bg-muted/60 transition-transform cursor-pointer active:scale-95 disabled:opacity-50"
                   >
                     {isSubmitting ? "Updating..." : "I did this"}
                   </button>

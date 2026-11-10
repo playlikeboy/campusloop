@@ -5,12 +5,18 @@ import { useEffect, useMemo, useState } from "react";
 import { CampusBroadcastBanner } from "@/components/feed/campus-broadcast-banner";
 import { FeedHeader } from "@/components/feed/feed-header";
 import { FeedQuickComposer } from "@/components/feed/feed-quick-composer";
+import { FeedCourseSpotlight } from "@/components/feed/feed-course-spotlight";
+import { FeedEventSpotlight } from "@/components/feed/feed-event-spotlight";
+import { FeedMarketplaceSpotlight } from "@/components/feed/feed-marketplace-spotlight";
+import { FeedAcademicsSpotlight } from "@/components/feed/feed-academics-spotlight";
+import { FeedEcosystemSpotlight } from "@/components/feed/feed-ecosystem-spotlight";
 import { FeedRecommendedUsers } from "@/components/feed/feed-recommended-users";
 import { FeedCaughtUpCard, FeedEmptyState, FeedErrorState } from "@/components/feed/feed-state-cards";
 import { LocationOptInCard } from "@/components/geo/location-opt-in-card";
 import { FeedCard } from "@/components/ui/feed-card";
 import {
   InlineCommunitiesWidget,
+  InlineDatingWidget,
   InlineHashtagsWidget,
 } from "@/components/ui/inline-feed-widgets";
 import { RightSidebar } from "@/components/ui/right-sidebar";
@@ -20,6 +26,7 @@ import { StoryRing } from "@/components/ui/story-ring";
 import { type FeedPost, useFeed, useStories } from "@/hooks/use-feed";
 import { useFeedImpressions } from "@/hooks/use-feed-impressions";
 import { useProfile } from "@/hooks/use-profile";
+import { isCollegeVerifiedUser } from "@/lib/user-verification";
 import { getCollegeShortName } from "@/lib/utils";
 
 export function FeedClient({ forcedType }: { forcedType?: string }) {
@@ -138,8 +145,14 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
 
     for (const post of feed) {
       if (!post?.id || seen.has(post.id)) continue;
-      if (visibility === "public" && (post.isAnonymous || post.type === "CONFESSION")) {
-        continue;
+      // In Verified / Public Only mode, hide anonymous posts, confessions, AND posts from non-college-verified (Gmail) users
+      if (visibility === "public") {
+        if (post.isAnonymous || post.type === "CONFESSION") {
+          continue;
+        }
+        if (!post.author?.isCollegeVerified && !isCollegeVerifiedUser(post.author)) {
+          continue;
+        }
       }
       seen.add(post.id);
       uniquePosts.push(post);
@@ -224,21 +237,51 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
                     <div ref={trackImpression} data-feed-post-id={post.id}>
                       <FeedCard post={post} currentUserId={profile?.id} />
                     </div>
-                    {/* Few, well-spaced discovery slots; the desktop sidebar already covers follows and tags. */}
-                    {idx === 2 && (
+                    {/* Rich, delightful campus discovery slots interleaved between timeline posts */}
+                    {idx === 1 && (
                       <LocationOptInCard enabled={Boolean(profile?.id)} className="mx-3 my-3" />
                     )}
-                    {idx === 4 && (
+                    {idx === 3 && (
+                      <div className="border-b border-border/40">
+                        <FeedEventSpotlight />
+                      </div>
+                    )}
+                    {idx === 5 && (
                       <div className="border-b border-border/40 lg:hidden">
                         <FeedRecommendedUsers />
                       </div>
                     )}
-                    {idx === 11 && (
+                    {idx === 7 && (
+                      <div className="border-b border-border/40">
+                        <FeedCourseSpotlight />
+                      </div>
+                    )}
+                    {idx === 10 && (
+                      <div className="border-b border-border/40">
+                        <FeedMarketplaceSpotlight />
+                      </div>
+                    )}
+                    {idx === 13 && (
                       <div className="border-b border-border/40 p-4">
                         <InlineCommunitiesWidget />
                       </div>
                     )}
+                    {idx === 16 && (
+                      <div className="border-b border-border/40">
+                        <FeedAcademicsSpotlight />
+                      </div>
+                    )}
                     {idx === 19 && (
+                      <div className="border-b border-border/40">
+                        <FeedEcosystemSpotlight />
+                      </div>
+                    )}
+                    {idx === 22 && (
+                      <div className="border-b border-border/40 p-3">
+                        <InlineDatingWidget />
+                      </div>
+                    )}
+                    {idx === 25 && (
                       <div className="border-b border-border/40 p-4 lg:hidden">
                         <InlineHashtagsWidget />
                       </div>

@@ -48,7 +48,7 @@ export default function DemoPage() {
     description: "Interactive demo environment for evaluating CampusLoop verified student features.",
     publisher: {
       "@type": "Organization",
-      name: "CampusLoop Inc.",
+      name: "CampusLoop",
       url: "https://campusloop.space",
       logo: "https://campusloop.space/logo.png",
     },

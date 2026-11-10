@@ -135,7 +135,7 @@ export function ChatUserInfoDrawer({
       });
       if (res.ok) {
         setIsMuted(nextState);
-        toast.success(nextState ? "Chat muted 🔕" : "Notifications unmuted 🔔");
+        toast.success(nextState ? "Chat muted" : "Notifications unmuted");
       }
     } catch {
       toast.error("Failed to update notification settings");
@@ -209,12 +209,13 @@ export function ChatUserInfoDrawer({
       {/* Slide-over Panel (Instagram / WhatsApp Style) */}
       <aside className="fixed inset-y-0 right-0 z-50 w-full sm:w-88 md:w-96 bg-card border-l border-border/30 shadow-2xl flex flex-col h-full overflow-y-auto animate-in slide-in-from-right duration-250 select-none">
         {/* Drawer Header */}
-        <div className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-border/30 bg-card/90 px-4 backdrop-blur-md shrink-0">
+        <div className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-border/30 bg-card/90 px-4 backdrop-blur-sm shrink-0">
           <h2 className="text-sm font-black text-foreground">Contact Info</h2>
           <button
+            aria-label="Close"
             type="button"
             onClick={onClose}
-            className="size-8 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
+            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 size-8 min-h-11 min-w-11 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="size-4" />
           </button>
@@ -233,7 +234,7 @@ export function ChatUserInfoDrawer({
             <span
               className={cn(
                 "absolute bottom-1 right-1 size-4 rounded-full border-2 border-card",
-                online ? "bg-emerald-500" : "bg-muted-foreground/50"
+                online ? "bg-success" : "bg-muted-foreground/50"
               )}
             />
           </div>
@@ -246,7 +247,7 @@ export function ChatUserInfoDrawer({
               )}
             </h3>
             <p className="text-xs text-muted-foreground">@{otherParticipant.username}</p>
-            <p className="text-[11px] font-semibold text-emerald-500">
+            <p className="text-[11px] font-semibold text-success">
               {online ? "Active Now" : presenceText || "Offline"}
             </p>
           </div>
@@ -299,8 +300,8 @@ export function ChatUserInfoDrawer({
           {/* LP Clout Badge (Only for individual students) */}
           {!otherParticipant.isGroup && (
             <div className="pt-1">
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-xs font-bold text-amber-500">
-                🔥 {otherParticipant.points || 0} LP Clout
+              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-warning-subtle border border-warning text-xs font-bold text-warning">
+                {otherParticipant.points || 0} LP Clout
               </span>
             </div>
           )}
@@ -361,7 +362,7 @@ export function ChatUserInfoDrawer({
                 onClick={() => {
                   if (typeof navigator !== "undefined" && navigator.clipboard) {
                     navigator.clipboard.writeText(`https://campusloop.space/chat/${conversationId}`);
-                    toast.success("Group link copied to clipboard! 📋");
+                    toast.success("Group link copied to clipboard!");
                   }
                 }}
                 className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-muted/60 transition-colors group cursor-pointer"
@@ -394,7 +395,7 @@ export function ChatUserInfoDrawer({
             onClick={handleToggleMute}
             className="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-muted/60 transition-colors group cursor-pointer"
           >
-            <div className="size-10 rounded-full bg-muted flex items-center justify-center text-foreground group-hover:text-rose-500 transition-colors">
+            <div className="size-10 rounded-full bg-muted flex items-center justify-center text-foreground group-hover:text-danger transition-colors">
               {isMuted ? <Bell className="size-4.5" /> : <BellOff className="size-4.5" />}
             </div>
             <span className="text-[10px] font-bold text-muted-foreground group-hover:text-foreground">
@@ -547,7 +548,7 @@ export function ChatUserInfoDrawer({
 
         {/* Chat Settings & Safety Options */}
         <div className="p-4 space-y-2">
-          <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground px-2">
+          <p className="text-xs font-bold text-muted-foreground px-2">
             Chat Settings & Privacy
           </p>
 
@@ -558,7 +559,7 @@ export function ChatUserInfoDrawer({
           >
             <div className="flex items-center gap-2.5">
               {isMuted ? (
-                <BellOff className="size-4 text-rose-500" />
+                <BellOff className="size-4 text-danger" />
               ) : (
                 <Bell className="size-4 text-muted-foreground" />
               )}

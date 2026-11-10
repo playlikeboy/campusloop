@@ -78,11 +78,11 @@ interface MarketplaceOrder {
 
 const PIPELINE_TABS = [
   { id: "all", label: "All Orders" },
-  { id: "new", label: "New Orders", color: "text-amber-500" },
-  { id: "preparing", label: "In Kitchen", color: "text-blue-500" },
-  { id: "ready", label: "Ready / Out for Delivery", color: "text-purple-500" },
-  { id: "completed", label: "Completed", color: "text-emerald-500" },
-  { id: "cancelled", label: "Cancelled", color: "text-rose-500" },
+  { id: "new", label: "New Orders", color: "text-warning" },
+  { id: "preparing", label: "In Kitchen", color: "text-brand-text" },
+  { id: "ready", label: "Ready / Out for Delivery", color: "text-brand-text" },
+  { id: "completed", label: "Completed", color: "text-success" },
+  { id: "cancelled", label: "Cancelled", color: "text-danger" },
 ] as const;
 
 type SortOption = "newest" | "oldest" | "highest_total" | "delivery_only" | "pickup_only";
@@ -293,7 +293,7 @@ ${itemsText}`;
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
               Live Order Management
             </h1>
             {isValidating && <RotateCw className="size-3.5 text-primary animate-spin" />}
@@ -314,9 +314,9 @@ ${itemsText}`;
               toast.info(!soundEnabled ? "Sound notifications turned ON" : "Sound notifications muted");
             }}
             className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer",
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-colors cursor-pointer",
               soundEnabled
-                ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-600 dark:text-emerald-400"
+                ? "bg-success-subtle border-success/30 text-success"
                 : "bg-muted/60 border-border text-muted-foreground"
             )}
             title="Toggle audio alerts on new orders"
@@ -328,7 +328,7 @@ ${itemsText}`;
           <button
             type="button"
             onClick={handleTestChime}
-            className="px-2.5 py-1.5 rounded-xl bg-muted hover:bg-muted/80 text-foreground border border-border text-xs font-bold transition-colors cursor-pointer flex items-center gap-1"
+            className="px-2.5 py-1.5 rounded-xl bg-muted hover:bg-muted/80 text-foreground border border-border text-xs font-bold transition-colors cursor-pointer flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             title="Test audio alert sound"
           >
             <Play className="size-3 fill-current" />
@@ -354,20 +354,20 @@ ${itemsText}`;
                 setActiveTab(tab.id);
               }}
               className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-bold shrink-0 transition-all cursor-pointer relative",
+                "flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-bold shrink-0 transition-colors cursor-pointer relative",
                 isActive
-                  ? "bg-foreground text-background font-black shadow-sm"
+                  ? "bg-foreground text-background font-bold shadow-sm"
                   : "bg-muted/40 text-muted-foreground hover:text-foreground hover:bg-muted/70"
               )}
             >
               <span>{tab.label}</span>
               <span
                 className={cn(
-                  "px-2 py-0.5 rounded-full text-[10px] font-black tabular-nums transition-colors",
+                  "px-2 py-0.5 rounded-full text-[10px] font-bold tabular-nums transition-colors",
                   isActive
                     ? "bg-background text-foreground"
                     : isNewPending
-                      ? "bg-amber-500 text-white animate-pulse"
+                      ? "bg-warning text-warning-fg animate-pulse"
                       : "bg-muted text-muted-foreground"
                 )}
               >
@@ -433,15 +433,15 @@ ${itemsText}`;
               <div
                 key={order.id}
                 className={cn(
-                  "rounded-3xl bg-card border transition-all space-y-4 p-5 sm:p-6 shadow-sm relative overflow-hidden",
+                  "rounded-3xl bg-card border transition-colors space-y-4 p-5 sm:p-6 shadow-sm relative overflow-hidden",
                   isPlaced
-                    ? "border-amber-500/50 ring-1 ring-amber-500/20 bg-amber-500/[0.02]"
+                    ? "border-warning/50 ring-1 ring-warning/20 bg-amber-500/[0.02]"
                     : isPreparing
-                      ? "border-blue-500/40"
+                      ? "border-brand/40"
                       : isReady
-                        ? "border-purple-500/40"
+                        ? "border-brand/40"
                         : isCompleted
-                          ? "border-emerald-500/30"
+                          ? "border-success/30"
                           : "border-border/60"
                 )}
               >
@@ -450,13 +450,13 @@ ${itemsText}`;
                   className={cn(
                     "absolute top-0 left-0 right-0 h-1",
                     isPlaced
-                      ? "bg-amber-500 animate-pulse"
+                      ? "bg-warning animate-pulse"
                       : isPreparing
-                        ? "bg-blue-500"
+                        ? "bg-brand"
                         : isReady
-                          ? "bg-purple-500"
+                          ? "bg-brand"
                           : isCompleted
-                            ? "bg-emerald-500"
+                            ? "bg-success"
                             : "bg-muted-foreground/30"
                   )}
                 />
@@ -464,16 +464,16 @@ ${itemsText}`;
                 {/* 1. Header: Order Number, Time & Status */}
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/40 pb-3.5">
                   <div className="flex items-center gap-2.5">
-                    <span className="text-base font-black text-foreground">#{order.orderNumber}</span>
+                    <span className="text-base font-bold text-foreground">#{order.orderNumber}</span>
                     <span className="text-xs text-muted-foreground font-medium">
                       · {formatTimeAgo(order.createdAt)}
                     </span>
                     <span
                       className={cn(
-                        "flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider",
+                        "flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold",
                         order.fulfillmentType === "DELIVERY"
-                          ? "bg-blue-500/15 text-blue-600 dark:text-blue-400"
-                          : "bg-purple-500/15 text-purple-600 dark:text-purple-400"
+                          ? "bg-brand-subtle text-brand-text"
+                          : "bg-brand-subtle text-brand-text"
                       )}
                     >
                       {order.fulfillmentType === "DELIVERY" ? (
@@ -489,7 +489,7 @@ ${itemsText}`;
                     <span className="text-xs font-bold text-muted-foreground">
                       {order.paymentMethod === "COD" ? "Cash on Delivery" : "UPI Paid"}
                     </span>
-                    <span className="text-lg font-black text-emerald-600 dark:text-emerald-400 font-mono">
+                    <span className="text-lg font-bold text-success font-mono">
                       ₹{order.total.toLocaleString("en-IN")}
                     </span>
                   </div>
@@ -501,13 +501,13 @@ ${itemsText}`;
                   <div className="flex items-center gap-3">
                     <Avatar className="size-11 rounded-2xl border border-border">
                       <AvatarImage src={order.student?.avatarUrl || ""} />
-                      <AvatarFallback className="rounded-2xl font-black text-xs bg-primary/15 text-primary">
+                      <AvatarFallback className="rounded-2xl font-bold text-xs bg-primary/15 text-primary">
                         {studentName.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
 
                     <div className="min-w-0 space-y-0.5">
-                      <p className="text-xs font-black text-foreground truncate">{studentName}</p>
+                      <p className="text-xs font-bold text-foreground truncate">{studentName}</p>
                       <p className="text-[11px] text-muted-foreground">
                         @{order.student?.username || "student"}
                       </p>
@@ -517,7 +517,7 @@ ${itemsText}`;
                   {/* Delivery Location & Contact Buttons */}
                   <div className="flex flex-col justify-center space-y-1.5 text-xs">
                     <div className="flex items-center gap-1.5 font-bold text-foreground">
-                      <MapPin className="size-3.5 text-rose-500 shrink-0" />
+                      <MapPin className="size-3.5 text-danger shrink-0" />
                       <span className="truncate">
                         {hostelName}
                         {roomNumber ? ` · Room ${roomNumber}` : ""}
@@ -548,7 +548,7 @@ ${itemsText}`;
                             sounds.tap();
                             haptics.light();
                           }}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-600 dark:text-emerald-400 font-bold text-[11px] transition-colors"
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-success-subtle hover:bg-success-subtle text-success font-bold text-[11px] transition-colors"
                         >
                           <MessageCircle className="size-3" />
                           <span>WhatsApp</span>
@@ -569,10 +569,10 @@ ${itemsText}`;
 
                 {/* 3. Cooking Note / Preferences Banner */}
                 {order.customerNote && (
-                  <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-xs text-amber-900 dark:text-amber-300 flex items-start gap-2">
-                    <AlertCircle className="size-4 text-amber-500 shrink-0 mt-0.5" />
+                  <div className="p-3 rounded-2xl bg-warning-subtle border border-warning/25 text-xs text-warning flex items-start gap-2">
+                    <AlertCircle className="size-4 text-warning shrink-0 mt-0.5" />
                     <div>
-                      <span className="font-black uppercase text-[10px] tracking-wider block">
+                      <span className="font-bold text-[10px] block">
                         Customer Cooking Note:
                       </span>
                       <span className="font-medium italic">"{order.customerNote}"</span>
@@ -582,7 +582,7 @@ ${itemsText}`;
 
                 {/* 4. Itemized Menu Breakdown */}
                 <div className="space-y-2 pt-1">
-                  <span className="text-[11px] font-black uppercase tracking-wider text-muted-foreground block">
+                  <span className="text-[11px] font-bold text-muted-foreground block">
                     Ordered Items ({(order.items || []).reduce((sum, i) => sum + i.quantity, 0)})
                   </span>
 
@@ -594,7 +594,7 @@ ${itemsText}`;
                       >
                         <div className="space-y-0.5">
                           <div className="flex items-center gap-2">
-                            <span className="font-mono font-black text-foreground">{item.quantity}×</span>
+                            <span className="font-mono font-bold text-foreground">{item.quantity}×</span>
                             <span className="font-bold text-foreground">{item.productNameSnapshot}</span>
                           </div>
 
@@ -604,7 +604,7 @@ ${itemsText}`;
                               {item.selectedAddons.map((addon, aIdx) => (
                                 <span
                                   key={aIdx}
-                                  className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-md"
+                                  className="text-[10px] font-bold text-success bg-success-subtle px-1.5 py-0.5 rounded-md"
                                 >
                                   + {addon.name} (+₹{addon.price})
                                 </span>
@@ -613,7 +613,7 @@ ${itemsText}`;
                           )}
                         </div>
 
-                        <span className="font-mono font-black text-foreground">₹{item.subtotal}</span>
+                        <span className="font-mono font-bold text-foreground">₹{item.subtotal}</span>
                       </div>
                     ))}
                   </div>
@@ -623,7 +623,7 @@ ${itemsText}`;
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-border/40">
                   <div className="flex items-center gap-2">
                     <span className="text-[11px] font-bold text-muted-foreground">
-                      Status: <strong className="text-foreground uppercase">{order.status}</strong>
+                      Status: <strong className="text-foreground">{order.status}</strong>
                     </span>
                   </div>
 
@@ -635,7 +635,7 @@ ${itemsText}`;
                           type="button"
                           disabled={updatingOrderId === order.id}
                           onClick={() => handleUpdateStatus(order.id, "PREPARING", "accepted & cooking")}
-                          className="px-4 py-2 rounded-xl bg-foreground text-background text-xs font-black hover:opacity-90 active:scale-98 transition-all flex items-center gap-1.5 cursor-pointer shadow-sm disabled:opacity-50"
+                          className="px-4 py-2 rounded-xl bg-foreground text-background text-xs font-bold hover:opacity-90 active:scale-98 transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm disabled:opacity-50"
                         >
                           <ChefHat className="size-3.5" />
                           <span>Accept &amp; Start Cooking</span>
@@ -649,7 +649,7 @@ ${itemsText}`;
                               handleUpdateStatus(order.id, "REJECTED", "rejected");
                             }
                           }}
-                          className="px-3 py-2 rounded-xl border border-rose-500/30 text-rose-500 hover:bg-rose-500/10 text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
+                          className="px-3 py-2 rounded-xl border border-danger/30 text-danger hover:bg-danger-subtle text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
                         >
                           Reject
                         </button>
@@ -672,7 +672,7 @@ ${itemsText}`;
                               : "marked ready for pickup"
                           );
                         }}
-                        className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-black active:scale-98 transition-all flex items-center gap-1.5 cursor-pointer shadow-sm disabled:opacity-50"
+                        className="px-4 py-2 rounded-xl bg-brand hover:bg-brand-hover text-brand-fg text-xs font-bold active:scale-98 transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm disabled:opacity-50"
                       >
                         {order.fulfillmentType === "DELIVERY" ? (
                           <>
@@ -697,7 +697,7 @@ ${itemsText}`;
                           const nextStatus = order.fulfillmentType === "DELIVERY" ? "DELIVERED" : "PICKED_UP";
                           handleUpdateStatus(order.id, nextStatus, "completed & delivered");
                         }}
-                        className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black active:scale-98 transition-all flex items-center gap-1.5 cursor-pointer shadow-sm disabled:opacity-50"
+                        className="px-4 py-2 rounded-xl bg-success hover:opacity-90 text-success-fg text-xs font-bold active:scale-98 transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm disabled:opacity-50"
                       >
                         <CheckCircle2 className="size-3.5" />
                         <span>
@@ -710,7 +710,7 @@ ${itemsText}`;
 
                     {/* Completed Badge */}
                     {isCompleted && (
-                      <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                      <span className="inline-flex items-center gap-1 text-xs font-bold text-success">
                         <CheckCircle2 className="size-3.5" />
                         <span>Order Complete</span>
                       </span>
@@ -718,7 +718,7 @@ ${itemsText}`;
 
                     {/* Cancelled Badge */}
                     {isCancelled && (
-                      <span className="inline-flex items-center gap-1 text-xs font-bold text-rose-500">
+                      <span className="inline-flex items-center gap-1 text-xs font-bold text-danger">
                         <XCircle className="size-3.5" />
                         <span>Cancelled</span>
                       </span>
@@ -733,7 +733,7 @@ ${itemsText}`;
         <div className="py-24 text-center space-y-3 rounded-3xl bg-card border border-border/40 p-6">
           <Package className="size-12 text-muted-foreground/30 mx-auto" />
           <div className="space-y-1">
-            <p className="text-sm font-black text-foreground">No orders in this pipeline</p>
+            <p className="text-sm font-bold text-foreground">No orders in this pipeline</p>
             <p className="text-xs text-muted-foreground max-w-sm mx-auto">
               Incoming student orders will appear here automatically with instant chime notification.
             </p>

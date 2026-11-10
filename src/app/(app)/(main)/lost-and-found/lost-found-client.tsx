@@ -40,8 +40,8 @@ interface ApiResponse {
 
 const TYPE_FILTERS = [
   { id: "all", label: "All Items" },
-  { id: "LOST", label: "Lost Only", color: "text-rose-500" },
-  { id: "FOUND", label: "Found Only", color: "text-emerald-500" },
+  { id: "LOST", label: "Lost Only", color: "text-danger" },
+  { id: "FOUND", label: "Found Only", color: "text-success" },
   { id: "RESOLVED", label: "Resolved" },
 ] as const;
 
@@ -164,7 +164,7 @@ export function LostFoundClient({ profileId, campusId }: Props) {
         {/* Header Hero Section */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border/30 pb-5">
           <div className="space-y-1">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-rose-500/10 px-3 py-1 text-xs font-bold text-rose-600 dark:text-rose-400">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-danger-subtle px-3 py-1 text-xs font-bold text-danger">
               <PackageSearch className="size-3.5" />
               <span>Campus Recovery Network</span>
             </div>
@@ -183,7 +183,7 @@ export function LostFoundClient({ profileId, campusId }: Props) {
                 type="button"
                 onClick={() => setScope("MY_CAMPUS")}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all cursor-pointer",
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-colors cursor-pointer",
                   scope === "MY_CAMPUS"
                     ? "bg-background text-foreground shadow-2xs"
                     : "text-muted-foreground hover:text-foreground"
@@ -196,7 +196,7 @@ export function LostFoundClient({ profileId, campusId }: Props) {
                 type="button"
                 onClick={() => setScope("ALL")}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all cursor-pointer",
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-colors cursor-pointer",
                   scope === "ALL"
                     ? "bg-background text-foreground shadow-2xs"
                     : "text-muted-foreground hover:text-foreground"
@@ -207,7 +207,7 @@ export function LostFoundClient({ profileId, campusId }: Props) {
               </button>
             </div>
 
-            <Button asChild className="font-bold text-xs h-9 px-4 rounded-xl bg-rose-600 hover:bg-rose-500 text-white shadow-xs">
+            <Button asChild className="font-bold text-xs h-9 px-4 rounded-xl bg-danger hover:bg-danger text-white shadow-xs">
               <Link href="/lost-and-found/new">
                 <Plus className="size-4 mr-1" />
                 <span>Report Item</span>
@@ -352,7 +352,7 @@ export function LostFoundClient({ profileId, campusId }: Props) {
                     Check All Campuses
                   </Button>
                 )}
-                <Button asChild size="sm" className="font-bold text-xs bg-rose-600 hover:bg-rose-500 text-white">
+                <Button asChild size="sm" className="font-bold text-xs bg-danger hover:bg-danger text-white">
                   <Link href="/lost-and-found/new">
                     <Plus className="size-3.5 mr-1" />
                     Report an Item
@@ -364,7 +364,7 @@ export function LostFoundClient({ profileId, campusId }: Props) {
 
           {isValidating && data ? (
             <div className="flex items-center justify-center gap-2 text-xs font-semibold text-muted-foreground">
-              <Loader2 className="size-3.5 animate-spin text-rose-500" />
+              <Loader2 className="size-3.5 animate-spin text-danger" />
               Syncing recovery listings...
             </div>
           ) : null}

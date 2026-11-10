@@ -57,7 +57,7 @@ export function RedditGallery({ mediaList, externalPost, className = "", onImage
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="text-xs text-orange-500 font-bold hover:underline"
+              className="text-xs text-warning font-bold hover:underline"
             >
               View on Reddit
             </a>
@@ -85,7 +85,7 @@ export function RedditGallery({ mediaList, externalPost, className = "", onImage
             <button
               type="button"
               onClick={handlePrev}
-              className="absolute left-2 top-1/2 -translate-y-1/2 size-8 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 cursor-pointer border border-white/10 shadow-md"
+              className="absolute left-2 top-1/2 -translate-y-1/2 size-8 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md text-white flex items-center justify-center transition-transform opacity-0 group-hover:opacity-100 cursor-pointer border border-white/10 shadow-md"
               aria-label="Previous image"
             >
               <ChevronLeft className="size-4" />
@@ -93,7 +93,7 @@ export function RedditGallery({ mediaList, externalPost, className = "", onImage
             <button
               type="button"
               onClick={handleNext}
-              className="absolute right-2 top-1/2 -translate-y-1/2 size-8 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 cursor-pointer border border-white/10 shadow-md"
+              className="absolute right-2 top-1/2 -translate-y-1/2 size-8 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md text-white flex items-center justify-center transition-transform opacity-0 group-hover:opacity-100 cursor-pointer border border-white/10 shadow-md"
               aria-label="Next image"
             >
               <ChevronRight className="size-4" />
@@ -113,9 +113,9 @@ export function RedditGallery({ mediaList, externalPost, className = "", onImage
                 e.stopPropagation();
                 setCurrentIndex(idx);
               }}
-              className={`size-1.5 rounded-full transition-all cursor-pointer ${
+              className={`size-1.5 rounded-full transition-colors cursor-pointer ${
                 idx === currentIndex
-                  ? "w-4 bg-orange-500"
+                  ? "w-4 bg-warning"
                   : "bg-muted-foreground/30 hover:bg-muted-foreground/60"
               }`}
               aria-label={`Go to slide ${idx + 1}`}

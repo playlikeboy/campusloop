@@ -29,17 +29,6 @@ export const KNOWN_SUBREDDIT_METAS: Record<string, SubredditAccountMeta> = {
     bannerUrl: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&fit=crop",
     points: 4850,
   },
-  jeeneetards: {
-    subreddit: "JEENEETards",
-    username: "jeeneetards",
-    displayName: "r/JEENEETards",
-    officialName: "r/JEENEETards Aspirants Hub",
-    headline: "Official Subreddit Hub · JEE & NEET Chronicles",
-    bio: "For the warrior aspirants of JEE, NEET, and competitive exams across India. Copium, study playlists, test series rants, and late-night motivation.",
-    avatarUrl: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=300&fit=crop",
-    bannerUrl: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=1200&fit=crop",
-    points: 4200,
-  },
   indianteenagers: {
     subreddit: "IndianTeenagers",
     username: "indianteenagers",

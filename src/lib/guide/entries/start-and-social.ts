@@ -1,6 +1,6 @@
 import type { GuideEntry } from "../types";
 
-const U = "2026-10-16";
+const U = "2026-10-23";
 
 export const START_AND_SOCIAL: GuideEntry[] = [
   {
@@ -34,6 +34,7 @@ export const START_AND_SOCIAL: GuideEntry[] = [
       { who: "Student whose college isn't listed", scenario: "Requests a hub at /college-request; the team reviews and opens it." },
     ],
     tips: [
+      "Branch and department subdomains (e.g. @cse.iitism.ac.in, @kgpian.iitkgp.ac.in, @smail.iitm.ac.in) are automatically recognized for student verification.",
       "If your email domain is rejected, request your college hub so the domain can be added.",
       "Install the app to your home screen for push notifications (see Install the app).",
     ],
@@ -43,45 +44,48 @@ export const START_AND_SOCIAL: GuideEntry[] = [
     investorAngle:
       "Email-domain verification is the core moat: it creates a closed, trusted graph per campus that open networks cannot copy, and it makes every downstream feature (dating, commerce, anonymity) safe enough to use.",
     faq: [
-      { q: "Do I need a college email?", a: "Yes, for full access. Aspirants without one can browse read-only in Viewer Mode." },
+      { q: "Do I need a college email?", a: "Yes, for the verified tick and full access. Any other email opens Campus Preview, which has near-full access but no verified tick." },
       { q: "Is it free?", a: "Yes. CampusLoop is free for students. Some marketplace orders are paid to the store." },
     ],
     related: ["aspirant-viewer-mode", "campus-feed", "colleges-directory", "verification-and-safety"],
     keywords: ["sign up", "college email verification", "onboarding", "student network India"],
     essaySlug: "verification-safety",
-    updated: U,
+    updated: "2026-11-05",
   },
   {
     slug: "aspirant-viewer-mode",
-    title: "Viewer Mode for aspirants",
-    summary: "Read-only access for JEE, NEET and CUET aspirants to see real campus life before choosing a college.",
+    title: "Campus Preview for prospective students",
+    summary: "Join with any email to see real campus life before choosing a college, without the verified tick.",
     category: "Start here",
     audiences: ["Aspirants", "Investors"],
     routes: [{ path: "/aspirants", label: "Aspirants" }],
     purpose:
-      "Aspirants pick colleges on rankings and brochures. Viewer Mode lets them read authentic student discussions, hostel reviews and senior advice, without being able to post or message students.",
+      "Prospective students pick colleges on rankings and brochures. Campus Preview lets them read authentic student discussions, hostel reviews and senior advice before they have a college email.",
     whyUse: [
       "See what daily life, hostels and placements are actually like at the colleges you are considering.",
       "Compare several target campuses side by side.",
       "No college email needed.",
     ],
     howToUse: [
-      "Go to /aspirants and start Viewer Mode.",
-      "Choose up to a few target colleges.",
-      "Browse their feeds, confessions and academics. Writing actions are disabled.",
-      "When you join a college, sign up with your new college email for full access.",
+      "Go to /aspirants and sign up with any email.",
+      "Choose a few target colleges.",
+      "Browse their hubs, feeds, confessions and the Academic Vault.",
+      "When you get your college email, verify it and the same account gets the verified tick and full access.",
     ],
     useCases: [
-      { who: "JEE aspirant", scenario: "Reads hostel and branch-change threads at three NITs before counselling." },
+      { who: "Prospective student", scenario: "Reads hostel and branch-change threads at three NITs before counselling." },
       { who: "Parent", scenario: "Checks campus safety discussions and mess reviews." },
     ],
-    privacy: ["Viewers cannot post, comment, message, match or appear in recommendations."],
+    privacy: [
+      "Preview accounts have no verified tick. Spaces reserved for verified students, including Campus Match, open only after a college email is verified.",
+      "Preview accounts are excluded from Campus Match and people recommendations.",
+    ],
     investorAngle:
-      "Viewer Mode is a top-of-funnel acquisition channel: aspirants form the habit a year before they enrol, then convert to verified users on day one of college.",
-    faq: [{ q: "Can students see that I viewed their post?", a: "No. Viewers are read-only and invisible." }],
+      "Campus Preview is a top-of-funnel acquisition channel: prospective students form the habit before enrolling, then convert to verified users on day one of college.",
+    faq: [{ q: "Can students see that I viewed their post?", a: "No. Viewing a post is not shown to its author." }],
     related: ["getting-started", "colleges-directory", "campus-feed"],
-    keywords: ["JEE", "NEET", "CUET", "aspirants", "college reviews", "viewer mode"],
-    updated: U,
+    keywords: ["prospective students", "college reviews", "campus preview", "viewer mode"],
+    updated: "2026-11-05",
   },
   {
     slug: "campus-feed",

@@ -95,21 +95,21 @@ export function RideshareCard({ item, currentUserId }: RideshareCardProps) {
   }
 
   return (
-    <article className="group flex flex-col justify-between rounded-2xl border border-border/40 bg-card p-5 transition-all duration-200 hover:shadow-md hover:border-border/80 space-y-4">
+    <article className="group flex flex-col justify-between rounded-2xl border border-border/40 bg-card p-5 transition-colors duration-200 hover:shadow-md hover:border-border/80 space-y-4">
       {/* Route Timeline Block */}
       <div className="space-y-3">
         {/* Origin & Destination Route */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 space-y-2.5">
             <div className="flex items-center gap-2.5">
-              <span className="flex size-3 items-center justify-center rounded-full bg-emerald-500 ring-4 ring-emerald-500/20" />
+              <span className="flex size-3 items-center justify-center rounded-full bg-success ring-4 ring-success" />
               <span className="text-sm font-black text-foreground truncate">{item.origin}</span>
             </div>
 
             <div className="ml-1.5 h-4 border-l-2 border-dashed border-border" />
 
             <div className="flex items-center gap-2.5">
-              <span className="flex size-3 items-center justify-center rounded-full bg-sky-500 ring-4 ring-sky-500/20" />
+              <span className="flex size-3 items-center justify-center rounded-full bg-brand ring-4 ring-ring" />
               <span className="text-sm font-black text-foreground truncate">{item.destination}</span>
             </div>
           </div>
@@ -128,11 +128,11 @@ export function RideshareCard({ item, currentUserId }: RideshareCardProps) {
         {/* Departure Time & Vehicle Row */}
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-muted/30 p-2.5 text-xs text-muted-foreground border border-border/30">
           <div className="flex items-center gap-1.5 font-semibold text-foreground">
-            <Clock className="size-3.5 text-amber-500" />
+            <Clock className="size-3.5 text-warning" />
             <span>{item.departureTime}</span>
           </div>
 
-          <div className="flex items-center gap-1 font-bold text-sky-600 dark:text-sky-400">
+          <div className="flex items-center gap-1 font-bold text-brand-text">
             <Car className="size-3.5" />
             <span className="uppercase text-[11px]">{item.vehicleType.replace("_", " ")}</span>
           </div>
@@ -162,8 +162,8 @@ export function RideshareCard({ item, currentUserId }: RideshareCardProps) {
               className={cn(
                 "rounded-md px-2 py-0.5 text-xs font-bold",
                 isFull
-                  ? "bg-rose-500/10 text-rose-600 dark:text-rose-400"
-                  : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                  ? "bg-danger-subtle text-danger"
+                  : "bg-success-subtle text-success"
               )}
             >
               {availableSeats > 0 ? `${availableSeats} Seats Left` : "Ride Full"}
@@ -219,7 +219,7 @@ export function RideshareCard({ item, currentUserId }: RideshareCardProps) {
                 "font-bold text-xs h-9 px-4",
                 reserved
                   ? "bg-muted text-foreground hover:bg-muted/80"
-                  : "bg-sky-600 hover:bg-sky-500 text-white"
+                  : "bg-brand hover:bg-brand-hover text-white"
               )}
             >
               {reserved ? "Cancel Seat" : isFull ? "Full" : "Reserve Seat"}

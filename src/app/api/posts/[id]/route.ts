@@ -4,6 +4,7 @@ import { MAX_POST_CHARS } from "@/constants/feed";
 import { getDb } from "@/db";
 import { anonIdentityVault, comments, pollOptions, posts, userProfiles, votes } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { requireProfile } from "@/lib/require-profile";
 import { deriveAnonHandle, openSealedIdentity } from "@/lib/anonymity";
 import { runSafetyCheck } from "@/lib/moderation/rules";
 import { indexPostVector } from "@/lib/qdrant/indexer";
@@ -122,6 +123,8 @@ export async function GET(req: Request, { params }: RouteParams) {
     const postComments = await db.query.comments.findMany({
       where: and(eq(comments.postId, id), eq(comments.status, "PUBLISHED")),
       orderBy: [asc(comments.createdAt)],
+      // Post detail carries the first 200 threads; /api/posts/[id]/comments pages the rest
+      limit: 200,
       with: {
         author: {
           columns: {
@@ -262,20 +265,12 @@ export async function GET(req: Request, { params }: RouteParams) {
 
 export async function PATCH(req: Request, { params }: RouteParams) {
   try {
-    const user = await hexclaveServerApp.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const auth = await requireProfile({ profileStatus: 403 });
+    if (!auth.ok) return auth.response;
+    const { profile } = auth;
 
     const { id } = await params;
     const db = getDb();
-    const profile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, user.id),
-    });
-
-    if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 403 });
-    }
 
     const viewerBlocked = await rejectViewerWrite(profile);
     if (viewerBlocked) return viewerBlocked;
@@ -366,20 +361,12 @@ export async function PATCH(req: Request, { params }: RouteParams) {
 
 export async function DELETE(req: Request, { params }: RouteParams) {
   try {
-    const user = await hexclaveServerApp.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const auth = await requireProfile({ profileStatus: 403 });
+    if (!auth.ok) return auth.response;
+    const { profile } = auth;
 
     const { id } = await params;
     const db = getDb();
-    const profile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, user.id),
-    });
-
-    if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 403 });
-    }
 
     const viewerBlocked = await rejectViewerWrite(profile);
     if (viewerBlocked) return viewerBlocked;

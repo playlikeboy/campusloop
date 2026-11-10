@@ -38,7 +38,7 @@ export function MerchantReviewsClient() {
   return (
     <main className="max-w-3xl mx-auto p-4 space-y-6 select-none pb-24">
       <div>
-        <h1 className="text-xl font-black text-foreground tracking-tight">Student Ratings &amp; Reviews</h1>
+        <h1 className="text-xl font-bold text-foreground tracking-tight">Student Ratings &amp; Reviews</h1>
         <p className="text-xs text-muted-foreground mt-0.5">
           See what verified campus students are saying about your store
         </p>
@@ -47,13 +47,13 @@ export function MerchantReviewsClient() {
       {/* ─── Rating Overview ─── */}
       <div className="p-5 rounded-3xl bg-card border border-border/40 flex items-center gap-5 shadow-xs">
         <div className="text-center">
-          <p className="text-3xl font-black text-foreground">4.8</p>
-          <div className="flex items-center gap-0.5 justify-center text-amber-400 mt-1">
-            <Star className="size-3.5 fill-amber-400" />
-            <Star className="size-3.5 fill-amber-400" />
-            <Star className="size-3.5 fill-amber-400" />
-            <Star className="size-3.5 fill-amber-400" />
-            <Star className="size-3.5 fill-amber-400" />
+          <p className="text-3xl font-bold text-foreground">4.8</p>
+          <div className="flex items-center gap-0.5 justify-center text-warning mt-1">
+            <Star className="size-3.5 fill-warning" />
+            <Star className="size-3.5 fill-warning" />
+            <Star className="size-3.5 fill-warning" />
+            <Star className="size-3.5 fill-warning" />
+            <Star className="size-3.5 fill-warning" />
           </div>
           <p className="text-[10px] text-muted-foreground mt-1">184 verified reviews</p>
         </div>
@@ -68,7 +68,7 @@ export function MerchantReviewsClient() {
 
       {/* ─── Reviews List ─── */}
       <div className="space-y-3.5">
-        <h2 className="text-xs font-black uppercase tracking-wider text-muted-foreground">Recent Reviews</h2>
+        <h2 className="text-xs font-bold text-muted-foreground">Recent Reviews</h2>
 
         {SAMPLE_REVIEWS.map((r) => (
           <div key={r.id} className="p-4 rounded-2xl bg-card border border-border/40 space-y-2.5 shadow-xs">
@@ -85,9 +85,9 @@ export function MerchantReviewsClient() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-0.5 text-amber-400">
+              <div className="flex items-center gap-0.5 text-warning">
                 {Array.from({ length: r.rating }).map((_, i) => (
-                  <Star key={i} className="size-3 fill-amber-400" />
+                  <Star key={i} className="size-3 fill-warning" />
                 ))}
               </div>
             </div>

@@ -40,9 +40,9 @@ interface MarketplaceCardProps {
 }
 
 const CONDITION_STYLES: Record<string, { label: string; badge: string }> = {
-  BRAND_NEW: { label: "Brand New", badge: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30" },
-  LIKE_NEW: { label: "Like New", badge: "bg-sky-500/15 text-sky-600 dark:text-sky-400 border-sky-500/30" },
-  GOOD: { label: "Good", badge: "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30" },
+  BRAND_NEW: { label: "Brand New", badge: "bg-success-subtle text-success border-success" },
+  LIKE_NEW: { label: "Like New", badge: "bg-brand-subtle text-brand-text border-brand" },
+  GOOD: { label: "Good", badge: "bg-warning-subtle text-warning border-warning" },
   FAIR: { label: "Used / Fair", badge: "bg-muted text-muted-foreground border-border/40" },
 };
 
@@ -180,7 +180,7 @@ export function MarketplaceCard({ item, currentUserId, onDeleted, variant = "car
     <>
       <article
         className={cn(
-          "group flex flex-col justify-between rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface)] overflow-hidden transition-all hover:border-[var(--border-strong)]",
+          "group flex flex-col justify-between rounded-[var(--r-lg)] border border-[var(--border)] bg-[var(--surface)] overflow-hidden transition-colors hover:border-[var(--border-strong)]",
           variant === "list" && "sm:flex-row sm:items-center"
         )}
       >
@@ -214,13 +214,13 @@ export function MarketplaceCard({ item, currentUserId, onDeleted, variant = "car
           {/* Overlaid Badges */}
           <div className="absolute top-2.5 left-2.5 flex flex-wrap items-center gap-1.5 pointer-events-none">
             {sold ? (
-              <span className="rounded-lg bg-black/80 px-2 py-0.5 text-[11px] font-black uppercase tracking-wider text-white backdrop-blur-xs shadow-xs">
+              <span className="rounded-lg bg-black/80 px-2 py-0.5 text-xs font-bold text-white backdrop-blur-xs shadow-xs">
                 Sold Out
               </span>
             ) : (
               <span
                 className={cn(
-                  "rounded-lg px-2 py-0.5 text-[11px] font-bold border backdrop-blur-md shadow-2xs",
+                  "rounded-lg px-2 py-0.5 text-[11px] font-bold border backdrop-blur-sm shadow-2xs",
                   conditionInfo.badge
                 )}
               >
@@ -242,7 +242,7 @@ export function MarketplaceCard({ item, currentUserId, onDeleted, variant = "car
           </div>
 
           {discountPercent ? (
-            <div className="absolute bottom-2.5 left-2.5 rounded-md bg-emerald-600 px-1.5 py-0.5 text-[10px] font-black text-white shadow-2xs">
+            <div className="absolute bottom-2.5 left-2.5 rounded-md bg-success px-1.5 py-0.5 text-[10px] font-black text-white shadow-2xs">
               {discountPercent}% OFF
             </div>
           ) : null}
@@ -290,7 +290,7 @@ export function MarketplaceCard({ item, currentUserId, onDeleted, variant = "car
             <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-muted-foreground">
               {item.hostelLocation ? (
                 <span className="inline-flex items-center gap-1 font-medium">
-                  <MapPin className="size-3 text-rose-500 shrink-0" />
+                  <MapPin className="size-3 text-danger shrink-0" />
                   <span className="truncate max-w-[140px]">{item.hostelLocation}</span>
                 </span>
               ) : null}
@@ -339,7 +339,7 @@ export function MarketplaceCard({ item, currentUserId, onDeleted, variant = "car
                 disabled={isStartingChat || sold}
                 className={cn(
                   "w-full gap-1.5 font-bold h-9 text-xs",
-                  sold ? "opacity-60" : "bg-emerald-600 hover:bg-emerald-500 text-white"
+                  sold ? "opacity-60" : "bg-success hover:bg-success text-white"
                 )}
               >
                 {isStartingChat ? (
@@ -383,7 +383,7 @@ export function MarketplaceCard({ item, currentUserId, onDeleted, variant = "car
       {activeImageModal ? (
         <div
           onClick={() => setActiveImageModal(null)}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in select-none"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in select-none"
         >
           <div
             onClick={(e) => e.stopPropagation()}

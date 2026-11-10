@@ -165,14 +165,14 @@ export function ConfessionsFeed() {
             {/* 1. Sleek Header Row */}
             <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-2 border-b border-border/15 bg-muted/10">
               <div className="flex items-center gap-2 min-w-0">
-                <div className="flex size-7 items-center justify-center rounded-lg bg-purple-500/15 text-purple-400 border border-purple-500/25 shrink-0">
+                <div className="flex size-7 items-center justify-center rounded-lg bg-brand/15 text-brand-text border border-brand-subtle-border/25 shrink-0">
                   <VenetianMask className="size-3.5" />
                 </div>
                 <div className="min-w-0 flex items-center gap-2">
                   <h1 className="text-sm sm:text-base font-bold text-foreground tracking-tight leading-none font-[family-name:var(--font-heading)] truncate">
                     Confessions
                   </h1>
-                  <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 shrink-0">
+                  <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-brand/10 text-brand-text border border-brand-subtle-border/20 shrink-0">
                     <Lock className="size-2.5" />
                     <span>100% Anon</span>
                   </span>
@@ -186,7 +186,7 @@ export function ConfessionsFeed() {
                     type="button"
                     onClick={() => handleScopeToggle("GLOBAL")}
                     className={cn(
-                      "px-2.5 py-0.5 rounded-full transition-all cursor-pointer",
+                      "px-2.5 py-0.5 rounded-full transition-colors cursor-pointer",
                       scope === "GLOBAL"
                         ? "bg-foreground text-background font-bold shadow-2xs"
                         : "text-muted-foreground hover:text-foreground"
@@ -199,7 +199,7 @@ export function ConfessionsFeed() {
                     type="button"
                     onClick={() => handleScopeToggle("CAMPUS")}
                     className={cn(
-                      "px-2.5 py-0.5 rounded-full transition-all cursor-pointer max-w-[80px] sm:max-w-[120px] truncate",
+                      "px-2.5 py-0.5 rounded-full transition-colors cursor-pointer max-w-[80px] sm:max-w-[120px] truncate",
                       scope === "CAMPUS"
                         ? "bg-foreground text-background font-bold shadow-2xs"
                         : "text-muted-foreground hover:text-foreground"
@@ -213,7 +213,7 @@ export function ConfessionsFeed() {
                 {/* Direct Whisper Action */}
                 <Link
                   href="/post/new?type=CONFESSION"
-                  className="inline-flex h-7 px-2.5 items-center gap-1 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-all cursor-pointer shadow-2xs shrink-0 active:scale-95"
+                  className="inline-flex h-7 px-2.5 items-center gap-1 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-transform cursor-pointer shadow-2xs shrink-0 active:scale-95"
                   title="Whisper an anonymous confession"
                 >
                   <Plus className="size-3" />
@@ -233,7 +233,7 @@ export function ConfessionsFeed() {
                     aria-pressed={currentSort === s.id}
                     onClick={() => handleSortChange(s.id)}
                     className={cn(
-                      "h-7 px-3 rounded-full text-xs transition-all cursor-pointer select-none shrink-0",
+                      "h-7 px-3 rounded-full text-xs transition-colors cursor-pointer select-none shrink-0",
                       isActive
                         ? "bg-primary text-primary-foreground font-semibold shadow-2xs"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted/40 font-medium"
@@ -251,7 +251,7 @@ export function ConfessionsFeed() {
                 <button
                   type="button"
                   onClick={() => handleTagSelect("")}
-                  className="h-7 px-2.5 rounded-full text-[11px] font-semibold bg-primary/15 text-primary border border-primary/30 hover:bg-primary/25 shrink-0 flex items-center gap-1 transition-all cursor-pointer shadow-2xs"
+                  className="h-7 px-2.5 rounded-full text-[11px] font-semibold bg-primary/15 text-primary border border-primary/30 hover:bg-primary/25 shrink-0 flex items-center gap-1 transition-colors cursor-pointer shadow-2xs"
                 >
                   <span>{activeTag}</span>
                   <span className="text-xs font-bold">×</span>
@@ -266,7 +266,7 @@ export function ConfessionsFeed() {
                     key={chip.label}
                     type="button"
                     onClick={() => handleTagSelect(chip.tag)}
-                    className="h-7 px-2.5 rounded-full text-[11px] font-medium bg-muted/30 hover:bg-muted/60 text-muted-foreground hover:text-foreground border border-border/25 transition-all cursor-pointer shrink-0 whitespace-nowrap"
+                    className="h-7 px-2.5 rounded-full text-[11px] font-medium bg-muted/30 hover:bg-muted/60 text-muted-foreground hover:text-foreground border border-border/25 transition-colors cursor-pointer shrink-0 whitespace-nowrap"
                   >
                     {chip.label}
                   </button>
@@ -279,10 +279,10 @@ export function ConfessionsFeed() {
           <div className="sm:hidden px-3 py-2 border-b border-border/15 bg-muted/10">
             <Link
               href="/post/new?type=CONFESSION"
-              className="flex items-center justify-between gap-3 px-3.5 py-2 rounded-xl bg-card border border-border/50 hover:border-primary/40 text-muted-foreground transition-all shadow-2xs active:scale-[0.99]"
+              className="flex items-center justify-between gap-3 px-3.5 py-2 rounded-xl bg-card border border-border/50 hover:border-primary/40 text-muted-foreground transition-transform shadow-2xs active:scale-[0.99]"
             >
               <div className="flex items-center gap-2 min-w-0">
-                <VenetianMask className="size-3.5 text-purple-400 shrink-0" />
+                <VenetianMask className="size-3.5 text-brand-text shrink-0" />
                 <span className="text-xs truncate">
                   Spill an anonymous confession...
                 </span>
@@ -332,7 +332,7 @@ export function ConfessionsFeed() {
                     </button>
                   ) : (
                     <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/60 font-medium">
-                      <Sparkles className="size-3 text-purple-400/60" />
+                      <Sparkles className="size-3 text-brand-text/60" />
                       <span>You&apos;ve caught up with all campus secrets</span>
                     </div>
                   )}

@@ -15,8 +15,10 @@ export interface UserEventPayload {
     | "COMMUNITY_JOIN"
     | "MARKETPLACE_VIEW"
     | "RANDOM_LOOP_ENGAGE"
-    | "ACADEMIC_INTERACT";
-  targetType?: "POST" | "USER" | "COLLEGE" | "COMMUNITY" | "SEARCH_QUERY" | "CALL" | "ACADEMIC_RESOURCE";
+    | "ACADEMIC_INTERACT"
+    | "COURSE_VIEW"
+    | "COURSE_ENROLL";
+  targetType?: "POST" | "USER" | "COLLEGE" | "COMMUNITY" | "SEARCH_QUERY" | "CALL" | "ACADEMIC_RESOURCE" | "COURSE";
   targetId?: string;
   metadata?: Record<string, any>;
   weight?: number;
@@ -84,6 +86,17 @@ export async function getUserAffinityInterests(userId: string): Promise<string[]
     if (!redis) return [];
     // Top 5 highest weighted interests
     return await redis.zrange<string[]>(`user:${userId}:interests`, 0, 4, { rev: true });
+  } catch {
+    return [];
+  }
+}
+
+/** Most recent target ids for one event type (newest first), e.g. recently viewed courses. */
+export async function getRecentTargets(userId: string, eventType: UserEventPayload["eventType"], limit = 20): Promise<string[]> {
+  try {
+    const redis = getRedis();
+    if (!redis) return [];
+    return await redis.zrange<string[]>(`user:${userId}:recents:${eventType.toLowerCase()}`, 0, limit - 1, { rev: true });
   } catch {
     return [];
   }

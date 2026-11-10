@@ -158,8 +158,8 @@ export function PostLikesModal({ postId, isOpen, onClose, currentUserId }: PostL
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-border/40 bg-card/60 backdrop-blur-md">
           <div className="flex items-center gap-2">
-            <div className="size-7 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-500 shadow-2xs">
-              <Heart className="size-4 fill-rose-500 text-rose-500" />
+            <div className="size-7 rounded-full bg-danger/10 flex items-center justify-center text-danger shadow-2xs">
+              <Heart className="size-4 fill-danger text-danger" />
             </div>
             <h3 className="text-base font-black text-foreground">Liked by</h3>
             {totalCount > 0 && (
@@ -188,7 +188,7 @@ export function PostLikesModal({ postId, isOpen, onClose, currentUserId }: PostL
               placeholder="Search who liked this post..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-9 pl-9 pr-8 rounded-xl border border-border/50 bg-card text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-all"
+              className="w-full h-9 pl-9 pr-8 rounded-xl border border-border/50 bg-card text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-colors"
             />
             {searchQuery && (
               <button

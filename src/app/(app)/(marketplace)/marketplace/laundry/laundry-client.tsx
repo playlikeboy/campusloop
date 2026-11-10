@@ -44,9 +44,9 @@ export function LaundryMarketplaceClient({
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 pb-28 select-none">
       {/* ─── Hero Banner ─── */}
-      <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 p-4 sm:p-6 text-white shadow-md">
+      <div className="relative rounded-3xl overflow-hidden bg-brand p-4 sm:p-6 text-brand-fg shadow-md">
         <div className="relative z-10 max-w-lg space-y-1.5">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-[11px] font-black uppercase tracking-wider">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-sm text-xs font-bold">
             <Truck className="size-3.5" />
             <span>Hostel Doorstep Pickup &amp; Drop</span>
           </div>
@@ -61,9 +61,9 @@ export function LaundryMarketplaceClient({
       </div>
 
       {/* ─── Doorstep Pickup Quick Banner ─── */}
-      <div className="rounded-3xl border border-blue-500/30 bg-blue-500/5 p-5 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="rounded-3xl border border-brand bg-brand-subtle p-5 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="size-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-black shadow-md shrink-0">
+          <div className="size-12 rounded-2xl bg-brand text-white flex items-center justify-center font-black shadow-md shrink-0">
             <Package className="size-6" />
           </div>
           <div>
@@ -83,7 +83,7 @@ export function LaundryMarketplaceClient({
             haptics.medium();
             setShowPickupModal(true);
           }}
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-6 py-3 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-black transition-all cursor-pointer shadow-md active:scale-95 shrink-0"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-6 py-3 rounded-2xl bg-brand hover:bg-brand-hover text-white text-xs font-black transition-[opacity,transform] cursor-pointer shadow-md active:scale-95 shrink-0"
         >
           <Shirt className="size-3.5" />
           <span>Book Pickup Now</span>
@@ -93,7 +93,7 @@ export function LaundryMarketplaceClient({
       {/* ─── Laundry Service Packages ─── */}
       <div className="space-y-3">
         <div className="flex items-center justify-between px-1">
-          <h2 className="text-sm font-black text-foreground uppercase tracking-wider">
+          <h2 className="text-sm font-bold text-foreground">
             Laundry Rates &amp; Packages ({packages.length || 5})
           </h2>
           <span className="text-xs text-muted-foreground font-medium">24-Hr Express Delivery</span>
@@ -113,15 +113,15 @@ export function LaundryMarketplaceClient({
             {packages.map((pkg) => (
               <div
                 key={pkg.id}
-                className="group rounded-2xl border border-border bg-card hover:border-blue-500/40 hover:shadow-md transition-all p-4 flex items-center justify-between gap-3"
+                className="group rounded-2xl border border-border bg-card hover:border-brand hover:shadow-md transition-colors p-4 flex items-center justify-between gap-3"
               >
                 <div className="space-y-1 min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <h4 className="text-sm font-black text-foreground group-hover:text-blue-500 transition-colors truncate">
+                    <h4 className="text-sm font-black text-foreground group-hover:text-brand-text transition-colors truncate">
                       {pkg.name}
                     </h4>
                     {pkg.isPopular && (
-                      <span className="px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-600 dark:text-blue-400 text-[9px] font-black uppercase shrink-0">
+                      <span className="px-1.5 py-0.5 rounded bg-brand-subtle text-brand-text text-[9px] font-black uppercase shrink-0">
                         Popular
                       </span>
                     )}
@@ -149,7 +149,7 @@ export function LaundryMarketplaceClient({
                     setSelectedPackage(pkg);
                     setShowPickupModal(true);
                   }}
-                  className="px-3.5 py-2 rounded-xl bg-muted/80 hover:bg-blue-600 hover:text-white text-foreground text-xs font-black transition-all cursor-pointer active:scale-95 shrink-0 shadow-2xs"
+                  className="px-3.5 py-2 rounded-xl bg-muted/80 hover:bg-brand-hover hover:text-white text-foreground text-xs font-black transition-[opacity,transform] cursor-pointer active:scale-95 shrink-0 shadow-2xs"
                 >
                   Select
                 </button>
@@ -171,7 +171,7 @@ export function LaundryMarketplaceClient({
           >
             <div className="flex items-start justify-between">
               <div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-blue-500">
+                <span className="text-xs font-bold text-brand-text">
                   Hostel Doorstep Pickup
                 </span>
                 <h3 className="text-base font-black text-foreground">
@@ -179,7 +179,7 @@ export function LaundryMarketplaceClient({
                 </h3>
                 <p className="text-xs text-muted-foreground">Pickup from your room door</p>
               </div>
-              <div className="size-10 rounded-2xl bg-blue-500/15 text-blue-500 flex items-center justify-center font-black">
+              <div className="size-10 rounded-2xl bg-brand-subtle text-brand-text flex items-center justify-center font-black">
                 <Shirt className="size-5" />
               </div>
             </div>
@@ -190,7 +190,7 @@ export function LaundryMarketplaceClient({
               <select
                 value={hostelName}
                 onChange={(e) => setHostelName(e.target.value)}
-                className="w-full h-10 px-3 rounded-xl border border-border bg-muted/50 text-xs font-medium outline-none focus:border-blue-500"
+                className="w-full h-10 px-3 rounded-xl border border-border bg-muted/50 text-xs font-medium outline-none focus:border-brand"
               >
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].map((h) => (
                   <option key={h} value={`Hostel ${h}`}>
@@ -208,7 +208,7 @@ export function LaundryMarketplaceClient({
                 value={roomNumber}
                 onChange={(e) => setRoomNumber(e.target.value)}
                 placeholder="e.g. Room 312, 3rd Floor"
-                className="w-full h-10 px-3 rounded-xl border border-border bg-card text-xs font-medium outline-none focus:border-blue-500"
+                className="w-full h-10 px-3 rounded-xl border border-border bg-card text-xs font-medium outline-none focus:border-brand"
               />
             </div>
 
@@ -216,7 +216,7 @@ export function LaundryMarketplaceClient({
             <div className="space-y-1.5">
               <div className="flex items-center justify-between text-xs font-bold">
                 <span>Approx Load Weight</span>
-                <span className="text-blue-500">{clothesWeightKg} KG</span>
+                <span className="text-brand-text">{clothesWeightKg} KG</span>
               </div>
               <input
                 type="range"
@@ -224,7 +224,7 @@ export function LaundryMarketplaceClient({
                 max="10"
                 value={clothesWeightKg}
                 onChange={(e) => setClothesWeightKg(parseInt(e.target.value, 10))}
-                className="w-full accent-blue-600"
+                className="w-full accent-brand"
               />
             </div>
 
@@ -236,7 +236,7 @@ export function LaundryMarketplaceClient({
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Turnaround Time</span>
-                <span className="font-bold text-emerald-500">24 Hours (Next Day Drop)</span>
+                <span className="font-bold text-success">24 Hours (Next Day Drop)</span>
               </div>
             </div>
 
@@ -267,7 +267,7 @@ export function LaundryMarketplaceClient({
                     );
                   }, 700);
                 }}
-                className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-black transition-all cursor-pointer shadow-xs inline-flex items-center justify-center gap-1.5"
+                className="flex-1 py-2.5 rounded-xl bg-brand hover:bg-brand-hover text-white text-xs font-black transition-colors cursor-pointer shadow-xs inline-flex items-center justify-center gap-1.5"
               >
                 {isSubmitting ? (
                   <span>Scheduling...</span>
@@ -284,10 +284,10 @@ export function LaundryMarketplaceClient({
       )}
 
       {/* ─── Campus Onboarding & Expansion Banner (Instagram Highlighted) ─── */}
-      <div className="rounded-3xl border border-pink-500/30 bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-amber-500/10 p-5 relative overflow-hidden">
+      <div className="rounded-3xl border border-brand-subtle-border bg-brand-subtle p-5 relative overflow-hidden">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 relative z-10">
           <div className="space-y-1">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-pink-500/20 text-pink-600 dark:text-pink-400 text-[10px] font-black uppercase tracking-wider">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-brand-subtle text-brand-text text-xs font-bold">
               <Rocket className="size-3" />
               <span>Want this at your campus?</span>
             </div>
@@ -303,7 +303,7 @@ export function LaundryMarketplaceClient({
             href="https://www.instagram.com/campusloop.space/"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-pink-600 via-rose-500 to-amber-500 text-white text-xs font-black shadow-md hover:opacity-95 transition-transform active:scale-95 shrink-0"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand hover:bg-brand-hover text-brand-fg text-xs font-black shadow-md hover:opacity-95 transition-transform active:scale-95 shrink-0"
           >
             <InstagramIcon className="size-3.5" />
             <span>DM @campusloop.space</span>

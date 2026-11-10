@@ -66,9 +66,9 @@ export function PollCard({ post }: PollCardProps) {
           <div
             key={option.id}
             className={cn(
-              "relative overflow-hidden rounded-xl border transition-all",
+              "relative overflow-hidden rounded-md border transition-colors",
               option.userVoted
-                ? "border-primary/40 bg-card shadow-2xs"
+                ? "border-brand-subtle-border bg-surface"
                 : "border-border/60 bg-card/60 hover:border-border"
             )}
           >
@@ -77,10 +77,10 @@ export function PollCard({ post }: PollCardProps) {
                 {/* Progress bar background fill */}
                 <div
                   className={cn(
-                    "absolute inset-y-0 left-0 transition-all duration-500",
-                    option.userVoted ? "bg-primary/20" : "bg-muted/40"
+                    "absolute inset-0 origin-left transition-transform duration-500",
+                    option.userVoted ? "bg-brand-subtle" : "bg-surface-muted"
                   )}
-                  style={{ width: `${percentage}%` }}
+                  style={{ transform: `scaleX(${percentage / 100})` }}
                 />
                 <div className="relative flex justify-between items-center px-3.5 py-2.5 min-h-[44px] text-xs sm:text-sm text-foreground">
                   <span
@@ -104,7 +104,7 @@ export function PollCard({ post }: PollCardProps) {
                 type="button"
                 onClick={() => handleVote(option.id)}
                 disabled={isLoading}
-                className="w-full text-left px-3.5 py-2.5 min-h-[44px] text-xs sm:text-sm text-foreground font-medium hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer flex items-center justify-between"
+                className="w-full text-left px-3.5 py-2.5 min-h-[44px] text-xs sm:text-sm text-foreground font-medium hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer flex items-center justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
               >
                 <span>{option.text}</span>
               </button>

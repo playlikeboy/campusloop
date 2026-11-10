@@ -34,7 +34,7 @@ export async function generateMetadata({ searchParams }: ExplorePageProps): Prom
         follow: true,
       },
       openGraph: {
-        title: `${title} | CampusLoop`,
+        title: `${title}`,
         description,
         url: `https://campusloop.space/explore?q=${encodeURIComponent(q)}`,
         siteName: "CampusLoop",
@@ -116,7 +116,7 @@ export default async function ExplorePage({ searchParams }: ExplorePageProps) {
         description: "CampusLoop discovery hub — student clubs, upcoming hackathons, and notes across India.",
         publisher: {
           "@type": "Organization",
-          name: "CampusLoop Inc.",
+          name: "CampusLoop",
           url: "https://campusloop.space",
           logo: "https://campusloop.space/logo.png",
         },

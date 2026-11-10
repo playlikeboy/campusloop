@@ -27,6 +27,7 @@ import { PublicShareButton } from "@/components/profile/public-share-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Navigation } from "@/components/ui/navigation";
 import { VerifiedBadge } from "@/components/ui/verified-badge";
+import { isCollegeVerifiedUser } from "@/lib/user-verification";
 import { getBranchIcon } from "@/constants";
 import { getDb } from "@/db";
 import { getCloutTier } from "@/lib/gamification";
@@ -72,7 +73,10 @@ export async function generateMetadata({ params }: VanityProfileProps): Promise<
     }),
     getShowSeededPosts(),
   ]);
-  if (!profile || (!showSeeded && profile.isSeeded)) notFound();
+  if (!profile || (!showSeeded && profile.isSeeded)) {
+    // Streaming metadata would commit a 200 before notFound() ran here; the page body throws the real 404.
+    return { title: "Profile not found", robots: { index: false, follow: false } };
+  }
 
   // Redirect to canonical /@username only if this is a verified student/user profile
   if (!rawUsername.startsWith("@")) redirect(`/@${candidateUsername}`);
@@ -348,7 +352,7 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
   const points = profile.points || 0;
   const cloutTier = getCloutTier(points);
   const isOfficialDesk = profile.username.startsWith("loop_") || profile.role === "ADMIN";
-  const isVerified = isOfficialDesk || profile.role === "ADMIN" || profile.role === "MODERATOR" || points >= 50;
+  const isVerified = isOfficialDesk || profile.role === "ADMIN" || isCollegeVerifiedUser(profile);
 
   const cleanPostText = (body: string) =>
     body
@@ -400,12 +404,12 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
           </Link>
           <div className="flex items-center gap-1.5 sm:gap-2">
             <Link href="/join?mode=signin">
-              <button className="rounded-full border border-border/80 px-4 py-1.5 text-xs font-bold text-foreground hover:bg-muted transition-all cursor-pointer">
+              <button className="rounded-full border border-border/80 px-4 py-1.5 text-xs font-bold text-foreground hover:bg-muted transition-ui cursor-pointer">
                 Sign In
               </button>
             </Link>
             <Link href="/join?mode=signup">
-              <button className="rounded-full bg-foreground text-background px-4 py-1.5 text-xs font-bold hover:bg-foreground/90 transition-all cursor-pointer">
+              <button className="rounded-full bg-foreground text-background px-4 py-1.5 text-xs font-bold hover:bg-foreground/90 transition-ui cursor-pointer">
                 Join Campus
               </button>
             </Link>
@@ -416,7 +420,7 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
       {/* Main Container Layout */}
       <div className="w-full pt-16 pb-16">
         {/* Full-Bleed Panoramic Cover Banner */}
-        <div className="relative h-44 sm:h-60 lg:h-72 w-full max-w-5xl lg:max-w-6xl mx-auto bg-[#16181C] overflow-hidden rounded-b-2xl sm:rounded-b-3xl shadow-sm">
+        <div className="relative h-44 sm:h-60 lg:h-72 w-full max-w-5xl lg:max-w-6xl mx-auto bg-surface-muted overflow-hidden rounded-b-2xl sm:rounded-b-3xl shadow-sm">
           {profile.bannerUrl ? (
             <img
               src={profile.bannerUrl}
@@ -424,7 +428,7 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-linear-to-b from-neutral-800/60 via-[#16181C] to-[#121417] relative">
+            <div className="w-full h-full bg-n-900 relative">
               <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/15 via-transparent to-transparent" />
               <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:24px_24px]" />
             </div>
@@ -436,7 +440,7 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
           {/* Floating Campus Badge in Banner (Bottom Right) */}
           {campusShort && (
             <div className="absolute bottom-3 right-4 z-10 hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/45 backdrop-blur-md border border-white/10 text-white/90 text-xs font-semibold shadow-md pointer-events-none">
-              <School className="size-3.5 text-[#1D9BF0]" />
+              <School className="size-3.5 text-brand-text" />
               <span>{campusShort}</span>
             </div>
           )}
@@ -649,7 +653,7 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
             {userArticles.length > 0 && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between pb-2 border-b border-border/30">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <h3 className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
                     <FileText className="size-4 text-primary" /> Published Articles &amp; Editorial ({userArticles.length})
                   </h3>
                   <Link
@@ -666,11 +670,11 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
                     <Link
                       key={art.id}
                       href={`/articles/${art.slug}`}
-                      className="p-4 rounded-2xl border border-border/40 bg-card/50 hover:bg-muted/40 hover:border-border/60 transition-all flex flex-col justify-between gap-2.5 group shadow-2xs"
+                      className="p-4 rounded-2xl border border-border/40 bg-card/50 hover:bg-muted/40 hover:border-border/60 transition-ui flex flex-col justify-between gap-2.5 group shadow-2xs"
                     >
                       <div className="space-y-1.5 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
                             {art.category.replace(/_/g, " ")}
                           </span>
                           <span className="text-[11px] text-muted-foreground">
@@ -710,13 +714,13 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
             {(userAcademicResources.length > 0 || userPlaylists.length > 0) && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between pb-2 border-b border-border/30">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                    <FolderPlus className="size-4 text-[#1D9BF0]" /> Study Library (
+                  <h3 className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
+                    <FolderPlus className="size-4 text-brand-text" /> Study Library (
                     {userAcademicResources.length + userPlaylists.length})
                   </h3>
                   <Link
                     href={`/@${profile.username}?tab=academics`}
-                    className="text-xs font-bold text-[#1D9BF0] hover:underline flex items-center gap-1"
+                    className="text-xs font-bold text-brand-text hover:underline flex items-center gap-1"
                   >
                     <span>View All</span>
                     <ArrowUpRight className="size-3" />
@@ -726,7 +730,7 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
                 {/* Study Playlists if any */}
                 {userPlaylists.length > 0 && (
                   <div className="space-y-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    <span className="text-[10px] font-bold text-muted-foreground">
                       Curated Stacks &amp; Playlists
                     </span>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -734,13 +738,13 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
                         <Link
                           key={pl.id}
                           href={`/academics/study-material/playlists/${pl.slug}`}
-                          className="p-3.5 rounded-2xl border border-border/40 bg-muted/20 hover:bg-muted/40 hover:border-border/60 transition-all flex flex-col justify-between gap-2.5 group shadow-2xs"
+                          className="p-3.5 rounded-2xl border border-border/40 bg-muted/20 hover:bg-muted/40 hover:border-border/60 transition-ui flex flex-col justify-between gap-2.5 group shadow-2xs"
                         >
                           <div className="space-y-1.5 min-w-0">
-                            <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#1D9BF0]/10 text-[#1D9BF0]">
+                            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-brand-subtle text-brand-text">
                               {pl.category.replace("_", " ")}
                             </span>
-                            <h4 className="text-xs font-bold text-foreground line-clamp-1 mt-1 group-hover:text-[#1D9BF0] transition-colors">
+                            <h4 className="text-xs font-bold text-foreground line-clamp-1 mt-1 group-hover:text-brand-text transition-colors">
                               {pl.title}
                             </h4>
                             {pl.description && (
@@ -762,7 +766,7 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
                 {/* Uploaded Resources */}
                 {userAcademicResources.length > 0 && (
                   <div className="space-y-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    <span className="text-[10px] font-bold text-muted-foreground">
                       Uploaded Notes &amp; PYQs
                     </span>
                     <div className="divide-y divide-border/20 rounded-2xl border border-border/40 bg-card/40 overflow-hidden shadow-2xs">
@@ -778,11 +782,11 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
                                 {res.subjectCode}
                               </span>
                               <span>·</span>
-                              <span className="uppercase font-bold text-[#1D9BF0]">{res.resourceType}</span>
+                              <span className="font-bold text-brand-text">{res.resourceType}</span>
                               <span>·</span>
                               <span>Sem {res.semester}</span>
                             </div>
-                            <h4 className="text-xs font-bold text-foreground line-clamp-1 hover:text-[#1D9BF0] transition-colors">
+                            <h4 className="text-xs font-bold text-foreground line-clamp-1 hover:text-brand-text transition-colors">
                               {res.title}
                             </h4>
                           </div>
@@ -808,8 +812,8 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
             <div className="space-y-4">
               <div className="flex items-center justify-between pb-2 border-b border-border/30">
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                    <MessageSquare className="size-4 text-[#1D9BF0]" /> Recent Activity
+                  <h3 className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
+                    <MessageSquare className="size-4 text-brand-text" /> Recent Activity
                   </h3>
                 </div>
                 {userPosts.length > 0 && (
@@ -849,10 +853,10 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
                             </span>
                           )}
                           {ep?.subreddit && (
-                            <span className="text-[10px] font-semibold text-orange-400">r/{ep.subreddit}</span>
+                            <span className="text-[10px] font-semibold text-warning">r/{ep.subreddit}</span>
                           )}
                           {p.title && (
-                            <h4 className="text-sm font-bold text-foreground line-clamp-1 min-w-0 group-hover:text-[#1D9BF0] transition-colors">
+                            <h4 className="text-sm font-bold text-foreground line-clamp-1 min-w-0 group-hover:text-brand-text transition-colors">
                               {cleanPostText(p.title)}
                             </h4>
                           )}
@@ -868,7 +872,7 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
                           </div>
                         ) : docMedia ? (
                           <div className="flex items-center gap-2 rounded-xl border border-border/30 bg-muted/20 px-3 py-2 text-xs">
-                            <FileText className="size-4 text-[#1D9BF0] shrink-0" />
+                            <FileText className="size-4 text-brand-text shrink-0" />
                             <span className="truncate font-semibold text-foreground">
                               {docMedia.label || "Attached Document"}
                             </span>
@@ -895,14 +899,14 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
                         ) : null}
 
                         {p.pollOptions && p.pollOptions.length > 0 && (
-                          <div className="mt-1 flex items-center gap-1.5 text-[11px] text-[#1D9BF0] font-semibold">
+                          <div className="mt-1 flex items-center gap-1.5 text-[11px] text-brand-text font-semibold">
                             <BarChart2 className="size-3" />
                             <span>Poll · {p.pollOptions.length} choices</span>
                           </div>
                         )}
 
                         <div className="flex items-center gap-3 text-[10px] text-muted-foreground pt-1 font-medium">
-                          <span className="flex items-center gap-1 text-emerald-400 font-bold">
+                          <span className="flex items-center gap-1 text-success font-bold">
                             <ThumbsUp className="size-3" />
                             <span>
                               {votesTotal} {votesTotal === 1 ? "upvote" : "upvotes"}
@@ -927,8 +931,8 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
           <aside className="lg:col-span-4 space-y-5 lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto lg:overscroll-contain no-scrollbar pr-1 pb-16">
             {/* Campus Standing Card */}
             <div className="rounded-2xl border border-border/40 bg-card/50 p-4.5 space-y-3.5 shadow-2xs">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                <ShieldCheck className="size-4 text-[#1D9BF0]" />
+              <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
+                <ShieldCheck className="size-4 text-brand-text" />
                 <span>Campus Standing</span>
               </div>
               <div className="grid grid-cols-2 gap-2 text-center select-none">
@@ -941,15 +945,22 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
                   <p className="text-[10px] font-medium text-muted-foreground">Campus Posts</p>
                 </div>
               </div>
-              <div className="text-[11px] text-muted-foreground flex items-center gap-1.5 pt-0.5">
-                <BadgeCheck className="size-3.5 text-[#1D9BF0] shrink-0" />
-                <span>Verified Student Network Member</span>
-              </div>
+              {isVerified ? (
+                <div className="text-[11px] text-brand-text flex items-center gap-1.5 pt-0.5 font-medium">
+                  <BadgeCheck className="size-3.5 text-brand-text fill-brand-subtle shrink-0" />
+                  <span>Verified College Student</span>
+                </div>
+              ) : (
+                <div className="text-[11px] text-muted-foreground flex items-center gap-1.5 pt-0.5">
+                  <School className="size-3.5 text-muted-foreground shrink-0" />
+                  <span>Community Member</span>
+                </div>
+              )}
             </div>
 
             {/* Connect CTA Card */}
             <div className="rounded-2xl border border-border/40 bg-card/60 p-5 text-center space-y-3.5 shadow-2xs">
-              <div className="size-10 bg-[#1D9BF0]/10 text-[#1D9BF0] rounded-full flex items-center justify-center mx-auto">
+              <div className="size-10 bg-brand-subtle text-brand-text rounded-full flex items-center justify-center mx-auto">
                 <Lock className="size-5" />
               </div>
               <div className="space-y-1">
@@ -960,12 +971,12 @@ export default async function VanityProfilePage({ params, searchParams }: Vanity
               </div>
               <div className="flex gap-2 justify-center pt-1">
                 <Link href="/join?mode=signin" className="flex-1">
-                  <button className="w-full rounded-full border border-border/80 h-9 px-4 text-xs font-bold hover:bg-muted text-foreground transition-all cursor-pointer">
+                  <button className="w-full rounded-full border border-border/80 h-9 px-4 text-xs font-bold hover:bg-muted text-foreground transition-ui cursor-pointer">
                     Sign In
                   </button>
                 </Link>
                 <Link href="/join?mode=signup" className="flex-1">
-                  <button className="w-full rounded-full bg-foreground text-background h-9 px-4 text-xs font-bold hover:bg-foreground/90 transition-all cursor-pointer">
+                  <button className="w-full rounded-full bg-foreground text-background h-9 px-4 text-xs font-bold hover:bg-foreground/90 transition-ui cursor-pointer">
                     Verify &amp; Join
                   </button>
                 </Link>

@@ -29,7 +29,7 @@ export function FeedCardRepostModal({
       <div className="w-full max-w-md rounded-2xl border border-border bg-card p-5 shadow-2xl space-y-4">
         <div className="flex items-center justify-between pb-2 border-b border-border/40">
           <div className="flex items-center gap-2">
-            <AnimateRepeat2 size={16} className="text-emerald-500" />
+            <AnimateRepeat2 size={16} className="text-success" />
             <h3 className="text-sm font-bold text-foreground">Reshare Post</h3>
           </div>
           <button

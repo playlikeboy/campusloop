@@ -36,7 +36,7 @@ export function PublicShareButton({
           setIsOpen(true);
         }}
         className={cn(
-          "flex cursor-pointer items-center justify-center gap-1.5 border border-border/70 bg-card hover:bg-muted text-foreground transition-all shadow-2xs active:scale-95",
+          "flex cursor-pointer items-center justify-center gap-1.5 border border-border/70 bg-card hover:bg-muted text-foreground transition-ui shadow-2xs active:scale-95",
           variant === "icon" ? "size-9 rounded-full" : "h-9 rounded-full px-4 text-xs font-bold",
           className
         )}

@@ -1,34 +1,46 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, isNull, notInArray, notLike } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { posts } from "@/db/schema";
+import { externalPosts, posts } from "@/db/schema";
 
 export const dynamic = "force-dynamic";
+
+const SITEMAP_URL_CAP = 50_000;
 
 export async function GET() {
   try {
     const db = getDb();
-    const list = await db.query.posts.findMany({
-      columns: {
-        id: true,
-      },
-      // Anonymous posts (confessions) are never submitted for indexing: they
-      // are already hidden from public profiles, and handing them to Google
-      // would undo that.
-      where: and(eq(posts.status, "PUBLISHED"), eq(posts.isAnonymous, false)),
-      orderBy: [desc(posts.createdAt)],
-      limit: 2000,
-    });
+    const list = await db
+      .select({ id: posts.id, createdAt: posts.createdAt, updatedAt: posts.updatedAt })
+      .from(posts)
+      // Imported (Reddit/RSS) posts are mirrored content, never canonical here.
+      .leftJoin(externalPosts, eq(externalPosts.postId, posts.id))
+      .where(
+        and(
+          eq(posts.status, "PUBLISHED"),
+          // Anonymous posts and confessions are never submitted for indexing:
+          // they are hidden from public profiles and must stay out of Google.
+          eq(posts.isAnonymous, false),
+          notInArray(posts.type, ["ANONYMOUS", "CONFESSION"]),
+          eq(posts.isSeeded, false),
+          notLike(posts.id, "seed\\_202609\\_%"),
+          isNull(externalPosts.id)
+        )
+      )
+      .orderBy(desc(posts.createdAt))
+      .limit(SITEMAP_URL_CAP);
 
     const urls = list
-      .map(
-        (item) => `
+      .map((item) => {
+        const lastmod = (item.updatedAt ?? item.createdAt ?? new Date()).toISOString();
+        return `
   <url>
     <loc>https://campusloop.space/post/${item.id}</loc>
+    <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
-  </url>`
-      )
+  </url>`;
+      })
       .join("");
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>

@@ -6,14 +6,14 @@ import { isViewerProfile } from "@/lib/viewer";
 export const metadata: Metadata = {
   title: {
     default: "Campus Marketplace | Verified Local Canteens, Rentals & Campus Services",
-    template: "%s | CampusLoop Marketplace",
+    template: "%s · CampusLoop",
   },
   description:
     "Order food from campus canteens, book bike rentals, schedule barber appointments, get laundry picked up, order 20L water cans, and shop hostel essentials.",
   openGraph: {
     title: "CampusLoop Marketplace | Food, Bike Rentals, Barber, Laundry & Essentials",
     description: "Verified local campus businesses, food delivery, bike rentals, and hostel services.",
-    url: "https://campusloop.space/app/marketplace",
+    url: "https://campusloop.space/marketplace",
     siteName: "CampusLoop Marketplace",
     images: [
       {

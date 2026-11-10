@@ -19,16 +19,16 @@ export async function generateMetadata({ params }: ManageEventPageProps): Promis
     });
 
     if (!event) {
-      return { title: "Manage Event | CampusLoop" };
+      return { title: "Manage Event" };
     }
 
     return {
-      title: `Manage: ${event.title} | CampusLoop Organizer`,
+      title: `Manage: ${event.title}`,
       description: `Organizer control center for ${event.title}. Manage attendees, broadcast updates, and check-in guests.`,
       robots: { index: false, follow: false },
     };
   } catch {
-    return { title: "Manage Event | CampusLoop" };
+    return { title: "Manage Event" };
   }
 }
 

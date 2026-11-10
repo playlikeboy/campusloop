@@ -15,12 +15,12 @@ export const metadata: Metadata = {
     "Used Bicycles College",
     "Used Textbooks India",
   ],
-  alternates: { canonical: "https://campusloop.space/app/buy-and-sell" },
+  alternates: { canonical: "https://campusloop.space/buy-and-sell" },
   openGraph: {
     title: "Buy & Sell | Verified Campus Marketplace",
     description:
       "Buy and sell second-hand bicycles, coolers, mattresses, textbooks, and hostel essentials with verified students.",
-    url: "https://campusloop.space/app/buy-and-sell",
+    url: "https://campusloop.space/buy-and-sell",
     siteName: "CampusLoop",
     locale: "en_IN",
     type: "website",

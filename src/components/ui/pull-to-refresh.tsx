@@ -180,7 +180,7 @@ export function PullToRefresh({ onRefresh, children, disabled = false }: PullToR
       {/* ─── Floating Pull Indicator Badge (Twitter / Instagram style) ─── */}
       <div
         className={cn(
-          "pointer-events-none fixed left-1/2 -translate-x-1/2 z-50 transition-all duration-200 ease-out",
+          "pointer-events-none fixed left-1/2 -translate-x-1/2 z-50 transition-[opacity,transform] duration-200 ease-out",
           pullDistance > 0 || isRefreshing ? "opacity-100 scale-100" : "opacity-0 scale-75"
         )}
         style={{

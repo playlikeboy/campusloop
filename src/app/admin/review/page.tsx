@@ -23,7 +23,7 @@ export default async function ReviewQueuePage() {
         icon={ShieldAlert}
         description="Inspect content flagged by automated keyword blocks, toxicity models, or high report volumes."
         badge={
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20">
+          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-warning-subtle text-warning border border-warning/20">
             {queue.length} pending
           </span>
         }

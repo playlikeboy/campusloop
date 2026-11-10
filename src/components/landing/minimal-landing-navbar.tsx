@@ -24,7 +24,7 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
 
   return (
     <div className="sticky top-1.5 sm:top-3 z-50 px-2.5 sm:px-6 max-w-5xl mx-auto w-full select-none">
-      <header className="flex h-12 sm:h-14 md:h-15 items-center justify-between px-2.5 sm:px-5 rounded-full border border-border/70 bg-background/90 dark:bg-background/85 backdrop-blur-xl shadow-xs transition-all">
+      <header className="flex h-12 sm:h-14 md:h-15 items-center justify-between px-2.5 sm:px-5 rounded-full border border-border/70 bg-background/90 dark:bg-background/85 backdrop-blur-xl shadow-xs transition-ui">
         {/* Cute Voxel Brand Logo */}
         <Link
           href="/"
@@ -35,9 +35,9 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
           className="flex items-center gap-2 group cursor-pointer shrink-0"
           aria-label="CampusLoop home — Cute Voxel Campus Network"
         >
-          <div className="relative size-7 sm:size-8 md:size-9 shrink-0 transition-all duration-300 group-hover:scale-105 group-hover:-rotate-3 drop-shadow-sm">
+          <div className="relative size-7 sm:size-8 md:size-9 shrink-0 transition-ui duration-300 group-hover:scale-105 group-hover:-rotate-3 drop-shadow-sm">
             <Image
-              src="/campusloop/marketing/voxel/logo.webp"
+              src="/logo.png"
               alt="CampusLoop logo"
               fill
               sizes="36px"
@@ -67,7 +67,7 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
                   sounds.tap();
                   haptics.light();
                 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-background/90 transition-all cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-background/90 transition-ui cursor-pointer"
               >
                 <Icon className="size-3.5 text-muted-foreground" />
                 <span>{link.label}</span>
@@ -86,7 +86,7 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
               sounds.tap();
               haptics.medium();
             }}
-            className="inline-flex h-8 sm:h-8.5 md:h-9 shrink-0 items-center justify-center gap-1 sm:gap-1.5 rounded-full bg-primary hover:bg-primary/90 px-3 sm:px-4 text-xs font-bold text-primary-foreground whitespace-nowrap active:scale-95 transition-all shadow-xs shadow-primary/20 cursor-pointer"
+            className="inline-flex h-8 sm:h-8.5 md:h-9 shrink-0 items-center justify-center gap-1 sm:gap-1.5 rounded-full bg-primary hover:bg-primary/90 px-3 sm:px-4 text-xs font-bold text-primary-foreground whitespace-nowrap active:scale-95 transition-ui shadow-xs shadow-primary/20 cursor-pointer"
           >
             {isAuthenticated ? (
               <>
@@ -141,7 +141,7 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
                       haptics.light();
                       setMobileMenuOpen(false);
                     }}
-                    className="flex items-center gap-2 p-2.5 min-h-[44px] rounded-xl bg-muted/40 hover:bg-muted/70 text-xs font-bold text-foreground transition-all cursor-pointer"
+                    className="flex items-center gap-2 p-2.5 min-h-[44px] rounded-xl bg-muted/40 hover:bg-muted/70 text-xs font-bold text-foreground transition-ui cursor-pointer"
                   >
                     <Icon className="size-3.5 text-primary shrink-0" />
                     <span>{link.label}</span>
@@ -157,7 +157,7 @@ export function MinimalLandingNavbar({ isAuthenticated = false }: MinimalLanding
                 haptics.medium();
                 setMobileMenuOpen(false);
               }}
-              className="flex w-full items-center justify-center gap-1.5 min-h-[44px] py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold shadow-md shadow-primary/25 active:scale-95 transition-all"
+              className="flex w-full items-center justify-center gap-1.5 min-h-[44px] py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold shadow-md shadow-primary/25 active:scale-95 transition-ui"
             >
               <span>{isAuthenticated ? "Enter Campus" : "Join Your College"}</span>
               <ArrowUpRight className="size-3.5" />

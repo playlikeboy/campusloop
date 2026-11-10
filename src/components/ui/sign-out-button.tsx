@@ -73,7 +73,7 @@ export function SignOutButton({
       onClick={handleSignOut}
       disabled={isSigningOut}
       className={cn(
-        "flex items-center gap-1.5 rounded-full border border-border/60 bg-transparent px-3.5 py-1.5 text-xs font-bold text-muted-foreground hover:border-destructive/30 hover:bg-destructive/10 hover:text-destructive transition-all cursor-pointer active:scale-95 disabled:opacity-50",
+        "flex items-center gap-1.5 rounded-full border border-border bg-transparent px-3.5 py-1.5 text-xs font-bold text-fg-muted hover:border-danger/30 hover:bg-danger-subtle hover:text-danger transition-colors cursor-pointer active:scale-95 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
         className
       )}
     >

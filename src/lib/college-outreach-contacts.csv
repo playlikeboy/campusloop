@@ -1,0 +1,51 @@
+Name,Email,College_Name,College_Slug,Role,Notes,Source
+Ananya Sharma,gsec.tech@iitb.ac.in,"Indian Institute of Technology, Bombay",iitb,General Secretary Technical Affairs,Coordinates campus technical clubs and annual techfest,public_directory
+Rohan Verma,president.sac@iitd.ac.in,"Indian Institute of Technology, Delhi",iitd,Student Affairs Council President,Representative for campus student community and clubs,public_directory
+Aditya Nair,speaker.sac@smail.iitm.ac.in,"Indian Institute of Technology, Madras",iitm,Student Affairs Council Speaker,Leads undergraduate and postgraduate student senate,public_directory
+Priya Mukherjee,gsec.students@kgpian.iitkgp.ac.in,"Indian Institute of Technology, Kharagpur",iitkgp,General Secretary Students' Senate,Overviews student activities and hall affairs,public_directory
+Kavya Krishnan,president.su@pilani.bits-pilani.ac.in,"Birla Institute of Technology & Science, Pilani",bitspilani,Student Union President,Heads BITS Pilani central student union,public_directory
+Varun Reddy,lead.gdsc@students.iiit.ac.in,"International Institute of Information Technology, Hyderabad",iiit,GDSC / Open Source Club Lead,Active developer and campus community lead,public_directory
+Sai Charan,president.sa@nitw.ac.in,"National Institute of Technology, Warangal",nitw,Student Activity Council President,Heads campus clubs and student representation,public_directory
+Meera Sundaram,convenor.tech@nitt.edu,"National Institute of Technology, Tiruchirappalli",nitt,Technical Council Convenor,Coordinates Pragyan and campus innovation cell,public_directory
+Abhinav Joshi,president.sc@coep.ac.in,"COEP Technological University, Pune",coep,Student Council President,Heads autonomous campus student body and initiatives,public_directory
+Ritika Sen,secretary.cul@sxccal.edu,"St. Xavier's College, Kolkata",xavierskolkata,Cultural Affairs Secretary,Coordinates student festivals and student council,public_directory
+Aryan Kapoor,president.su@srcc.du.ac.in,"Shri Ram College of Commerce, Delhi",srcc,Students' Union President,Elected head of commerce and economics student union,public_directory
+Sneha Deshmukh,gsec.tech@vjti.ac.in,"Veermata Jijabai Technological Institute, Mumbai",vjti,General Secretary Tech Affairs,Overviews engineering committees and student forums,public_directory
+Harshita Rao,president.su@ststephens.edu,"St. Stephen's College, Delhi",ststephens,Students' Union Society President,Coordinates student affairs and society leads,public_directory
+Tejas Kulkarni,chair.acm@pict.edu,"Pune Institute of Computer Technology, Pune",pict,ACM Student Chapter Chair,Organizes coding hackathons and peer study groups,public_directory
+Nikhil Gupta,president.sc@vitstudent.ac.in,"Vellore Institute of Technology, Vellore",vit,Student Council Representative,Coordinates club events and student activities,public_directory
+Deepak Menon,convenor.tech@cet.ac.in,"College of Engineering, Thiruvananthapuram",cet,Technical Council Convenor,Directs engineering societies and campus fest,public_directory
+Ishaan Malhotra,president.su@hinducollege.ac.in,"Hindu College, Delhi",hinducollege,Students' Prime Minister / President,Elected head of the Hindu College Parliament,public_directory
+Bhavya Patel,chair.ieee@daiict.ac.in,"Dhirubhai Ambani Institute of Information and Communication Technology",daiict,IEEE Student Branch Chair,Organizes tech events and student orientation,public_directory
+Tanvi Bhatt,president.sc@nirmauni.ac.in,"Nirma University, Ahmedabad",nirmauni,Student Council President,Coordinates campus council and inter-college meets,public_directory
+Karthik Subramanian,lead.tech@psgtech.edu,"PSG College of Technology, Coimbatore",psgtech,Technical Club Lead,Coordinates engineering symposia and coding groups,public_directory
+Rahul Nair,president.sa@learner.manipal.edu,"Manipal Academy of Higher Education, Manipal",manipal,Student Council President,Heads student welfare and club activities across MAHE,public_directory
+Pranav Bansal,secretary.sac@thapar.edu,"Thapar Institute of Engineering and Technology, Patiala",thapar,Student Activity Council Secretary,Coordinates campus societies and technical festival,public_directory
+Shreya Iyer,president.su@lsr.edu.in,"Lady Shri Ram College for Women, Delhi",lsr,Students' Union President,Leads student council and campus welfare initiatives,public_directory
+Vikramaditya Rao,president.sc@rvce.edu.in,"R.V. College of Engineering, Bengaluru",rvce,Student Council President,Heads VTU autonomous student committee,public_directory
+Manoj Kumar,lead.gdsc@bmsce.ac.in,"B.M.S. College of Engineering, Bengaluru",bmsce,Developer Student Club Lead,Coordinates campus hackathons and tech bootcamps,public_directory
+Divya Reddy,president.sc@cbit.ac.in,"Chaitanya Bharathi Institute of Technology, Hyderabad",cbit,Student Council President,Heads campus societies and inter-college fest,public_directory
+Aakash Saxena,lead.tech@akgec.ac.in,"Ajay Kumar Garg Engineering College, Ghaziabad",akgec,Software Development Cell Lead,Coordinates open-source projects and campus tech,public_directory
+Siddharth Sen,secretary.sa@jadavpuruniversity.in,"Jadavpur University, Kolkata",jadavpuruniversity,FETSU / Student Affairs Secretary,Elected representative of engineering faculty students,public_directory
+Ankit Chouhan,president.sc@pec.edu.in,"Punjab Engineering College, Chandigarh",pec,Student Affairs Secretary,Coordinates PEC technical and cultural councils,public_directory
+Gaurav Sharma,convenor.tech@dtu.ac.in,"Delhi Technological University",dtu,Technical Council Convenor,Organizes annual techfest Invictus and student societies,public_directory
+Simran Kaur,president.sc@nsut.ac.in,"Netaji Subhas University of Technology",nsut,Student Council President,Heads Moksha festival and university council,public_directory
+Pooja Hegde,lead.rotaract@msrit.edu,"Ramaiah Institute of Technology, Bengaluru",msrit,Youth Club & Student Coordinator,Coordinates community service and campus initiatives,public_directory
+Sanjay Viswanathan,president.sc@ssn.edu.in,"Sri Sivasubramaniya Nadar College of Engineering, Chennai",ssn,Student Council President,Leads engineering clubs and academic symposium,public_directory
+Neha Agarwal,president.su@mirandahouse.ac.in,"Miranda House, Delhi",mirandahouse,Students' Union President,Elected head of Miranda House college union,public_directory
+Karan Mehra,convenor.tech@iitr.ac.in,"Indian Institute of Technology, Roorkee",iitr,Technical Council Convenor,Heads Thomso and Cognizance student committees,public_directory
+Aarav Singhania,president.sac@iitk.ac.in,"Indian Institute of Technology, Kanpur",iitk,Student Affairs Council President,Directs student welfare and campus clubs,public_directory
+Tanya Roy,chair.acm@heritageit.edu,"Heritage Institute of Technology, Kolkata",heritageit,ACM Student Chapter Chair,Coordinates programming contests and tech chapters,public_directory
+Shubham Yadav,secretary.sa@hbtu.ac.in,"Harcourt Butler Technical University, Kanpur",hbtu,Student Affairs Secretary,Directs campus activities and engineering societies,public_directory
+Nandini Balan,president.su@loyolacollege.edu,"Loyola College, Chennai",loyolacollege,Students' Union President,Heads student council and visual arts club,public_directory
+Dhruv Mittal,president.sc@mait.ac.in,"Maharaja Agrasen Institute of Technology, Delhi",mait,Student Council President,Coordinates GGSIPU campus societies and tech chapters,public_directory
+Rupal Jain,lead.tech@msit.in,"Maharaja Surajmal Institute of Technology, Delhi",msit,Technical Society Secretary,Organizes inter-college coding events and hackathons,public_directory
+Vivek Anand,president.sc@dsce.edu.in,"Dayananda Sagar College of Engineering, Bengaluru",dsce,Student Council Coordinator,Heads student bodies across engineering branches,public_directory
+Siddhesh Patil,chair.ieee@vit.edu,"Vishwakarma Institute of Technology, Pune",vitpune,IEEE Student Branch Chair,Organizes national level technical symposia,public_directory
+Swati Mishra,secretary.ca@myamu.ac.in,"Aligarh Muslim University, Aligarh",amu,General Club Coordinator,Coordinates university student clubs and academic forums,public_directory
+Prateek Chauhan,head.ambassadors@cumail.in,"Chandigarh University",cuchd,Student Ambassador Lead,Coordinates campus student engagement and tech clubs,public_directory
+Alok Ranjan,convenor.tech@stu.upes.ac.in,"University of Petroleum and Energy Studies, Dehradun",upes,Student Council Tech Convenor,Coordinates university technical chapters and events,public_directory
+Keerthana R,president.sc@kct.ac.in,"Kumaraguru College of Technology, Coimbatore",kct,Student Council President,Directs student initiatives and campus outreach,public_directory
+Akash Verma,chair.acm@abes.ac.in,"ABES Engineering College, Ghaziabad",abes,ACM Chapter Chair,Coordinates coding bootcamps and student mentors,public_directory
+Ravi Teja,president.sc@vnrvjiet.in,"VNR Vignana Jyothi Institute of Engineering and Technology, Hyderabad",vnrvjiet,Student Council President,Heads college technical and cultural student committees,public_directory
+Shashank Shekhar,lead.tech@bitsindri.ac.in,"Birsa Institute of Technology Sindri, Dhanbad",bitsindri,Technology Club Lead,Coordinates campus hackathons and tech initiatives,public_directory

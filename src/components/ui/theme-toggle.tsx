@@ -38,13 +38,13 @@ export function ThemeToggle({ className }: { className?: string }) {
       <div className="relative h-4 w-4">
         <Sun
           className={cn(
-            "absolute inset-0 h-full w-full transition-all duration-300 transform",
+            "absolute inset-0 h-full w-full transition-[opacity,transform] duration-300",
             isDark ? "rotate-90 scale-0 opacity-0" : "rotate-0 scale-100 opacity-100"
           )}
         />
         <Moon
           className={cn(
-            "absolute inset-0 h-full w-full transition-all duration-300 transform",
+            "absolute inset-0 h-full w-full transition-[opacity,transform] duration-300",
             isDark ? "rotate-0 scale-100 opacity-100" : "-rotate-90 scale-0 opacity-0"
           )}
         />

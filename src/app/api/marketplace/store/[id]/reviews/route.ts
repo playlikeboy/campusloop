@@ -1,8 +1,9 @@
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, lt, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { marketplaceReviews, merchants, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { pageOf, parseBefore, parseLimit } from "@/lib/pagination";
 import { rejectViewerWrite } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
@@ -25,32 +26,51 @@ export async function GET(req: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "Store not found" }, { status: 404 });
     }
 
-    const reviews = await db.query.marketplaceReviews.findMany({
-      where: eq(marketplaceReviews.merchantId, merchant.id),
-      orderBy: [desc(marketplaceReviews.createdAt)],
-      with: {
-        student: {
-          columns: {
-            id: true,
-            username: true,
-            displayName: true,
-            avatarUrl: true,
+    const { searchParams } = new URL(req.url);
+    const limit = parseLimit(searchParams, 100, 200);
+    const before = parseBefore(searchParams);
+
+    const [rows, ratingRows] = await Promise.all([
+      db.query.marketplaceReviews.findMany({
+        where: and(
+          eq(marketplaceReviews.merchantId, merchant.id),
+          before ? lt(marketplaceReviews.createdAt, before) : undefined
+        ),
+        orderBy: [desc(marketplaceReviews.createdAt)],
+        limit: limit + 1,
+        with: {
+          student: {
+            columns: {
+              id: true,
+              username: true,
+              displayName: true,
+              avatarUrl: true,
+            },
           },
         },
-      },
-    });
+      }),
+      // Aggregate over every review so the breakdown is exact even when the list is paged
+      db
+        .select({ rating: marketplaceReviews.rating, count: sql<number>`count(*)::int` })
+        .from(marketplaceReviews)
+        .where(eq(marketplaceReviews.merchantId, merchant.id))
+        .groupBy(marketplaceReviews.rating),
+    ]);
+
+    const { page: reviews, hasMore, nextCursor } = pageOf(rows, limit);
 
     // Compute star distribution breakdown
     const distribution: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
     let ratingSum = 0;
+    let totalCount = 0;
 
-    for (const r of reviews) {
+    for (const r of ratingRows) {
       const star = Math.max(1, Math.min(5, r.rating));
-      distribution[star] = (distribution[star] || 0) + 1;
-      ratingSum += star;
+      distribution[star] = (distribution[star] || 0) + r.count;
+      ratingSum += star * r.count;
+      totalCount += r.count;
     }
 
-    const totalCount = reviews.length;
     const averageRating = totalCount > 0 ? (ratingSum / totalCount).toFixed(1) : merchant.rating;
 
     // Check if current authenticated user has reviewed
@@ -62,7 +82,16 @@ export async function GET(req: Request, { params }: RouteParams) {
           where: eq(userProfiles.userId, user.id),
         });
         if (profile) {
-          userReview = reviews.find((r) => r.studentId === profile.id) || null;
+          // Looked up directly: the viewer's review may sit outside the current page
+          userReview =
+            (await db.query.marketplaceReviews.findFirst({
+              where: and(eq(marketplaceReviews.merchantId, merchant.id), eq(marketplaceReviews.studentId, profile.id)),
+              with: {
+                student: {
+                  columns: { id: true, username: true, displayName: true, avatarUrl: true },
+                },
+              },
+            })) || null;
         }
       }
     } catch {}
@@ -73,6 +102,8 @@ export async function GET(req: Request, { params }: RouteParams) {
       averageRating,
       distribution,
       userReview,
+      hasMore,
+      nextCursor,
     });
   } catch (error) {
     console.error("Error in store reviews GET:", error);

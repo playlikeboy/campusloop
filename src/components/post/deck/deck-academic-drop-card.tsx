@@ -42,7 +42,7 @@ export function DeckAcademicDropCard({ resource }: DeckAcademicDropCardProps) {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border/40 pb-3">
           <div className="flex items-center gap-2.5">
-            <div className="size-8 rounded-xl bg-amber-500/15 text-amber-500 flex items-center justify-center">
+            <div className="size-8 rounded-xl bg-warning/15 text-warning flex items-center justify-center">
               <GraduationCap className="size-4" />
             </div>
             <div>
@@ -52,13 +52,13 @@ export function DeckAcademicDropCard({ resource }: DeckAcademicDropCardProps) {
               </p>
             </div>
           </div>
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-500 border border-amber-500/20 uppercase">
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-warning/15 text-warning border border-warning/20 uppercase">
             {resource.resourceType || "Notes"}
           </span>
         </div>
 
         {/* Resource Hero Container */}
-        <div className="p-4 rounded-2xl border border-border/50 bg-gradient-to-br from-amber-500/10 via-transparent to-primary/5 space-y-3">
+        <div className="p-4 rounded-2xl border border-border bg-surface-muted space-y-3">
           <div className="flex items-center gap-2">
             <span className="font-mono text-xs font-black px-2 py-0.5 rounded-md bg-foreground/10 text-foreground">
               {resource.subjectCode}
@@ -90,7 +90,7 @@ export function DeckAcademicDropCard({ resource }: DeckAcademicDropCardProps) {
         <div className="flex items-center gap-2.5 pt-1">
           <Link
             href={previewUrl}
-            className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-primary text-primary-foreground font-bold text-xs hover:opacity-90 transition-all shadow-xs"
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-primary text-primary-foreground font-bold text-xs hover:opacity-90 transition-colors shadow-xs"
           >
             <BookOpen className="size-3.5" />
             <span>Open &amp; Read PDF</span>

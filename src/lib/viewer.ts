@@ -8,17 +8,15 @@ import { institutions } from "@/db/schema";
  * ----------------
  * Users who sign in with a non-college email (gmail, outlook, ...) are
  * onboarded into a reserved "Viewer Hub" institution instead of being
- * rejected. They can browse every public surface of the app but every
- * write API refuses them with 403. This gives JEE/NEET aspirants and
- * incoming students a read-only window into campus life without
- * diluting the verified-student guarantee of the content itself.
+ * rejected. They can browse and participate in open feeds without
+ * diluting the verified-student guarantee of the verified-only timeline.
  *
  * The hub is a normal `institutions` row (no schema migration): a
  * profile is a viewer iff its institutionId is the hub's id.
  */
 export const VIEWER_INSTITUTION_SLUG = "viewer-hub";
 export const VIEWER_INSTITUTION_AISHE = "SYSTEM-VIEWER-HUB";
-export const VIEWER_INSTITUTION_NAME = "Aspirant Viewer Hub";
+export const VIEWER_INSTITUTION_NAME = "Campus Preview Hub";
 
 const globalForViewer = globalThis as typeof globalThis & {
   campusloopViewerInstitutionId?: string;
@@ -79,16 +77,18 @@ export async function isViewerProfile(profile: {
 }
 
 /**
- * Write-API guard. Returns a 403 response when the profile is a viewer
- * account, null otherwise. Usage: `const blocked = await rejectViewerWrite(profile); if (blocked) return blocked;`
+ * Write-API guard.
+ * Users registered with Gmail or personal emails are allowed to participate as community members.
+ * Only explicit VIEWER role accounts are restricted.
  */
 export async function rejectViewerWrite(profile: {
   institutionId: string | null;
+  role?: string | null;
 }): Promise<NextResponse | null> {
-  if (await isViewerProfile(profile)) {
+  if (profile.role === "VIEWER") {
     return NextResponse.json(
       {
-        error: "You're in Viewer Mode. Sign up with your official college email to post, vote, and interact.",
+        error: "Viewer account is read-only. Please create a student account to post.",
         viewerMode: true,
       },
       { status: 403 }

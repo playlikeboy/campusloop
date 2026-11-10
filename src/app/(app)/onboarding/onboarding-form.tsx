@@ -30,10 +30,25 @@ const POPULAR_INTERESTS = [
   "Cinema & TV",
 ];
 
-/** What an aspirant is preparing for, in place of a degree and branch. */
-const TARGET_EXAMS = ["JEE Main", "JEE Advanced", "NEET", "CUET", "BITSAT", "CAT", "GATE", "Still deciding"];
+/** What a prospective student is interested in, in place of a degree and branch. */
+const PROSPECTIVE_FIELDS = [
+  "Engineering & Tech",
+  "Medical & Healthcare",
+  "Commerce & Management",
+  "Arts & Humanities",
+  "Law & Policy",
+  "Design & Media",
+  "Sciences",
+  "General / Exploring",
+];
 
-const ASPIRANT_STAGES = ["Class 11", "Class 12", "Drop year", "Awaiting results", "Just exploring"];
+const PROSPECTIVE_STAGES = [
+  "High School Senior",
+  "College Applicant",
+  "Gap Year Explorer",
+  "Prospective Student",
+  "General Visitor",
+];
 
 const MAX_DREAM_CAMPUSES = 5;
 
@@ -93,7 +108,7 @@ function Pill({
       type="button"
       onClick={onClick}
       className={cn(
-        "cursor-pointer rounded-full px-3.5 py-1.5 text-xs font-bold transition-all active:scale-95",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer rounded-full px-3.5 py-1.5 text-xs font-bold transition-[opacity,transform] active:scale-95",
         selected
           ? "bg-foreground font-black text-background"
           : "border border-border/50 bg-muted/30 text-muted-foreground hover:text-foreground"
@@ -128,9 +143,9 @@ export function OnboardingForm({
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Aspirant-only state
-  const [targetExam, setTargetExam] = useState("JEE Main");
-  const [aspirantStage, setAspirantStage] = useState("Class 12");
+  // Prospective student state
+  const [fieldOfInterest, setFieldOfInterest] = useState(PROSPECTIVE_FIELDS[0]);
+  const [prospectiveStage, setProspectiveStage] = useState(PROSPECTIVE_STAGES[0]);
   const [dreamCampusIds, setDreamCampusIds] = useState<string[]>([]);
   const [campusQuery, setCampusQuery] = useState("");
   const [debouncedCampusQuery, setDebouncedCampusQuery] = useState("");
@@ -247,11 +262,11 @@ export function OnboardingForm({
     formData.set("interests", JSON.stringify(interests));
 
     if (isViewer) {
-      // An aspirant has no degree or year yet: record what they are preparing
-      // for and which campuses they are aiming at instead.
-      formData.set("course", "Aspirant");
-      formData.set("branch", targetExam);
-      formData.set("aspirantStage", aspirantStage);
+      // Prospective student has no degree or year yet: record their interests
+      // and which campuses they are exploring instead.
+      formData.set("course", "Prospective");
+      formData.set("branch", fieldOfInterest);
+      formData.set("aspirantStage", prospectiveStage);
       formData.set("targetInstitutionIds", JSON.stringify(dreamCampusIds));
     } else {
       formData.set("course", course);
@@ -269,7 +284,8 @@ export function OnboardingForm({
         const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         if (!prefersReducedMotion) {
           const confetti = (await import("canvas-confetti")).default;
-          const colors = ["#8fd0e7", "#a7f3d0", "#f9c5d1", "#f6d58b", "#ffffff"];
+          const css = getComputedStyle(document.documentElement);
+          const colors = ["--brand", "--reward", "--crush", "--success", "--surface"].map((v) => css.getPropertyValue(v).trim());
           void confetti({ particleCount: 110, spread: 78, startVelocity: 42, gravity: 0.9, ticks: 180, colors, origin: { x: 0.5, y: 0.68 }, zIndex: 9999 });
           window.setTimeout(() => {
             void confetti({ particleCount: 55, spread: 110, startVelocity: 34, gravity: 0.95, ticks: 150, colors, origin: { x: 0.5, y: 0.72 }, zIndex: 9999 });
@@ -322,7 +338,7 @@ export function OnboardingForm({
             onClick={() => fileInputRef.current?.click()}
             className="relative group cursor-pointer shrink-0"
           >
-            <Avatar className="size-20 border-2 border-primary/30 shadow-md group-hover:border-primary transition-all">
+            <Avatar className="size-20 border-2 border-primary/30 shadow-md group-hover:border-primary transition-colors">
               <AvatarImage src={currentAvatar} className="object-cover" />
               <AvatarFallback className="bg-primary/10 text-xl font-black text-primary">
                 {displayName ? displayName[0].toUpperCase() : "U"}
@@ -338,12 +354,12 @@ export function OnboardingForm({
               <p className="text-[13px] font-bold text-foreground flex items-center gap-1.5">
                 <span>Profile Photo</span>
                 {isRealPhoto ? (
-                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-success-subtle text-success border border-success flex items-center gap-1">
                     <Check className="size-2.5" /> Real Photo Verified (+50 LP)
                   </span>
                 ) : (
-                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
-                    🎁 +50 LP Clout Reward
+                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-warning-subtle text-warning border border-warning">
+                    +50 LP Clout Reward
                   </span>
                 )}
               </p>
@@ -355,7 +371,7 @@ export function OnboardingForm({
                 type="button"
                 disabled={isUploadingPfp}
                 onClick={() => fileInputRef.current?.click()}
-                className="flex cursor-pointer items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-black text-primary-foreground shadow-xs hover:opacity-90 active:scale-95 transition-all disabled:opacity-60"
+                className="flex cursor-pointer items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-black text-primary-foreground shadow-xs hover:opacity-90 active:scale-95 transition-[opacity,transform] disabled:opacity-60"
               >
                 {isUploadingPfp ? (
                   <Loader2 className="size-3.5 animate-spin" />
@@ -369,8 +385,8 @@ export function OnboardingForm({
             {/* Social Proof & Psychology Text */}
             <p className="text-[11px] text-muted-foreground leading-relaxed">
               {isRealPhoto
-                ? "✨ Great photo! Your profile will be boosted across campus dating, study pods & college feeds."
-                : "💡 Verified profiles with real photos get 3x more friend connections, dating matches, and instant trust on campus."}
+                ? "Great photo! Your profile will be boosted across campus dating, study pods & college feeds."
+                : "Verified profiles with real photos get 3x more friend connections, dating matches, and instant trust on campus."}
             </p>
           </div>
         </div>
@@ -388,7 +404,7 @@ export function OnboardingForm({
               </button>
             ) : (
               <div className="p-3 rounded-2xl bg-muted/20 border border-border/50 space-y-2 animate-in fade-in duration-150">
-                <div className="flex items-start gap-2 text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+                <div className="flex items-start gap-2 text-[11px] text-warning font-medium">
                   <AlertCircle className="size-3.5 shrink-0 mt-0.5" />
                   <span>
                     Note: Illustrated avatars receive 60% fewer matches and do not unlock the 50 LP verified
@@ -429,7 +445,7 @@ export function OnboardingForm({
                   <AlertCircle className="size-3" /> {nameVal.error}
                 </span>
               ) : nameVal?.isValid ? (
-                <Check className="size-3.5 text-emerald-500" />
+                <Check className="size-3.5 text-success" />
               ) : null
             }
           >
@@ -466,7 +482,7 @@ export function OnboardingForm({
                 "pl-8",
                 usernameStatus.state === "taken" || usernameStatus.state === "invalid"
                   ? "border-destructive"
-                  : usernameStatus.state === "available" && "border-emerald-500/60"
+                  : usernameStatus.state === "available" && "border-success"
               )}
             />
           </div>
@@ -512,14 +528,14 @@ export function OnboardingForm({
         </div>
       </section>
 
-      {/* ─── Academics (student) or Preparation (aspirant) ─── */}
+      {/* ─── Academics (student) or Background (prospective) ─── */}
       {isViewer ? (
         <section className="space-y-5 border-t border-border/40 py-6">
           <div className="space-y-2">
-            <FieldLabel>Where are you right now?</FieldLabel>
+            <FieldLabel>Current stage</FieldLabel>
             <div className="flex flex-wrap gap-2">
-              {ASPIRANT_STAGES.map((stage) => (
-                <Pill key={stage} selected={aspirantStage === stage} onClick={() => setAspirantStage(stage)}>
+              {PROSPECTIVE_STAGES.map((stage) => (
+                <Pill key={stage} selected={prospectiveStage === stage} onClick={() => setProspectiveStage(stage)}>
                   {stage}
                 </Pill>
               ))}
@@ -527,11 +543,11 @@ export function OnboardingForm({
           </div>
 
           <div className="space-y-2">
-            <FieldLabel>Preparing for</FieldLabel>
+            <FieldLabel>Area of interest</FieldLabel>
             <div className="flex flex-wrap gap-2">
-              {TARGET_EXAMS.map((exam) => (
-                <Pill key={exam} selected={targetExam === exam} onClick={() => setTargetExam(exam)}>
-                  {exam}
+              {PROSPECTIVE_FIELDS.map((field) => (
+                <Pill key={field} selected={fieldOfInterest === field} onClick={() => setFieldOfInterest(field)}>
+                  {field}
                 </Pill>
               ))}
             </div>
@@ -736,7 +752,7 @@ export function OnboardingForm({
       )}
 
       {/* ─── Submit ─── */}
-      <div className="sticky bottom-0 -mx-4 border-t border-border/40 bg-background/90 px-4 py-4 backdrop-blur-xl sm:-mx-6 sm:px-6">
+      <div className="sticky bottom-0 -mx-4 border-t border-border/40 bg-background/90 px-4 py-4 backdrop-blur-sm sm:-mx-6 sm:px-6">
         <button
           type="submit"
           disabled={submitDisabled}

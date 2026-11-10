@@ -5,7 +5,7 @@ import { hexclaveServerApp } from "@/hexclave/server";
 import { EventsDashboardClient } from "./events-dashboard-client";
 
 export const metadata: Metadata = {
-  title: "Event Organizer Dashboard | CampusLoop",
+  title: "Event Organizer Dashboard",
   description: "Manage your hosted hackathons, college fests, workshops, and track live student attendance.",
 };
 

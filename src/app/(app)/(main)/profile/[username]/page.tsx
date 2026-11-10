@@ -9,7 +9,7 @@ interface ProfileDetailProps {
 export async function generateMetadata({ params }: ProfileDetailProps): Promise<Metadata> {
   const { username } = await params;
   return {
-    title: `@${username} | CampusLoop`,
+    title: `@${username}`,
     description: `View @${username}'s student profile on CampusLoop.`,
     robots: { index: false, follow: true },
   };

@@ -1,19 +1,17 @@
-import { Eye } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { EditorialHeader } from "@/components/articles/editorial-header";
+import { AppShell } from "@/components/shells/app-shell";
 import { ARTICLES_CANONICAL_HOST } from "@/constants/articles";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 import { isViewerProfile } from "@/lib/viewer";
 
 export const metadata: Metadata = {
   title: {
-    default: "CampusLoop Articles | Student Stories, Guides & Placement Roadmaps",
-    template: "%s | CampusLoop Articles",
+    default: "Articles",
+    template: "%s · CampusLoop",
   },
   description:
-    "Long-form placement guides, interview experiences, tech deep-dives, and campus journalism written by verified students across 1,350+ Indian colleges.",
+    "Long-form placement guides, interview experiences, tech deep-dives, and campus journalism written by verified students across Indian colleges.",
   alternates: {
     canonical: `${ARTICLES_CANONICAL_HOST}/articles`,
   },
@@ -41,6 +39,7 @@ export const metadata: Metadata = {
   },
 };
 
+/** Articles are public: signed-out readers get the shell with a Sign in action. */
 export default async function ArticlesLayout({ children }: { children: React.ReactNode }) {
   const user = await getCachedAuthUser();
   const profile = user ? await getCachedUserProfile(user.id) : null;
@@ -52,48 +51,13 @@ export default async function ArticlesLayout({ children }: { children: React.Rea
   const viewerMode = profile ? await isViewerProfile(profile) : false;
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col antialiased selection:bg-primary/20">
-      {/* ─── Editorial Navigation Bar ─── */}
-      <EditorialHeader profile={profile} />
-
-      {/* ─── Community / Viewer Mode Banner ─── */}
-      {viewerMode && (
-        <div className="sticky top-14 z-40 flex items-center justify-center gap-2 border-b border-amber-500/20 bg-amber-500/10 px-4 py-2 text-center text-xs font-semibold text-amber-600 dark:text-amber-400 backdrop-blur-md">
-          <Eye className="size-3.5 text-amber-500 shrink-0" />
-          <span>
-            Browsing as <strong>Community Member</strong> — you can read, upvote, and publish articles. Connect your college email anytime to unlock verified student badges and campus feed access.
-          </span>
-        </div>
-      )}
-
-      {/* ─── Publication Content Stream ─── */}
-      <main className="flex-1 w-full">{children}</main>
-
-      {/* ─── Minimal Publication Footer ─── */}
-      <footer className="border-t border-border/30 bg-muted/20 py-8 text-center text-xs text-muted-foreground">
-        <div className="mx-auto max-w-7xl px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="CampusLoop" className="size-5 object-contain" />
-            <span className="font-bold text-foreground">CampusLoop Articles</span>
-            <span>— Verified Indian Student Network</span>
-          </div>
-
-          <div className="flex items-center gap-4 font-semibold">
-            <Link href="/feeds" className="hover:text-foreground">
-              Campus Feed
-            </Link>
-            <Link href="/articles/new" className="hover:text-foreground">
-              Write Article
-            </Link>
-            <Link href="/safety" className="hover:text-foreground">
-              Guidelines
-            </Link>
-            <Link href="/contact" className="hover:text-foreground">
-              Contact
-            </Link>
-          </div>
-        </div>
-      </footer>
-    </div>
+    <AppShell
+      profile={profile || undefined}
+      collegeName={viewerMode ? "Viewer Mode" : (profile?.institution?.name ?? undefined)}
+      isAdmin={profile?.role === "ADMIN"}
+      isViewer={viewerMode}
+    >
+      {children}
+    </AppShell>
   );
 }

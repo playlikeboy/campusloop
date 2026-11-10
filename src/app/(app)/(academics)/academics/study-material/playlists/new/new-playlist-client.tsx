@@ -5,19 +5,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { PLAYLIST_COVER_THEMES, type PlaylistCoverTheme, playlistCoverClass } from "@/components/academics/playlist-cover";
 import { SearchableCombobox, type ComboboxOption } from "@/components/ui/searchable-combobox";
 import { useProfile } from "@/hooks/use-profile";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
 
-const GRADIENTS = [
-  { label: "Obsidian Slate", value: "from-neutral-900 via-neutral-800 to-neutral-900" },
-  { label: "Midnight Steel", value: "from-slate-900 via-zinc-900 to-neutral-900" },
-  { label: "Deep Indigo", value: "from-slate-950 via-indigo-950/60 to-neutral-900" },
-  { label: "Dark Emerald", value: "from-neutral-950 via-emerald-950/50 to-neutral-900" },
-  { label: "Deep Charcoal", value: "from-zinc-900 via-stone-900 to-neutral-950" },
-];
+const GRADIENTS = PLAYLIST_COVER_THEMES;
 
 const CATEGORIES = [
   { value: "SEMESTER_PACK", label: "Semester Survival Pack" },
@@ -76,7 +71,7 @@ export function NewPlaylistClient() {
   const [category, setCategory] = useState("SEMESTER_PACK");
   const [branch, setBranch] = useState("Computer Science");
   const [semester, setSemester] = useState("4");
-  const [coverGradient, setCoverGradient] = useState(GRADIENTS[0].value);
+  const [coverGradient, setCoverGradient] = useState<PlaylistCoverTheme>(GRADIENTS[0].value);
   const [visibility] = useState("PUBLIC");
 
   // Material picker state
@@ -193,7 +188,7 @@ export function NewPlaylistClient() {
           type="button"
           onClick={handleSubmit}
           disabled={isSubmitting || !title.trim()}
-          className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black bg-primary hover:opacity-90 text-primary-foreground shadow-xs disabled:opacity-50 cursor-pointer transition-all active:scale-95"
+          className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black bg-brand hover:bg-brand-hover text-brand-fg shadow-xs disabled:opacity-50 cursor-pointer transition-colors active:scale-95"
         >
           {isSubmitting ? (
             <>
@@ -214,25 +209,25 @@ export function NewPlaylistClient() {
         <div className="space-y-2">
           <div
             className={cn(
-              "h-24 sm:h-28 w-full rounded-2xl p-3.5 sm:p-4 flex flex-col justify-between relative overflow-hidden bg-linear-to-r shadow-xs transition-all duration-300",
-              coverGradient
+              "h-24 sm:h-28 w-full rounded-xl p-3.5 sm:p-4 flex flex-col justify-between relative overflow-hidden transition-colors duration-300",
+              playlistCoverClass(coverGradient)
             )}
           >
             <div className="flex items-center justify-between z-10">
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-black/40 text-white backdrop-blur-md border border-white/10">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-black/30 border border-white/15">
                 <Layers className="size-2.5" />
                 <span>{CATEGORIES.find((c) => c.value === category)?.label.split(" ")[0] || "Pack"}</span>
               </span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-black/40 text-white backdrop-blur-md">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-black/30">
                 {selectedResources.length} Materials
               </span>
             </div>
 
-            <div className="z-10 text-white">
-              <h3 className="font-black text-sm sm:text-base line-clamp-1 drop-shadow-xs">
+            <div className="z-10">
+              <h3 className="font-black text-sm sm:text-base line-clamp-1">
                 {title.trim() || "Untitled Study Playlist"}
               </h3>
-              <p className="text-[11px] text-white/80 font-medium">
+              <p className="text-[11px] opacity-80 font-medium">
                 {branch} • {semester === "all" ? "All Semesters" : `Semester ${semester}`}
               </p>
             </div>
@@ -247,25 +242,26 @@ export function NewPlaylistClient() {
                 type="button"
                 onClick={() => setCoverGradient(g.value)}
                 className={cn(
-                  "size-7 rounded-full bg-linear-to-r transition-all cursor-pointer shrink-0 flex items-center justify-center",
-                  g.value,
+                  "size-7 rounded-full transition-colors cursor-pointer shrink-0 flex items-center justify-center",
+                  g.className,
                   coverGradient === g.value
-                    ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-110"
+                    ? "ring-2 ring-ring ring-offset-2 ring-offset-bg scale-110"
                     : "opacity-80 hover:opacity-100 hover:scale-105"
                 )}
                 title={g.label}
+                aria-label={g.label}
               >
-                {coverGradient === g.value && <Check className="size-3 text-white stroke-3" />}
+                {coverGradient === g.value && <Check className="size-3 stroke-3" />}
               </button>
             ))}
           </div>
         </div>
 
         {/* ─── Stack Details ─── */}
-        <div className="rounded-3xl border border-border/60 bg-card p-5 space-y-4">
+        <div className="rounded-xl border border-border bg-surface p-5 space-y-4">
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-foreground">
-              Playlist Title <span className="text-rose-400">*</span>
+              Playlist Title <span className="text-danger">*</span>
             </label>
             <input
               type="text"
@@ -273,7 +269,7 @@ export function NewPlaylistClient() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
-              className="w-full px-4 py-2.5 rounded-2xl text-sm bg-background border border-border focus:outline-hidden focus:border-indigo-500 font-semibold"
+              className="w-full px-4 py-2.5 rounded-2xl text-sm bg-background border border-border focus:outline-hidden focus:border-brand font-semibold"
             />
           </div>
 
@@ -284,7 +280,7 @@ export function NewPlaylistClient() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              className="w-full px-4 py-2.5 rounded-2xl text-xs bg-background border border-border focus:outline-hidden focus:border-indigo-500 font-medium resize-none leading-relaxed"
+              className="w-full px-4 py-2.5 rounded-2xl text-xs bg-background border border-border focus:outline-hidden focus:border-brand font-medium resize-none leading-relaxed"
             />
           </div>
 
@@ -328,7 +324,7 @@ export function NewPlaylistClient() {
         </div>
 
         {/* ─── Material Assembler ─── */}
-        <div className="rounded-3xl border border-border/60 bg-card p-5 space-y-4">
+        <div className="rounded-xl border border-border bg-surface p-5 space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-sm font-black text-foreground">Assemble Materials</h2>
@@ -336,7 +332,7 @@ export function NewPlaylistClient() {
                 Search our 9,200+ academic paper archive to add notes, PYQs, and cheat sheets
               </p>
             </div>
-            <span className="px-2.5 py-1 rounded-full text-xs font-black bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+            <span className="px-2.5 py-1 rounded-full text-xs font-black bg-brand-subtle text-brand-text border border-brand-subtle-border">
               {selectedResources.length} Selected
             </span>
           </div>
@@ -349,7 +345,7 @@ export function NewPlaylistClient() {
               placeholder="Search by subject name or code (e.g. Operating Systems, CS304, DLD, Math)..."
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-2xl text-xs bg-background border border-border focus:outline-hidden focus:border-indigo-500 font-medium"
+              className="w-full pl-10 pr-4 py-2.5 rounded-2xl text-xs bg-background border border-border focus:outline-hidden focus:border-brand font-medium"
             />
             {isSearching && (
               <Loader2 className="absolute right-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground animate-spin" />
@@ -358,7 +354,7 @@ export function NewPlaylistClient() {
 
           {/* Search Results Dropdown / Picker */}
           {searchResults.length > 0 && (
-            <div className="border border-border/70 rounded-2xl bg-background/95 divide-y divide-border/40 max-h-56 overflow-y-auto p-1 shadow-md">
+            <div className="border border-border/70 rounded-2xl bg-surface-raised divide-y divide-border max-h-56 overflow-y-auto p-1 shadow-lg">
               {searchResults.map((res) => {
                 const isSelected = selectedResources.some((r) => r.id === res.id);
                 return (
@@ -368,7 +364,7 @@ export function NewPlaylistClient() {
                   >
                     <div className="min-w-0 pr-2">
                       <div className="flex items-center gap-1.5">
-                        <span className="px-1.5 py-0.5 rounded-md bg-indigo-500/15 text-indigo-400 font-mono text-[9px] font-bold">
+                        <span className="px-1.5 py-0.5 rounded-md bg-brand-subtle text-brand-text font-mono text-[10px] font-bold">
                           {res.subjectCode}
                         </span>
                         <span className="text-[10px] text-muted-foreground">
@@ -382,10 +378,10 @@ export function NewPlaylistClient() {
                       type="button"
                       onClick={() => (isSelected ? removeResource(res.id) : addResource(res))}
                       className={cn(
-                        "px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer shrink-0 flex items-center gap-1",
+                        "px-3 py-1 rounded-full text-xs font-bold transition-colors cursor-pointer shrink-0 flex items-center gap-1",
                         isSelected
-                          ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
-                          : "bg-indigo-600 text-white hover:bg-indigo-500"
+                          ? "bg-success-subtle text-success border border-success/30"
+                          : "bg-brand text-brand-fg hover:bg-brand-hover"
                       )}
                     >
                       {isSelected ? (
@@ -433,8 +429,9 @@ export function NewPlaylistClient() {
                     <button
                       type="button"
                       onClick={() => removeResource(item.id)}
-                      className="p-1 rounded-lg text-muted-foreground hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer shrink-0"
+                      className="p-1 rounded-lg text-muted-foreground hover:text-danger hover:bg-danger-subtle transition-colors cursor-pointer shrink-0"
                       title="Remove from stack"
+                      aria-label="Remove from stack"
                     >
                       <Trash2 className="size-3.5" />
                     </button>
@@ -464,7 +461,7 @@ export function NewPlaylistClient() {
           <button
             type="submit"
             disabled={isSubmitting || !title.trim()}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-black bg-indigo-600 hover:bg-indigo-500 text-white shadow-md disabled:opacity-50 cursor-pointer transition-all active:scale-95"
+            className="flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-black bg-brand hover:bg-brand-hover text-brand-fg shadow-xs disabled:opacity-50 cursor-pointer transition-colors active:scale-95"
           >
             {isSubmitting ? (
               <Loader2 className="size-3.5 animate-spin" />

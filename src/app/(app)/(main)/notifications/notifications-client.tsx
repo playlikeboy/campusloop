@@ -79,16 +79,16 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
     switch (n.type) {
       case "LIKE":
         return {
-          icon: <AnimateHeart size={14} className="text-rose-500 fill-rose-500" />,
-          badgeBg: "bg-rose-500/15 border-rose-500/30 text-rose-500",
+          icon: <AnimateHeart size={14} className="text-danger fill-danger" />,
+          badgeBg: "bg-danger/15 border-danger/30 text-danger",
           actionText: "liked your post",
           href: n.referenceId ? `/post/${n.referenceId}` : "/feeds",
           actionLabel: "View post",
         };
       case "STORY_LIKE":
         return {
-          icon: <AnimateHeart size={14} className="text-pink-500 fill-pink-500" />,
-          badgeBg: "bg-pink-500/15 border-pink-500/30 text-pink-500",
+          icon: <AnimateHeart size={14} className="text-danger fill-danger" />,
+          badgeBg: "bg-danger/15 border-danger/30 text-danger",
           actionText: "liked your campus story vibe",
           href: n.referenceId ? `/story/${n.referenceId}` : "/feeds",
           actionLabel: "View vibe",
@@ -127,32 +127,32 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
         };
       case "MENTION":
         return {
-          icon: <AtSign className="size-3.5 text-violet-500 stroke-2" />,
-          badgeBg: "bg-violet-500/15 border-violet-500/30 text-violet-500",
+          icon: <AtSign className="size-3.5 text-brand-text stroke-2" />,
+          badgeBg: "bg-brand/15 border-brand-subtle-border/30 text-brand-text",
           actionText: "mentioned you in a campus post",
           href: n.referenceId ? `/post/${n.referenceId}` : "/feeds",
           actionLabel: "View thread",
         };
       case "REPOST":
         return {
-          icon: <AnimateRepeat2 size={14} className="text-emerald-500" />,
-          badgeBg: "bg-emerald-500/15 border-emerald-500/30 text-emerald-500",
+          icon: <AnimateRepeat2 size={14} className="text-success" />,
+          badgeBg: "bg-success/15 border-success/30 text-success",
           actionText: "reposted your post to the campus feed",
           href: n.referenceId ? `/post/${n.referenceId}` : "/feeds",
           actionLabel: "View",
         };
       case "MATCH":
         return {
-          icon: <Zap className="size-3.5 text-amber-500 fill-amber-500" />,
-          badgeBg: "bg-amber-500/15 border-amber-500/30 text-amber-500",
+          icon: <Zap className="size-3.5 text-brand-text fill-brand-text" />,
+          badgeBg: "bg-brand/15 border-brand-subtle-border/30 text-brand-text",
           actionText: "matched with you on Campus Dating!",
           href: n.referenceId ? `/chat/${n.referenceId}` : "/chat",
           actionLabel: "Send message",
         };
       case "CRUSH_ALERT":
         return {
-          icon: <Lock className="size-3.5 text-purple-500" />,
-          badgeBg: "bg-purple-500/15 border-purple-500/30 text-purple-500",
+          icon: <Lock className="size-3.5 text-brand-text" />,
+          badgeBg: "bg-brand/15 border-brand-subtle-border/30 text-brand-text",
           actionText: "secretly added you to their Campus Crush vault",
           href: "/crush",
           actionLabel: "View vault",
@@ -167,72 +167,72 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
         };
       case "FRIEND":
         return {
-          icon: <AnimateUsers size={14} className="text-emerald-500" />,
-          badgeBg: "bg-emerald-500/15 border-emerald-500/30 text-emerald-500",
+          icon: <AnimateUsers size={14} className="text-success" />,
+          badgeBg: "bg-success/15 border-success/30 text-success",
           actionText: "followed you back — you're campus friends now",
           href: n.referenceId ? `/@${n.referenceId}` : "/feeds",
           actionLabel: "View profile",
         };
       case "MILESTONE":
         return {
-          icon: <Trophy className="size-3.5 text-amber-500" />,
-          badgeBg: "bg-amber-500/15 border-amber-500/30 text-amber-500",
+          icon: <Trophy className="size-3.5 text-reward-text" />,
+          badgeBg: "bg-reward-subtle border-reward/30 text-reward-text",
           actionText: "unlocked a new Loop Points Clout Milestone!",
           href: "/profile",
           actionLabel: "View clout",
         };
       case "MESSAGE":
         return {
-          icon: <AnimateSend size={14} className="text-sky-500" />,
-          badgeBg: "bg-sky-500/15 border-sky-500/30 text-sky-500",
+          icon: <AnimateSend size={14} className="text-brand-text" />,
+          badgeBg: "bg-brand/15 border-brand-subtle-border/30 text-brand-text",
           actionText: "sent you a message",
           href: n.referenceId ? `/chat/${n.referenceId}` : "/chat",
           actionLabel: "Reply",
         };
       case "NEW_POST":
         return {
-          icon: <AnimateZap size={14} className="text-violet-500" />,
-          badgeBg: "bg-violet-500/15 border-violet-500/30 text-violet-500",
+          icon: <AnimateZap size={14} className="text-brand-text" />,
+          badgeBg: "bg-brand/15 border-brand-subtle-border/30 text-brand-text",
           actionText: "posted something new",
           href: n.referenceId ? `/post/${n.referenceId}` : "/feeds",
           actionLabel: "View post",
         };
       case "EVENT_REGISTRATION":
         return {
-          icon: <Ticket className="size-3.5 text-cyan-500 stroke-2" />,
-          badgeBg: "bg-cyan-500/15 border-cyan-500/30 text-cyan-500",
+          icon: <Ticket className="size-3.5 text-brand-text stroke-2" />,
+          badgeBg: "bg-brand/15 border-brand-subtle-border/30 text-brand-text",
           actionText: "— your spot is confirmed",
           href: n.referenceId ? `/events/${n.referenceId}` : "/events",
           actionLabel: "View event",
         };
       case "GAMING_LOBBY_JOIN":
         return {
-          icon: <Gamepad2 className="size-3.5 text-purple-500 stroke-2" />,
-          badgeBg: "bg-purple-500/15 border-purple-500/30 text-purple-500",
+          icon: <Gamepad2 className="size-3.5 text-brand-text stroke-2" />,
+          badgeBg: "bg-brand/15 border-brand-subtle-border/30 text-brand-text",
           actionText: "joined your gaming squad lobby",
           href: n.referenceId ? `/gaming?id=${n.referenceId}` : "/gaming",
           actionLabel: "View lobby",
         };
       case "GAMING_LOBBY_FULL":
         return {
-          icon: <Gamepad2 className="size-3.5 text-emerald-500 stroke-2" />,
-          badgeBg: "bg-emerald-500/15 border-emerald-500/30 text-emerald-500",
+          icon: <Gamepad2 className="size-3.5 text-success stroke-2" />,
+          badgeBg: "bg-success/15 border-success/30 text-success",
           actionText: "— your squad lobby is full! Time to play",
           href: n.referenceId ? `/gaming?id=${n.referenceId}` : "/gaming",
           actionLabel: "Launch match",
         };
       case "GAMING_MATCH_READY":
         return {
-          icon: <Trophy className="size-3.5 text-amber-500 stroke-2" />,
-          badgeBg: "bg-amber-500/15 border-amber-500/30 text-amber-500",
+          icon: <Trophy className="size-3.5 text-reward-text stroke-2" />,
+          badgeBg: "bg-reward-subtle border-reward/30 text-reward-text",
           actionText: "— tournament bracket match is ready",
           href: n.referenceId ? `/gaming/tournaments/${n.referenceId}` : "/gaming",
           actionLabel: "View match",
         };
       case "TOURNAMENT_UPDATE":
         return {
-          icon: <Trophy className="size-3.5 text-sky-500 stroke-2" />,
-          badgeBg: "bg-sky-500/15 border-sky-500/30 text-sky-500",
+          icon: <Trophy className="size-3.5 text-brand-text stroke-2" />,
+          badgeBg: "bg-brand/15 border-brand-subtle-border/30 text-brand-text",
           actionText: "tournament status updated",
           href: n.referenceId ? `/gaming/tournaments/${n.referenceId}` : "/gaming",
           actionLabel: "View tournament",
@@ -315,7 +315,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
               <button
                 type="button"
                 onClick={handleMarkAllAsRead}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all cursor-pointer shadow-2xs active:scale-95"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-transform cursor-pointer shadow-2xs active:scale-95"
                 title="Mark all notifications as read"
               >
                 <AnimatedIcon
@@ -339,7 +339,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
                   aria-haspopup="menu"
                   aria-expanded={showActionsMenu}
                   aria-label="More notification actions"
-                  className="flex size-9 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all cursor-pointer active:scale-95"
+                  className="flex size-9 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-transform cursor-pointer active:scale-95"
                 >
                   <MoreHorizontal className="size-4" />
                 </button>
@@ -393,7 +393,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
                   setActiveTab(tab.id);
                 }}
                 className={cn(
-                  "px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer shrink-0",
+                  "px-3.5 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer shrink-0",
                   isActive
                     ? "bg-foreground text-background font-black shadow-xs"
                     : "bg-muted/40 hover:bg-muted/80 text-muted-foreground hover:text-foreground border border-border/40"
@@ -527,13 +527,13 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
           <div className="py-24 px-6 text-center max-w-sm mx-auto space-y-4">
             <div className="size-16 rounded-3xl bg-muted/50 border border-border/40 flex items-center justify-center mx-auto text-muted-foreground">
               {activeTab === "mentions" ? (
-                <AtSign className="size-8 text-violet-500" />
+                <AtSign className="size-8 text-brand-text" />
               ) : activeTab === "replies" ? (
-                <MessageCircle className="size-8 text-blue-500" />
+                <MessageCircle className="size-8 text-brand-text" />
               ) : activeTab === "reactions" ? (
-                <Heart className="size-8 text-rose-500" />
+                <Heart className="size-8 text-danger" />
               ) : activeTab === "crushes" ? (
-                <Lock className="size-8 text-purple-500" />
+                <Lock className="size-8 text-brand-text" />
               ) : (
                 <Bell className="size-8 text-primary" />
               )}
@@ -571,7 +571,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
             <div className="pt-2">
               <Link
                 href="/feeds"
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-all shadow-xs cursor-pointer active:scale-95"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-transform shadow-xs cursor-pointer active:scale-95"
               >
                 <Compass className="size-3.5" />
                 <span>Explore Campus Feed</span>
@@ -601,14 +601,14 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
 
           {/* Quick Actions Card */}
           <div className="rounded-2xl border border-border/30 bg-card/60 p-4 space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Notification Actions</h3>
+            <h3 className="text-xs font-bold text-muted-foreground">Notification Actions</h3>
             <div className="flex flex-col gap-2">
               <button
                 type="button"
                 onClick={handleMarkAllAsRead}
                 disabled={effectiveUnread === 0}
                 className={cn(
-                  "flex items-center justify-between p-2.5 rounded-xl border text-xs font-bold transition-all",
+                  "flex items-center justify-between p-2.5 rounded-xl border text-xs font-bold transition-colors",
                   effectiveUnread > 0
                     ? "border-primary/40 bg-primary/10 text-primary hover:bg-primary/15 cursor-pointer shadow-2xs"
                     : "border-border/30 text-muted-foreground/60 cursor-not-allowed opacity-60"
@@ -629,7 +629,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
                 type="button"
                 onClick={() => setPendingClear("read")}
                 disabled={displayList.length === 0}
-                className="flex items-center gap-2 p-2.5 rounded-xl border border-border/40 hover:bg-muted/40 text-xs font-semibold text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+                className="flex items-center gap-2 p-2.5 rounded-xl border border-border/40 hover:bg-muted/40 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
               >
                 <Eraser className="size-3.5" />
                 <span>Clear read notifications</span>
@@ -639,8 +639,8 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
 
           {/* Student Privacy & Safety */}
           <div className="rounded-2xl border border-border/30 bg-card/60 p-4 space-y-2.5 text-xs text-muted-foreground">
-            <div className="flex items-center gap-2 text-foreground font-bold text-xs uppercase tracking-wider">
-              <ShieldCheck className="size-4 text-emerald-500" />
+            <div className="flex items-center gap-2 text-foreground font-bold text-xs">
+              <ShieldCheck className="size-4 text-success" />
               <span>Campus Security</span>
             </div>
             <p className="text-[11px] leading-relaxed">

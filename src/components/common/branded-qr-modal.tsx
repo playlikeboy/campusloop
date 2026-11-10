@@ -41,7 +41,9 @@ export function BrandedQrModal({
       width: 720,
       margin: 2,
       color: {
+        // ds-allow: QR poster canvas export; fixed palette so the PNG does not follow the theme
         dark: "#09090b",
+        // ds-allow: QR poster canvas export; fixed palette so the PNG does not follow the theme
         light: "#ffffff",
       },
       errorCorrectionLevel: "H",
@@ -85,6 +87,7 @@ export function BrandedQrModal({
       canvas.height = height;
 
       // Dark minimalist background
+      // ds-allow: QR poster canvas export; fixed palette so the PNG does not follow the theme
       ctx.fillStyle = "#09090b";
       ctx.fillRect(0, 0, width, height);
 
@@ -96,6 +99,7 @@ export function BrandedQrModal({
       ctx.fillRect(0, 0, width, 300);
 
       // Draw CampusLoop Logo text
+      // ds-allow: QR poster canvas export; fixed palette so the PNG does not follow the theme
       ctx.fillStyle = "#ffffff";
       ctx.font = "bold 32px system-ui, sans-serif";
       ctx.textAlign = "center";
@@ -111,11 +115,13 @@ export function BrandedQrModal({
       ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 17);
       ctx.fill();
 
+      // ds-allow: QR poster canvas export; fixed palette so the PNG does not follow the theme
       ctx.fillStyle = "#a1a1aa";
       ctx.font = "bold 14px system-ui, sans-serif";
       ctx.fillText(badgeText.toUpperCase(), width / 2, 132);
 
       // Title
+      // ds-allow: QR poster canvas export; fixed palette so the PNG does not follow the theme
       ctx.fillStyle = "#ffffff";
       ctx.font = "bold 36px system-ui, sans-serif";
       const truncatedTitle = title.length > 32 ? `${title.slice(0, 30)}...` : title;
@@ -123,6 +129,7 @@ export function BrandedQrModal({
 
       // Subtitle
       if (subtitle) {
+        // ds-allow: QR poster canvas export; fixed palette so the PNG does not follow the theme
         ctx.fillStyle = "#71717a";
         ctx.font = "500 20px system-ui, sans-serif";
         const truncatedSub = subtitle.length > 44 ? `${subtitle.slice(0, 42)}...` : subtitle;
@@ -133,6 +140,7 @@ export function BrandedQrModal({
       const qrBoxSize = 440;
       const qrBoxX = (width - qrBoxSize) / 2;
       const qrBoxY = 300;
+      // ds-allow: QR poster canvas export; fixed palette so the PNG does not follow the theme
       ctx.fillStyle = "#ffffff";
       ctx.beginPath();
       ctx.roundRect(qrBoxX, qrBoxY, qrBoxSize, qrBoxSize, 28);
@@ -166,11 +174,13 @@ export function BrandedQrModal({
       ctx.roundRect(pillX, pillY, pillW, pillH, 27);
       ctx.fill();
 
+      // ds-allow: QR poster canvas export; fixed palette so the PNG does not follow the theme
       ctx.fillStyle = "#e4e4e7";
       ctx.font = "bold 18px monospace";
       ctx.fillText(displayUrl, width / 2, pillY + 34);
 
       // Footer
+      // ds-allow: QR poster canvas export; fixed palette so the PNG does not follow the theme
       ctx.fillStyle = "#52525b";
       ctx.font = "500 16px system-ui, sans-serif";
       ctx.fillText("Scan with phone camera · campusloop.space", width / 2, 890);
@@ -261,7 +271,7 @@ export function BrandedQrModal({
 
             {/* QR code canvas */}
             <div className="flex justify-center py-1">
-              <div className="rounded-2xl bg-white p-3 shadow-sm">
+              <div className="rounded-2xl bg-surface p-3 shadow-sm">
                 {qrDataUrl ? (
                   <img
                     src={qrDataUrl}
@@ -269,7 +279,7 @@ export function BrandedQrModal({
                     className="size-44 object-contain rounded-lg"
                   />
                 ) : (
-                  <div className="size-44 animate-pulse rounded-lg bg-slate-100 flex items-center justify-center text-xs text-muted-foreground font-bold">
+                  <div className="size-44 animate-pulse rounded-lg bg-surface-muted flex items-center justify-center text-xs text-muted-foreground font-bold">
                     Generating...
                   </div>
                 )}
@@ -287,7 +297,7 @@ export function BrandedQrModal({
                 {displayUrl}
               </span>
               <span className="shrink-0 text-muted-foreground group-hover:text-foreground transition-colors ml-2">
-                {copied ? <Check className="size-3.5 text-emerald-500" /> : <Copy className="size-3.5" />}
+                {copied ? <Check className="size-3.5 text-success" /> : <Copy className="size-3.5" />}
               </span>
             </button>
           </div>
@@ -298,7 +308,7 @@ export function BrandedQrModal({
               type="button"
               onClick={handleDownloadCard}
               disabled={isGeneratingImage || !qrDataUrl}
-              className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-full bg-primary text-primary-foreground hover:opacity-90 text-xs font-black transition-all cursor-pointer active:scale-95 shadow-xs"
+              className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-full bg-primary text-primary-foreground hover:opacity-90 text-xs font-black transition-transform cursor-pointer active:scale-95 shadow-xs"
             >
               <Download className="size-3.5" />
               <span>{isGeneratingImage ? "Saving..." : "Save Image"}</span>
@@ -307,7 +317,7 @@ export function BrandedQrModal({
             <button
               type="button"
               onClick={handleNativeShare}
-              className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-full bg-muted/60 hover:bg-muted text-foreground text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
+              className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-full bg-muted/60 hover:bg-muted text-foreground text-xs font-bold transition-transform cursor-pointer active:scale-95 shadow-2xs"
             >
               <Share2 className="size-3.5" />
               <span>Share Link</span>

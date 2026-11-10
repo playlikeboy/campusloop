@@ -339,7 +339,7 @@ export function EditProfileClient() {
         {/* ─── Cover Banner & Avatar Section ─── */}
         <div className="rounded-3xl border border-border/80 bg-card overflow-hidden shadow-xs">
           {/* Banner Preview */}
-          <div className="relative h-36 w-full bg-linear-to-r from-primary/25 via-purple-500/20 to-secondary">
+          <div className="relative h-36 w-full bg-brand-subtle">
             {bannerUrl ? (
               <img src={bannerUrl} alt="Cover Banner" className="w-full h-full object-cover" />
             ) : (
@@ -350,7 +350,7 @@ export function EditProfileClient() {
               <button
                 type="button"
                 onClick={() => setShowUnsplashBannerPicker(true)}
-                className="py-1.5 px-2.5 sm:px-3 rounded-xl bg-black/60 hover:bg-black/80 text-white text-xs font-bold flex items-center gap-1.5 backdrop-blur-md transition-all cursor-pointer shadow-md"
+                className="py-1.5 px-2.5 sm:px-3 rounded-xl bg-black/60 hover:bg-black/80 text-white text-xs font-bold flex items-center gap-1.5 backdrop-blur-sm transition-colors cursor-pointer shadow-md"
                 title="Choose Cover from Unsplash"
               >
                 <Sparkles className="size-3.5 text-primary" />
@@ -361,7 +361,7 @@ export function EditProfileClient() {
                 <button
                   type="button"
                   onClick={() => handleOpenCropForCurrent("banner")}
-                  className="py-1.5 px-2.5 sm:px-3 rounded-xl bg-black/60 hover:bg-black/80 text-white text-xs font-bold flex items-center gap-1.5 backdrop-blur-md transition-all cursor-pointer shadow-md"
+                  className="py-1.5 px-2.5 sm:px-3 rounded-xl bg-black/60 hover:bg-black/80 text-white text-xs font-bold flex items-center gap-1.5 backdrop-blur-sm transition-colors cursor-pointer shadow-md"
                   title="Reposition / Crop Banner"
                 >
                   <Move className="size-3.5" />
@@ -372,7 +372,7 @@ export function EditProfileClient() {
               <button
                 type="button"
                 onClick={() => bannerInputRef.current?.click()}
-                className="py-1.5 px-2.5 sm:px-3 rounded-xl bg-black/70 hover:bg-black/85 text-white text-xs font-bold flex items-center gap-1.5 backdrop-blur-md transition-all cursor-pointer shadow-md"
+                className="py-1.5 px-2.5 sm:px-3 rounded-xl bg-black/70 hover:bg-black/85 text-white text-xs font-bold flex items-center gap-1.5 backdrop-blur-sm transition-colors cursor-pointer shadow-md"
               >
                 <Camera className="size-3.5" />
                 <span>{bannerUrl ? "Upload" : "Upload Banner"}</span>
@@ -407,11 +407,11 @@ export function EditProfileClient() {
                 <div className="flex items-center gap-2">
                   <h3 className="text-xs font-bold text-foreground">Profile Avatar</h3>
                   {avatarUrl && !avatarUrl.includes("dicebear.com") ? (
-                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 inline-flex items-center gap-1">
+                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-success-subtle text-success border border-success inline-flex items-center gap-1">
                       <Camera className="size-3" /> Real Photo Verified (+50 LP)
                     </span>
                   ) : (
-                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 inline-flex items-center gap-1">
+                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-warning-subtle text-warning border border-warning inline-flex items-center gap-1">
                       <Sparkles className="size-3" /> Upload real photo for 3x boost
                     </span>
                   )}
@@ -427,7 +427,7 @@ export function EditProfileClient() {
                 <button
                   type="button"
                   onClick={() => pfpInputRef.current?.click()}
-                  className="py-1.5 px-3.5 rounded-xl bg-primary text-primary-foreground text-xs font-black hover:opacity-90 active:scale-95 transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                  className="py-1.5 px-3.5 rounded-xl bg-primary text-primary-foreground text-xs font-black hover:opacity-90 active:scale-95 transition-[opacity,transform] cursor-pointer flex items-center gap-1.5 shadow-2xs"
                 >
                   <Camera className="size-3.5 stroke-[2.5]" />
                   <span>
@@ -441,7 +441,7 @@ export function EditProfileClient() {
                   <button
                     type="button"
                     onClick={() => handleOpenCropForCurrent("avatar")}
-                    className="py-1.5 px-3 rounded-xl border border-border bg-card text-foreground text-xs font-bold hover:bg-muted transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                    className="py-1.5 px-3 rounded-xl border border-border bg-card text-foreground text-xs font-bold hover:bg-muted transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
                   >
                     <Move className="size-3.5 text-primary" />
                     <span>Resize & Crop</span>
@@ -451,7 +451,7 @@ export function EditProfileClient() {
                 <button
                   type="button"
                   onClick={handleGenerateDiceBearAvatar}
-                  className="py-1.5 px-2.5 rounded-xl border border-border/50 text-muted-foreground hover:text-foreground text-[11px] font-semibold hover:bg-muted/40 transition-all cursor-pointer flex items-center gap-1 opacity-70 hover:opacity-100"
+                  className="py-1.5 px-2.5 rounded-xl border border-border/50 text-muted-foreground hover:text-foreground text-[11px] font-semibold hover:bg-muted/40 transition-[opacity,transform] cursor-pointer flex items-center gap-1 opacity-70 hover:opacity-100"
                   title="Use cartoon illustration (reduces match reach)"
                 >
                   <Zap className="size-3" /> Cartoon Illustration
@@ -466,7 +466,7 @@ export function EditProfileClient() {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                <ImageIcon className="size-3.5 text-rose-500" /> Dating Photo Gallery
+                <ImageIcon className="size-3.5 text-danger" /> Dating Photo Gallery
               </h3>
               <p className="text-[11px] text-muted-foreground mt-0.5">
                 Upload up to 6 pictures to showcase on your Campus Dating swipe card.
@@ -493,7 +493,7 @@ export function EditProfileClient() {
                   <X className="size-3.5" />
                 </button>
                 {i === 0 && (
-                  <span className="absolute bottom-1.5 left-1.5 bg-rose-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow-xs">
+                  <span className="absolute bottom-1.5 left-1.5 bg-danger text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow-xs">
                     Main
                   </span>
                 )}
@@ -505,7 +505,7 @@ export function EditProfileClient() {
                 type="button"
                 disabled={isUploadingDatingPhoto}
                 onClick={() => datingPhotoInputRef.current?.click()}
-                className="aspect-square rounded-2xl border-2 border-dashed border-border hover:border-primary/60 bg-muted/20 hover:bg-muted/40 flex flex-col items-center justify-center gap-1 text-muted-foreground hover:text-primary transition-all cursor-pointer disabled:opacity-50"
+                className="aspect-square rounded-2xl border-2 border-dashed border-border hover:border-primary/60 bg-muted/20 hover:bg-muted/40 flex flex-col items-center justify-center gap-1 text-muted-foreground hover:text-primary transition-[opacity,transform] cursor-pointer disabled:opacity-50"
               >
                 {isUploadingDatingPhoto ? (
                   <Loader2 className="size-5 animate-spin text-primary" />
@@ -535,7 +535,7 @@ export function EditProfileClient() {
                 </span>
               )}
               {nameVal?.isValid && (
-                <span className="text-[10px] text-emerald-500 font-semibold flex items-center gap-1">
+                <span className="text-[10px] text-success font-semibold flex items-center gap-1">
                   <Check className="size-3" /> Valid name
                 </span>
               )}
@@ -546,7 +546,7 @@ export function EditProfileClient() {
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               placeholder="e.g. Aarav Sharma"
-              className={`w-full rounded-xl border bg-muted/20 px-3.5 py-2 text-xs font-semibold text-foreground outline-none transition-all ${
+              className={`w-full rounded-xl border bg-muted/20 px-3.5 py-2 text-xs font-semibold text-foreground outline-none transition-colors ${
                 nameVal && !nameVal.isValid
                   ? "border-destructive focus:border-destructive"
                   : "border-border/60 focus:border-primary focus:bg-background"
@@ -567,11 +567,11 @@ export function EditProfileClient() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="username"
-                className={`w-full pl-8 pr-3.5 py-2 rounded-xl border bg-muted/20 text-xs font-semibold text-foreground outline-none transition-all ${
+                className={`w-full pl-8 pr-3.5 py-2 rounded-xl border bg-muted/20 text-xs font-semibold text-foreground outline-none transition-colors ${
                   usernameStatus.state === "taken" || usernameStatus.state === "invalid"
                     ? "border-destructive focus:border-destructive"
                     : usernameStatus.state === "available"
-                      ? "border-emerald-500/60 focus:bg-background"
+                      ? "border-success focus:bg-background"
                       : "border-border/60 focus:border-primary focus:bg-background"
                 }`}
               />
@@ -592,7 +592,7 @@ export function EditProfileClient() {
               value={headline}
               onChange={(e) => setHeadline(e.target.value)}
               placeholder="e.g. CS Sophomore @ BIT Mesra | Building AI agents & web apps"
-              className="w-full rounded-xl border border-border/60 bg-muted/20 px-3.5 py-2 text-xs font-semibold text-foreground outline-none transition-all focus:border-primary focus:bg-background"
+              className="w-full rounded-xl border border-border/60 bg-muted/20 px-3.5 py-2 text-xs font-semibold text-foreground outline-none transition-colors focus:border-primary focus:bg-background"
             />
           </div>
 
@@ -605,7 +605,7 @@ export function EditProfileClient() {
                   key={g}
                   type="button"
                   onClick={() => setGender(g)}
-                  className={`py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+                  className={`py-2 rounded-xl text-xs font-semibold border transition-colors cursor-pointer ${
                     gender === g
                       ? "border-primary bg-primary/10 text-primary shadow-xs"
                       : "border-border/60 bg-muted/20 text-muted-foreground hover:text-foreground"
@@ -624,7 +624,7 @@ export function EditProfileClient() {
                 htmlFor="edit-dob"
                 className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"
               >
-                <Cake className="size-3.5 text-pink-500" /> Birthday / Date of Birth
+                <Cake className="size-3.5 text-danger" /> Birthday / Date of Birth
               </label>
               <span className="text-[10px] text-muted-foreground">Used for campus birthday wishes</span>
             </div>
@@ -634,7 +634,7 @@ export function EditProfileClient() {
               value={dob}
               max={new Date().toISOString().split("T")[0]}
               onChange={(e) => setDob(e.target.value)}
-              className="w-full rounded-xl border border-border/60 bg-muted/20 px-3.5 py-2 text-xs font-semibold text-foreground outline-none transition-all focus:border-primary focus:bg-background"
+              className="w-full rounded-xl border border-border/60 bg-muted/20 px-3.5 py-2 text-xs font-semibold text-foreground outline-none transition-colors focus:border-primary focus:bg-background"
             />
             <label className="flex items-center gap-2 pt-1 text-xs text-muted-foreground cursor-pointer select-none">
               <input
@@ -664,7 +664,7 @@ export function EditProfileClient() {
                 remains 100% cryptographically sealed.
               </p>
             </div>
-            <span className="text-[10px] font-black uppercase tracking-wider text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full shrink-0">
+            <span className="text-xs font-bold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full shrink-0">
               Encrypted
             </span>
           </div>
@@ -688,7 +688,7 @@ export function EditProfileClient() {
                 onChange={(e) => setAnonUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
                 placeholder="e.g. ghost_student, shadow_coder, campus_ninja"
                 maxLength={24}
-                className="w-full pl-10 pr-3.5 py-2 rounded-xl border border-border/60 bg-background text-xs font-semibold text-foreground outline-none transition-all focus:border-primary"
+                className="w-full pl-10 pr-3.5 py-2 rounded-xl border border-border/60 bg-background text-xs font-semibold text-foreground outline-none transition-colors focus:border-primary"
               />
             </div>
             <p className="text-[10px] text-muted-foreground">
@@ -713,7 +713,7 @@ export function EditProfileClient() {
                       key={c}
                       type="button"
                       onClick={() => setCourse(c)}
-                      className={`py-1.5 px-2 rounded-xl text-xs font-bold border transition-all cursor-pointer truncate ${
+                      className={`py-1.5 px-2 rounded-xl text-xs font-bold border transition-colors cursor-pointer truncate ${
                         course === c
                           ? "border-primary bg-primary/10 text-primary shadow-xs"
                           : "border-border/60 bg-muted/20 text-muted-foreground hover:text-foreground"
@@ -729,7 +729,7 @@ export function EditProfileClient() {
                 value={course}
                 onChange={(e) => setCourse(e.target.value)}
                 placeholder="Or type custom course (e.g. B.Arch, MCA, PhD Physics)..."
-                className="w-full rounded-xl border border-border/60 bg-muted/20 px-3.5 py-2 text-xs font-semibold text-foreground outline-none focus:border-primary focus:bg-background transition-all"
+                className="w-full rounded-xl border border-border/60 bg-muted/20 px-3.5 py-2 text-xs font-semibold text-foreground outline-none focus:border-primary focus:bg-background transition-colors"
               />
             </div>
 
@@ -754,7 +754,7 @@ export function EditProfileClient() {
                 value={branch}
                 onChange={(e) => setBranch(e.target.value)}
                 placeholder="Or type a custom branch/major..."
-                className="w-full rounded-xl border border-border/60 bg-muted/20 px-3.5 py-2 text-xs font-semibold text-foreground outline-none focus:border-primary focus:bg-background transition-all"
+                className="w-full rounded-xl border border-border/60 bg-muted/20 px-3.5 py-2 text-xs font-semibold text-foreground outline-none focus:border-primary focus:bg-background transition-colors"
               />
             </div>
           </div>
@@ -787,7 +787,7 @@ export function EditProfileClient() {
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               placeholder="Share what you study, hostel tea, or what you are looking for on CampusLoop..."
-              className="w-full rounded-xl border border-border/60 bg-muted/20 p-3 text-xs text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:bg-background transition-all resize-none"
+              className="w-full rounded-xl border border-border/60 bg-muted/20 p-3 text-xs text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:bg-background transition-colors resize-none"
             />
           </div>
 
@@ -801,7 +801,7 @@ export function EditProfileClient() {
                     key={tag}
                     type="button"
                     onClick={() => handleToggleInterest(tag)}
-                    className={`py-1 px-2.5 rounded-lg text-xs font-semibold border transition-all cursor-pointer flex items-center gap-1 ${
+                    className={`py-1 px-2.5 rounded-lg text-xs font-semibold border transition-colors cursor-pointer flex items-center gap-1 ${
                       isSelected
                         ? "border-primary bg-primary/10 text-primary shadow-xs"
                         : "border-border/60 bg-muted/20 text-muted-foreground hover:text-foreground"
@@ -828,7 +828,7 @@ export function EditProfileClient() {
             isUsernameBlocking(usernameStatus) ||
             isUploadingDatingPhoto
           }
-          className="w-full py-3 rounded-2xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 shadow-xs"
+          className="w-full py-3 rounded-2xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-[opacity,transform] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 shadow-xs"
         >
           <Save className="size-4" />
           {isSaving ? "Saving changes..." : "Save Profile & Dating Photos"}

@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import { Phone, ShieldAlert, ShieldCheck } from "lucide-react";
-import { CleanFooter } from "@/components/landing/clean-footer";
-import { MinimalLandingNavbar } from "@/components/landing/minimal-landing-navbar";
+import { Phone } from "lucide-react";
 import {
   DocLayout,
   DocList,
@@ -11,44 +9,27 @@ import {
   DocTable,
   LegalDocHeader,
 } from "@/components/marketing/legal-doc";
-import { LegalNav } from "@/components/marketing/legal-nav";
+import { MarketingShell } from "@/components/shells/marketing-shell";
 
 export const metadata: Metadata = {
-  title: "Safety & Community Standards",
+  title: "Safety · CampusLoop",
   description:
-    "Community safety guidelines, zero-tolerance anti-ragging protocols under UGC regulations, automated doxxing filters, and student reporting mechanisms.",
-  keywords: [
-    "Safety Guidelines",
-    "Anti-Ragging UGC",
-    "CampusLoop Safety",
-    "Student Protection",
-    "Cyberbullying Prevention",
-    "Dating Safety Rules",
-    "Emergency Support India",
-  ],
+    "Community standards, zero-tolerance anti-ragging policy under UGC regulations, personal information filters, reporting and moderation, and emergency helplines.",
+  keywords: ["Safety Guidelines", "Anti-Ragging UGC", "CampusLoop Safety", "Student Protection", "Cyberbullying Prevention", "Emergency Helplines India"],
   alternates: { canonical: "https://campusloop.space/safety" },
   openGraph: {
-    title: "Safety & Community Standards",
-    description:
-      "Learn how CampusLoop protects students with zero-tolerance anti-ragging and AI safety shields.",
+    title: "Safety · CampusLoop",
+    description: "Community standards, anti-ragging policy, reporting and emergency helplines.",
     url: "https://campusloop.space/safety",
     siteName: "CampusLoop",
     locale: "en_IN",
     type: "website",
-    images: [
-      {
-        url: "https://campusloop.space/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Safety & Community Standards",
-      },
-    ],
+    images: [{ url: "https://campusloop.space/og-image.png", width: 1200, height: 630, alt: "Safety and community standards" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Safety & Community Standards",
-    description:
-      "Learn how CampusLoop protects students with zero-tolerance anti-ragging and AI safety shields.",
+    title: "Safety · CampusLoop",
+    description: "Community standards, anti-ragging policy, reporting and emergency helplines.",
     images: ["https://campusloop.space/og-image.png"],
   },
   robots: { index: true, follow: true },
@@ -58,169 +39,174 @@ const SECTIONS: DocSectionRef[] = [
   { id: "standards", label: "Community standards" },
   { id: "ragging", label: "Anti-ragging policy" },
   { id: "doxxing", label: "Personal information" },
-  { id: "moderation", label: "Reporting & moderation" },
+  { id: "moderation", label: "Reporting and moderation" },
   { id: "match", label: "Campus Match safety" },
   { id: "helplines", label: "Emergency helplines" },
+];
+
+const HELPLINES = [
+  {
+    name: "National Anti-Ragging Helpline",
+    tag: "24x7, toll-free",
+    number: "1800-180-5522",
+    tel: "18001805522",
+    note: "For all universities across India.",
+  },
+  {
+    name: "KIRAN mental health helpline",
+    tag: "13 languages",
+    number: "1800-599-0019",
+    tel: "18005990019",
+    note: "Government of India 24x7 mental health and counselling support.",
+  },
+  {
+    name: "Women helpline and emergency",
+    tag: "Emergency",
+    number: "1091 / 112",
+    tel: "112",
+    note: "National emergency response across India.",
+  },
 ];
 
 export default function SafetyPage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    name: "CampusLoop Safety & Community Standards",
+    name: "CampusLoop Safety and Community Standards",
     url: "https://campusloop.space/safety",
-    description:
-      "Community safety guidelines and anti-ragging protocols under UGC regulations for CampusLoop.",
+    description: "Community safety guidelines and anti-ragging protocols under UGC regulations for CampusLoop.",
     publisher: {
       "@type": "Organization",
-      name: "CampusLoop Inc.",
+      name: "CampusLoop",
+      legalName: "CampusLoop (not yet incorporated)",
       url: "https://campusloop.space",
       logo: "https://campusloop.space/logo.png",
     },
     inLanguage: "en-IN",
     datePublished: "2026-01-01",
-    dateModified: "2026-08-28",
+    dateModified: "2026-11-02",
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground select-none">
+    <MarketingShell>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <MinimalLandingNavbar />
-      <LegalNav />
-
-      <main className="flex-1 py-8 sm:py-12">
+      <main className="py-12 sm:py-16">
         <DocLayout sections={SECTIONS}>
           <LegalDocHeader
-            eyebrow="Zero Tolerance Anti-Ragging"
-            title="Safety & community standards"
-            summary="CampusLoop is an exclusive student sanctuary gated by official institutional emails. Here is how our automated safety filters, human review teams, and zero-tolerance protocols protect student life."
-            meta={["Updated 28 August 2026", "UGC Anti-Ragging Regulations, 2009", "CampusLoop Trust & Safety"]}
+            title="Safety and community standards"
+            summary="CampusLoop is a student space gated by college email. This page explains the automated filters, human review and zero-tolerance rules that protect student life."
+            meta={["Updated 2 November 2026", "UGC Anti-Ragging Regulations, 2009"]}
           />
 
-          {/* Voxel Safety Highlights Bar */}
           <div className="mb-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div className="rounded-2xl border border-red-500/30 bg-red-500/5 p-3.5 text-center shadow-2xs">
-              <span className="text-[10px] font-black uppercase tracking-wider text-red-500">
-                Zero Tolerance
-              </span>
-              <p className="mt-1 text-xs font-bold text-foreground">Anti-Ragging</p>
-              <p className="text-[10px] text-muted-foreground">UGC Regulations 2009</p>
+            <div className="rounded-lg border border-border bg-surface p-3.5 text-center">
+              <p className="text-xs font-semibold text-fg">Anti-ragging</p>
+              <p className="mt-1 text-xs text-fg-muted">Zero tolerance, UGC 2009</p>
             </div>
-            <div className="rounded-2xl border border-border/70 bg-card/80 p-3.5 text-center shadow-2xs">
-              <span className="text-[10px] font-black uppercase tracking-wider text-[#16a34a]">
-                Anti-Doxxing
-              </span>
-              <p className="mt-1 text-xs font-bold text-foreground">Phone & Room Filter</p>
-              <p className="text-[10px] text-muted-foreground">Auto Redaction</p>
+            <div className="rounded-lg border border-border bg-surface p-3.5 text-center">
+              <p className="text-xs font-semibold text-fg">Anti-doxxing</p>
+              <p className="mt-1 text-xs text-fg-muted">Phone and room number filter</p>
             </div>
-            <div className="rounded-2xl border border-border/70 bg-card/80 p-3.5 text-center shadow-2xs">
-              <span className="text-[10px] font-black uppercase tracking-wider text-purple-500">
-                Escrow Quarantine
-              </span>
-              <p className="mt-1 text-xs font-bold text-foreground">3 Reports Trigger</p>
-              <p className="text-[10px] text-muted-foreground">Instant Timeline Hide</p>
+            <div className="rounded-lg border border-border bg-surface p-3.5 text-center">
+              <p className="text-xs font-semibold text-fg">Three reports</p>
+              <p className="mt-1 text-xs text-fg-muted">Hidden until human review</p>
             </div>
-            <div className="rounded-2xl border border-border/70 bg-card/80 p-3.5 text-center shadow-2xs">
-              <span className="text-[10px] font-black uppercase tracking-wider text-blue-500">
-                Emergency 24x7
-              </span>
-              <p className="mt-1 text-xs font-bold text-foreground">Helpline Direct</p>
-              <p className="text-[10px] text-muted-foreground">1800-180-5522</p>
+            <div className="rounded-lg border border-border bg-surface p-3.5 text-center">
+              <p className="text-xs font-semibold text-fg">Emergency 24x7</p>
+              <p className="mt-1 text-xs text-fg-muted">1800-180-5522</p>
             </div>
           </div>
 
-          <DocSection id="standards" number={1} title="What we expect from verified students">
+          <DocSection id="standards" number={1} title="What we expect from students">
             <p>
-              Every student profile maps to an active enrollment at an accredited university. This ensures
-              authentic conversations, and it also ensures that malicious conduct carries real accountability.
-              Treat your digital campus with the respect you would show a hostel common room.
+              Every verified profile maps to a college email, so conversations are real and misconduct carries
+              real accountability. Treat your digital campus like a hostel common room.
             </p>
             <DocList
               items={[
-                "Post authentically under your verified name or your encrypted anonymous handle — never impersonate others.",
-                "Disagree with constructive ideas, not personal attacks or targeted pile-ons.",
-                "Do not post non-consensual photographs or hostel corridor conversations without consent.",
-                "Content involving coercion, threats, blackmail, or harm is quarantined immediately.",
+                "Post under your verified name or your anonymous handle. Never impersonate others.",
+                "Disagree with ideas, not with personal attacks or pile-ons.",
+                "Do not post photos or private conversations of others without consent.",
+                "Content involving coercion, threats, blackmail or harm is hidden immediately on report.",
               ]}
             />
           </DocSection>
 
-          <DocSection id="ragging" number={2} title="Zero tolerance anti-ragging protocol">
+          <DocSection id="ragging" number={2} title="Zero tolerance anti-ragging policy">
             <p>
-              In compliance with the{" "}
-              <span className="font-bold text-foreground">
+              In line with the{" "}
+              <span className="font-semibold text-fg">
                 UGC Regulations on Curbing the Menace of Ragging in Higher Educational Institutions (2009)
               </span>
-              , CampusLoop classifies digital hazing and cyber-ragging as equivalent to physical offences.
-              This covers intimidation, forced tasks, humiliating junior students, and coercive threats in
-              public hubs or private chats.
+              , CampusLoop treats digital hazing and cyber-ragging the same as physical offences. This covers
+              intimidation, forced tasks, humiliating junior students and coercive threats in hubs or chats.
             </p>
             <DocNote>
-              A substantiated ragging offence triggers instant permanent account termination, forfeiture
-              of all Loop Points (LP), and mandatory reporting to your university&apos;s statutory
-              Anti-Ragging Committee and law enforcement agencies.
+              A substantiated ragging offence results in permanent account termination, loss of all Loop
+              Points, and reporting to the college&apos;s Anti-Ragging Committee and, where required, law
+              enforcement.
             </DocNote>
           </DocSection>
 
-          <DocSection id="doxxing" number={3} title="Anti-doxxing & personal information filters">
+          <DocSection id="doxxing" number={3} title="Anti-doxxing and personal information filters">
             <p>
-              Because our network connects residential campuses, releasing personal whereabouts presents
-              immediate physical risk. Our automated filters proactively flag and redact:
+              Because the network connects residential campuses, publishing someone&apos;s whereabouts is a
+              physical risk. Automated filters flag and redact:
             </p>
             <DocList
               items={[
-                "Private mobile phone numbers and unverified external WhatsApp invite links.",
-                "Hostel block names paired with specific room numbers and student roll numbers.",
-                "Personal emails published with the intent to solicit targeted harassment.",
-                "Images or videos captured inside residential hostel rooms without explicit consent.",
+                "Personal mobile numbers and unverified external chat invite links.",
+                "Hostel block names paired with room numbers and student roll numbers.",
+                "Personal emails published to solicit targeted harassment.",
+                "Images or videos from inside hostel rooms without consent.",
               ]}
             />
           </DocSection>
 
-          <DocSection id="moderation" number={4} title="Reporting & moderation timeline">
+          <DocSection id="moderation" number={4} title="Reporting and moderation">
             <p>
-              Every post, story, confession, and comment has an intuitive one-tap report tool. Reports are
-              evaluated algorithmically and verified by human moderators:
+              Every post, story, confession and comment has a one-tap Report option. Reports are triaged
+              automatically and reviewed by people:
             </p>
             <DocTable
               rows={[
                 {
-                  label: "Automated quarantine",
-                  value: "Triggered on 3 independent reports",
-                  note: "The flagged content is immediately removed from campus feeds while under investigation.",
+                  label: "Automatic hide",
+                  value: "After three independent reports",
+                  note: "Flagged content is removed from campus feeds while it is reviewed.",
                 },
                 {
-                  label: "Human review turnaround",
-                  value: "Under 24 hours (Safety priority < 12h)",
-                  note: "High-severity safety flags bypass the standard queue for immediate escalation.",
+                  label: "Human review",
+                  value: "Within 24 hours; safety reports within 12",
+                  note: "High-severity safety flags skip the standard queue.",
                 },
                 {
-                  label: "Disciplinary action",
-                  value: "Warning -> Temporary Timeout -> Permanent Ban",
-                  note: "All administrative actions are logged with cryptographic audit trails.",
+                  label: "Action",
+                  value: "Warning, temporary timeout, permanent ban",
+                  note: "Every moderation action is logged.",
                 },
               ]}
             />
           </DocSection>
 
-          <DocSection id="match" number={5} title="Campus Match & Secret Crush safety">
+          <DocSection id="match" number={5} title="Campus Match and Secret Crush safety">
             <p>
-              Campus Match and Secret Crush are strictly gated to verified students aged 18 and older.
-              They are engineered so one-sided interest is never disclosed:
+              Campus Match and Secret Crush are for verified students aged 18 and older. One-sided interest is
+              never disclosed:
             </p>
             <DocList
               items={[
                 <>
-                  <span className="font-bold text-foreground">Secret Crush Stays Sealed:</span> Your crush is
-                  100% invisible unless both of you independently add each other to your crush lists.
+                  <span className="font-semibold text-fg">Secret Crush stays sealed:</span> your crush is never
+                  shown unless both of you add each other.
                 </>,
                 <>
-                  <span className="font-bold text-foreground">Instant Unmatch & Block:</span> Blocking a student
-                  instantly erases mutual chat history and hides each other across all discovery features.
+                  <span className="font-semibold text-fg">Unmatch and block:</span> blocking someone removes
+                  the chat and hides you from each other across discovery.
                 </>,
                 <>
-                  <span className="font-bold text-foreground">Safe Campus Meetups:</span> Always meet in public,
-                  well-lit campus hubs (like university canteens or central libraries) and tell a friend.
+                  <span className="font-semibold text-fg">Meet safely:</span> meet in public campus spaces and
+                  tell a friend.
                 </>,
               ]}
             />
@@ -228,102 +214,47 @@ export default function SafetyPage() {
 
           <DocSection id="helplines" number={6} title="Emergency student helplines">
             <p>
-              If you or a classmate is in immediate distress or danger, contact emergency resources right
-              away. These national helplines are free, confidential, and operational 24 hours a day:
+              If you or a classmate is in immediate distress or danger, contact an emergency helpline first.
+              These national helplines are free and confidential:
             </p>
 
-            {/* Voxel Emergency Helplines Cards */}
-            <div className="grid gap-3 sm:grid-cols-2 pt-2">
-              <div className="rounded-2xl border border-red-500/30 bg-red-500/5 p-4 shadow-2xs space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-black uppercase text-red-500 flex items-center gap-1">
-                    <ShieldAlert className="size-3.5" />
-                    <span>UGC Anti-Ragging</span>
-                  </span>
-                  <span className="rounded-full bg-red-500/10 px-2 py-0.5 text-[10px] font-bold text-red-500">
-                    24x7 Toll-Free
-                  </span>
+            <div className="grid gap-3 pt-2 sm:grid-cols-2">
+              {HELPLINES.map((line) => (
+                <div key={line.number} className="space-y-2 rounded-lg border border-border bg-surface p-4">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-semibold text-fg">{line.name}</span>
+                    <span className="rounded-full bg-surface-muted px-2 py-0.5 text-xs font-medium text-fg-muted">{line.tag}</span>
+                  </div>
+                  <p className="font-mono text-lg font-semibold tabular-nums text-fg">{line.number}</p>
+                  <p className="text-xs leading-normal text-fg-muted">{line.note}</p>
+                  <a
+                    href={`tel:${line.tel}`}
+                    className="inline-flex h-10 items-center gap-1.5 rounded-md bg-danger px-3 text-xs font-semibold text-danger-fg transition-opacity hover:opacity-90"
+                  >
+                    <Phone className="size-3.5" aria-hidden />
+                    <span>Call {line.number.split(" / ")[0]}</span>
+                  </a>
                 </div>
-                <p className="font-mono text-lg font-black text-foreground">1800-180-5522</p>
-                <p className="text-[11px] text-muted-foreground leading-normal">
-                  National anti-ragging helpline for all universities across India.
-                </p>
-                <a
-                  href="tel:18001805522"
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-red-500 px-3 py-1.5 text-xs font-bold text-white hover:bg-red-600 transition-colors shadow-xs"
-                >
-                  <Phone className="size-3" />
-                  <span>Call 1800-180-5522</span>
-                </a>
-              </div>
+              ))}
 
-              <div className="rounded-2xl border border-blue-500/30 bg-blue-500/5 p-4 shadow-2xs space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-black uppercase text-blue-500 flex items-center gap-1">
-                    <ShieldCheck className="size-3.5" />
-                    <span>KIRAN Mental Health</span>
-                  </span>
-                  <span className="rounded-full bg-blue-500/10 px-2 py-0.5 text-[10px] font-bold text-blue-500">
-                    13 Languages
-                  </span>
+              <div className="space-y-2 rounded-lg border border-border bg-surface p-4">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-semibold text-fg">CampusLoop safety desk</span>
+                  <span className="rounded-full bg-surface-muted px-2 py-0.5 text-xs font-medium text-fg-muted">Within 12 hours</span>
                 </div>
-                <p className="font-mono text-lg font-black text-foreground">1800-599-0019</p>
-                <p className="text-[11px] text-muted-foreground leading-normal">
-                  Government of India 24x7 mental health & counseling support.
-                </p>
-                <a
-                  href="tel:18005990019"
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-blue-500 px-3 py-1.5 text-xs font-bold text-white hover:bg-blue-600 transition-colors shadow-xs"
-                >
-                  <Phone className="size-3" />
-                  <span>Call 1800-599-0019</span>
-                </a>
-              </div>
-
-              <div className="rounded-2xl border border-purple-500/30 bg-purple-500/5 p-4 shadow-2xs space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-black uppercase text-purple-500">Women Helpline</span>
-                  <span className="rounded-full bg-purple-500/10 px-2 py-0.5 text-[10px] font-bold text-purple-500">
-                    Emergency
-                  </span>
-                </div>
-                <p className="font-mono text-lg font-black text-foreground">1091 / 112</p>
-                <p className="text-[11px] text-muted-foreground leading-normal">
-                  National emergency response support for women safety across India.
-                </p>
-                <a
-                  href="tel:112"
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-purple-500 px-3 py-1.5 text-xs font-bold text-white hover:bg-purple-600 transition-colors shadow-xs"
-                >
-                  <Phone className="size-3" />
-                  <span>Call 112</span>
-                </a>
-              </div>
-
-              <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4 shadow-2xs space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-black uppercase text-[#16a34a]">CampusLoop Safety</span>
-                  <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-[#16a34a]">
-                    Priority &lt;12h
-                  </span>
-                </div>
-                <p className="font-mono text-sm font-bold text-foreground">safety@campusloop.space</p>
-                <p className="text-[11px] text-muted-foreground leading-normal">
-                  Direct safety escalation desk for urgent campus harassment incidents.
-                </p>
+                <p className="font-mono text-sm font-semibold text-fg">safety@campusloop.space</p>
+                <p className="text-xs leading-normal text-fg-muted">Direct escalation for urgent campus harassment incidents.</p>
                 <a
                   href="mailto:safety@campusloop.space"
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-[#22c55e] px-3 py-1.5 text-xs font-bold text-white hover:bg-[#16a34a] transition-colors shadow-xs"
+                  className="inline-flex h-10 items-center gap-1.5 rounded-md bg-brand px-3 text-xs font-semibold text-brand-fg transition-colors hover:bg-brand-hover"
                 >
-                  <span>Email Safety Desk</span>
+                  <span>Email the safety desk</span>
                 </a>
               </div>
             </div>
           </DocSection>
         </DocLayout>
       </main>
-
-      <CleanFooter />
-    </div>
+    </MarketingShell>
   );
 }

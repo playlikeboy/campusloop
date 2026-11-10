@@ -4,11 +4,11 @@ import { RideshareClient } from "./rideshare-client";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 
 export const metadata: Metadata = {
-  title: "Ride Share | Station & Airport Cab Pool | CampusLoop",
+  title: "Ride Share | Station & Airport Cab Pool",
   description: "Split station and airport cab fares with verified college batchmates.",
   alternates: { canonical: "https://campusloop.space/rideshare" },
   openGraph: {
-    title: "Ride Share | Station & Airport Cab Pool | CampusLoop",
+    title: "Ride Share | Station & Airport Cab Pool",
     description: "Split station and airport cab fares with verified college batchmates.",
     url: "https://campusloop.space/rideshare",
     siteName: "CampusLoop Ride Share",

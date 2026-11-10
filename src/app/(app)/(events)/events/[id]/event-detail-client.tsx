@@ -70,16 +70,16 @@ const FAQ_ITEMS = [
 
 function getEventHeroArtwork(eventType: string) {
   const type = String(eventType || "").toUpperCase();
-  if (type === "HACKATHON") return { gradient: "from-violet-800 via-indigo-700 to-cyan-500", eyebrow: "BUILD · SHIP · WIN", Icon: Rocket };
-  if (["SCHOLARSHIP", "FELLOWSHIP", "GRANT"].includes(type)) return { gradient: "from-amber-600 via-orange-600 to-pink-600", eyebrow: "FUND YOUR FUTURE", Icon: GraduationCap };
-  if (["INTERNSHIP", "JOB"].includes(type)) return { gradient: "from-sky-800 via-blue-700 to-indigo-500", eyebrow: "YOUR NEXT CAREER MOVE", Icon: BriefcaseBusiness };
-  if (["COMPETITION", "CONTEST"].includes(type)) return { gradient: "from-orange-700 via-rose-600 to-amber-500", eyebrow: "SHOW WHAT YOU CAN DO", Icon: Trophy };
-  if (type === "WORKSHOP") return { gradient: "from-cyan-800 via-teal-700 to-emerald-500", eyebrow: "LEARN BY DOING", Icon: Wrench };
-  if (type === "SEMINAR") return { gradient: "from-blue-800 via-indigo-700 to-violet-500", eyebrow: "IDEAS & INSIGHTS", Icon: MessageSquareText };
-  if (type === "MEETUP") return { gradient: "from-teal-800 via-cyan-700 to-blue-500", eyebrow: "MEET YOUR PEOPLE", Icon: Users };
-  if (["FEST", "CULTURAL"].includes(type)) return { gradient: "from-fuchsia-800 via-pink-700 to-rose-500", eyebrow: "CAMPUS CULTURE", Icon: Palette };
-  if (type === "SPORTS") return { gradient: "from-lime-800 via-green-700 to-emerald-500", eyebrow: "PLAY TO WIN", Icon: Dumbbell };
-  return { gradient: "from-slate-800 via-slate-700 to-indigo-600", eyebrow: "YOUR NEXT OPPORTUNITY", Icon: Sparkles };
+  if (type === "HACKATHON") return { gradient: "bg-brand", eyebrow: "Build, ship, win", Icon: Rocket };
+  if (["SCHOLARSHIP", "FELLOWSHIP", "GRANT"].includes(type)) return { gradient: "bg-brand", eyebrow: "Fund your future", Icon: GraduationCap };
+  if (["INTERNSHIP", "JOB"].includes(type)) return { gradient: "bg-brand", eyebrow: "Your next career move", Icon: BriefcaseBusiness };
+  if (["COMPETITION", "CONTEST"].includes(type)) return { gradient: "bg-brand", eyebrow: "Show what you can do", Icon: Trophy };
+  if (type === "WORKSHOP") return { gradient: "bg-brand", eyebrow: "Learn by doing", Icon: Wrench };
+  if (type === "SEMINAR") return { gradient: "bg-brand", eyebrow: "Ideas and insights", Icon: MessageSquareText };
+  if (type === "MEETUP") return { gradient: "bg-brand", eyebrow: "Meet your people", Icon: Users };
+  if (["FEST", "CULTURAL"].includes(type)) return { gradient: "bg-brand", eyebrow: "Campus culture", Icon: Palette };
+  if (type === "SPORTS") return { gradient: "bg-brand", eyebrow: "Play to win", Icon: Dumbbell };
+  return { gradient: "bg-brand", eyebrow: "Your next opportunity", Icon: Sparkles };
 }
 export function EventDetailClient({ eventId }: EventDetailClientProps) {
   const router = useRouter();
@@ -206,7 +206,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
       if (!res.ok) throw new Error(resData.error);
 
       if (resData.reminderSet) {
-        toast.success("Timing reminder set! You'll be notified before the event ⏰");
+        toast.success("Timing reminder set! You'll be notified before the event");
       } else {
         toast.info("Timing reminder removed");
       }
@@ -286,7 +286,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
   return (
     <div className="mx-auto max-w-5xl min-h-screen pb-28 border-x border-border/30 bg-background">
       {/* Top Header Bar */}
-      <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/30 px-3.5 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between">
+      <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-sm border-b border-border/30 px-3.5 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between">
         <button
           onClick={() => router.back()}
           className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
@@ -299,7 +299,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
           {isOrganizer && (
             <Link
               href={`/events/manage/${event.slug || event.id}`}
-              className="h-8 px-3 rounded-full text-xs font-bold gap-1.5 flex items-center bg-primary text-primary-foreground hover:bg-primary/95 transition-all shadow-xs"
+              className="h-8 px-3 rounded-full text-xs font-bold gap-1.5 flex items-center bg-primary text-primary-foreground hover:bg-primary/95 transition-colors shadow-xs"
             >
               <Settings className="size-3.5" />
               <span>Manage</span>
@@ -319,15 +319,13 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
       </div>
 
       {/* Event Hero Banner with Scrim & Tags */}
-      <div className={cn("relative aspect-[16/9] sm:aspect-[24/9] md:aspect-[3/1] w-full overflow-hidden", showPoster ? "bg-muted/40" : "bg-gradient-to-br " + heroArtwork.gradient)}>
+      <div className={cn("relative aspect-[16/9] sm:aspect-[24/9] md:aspect-[3/1] w-full overflow-hidden", showPoster ? "bg-muted/40" : heroArtwork.gradient)}>
         {showPoster ? (
           <img src={posterUrl!} alt={event.title + " poster"} className="absolute inset-0 h-full w-full object-cover" loading="eager" decoding="async" referrerPolicy="no-referrer" onError={() => setBannerFailed(true)} />
         ) : (
           <>
-            <div aria-hidden="true" className="pointer-events-none absolute -right-12 -top-16 size-64 rounded-full border border-white/20 bg-white/10 blur-xl sm:size-80" />
-            <div aria-hidden="true" className="pointer-events-none absolute -bottom-28 left-1/3 size-72 rounded-full bg-black/10 blur-2xl" />
             <div className="absolute inset-0 flex items-start justify-between gap-4 px-4 py-4 sm:px-8 sm:py-6 md:px-10">
-              <span className="relative z-10 inline-flex max-w-[75%] rounded-full border border-white/20 bg-black/15 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-white/90 backdrop-blur-sm sm:text-xs">
+              <span className="relative z-10 inline-flex max-w-[75%] rounded-full border border-white/20 bg-black/15 px-3 py-1.5 text-xs font-semibold text-brand-fg sm:text-sm">
                 {heroArtwork.eyebrow}
               </span>
               <heroArtwork.Icon className="relative z-10 mt-8 size-16 shrink-0 text-white/25 drop-shadow sm:mt-10 sm:size-28 md:size-36" strokeWidth={1.1} />
@@ -339,24 +337,24 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
         <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 px-3 pb-3 pt-10 text-white sm:px-4 sm:pb-4">
           <div className="min-w-0 space-y-2">
             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-              <span className="rounded-full border border-white/15 bg-black/65 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide backdrop-blur-md sm:text-xs">
+              <span className="rounded-full border border-white/15 bg-black/65 px-2.5 py-1 text-xs font-bold backdrop-blur-sm sm:text-xs">
                 {event.eventType}
               </span>
-              <span className="rounded-full border border-white/15 bg-white/15 px-2.5 py-1 text-[10px] font-bold uppercase text-white backdrop-blur-md sm:text-xs">
+              <span className="rounded-full border border-white/15 bg-white/15 px-2.5 py-1 text-[10px] font-bold uppercase text-white backdrop-blur-sm sm:text-xs">
                 {event.mode}
               </span>
               {countdown?.isLive && (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-red-500 px-2.5 py-1 text-[10px] font-bold uppercase text-white sm:text-xs">
-                  <span className="inline-block size-1.5 animate-ping rounded-full bg-white" />
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-danger px-2.5 py-1 text-[10px] font-bold uppercase text-white sm:text-xs">
+                  <span className="inline-block size-1.5 animate-ping rounded-full bg-surface" />
                   Live Now
                 </span>
               )}
             </div>
-            <p className="max-w-full truncate text-[11px] font-semibold uppercase tracking-wide text-white/85 sm:text-sm">
+            <p className="max-w-full truncate text-xs font-semibold text-white/85 sm:text-sm">
               {event.clubName}
             </p>
           </div>
-          <span className="shrink-0 rounded-full border border-white/15 bg-black/65 px-3 py-1.5 text-[11px] font-bold text-white backdrop-blur-md sm:text-xs">
+          <span className="shrink-0 rounded-full border border-white/15 bg-black/65 px-3 py-1.5 text-[11px] font-bold text-white backdrop-blur-sm sm:text-xs">
             {event.entryFee || "Free"}
           </span>
         </div>
@@ -385,7 +383,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
               </div>
               <div className="flex items-center gap-1.5 text-xs font-mono font-black text-primary">
                 {countdown.isLive ? (
-                  <span className="text-red-500 animate-pulse">IN PROGRESS</span>
+                  <span className="text-danger animate-pulse">IN PROGRESS</span>
                 ) : (
                   <>
                     {countdown.days > 0 && <span>{countdown.days}d</span>}
@@ -403,11 +401,11 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
 
         {/* ─── Digital Pass / Ticket Card (Luma-Style) ─── */}
         {event.isRegistered ? (
-          <div className="relative overflow-hidden rounded-3xl border border-emerald-500/40 bg-linear-to-br from-emerald-500/10 via-card to-card p-4 sm:p-5 shadow-sm space-y-3">
+          <div className="relative overflow-hidden rounded-3xl border border-success bg-success-subtle p-4 sm:p-5 space-y-3">
             <div className="flex items-center justify-between border-b border-border/30 pb-3">
               <div className="flex items-center gap-2">
-                <span className="size-2 rounded-full bg-emerald-500 animate-ping" />
-                <span className="text-xs font-black uppercase text-emerald-500 tracking-wider">
+                <span className="size-2 rounded-full bg-success animate-ping" />
+                <span className="text-xs font-bold text-success">
                   Confirmed Student Pass
                 </span>
               </div>
@@ -428,7 +426,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
                 <button
                   type="button"
                   onClick={() => setShowQrModal(true)}
-                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-full bg-emerald-500 text-white text-xs font-black hover:opacity-90 shadow-xs cursor-pointer"
+                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-full bg-success text-white text-xs font-black hover:opacity-90 shadow-xs cursor-pointer"
                 >
                   <QrCode className="size-3.5" />
                   <span>Show Pass QR</span>
@@ -521,7 +519,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
                 <button
                   type="button"
                   onClick={() => openGoogleCalendar(calendarEvent)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/40 bg-muted/30 hover:bg-muted/70 text-foreground text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-2xs"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/40 bg-muted/30 hover:bg-muted/70 text-foreground text-xs font-bold transition-[opacity,transform] active:scale-95 cursor-pointer shadow-2xs"
                 >
                   <span>Google Calendar</span>
                 </button>
@@ -529,7 +527,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
                 <button
                   type="button"
                   onClick={() => downloadAppleCalendarIcs(calendarEvent)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/40 bg-muted/30 hover:bg-muted/70 text-foreground text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-2xs"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/40 bg-muted/30 hover:bg-muted/70 text-foreground text-xs font-bold transition-[opacity,transform] active:scale-95 cursor-pointer shadow-2xs"
                 >
                   <span>Apple Calendar (.ics)</span>
                 </button>
@@ -545,7 +543,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
               <Calendar className="size-5" />
             </div>
             <div>
-              <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-wide">
+              <h4 className="text-xs font-bold text-muted-foreground">
                 Date & Timing
               </h4>
               <p className="text-xs sm:text-sm font-bold text-foreground mt-0.5 leading-snug">
@@ -560,7 +558,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
               <MapPin className="size-5" />
             </div>
             <div className="min-w-0">
-              <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-wide">
+              <h4 className="text-xs font-bold text-muted-foreground">
                 Venue / Location
               </h4>
               <p className="text-xs sm:text-sm font-bold text-foreground mt-0.5 truncate">
@@ -585,7 +583,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
               <School className="size-5" />
             </div>
             <div>
-              <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-wide">
+              <h4 className="text-xs font-bold text-muted-foreground">
                 Campus Eligibility
               </h4>
               <p className="text-xs sm:text-sm font-bold text-foreground mt-0.5">
@@ -602,7 +600,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
               <Users className="size-5" />
             </div>
             <div>
-              <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-wide">
+              <h4 className="text-xs font-bold text-muted-foreground">
                 Participation Type
               </h4>
               <p className="text-xs sm:text-sm font-bold text-foreground mt-0.5">
@@ -622,14 +620,14 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
         {/* Prizes & Perks */}
         {(event.prizesDescription || (event.perks && event.perks.length > 0)) && (
           <div className="space-y-3">
-            <h3 className="text-xs font-black text-foreground uppercase tracking-wider flex items-center gap-2">
-              <Trophy className="size-4 text-amber-500" />
+            <h3 className="text-xs font-bold text-foreground flex items-center gap-2">
+              <Trophy className="size-4 text-warning" />
               Prizes &amp; Participant Perks
             </h3>
 
             {event.prizesDescription && (
-              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-300 space-y-1">
-                <span className="text-[10px] font-black uppercase tracking-wider">Prize pool</span>
+              <div className="p-4 rounded-2xl bg-warning-subtle border border-warning text-warning space-y-1">
+                <span className="text-xs font-bold">Prize pool</span>
                 <p className="text-base sm:text-lg font-black leading-snug">{event.prizesDescription}</p>
               </div>
             )}
@@ -652,7 +650,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
 
         {/* About the Event */}
         <div className="space-y-3">
-          <h3 className="text-xs font-black text-foreground uppercase tracking-wider">About the Event</h3>
+          <h3 className="text-xs font-bold text-foreground">About the Event</h3>
           <div className="rounded-3xl border border-border/40 bg-card/60 p-4 sm:p-5 text-sm leading-relaxed text-foreground/90">
             <MarkdownContent content={event.description} />
           </div>
@@ -661,7 +659,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
         {/* Organizer Club Profile Card */}
         {event.organizer && (
           <div className="space-y-3">
-            <h3 className="text-xs font-black text-foreground uppercase tracking-wider">Hosted By</h3>
+            <h3 className="text-xs font-bold text-foreground">Hosted By</h3>
             <div className="flex items-center justify-between p-4 rounded-3xl border border-border/40 bg-card/60">
               <div className="flex items-center gap-3">
                 <Avatar className="size-11 border border-border/50">
@@ -697,7 +695,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
         {event.registrations && event.registrations.length > 0 && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-black text-foreground uppercase tracking-wider flex items-center gap-2">
+              <h3 className="text-xs font-bold text-foreground flex items-center gap-2">
                 <Users className="size-4 text-primary" />
                 Attending Students ({event.registrations.length})
               </h3>
@@ -710,7 +708,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
                   <Link
                     key={r.id}
                     href={`/@${r.profile?.username}`}
-                    className="flex items-center gap-2 p-1.5 pr-3 rounded-full border border-border/40 bg-card/60 hover:bg-muted/40 transition-all text-xs"
+                    className="flex items-center gap-2 p-1.5 pr-3 rounded-full border border-border/40 bg-card/60 hover:bg-muted/40 transition-colors text-xs"
                   >
                     <Avatar className="size-6">
                       <AvatarImage src={avatar} />
@@ -728,7 +726,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
 
         {/* Campus FAQ Accordion */}
         <div className="space-y-3">
-          <h3 className="text-xs font-black text-foreground uppercase tracking-wider flex items-center gap-2">
+          <h3 className="text-xs font-bold text-foreground flex items-center gap-2">
             <HelpCircle className="size-4 text-primary" />
             Frequently Asked Questions
           </h3>
@@ -766,7 +764,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
         {relatedEvents.length > 0 && (
           <div className="space-y-3 pt-6 border-t border-border/30">
             <div className="flex items-center justify-between">
-              <h2 className="text-xs font-black tracking-wider uppercase text-foreground flex items-center gap-1.5">
+              <h2 className="text-xs font-bold text-foreground flex items-center gap-1.5">
                 <Zap className="size-4 text-primary" />
                 <span>Similar Campus Events</span>
               </h2>
@@ -780,7 +778,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
                 <Link
                   key={rel.id}
                   href={`/events/${rel.slug || rel.id}`}
-                  className="group block p-3.5 rounded-2xl border border-border/40 bg-card/60 hover:bg-card/90 hover:border-primary/40 transition-all space-y-2"
+                  className="group block p-3.5 rounded-2xl border border-border/40 bg-card/60 hover:bg-card/90 hover:border-primary/40 transition-colors space-y-2"
                 >
                   <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground font-semibold">
                     <span className="truncate">{rel.clubName}</span>
@@ -792,7 +790,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
                   </h3>
 
                   {rel.prizesDescription && (
-                    <p className="text-[11px] font-bold text-amber-500 line-clamp-1 flex items-center gap-1">
+                    <p className="text-[11px] font-bold text-warning line-clamp-1 flex items-center gap-1">
                       <Trophy className="size-2.5 shrink-0" />
                       <span>{rel.prizesDescription}</span>
                     </p>
@@ -830,7 +828,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
                 <button
                   type="button"
                   onClick={() => setRegType("SOLO")}
-                  className={`flex-1 py-1.5 text-xs font-black rounded-xl transition-all cursor-pointer ${
+                  className={`flex-1 py-1.5 text-xs font-black rounded-xl transition-colors cursor-pointer ${
                     regType === "SOLO"
                       ? "bg-background text-foreground shadow-2xs"
                       : "text-muted-foreground hover:text-foreground"
@@ -841,7 +839,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
                 <button
                   type="button"
                   onClick={() => setRegType("TEAM")}
-                  className={`flex-1 py-1.5 text-xs font-black rounded-xl transition-all cursor-pointer ${
+                  className={`flex-1 py-1.5 text-xs font-black rounded-xl transition-colors cursor-pointer ${
                     regType === "TEAM"
                       ? "bg-background text-foreground shadow-2xs"
                       : "text-muted-foreground hover:text-foreground"
@@ -896,14 +894,14 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
                       className="p-2.5 rounded-xl border border-border/30 bg-background/80 space-y-2 relative"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                        <span className="text-xs font-bold text-muted-foreground">
                           Member #{idx + 2}
                         </span>
                         {teammates.length > 1 && (
                           <button
                             type="button"
                             onClick={() => setTeammates((prev) => prev.filter((_, i) => i !== idx))}
-                            className="text-red-500 hover:text-red-600 text-[10px] font-bold cursor-pointer"
+                            className="text-danger hover:text-danger text-[10px] font-bold cursor-pointer"
                           >
                             Remove
                           </button>

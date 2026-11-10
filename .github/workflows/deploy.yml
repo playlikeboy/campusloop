@@ -33,6 +33,9 @@ jobs:
       - name: Unit Tests
         run: bun run test
 
+      - name: Design System Guard (report)
+        run: bun run check:design
+
       - name: Build & Deploy to Cloudflare Workers
         run: bun run deploy
         env:

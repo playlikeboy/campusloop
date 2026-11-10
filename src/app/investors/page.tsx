@@ -1,13 +1,14 @@
 import { ArrowRight, Check, LineChart } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CTABand, MarketingFooter, MarketingHeader } from "@/components/marketing/system";
+import { CTABand } from "@/components/marketing/system";
+import { MarketingShell } from "@/components/shells/marketing-shell";
 import { GUIDE_CATEGORIES, GUIDES, getGuidesByCategory, INVESTOR_POINTS, PRODUCT_OVERVIEW, SITE_URL } from "@/lib/guide";
 
 export const metadata: Metadata = {
-  title: "CampusLoop for Investors — Problem, Product, Moats and Revenue",
+  title: "Investors · CampusLoop",
   description:
-    "CampusLoop is a verified student-only network and campus super-app for Indian colleges. The problem, the product, why it is defensible, how it makes money and how it grows.",
+    "CampusLoop is a verified student-only network for Indian colleges, built at BIT Mesra. The problem, the product, why it is defensible, how it makes money and how it grows.",
   alternates: { canonical: `${SITE_URL}/investors` },
   openGraph: {
     title: "CampusLoop for Investors",
@@ -40,15 +41,15 @@ function List({ title, items }: { title: string; items: string[] }) {
 export default function InvestorsPage() {
   const i = INVESTOR_POINTS;
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground selection:bg-primary/20">
-      <MarketingHeader />
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 sm:px-6 pt-24 sm:pt-32 pb-20">
+    <MarketingShell>
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 sm:px-6 py-12 sm:py-16">
         <header className="max-w-3xl">
           <p className="flex items-center gap-1.5 text-sm font-semibold text-primary">
             <LineChart className="size-4" aria-hidden /> For investors
           </p>
           <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-5xl sm:leading-[1.08]">{PRODUCT_OVERVIEW.oneLiner}</h1>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground">{i.solution}</p>
+          <p className="mt-3 text-sm font-medium text-muted-foreground">Built at BIT Mesra by Shaswat Raj.</p>
           <div className="mt-6 flex flex-wrap gap-2">
             <Link href="/pitch" className="inline-flex h-11 items-center gap-1.5 rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground hover:opacity-90">
               View the pitch deck <ArrowRight className="size-4" aria-hidden />
@@ -108,7 +109,6 @@ export default function InvestorsPage() {
         secondaryHref="/pitch"
         secondaryLabel="Pitch deck"
       />
-      <MarketingFooter />
-    </div>
+    </MarketingShell>
   );
 }

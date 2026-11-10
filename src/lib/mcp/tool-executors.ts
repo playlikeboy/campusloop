@@ -3,11 +3,15 @@ import { and, count, desc, eq, ilike, ne, or, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import {
   academicResources,
+  articles,
   comments,
   communities,
   communityMembers,
   conversationParticipants,
   conversations,
+  courses,
+  eventRegistrations,
+  events,
   institutions,
   messages,
   pollOptions,
@@ -17,6 +21,7 @@ import {
   votes,
 } from "@/db/schema";
 import { runSafetyCheck } from "@/lib/moderation/rules";
+import { getUserStreakState, recordStreakActivity } from "@/lib/streaks/streak-service";
 import type { McpContext } from "./types";
 
 export type McpToolHandler = (context: McpContext, args: Record<string, any>) => Promise<any>;
@@ -1490,6 +1495,422 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
           : examMentions > 5
             ? "Serious Exam / Preparation Mode"
             : "Balanced Campus Routine",
+    };
+  },
+
+  // ─── 8. EVENTS & OPPORTUNITIES ──────────────────────────────────────────────
+  campusloop_get_events: async (context, args) => {
+    const db = getDb();
+    const limit = Math.min(Math.max(Number(args.limit) || 20, 1), 50);
+    const scope = args.scope === "GLOBAL" ? "GLOBAL" : "CAMPUS";
+    const type = args.type && args.type !== "ALL" ? String(args.type).toUpperCase() : null;
+
+    const conditions = [eq(events.status, "PUBLISHED")];
+    if (scope === "CAMPUS" && context.institutionId) {
+      conditions.push(eq(events.institutionId, context.institutionId));
+    }
+    if (type) {
+      conditions.push(eq(events.eventType, type));
+    }
+
+    const list = await db.query.events.findMany({
+      where: and(...conditions),
+      orderBy: [desc(events.startDate)],
+      limit,
+      with: {
+        institution: { columns: { name: true, slug: true } },
+      },
+    });
+
+    return {
+      count: list.length,
+      events: list.map((ev) => ({
+        id: ev.id,
+        slug: ev.slug,
+        title: ev.title,
+        tagline: ev.tagline,
+        eventType: ev.eventType,
+        mode: ev.mode,
+        venue: ev.venue,
+        startDate: ev.startDate,
+        endDate: ev.endDate,
+        entryFee: ev.entryFee,
+        clubName: ev.clubName,
+        college: ev.institution?.name,
+        url: `https://campusloop.space/events/${ev.slug}`,
+      })),
+    };
+  },
+
+  campusloop_get_event_details: async (_context, args) => {
+    const db = getDb();
+    const idOrSlug = String(args.eventIdOrSlug || "").trim();
+    if (!idOrSlug) throw new Error("eventIdOrSlug is required");
+
+    const ev = await db.query.events.findFirst({
+      where: or(eq(events.id, idOrSlug), eq(events.slug, idOrSlug)),
+      with: {
+        institution: true,
+        organizer: {
+          columns: { id: true, displayName: true, username: true, avatarUrl: true },
+        },
+      },
+    });
+
+    if (!ev) throw new Error("Event not found");
+
+    const [regs] = await db
+      .select({ count: count() })
+      .from(eventRegistrations)
+      .where(eq(eventRegistrations.eventId, ev.id));
+
+    return {
+      id: ev.id,
+      slug: ev.slug,
+      title: ev.title,
+      tagline: ev.tagline,
+      description: ev.description,
+      bannerUrl: ev.bannerUrl,
+      clubName: ev.clubName,
+      eventType: ev.eventType,
+      mode: ev.mode,
+      venue: ev.venue,
+      meetingUrl: ev.meetingUrl,
+      startDate: ev.startDate,
+      endDate: ev.endDate,
+      registrationDeadline: ev.registrationDeadline,
+      isPaid: ev.isPaid,
+      entryFee: ev.entryFee,
+      prizesDescription: ev.prizesDescription,
+      perks: ev.perks,
+      loopPointsReward: ev.loopPointsReward,
+      college: ev.institution?.name,
+      registrationsCount: Number(regs?.count || 0),
+      organizer: ev.organizer,
+      url: `https://campusloop.space/events/${ev.slug}`,
+    };
+  },
+
+  campusloop_create_event: async (context, args) => {
+    const db = getDb();
+    const title = String(args.title || "").trim();
+    const description = String(args.description || "").trim();
+    const clubName = String(args.clubName || "").trim();
+    const eventType = String(args.eventType || "HACKATHON").toUpperCase();
+    const mode = String(args.mode || "OFFLINE").toUpperCase();
+    const venue = args.venue ? String(args.venue).trim() : null;
+    const startDate = new Date(args.startDate);
+    const endDate = new Date(args.endDate);
+    const entryFee = args.entryFee ? String(args.entryFee).trim() : "Free";
+
+    if (!title || !description || !clubName) {
+      throw new Error("title, description, and clubName are required");
+    }
+
+    const id = `ev_${randomUUID().replace(/-/g, "").slice(0, 16)}`;
+    const slug = `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}-${id.slice(-6)}`;
+
+    // Resolve institution ID fallback
+    let targetInstId = context.institutionId;
+    if (!targetInstId) {
+      const firstInst = await db.query.institutions.findFirst();
+      targetInstId = firstInst?.id || "inst_general";
+    }
+
+    await db.insert(events).values({
+      id,
+      slug,
+      title,
+      description,
+      clubName,
+      eventType,
+      mode,
+      venue,
+      startDate,
+      endDate,
+      entryFee,
+      isPaid: entryFee.toLowerCase() !== "free" && entryFee !== "0",
+      organizerProfileId: context.userId,
+      institutionId: targetInstId,
+      status: "PUBLISHED",
+      visibility: "PUBLIC",
+    });
+
+    return {
+      success: true,
+      eventId: id,
+      slug,
+      url: `https://campusloop.space/events/${slug}`,
+      message: "Event published to campus loop.",
+    };
+  },
+
+  campusloop_register_event: async (context, args) => {
+    const db = getDb();
+    const eventId = String(args.eventId || "").trim();
+    if (!eventId) throw new Error("eventId is required");
+
+    const ev = await db.query.events.findFirst({
+      where: or(eq(events.id, eventId), eq(events.slug, eventId)),
+    });
+    if (!ev) throw new Error("Event not found");
+
+    const existing = await db.query.eventRegistrations.findFirst({
+      where: and(eq(eventRegistrations.eventId, ev.id), eq(eventRegistrations.profileId, context.userId)),
+    });
+    if (existing) {
+      return {
+        success: true,
+        alreadyRegistered: true,
+        registrationId: existing.id,
+        status: existing.status,
+        eventTitle: ev.title,
+      };
+    }
+
+    const regId = `reg_${randomUUID().replace(/-/g, "").slice(0, 16)}`;
+    await db.insert(eventRegistrations).values({
+      id: regId,
+      eventId: ev.id,
+      profileId: context.userId,
+      status: "CONFIRMED",
+      registrationType: "SOLO",
+    });
+
+    return {
+      success: true,
+      alreadyRegistered: false,
+      registrationId: regId,
+      status: "CONFIRMED",
+      eventTitle: ev.title,
+      message: `Registered successfully for ${ev.title}!`,
+    };
+  },
+
+  // ─── 9. ARTICLES & JOURNALISM ──────────────────────────────────────────────
+  campusloop_get_articles: async (_context, args) => {
+    const db = getDb();
+    const limit = Math.min(Math.max(Number(args.limit) || 20, 1), 50);
+    const category = args.category ? String(args.category).toUpperCase() : null;
+
+    const conditions = [eq(articles.status, "PUBLISHED")];
+    if (category) {
+      conditions.push(eq(articles.category, category));
+    }
+
+    const list = await db.query.articles.findMany({
+      where: and(...conditions),
+      orderBy: [desc(articles.publishedAt)],
+      limit,
+      with: {
+        author: { columns: { displayName: true, username: true, avatarUrl: true } },
+        institution: { columns: { name: true } },
+      },
+    });
+
+    return {
+      count: list.length,
+      articles: list.map((a) => ({
+        id: a.id,
+        slug: a.slug,
+        title: a.title,
+        subtitle: a.subtitle,
+        excerpt: a.excerpt,
+        category: a.category,
+        tags: a.tags,
+        readingTimeMinutes: a.readingTimeMinutes,
+        upvotesCount: a.upvotesCount,
+        viewsCount: a.viewsCount,
+        publishedAt: a.publishedAt,
+        author: a.author?.displayName || a.author?.username,
+        college: a.institution?.name,
+        url: `https://campusloop.space/articles/${a.slug}`,
+      })),
+    };
+  },
+
+  campusloop_get_article_details: async (_context, args) => {
+    const db = getDb();
+    const idOrSlug = String(args.articleIdOrSlug || "").trim();
+    if (!idOrSlug) throw new Error("articleIdOrSlug is required");
+
+    const a = await db.query.articles.findFirst({
+      where: or(eq(articles.id, idOrSlug), eq(articles.slug, idOrSlug)),
+      with: {
+        author: { columns: { displayName: true, username: true, avatarUrl: true } },
+        institution: true,
+      },
+    });
+
+    if (!a) throw new Error("Article not found");
+
+    return {
+      id: a.id,
+      slug: a.slug,
+      title: a.title,
+      subtitle: a.subtitle,
+      excerpt: a.excerpt,
+      content: a.content,
+      category: a.category,
+      tags: a.tags,
+      readingTimeMinutes: a.readingTimeMinutes,
+      upvotesCount: a.upvotesCount,
+      viewsCount: a.viewsCount,
+      publishedAt: a.publishedAt,
+      author: a.author,
+      college: a.institution?.name,
+      url: `https://campusloop.space/articles/${a.slug}`,
+    };
+  },
+
+  campusloop_publish_article: async (context, args) => {
+    const db = getDb();
+    const title = String(args.title || "").trim();
+    const content = String(args.content || "").trim();
+    const category = String(args.category || "GENERAL").toUpperCase();
+    const subtitle = args.subtitle ? String(args.subtitle).trim() : null;
+    const tags = Array.isArray(args.tags) ? args.tags : [];
+
+    if (!title || !content) {
+      throw new Error("title and content are required");
+    }
+
+    const id = `art_${randomUUID().replace(/-/g, "").slice(0, 16)}`;
+    const slug = `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}-${id.slice(-6)}`;
+    const words = content.split(/\s+/).length;
+    const readingTimeMinutes = Math.max(1, Math.ceil(words / 200));
+
+    await db.insert(articles).values({
+      id,
+      slug,
+      title,
+      subtitle,
+      excerpt: content.slice(0, 200),
+      content,
+      authorId: context.userId,
+      institutionId: context.institutionId,
+      category,
+      tags,
+      readingTimeMinutes,
+      status: "PUBLISHED",
+      publishedAt: new Date(),
+    });
+
+    return {
+      success: true,
+      articleId: id,
+      slug,
+      url: `https://campusloop.space/articles/${slug}`,
+      message: "Article published successfully.",
+    };
+  },
+
+  // ─── 10. STREAKS & HEATMAP ─────────────────────────────────────────────────
+  campusloop_get_streaks: async (context, args) => {
+    const targetId = args.profileId ? String(args.profileId).trim() : context.userId;
+    const state = await getUserStreakState(targetId);
+    return {
+      currentStreak: state.currentStreak,
+      longestStreak: state.longestStreak,
+      totalQualifiedDays: state.totalQualifiedDays,
+      isSafeToday: state.isSafeToday,
+      lastQualifiedDate: state.lastQualifiedDate,
+      weeklyTracker: state.weeklyTracker,
+      historyDates: state.historyDates,
+      nextMilestone: state.nextMilestone,
+      heatmapUrl: "https://campusloop.space/streaks",
+    };
+  },
+
+  campusloop_record_streak_activity: async (context, args) => {
+    const eventType = args.eventType || "DAILY_MISSION_COMPLETE";
+    const result = await recordStreakActivity({
+      userId: context.userId,
+      eventType,
+    });
+    return result;
+  },
+
+  // ─── 11. COURSES & PLAYLISTS ───────────────────────────────────────────────
+  campusloop_get_courses: async (_context, args) => {
+    const db = getDb();
+    const limit = Math.min(Math.max(Number(args.limit) || 20, 1), 50);
+    const category = args.category ? String(args.category).trim() : null;
+    const query = args.query ? String(args.query).trim() : null;
+
+    const conditions = [eq(courses.status, "PUBLISHED")];
+    if (category) {
+      conditions.push(ilike(courses.category, `%${category}%`));
+    }
+    if (query) {
+      const searchPattern = `%${query}%`;
+      const searchCond = or(ilike(courses.title, searchPattern), ilike(courses.description, searchPattern));
+      if (searchCond) {
+        conditions.push(searchCond);
+      }
+    }
+
+    const list = await db.query.courses.findMany({
+      where: and(...conditions),
+      orderBy: [desc(courses.trendScore), desc(courses.enrollCount)],
+      limit,
+    });
+
+    return {
+      count: list.length,
+      courses: list.map((c) => ({
+        id: c.id,
+        slug: c.slug,
+        title: c.title,
+        subtitle: c.subtitle,
+        category: c.category,
+        level: c.level,
+        instructor: c.instructorName,
+        provider: c.provider,
+        lecturesCount: c.lecturesCount,
+        durationSec: c.durationSec,
+        enrollCount: c.enrollCount,
+        url: `https://campusloop.space/courses/${c.slug}`,
+      })),
+    };
+  },
+
+  campusloop_get_course_details: async (_context, args) => {
+    const db = getDb();
+    const idOrSlug = String(args.courseIdOrSlug || "").trim();
+    if (!idOrSlug) throw new Error("courseIdOrSlug is required");
+
+    const c = await db.query.courses.findFirst({
+      where: or(eq(courses.id, idOrSlug), eq(courses.slug, idOrSlug)),
+      with: {
+        sections: {
+          with: {
+            lectures: true,
+          },
+        },
+      },
+    });
+
+    if (!c) throw new Error("Course not found");
+
+    return {
+      id: c.id,
+      slug: c.slug,
+      title: c.title,
+      subtitle: c.subtitle,
+      description: c.description,
+      category: c.category,
+      level: c.level,
+      instructorName: c.instructorName,
+      provider: c.provider,
+      outcomes: c.outcomes,
+      requirements: c.requirements,
+      tags: c.tags,
+      lecturesCount: c.lecturesCount,
+      durationSec: c.durationSec,
+      enrollCount: c.enrollCount,
+      sections: c.sections,
+      url: `https://campusloop.space/courses/${c.slug}`,
     };
   },
 };

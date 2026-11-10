@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FeedCard } from "@/components/ui/feed-card";
 import type { FeedPost } from "@/hooks/use-feed";
+import type { InstitutionEmailFormat } from "@/lib/student-email-domains";
 import { cn } from "@/lib/utils";
 import { CollegeAcademicsView, type CollegeAcademicResourceItem } from "./college-academics-view";
 import { CollegeClubsView } from "./college-clubs-view";
@@ -62,6 +63,7 @@ interface CollegeHubClientProps {
     description?: string | null;
   };
   allowedDomains: AllowedDomainItem[];
+  emailFormatInfo?: InstitutionEmailFormat | null;
   initialPosts: FeedPost[];
   academics?: CollegeAcademicResourceItem[];
   students: StudentItem[];
@@ -79,6 +81,7 @@ type PostSortOrder = "LATEST" | "TOP_VOTED" | "MOST_DISCUSSED";
 export function CollegeHubClient({
   college,
   allowedDomains,
+  emailFormatInfo,
   initialPosts,
   academics = [],
   students,
@@ -218,7 +221,7 @@ export function CollegeHubClient({
             onClick={() => setActiveTab("feed")}
             aria-pressed={activeTab === "feed"}
             className={cn(
-              "min-h-10 px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+              "min-h-10 px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-ui cursor-pointer flex items-center gap-1.5 shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
               activeTab === "feed"
                 ? "bg-foreground text-background font-black"
                 : "bg-card text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -241,7 +244,7 @@ export function CollegeHubClient({
             onClick={() => setActiveTab("academics")}
             aria-pressed={activeTab === "academics"}
             className={cn(
-              "min-h-10 px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+              "min-h-10 px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-ui cursor-pointer flex items-center gap-1.5 shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
               activeTab === "academics"
                 ? "bg-foreground text-background font-black"
                 : "bg-card text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -269,7 +272,7 @@ export function CollegeHubClient({
             onClick={() => setActiveTab("students")}
             aria-pressed={activeTab === "students"}
             className={cn(
-              "min-h-10 px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+              "min-h-10 px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-ui cursor-pointer flex items-center gap-1.5 shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
               activeTab === "students"
                 ? "bg-foreground text-background font-black"
                 : "bg-card text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -284,7 +287,7 @@ export function CollegeHubClient({
             onClick={() => setActiveTab("clubs")}
             aria-pressed={activeTab === "clubs"}
             className={cn(
-              "min-h-10 px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+              "min-h-10 px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-ui cursor-pointer flex items-center gap-1.5 shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
               activeTab === "clubs"
                 ? "bg-foreground text-background font-black"
                 : "bg-card text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -299,7 +302,7 @@ export function CollegeHubClient({
             onClick={() => setActiveTab("info")}
             aria-pressed={activeTab === "info"}
             className={cn(
-              "min-h-10 px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+              "min-h-10 px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-ui cursor-pointer flex items-center gap-1.5 shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
               activeTab === "info"
                 ? "bg-foreground text-background font-black"
                 : "bg-card text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -322,7 +325,7 @@ export function CollegeHubClient({
                 placeholder={`Search discussions, confessions & polls in ${shortName}...`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-11 pl-10 pr-12 rounded-full border border-border/50 bg-card text-sm font-medium text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/15 transition-all shadow-2xs"
+                className="w-full h-11 pl-10 pr-12 rounded-full border border-border/50 bg-card text-sm font-medium text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/15 transition-ui shadow-2xs"
               />
               {searchQuery && (
                 <button
@@ -338,19 +341,19 @@ export function CollegeHubClient({
             {/* Category Filter Pills & Sort */}
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div role="group" aria-label="Filter campus posts by type" className="flex min-w-0 items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-                <button type="button" onClick={() => setCategoryFilter("ALL")} aria-pressed={categoryFilter === "ALL"} className={cn("min-h-10 shrink-0 px-3 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50", categoryFilter === "ALL" ? "bg-foreground text-background font-black" : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground")}>
+                <button type="button" onClick={() => setCategoryFilter("ALL")} aria-pressed={categoryFilter === "ALL"} className={cn("min-h-10 shrink-0 px-3 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-ui cursor-pointer shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50", categoryFilter === "ALL" ? "bg-foreground text-background font-black" : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground")}>
                   All ({posts.length})
                 </button>
-                <button type="button" onClick={() => setCategoryFilter("CONFESSION")} aria-pressed={categoryFilter === "CONFESSION"} className={cn("min-h-10 shrink-0 px-3 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50", categoryFilter === "CONFESSION" ? "bg-foreground text-background font-black" : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground")}>
+                <button type="button" onClick={() => setCategoryFilter("CONFESSION")} aria-pressed={categoryFilter === "CONFESSION"} className={cn("min-h-10 shrink-0 px-3 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-ui cursor-pointer shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50", categoryFilter === "CONFESSION" ? "bg-foreground text-background font-black" : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground")}>
                   Confessions
                 </button>
-                <button type="button" onClick={() => setCategoryFilter("QUESTION")} aria-pressed={categoryFilter === "QUESTION"} className={cn("min-h-10 shrink-0 px-3 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50", categoryFilter === "QUESTION" ? "bg-foreground text-background font-black" : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground")}>
+                <button type="button" onClick={() => setCategoryFilter("QUESTION")} aria-pressed={categoryFilter === "QUESTION"} className={cn("min-h-10 shrink-0 px-3 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-ui cursor-pointer shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50", categoryFilter === "QUESTION" ? "bg-foreground text-background font-black" : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground")}>
                   Questions
                 </button>
-                <button type="button" onClick={() => setCategoryFilter("POLL")} aria-pressed={categoryFilter === "POLL"} className={cn("min-h-10 shrink-0 px-3 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50", categoryFilter === "POLL" ? "bg-foreground text-background font-black" : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground")}>
+                <button type="button" onClick={() => setCategoryFilter("POLL")} aria-pressed={categoryFilter === "POLL"} className={cn("min-h-10 shrink-0 px-3 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-ui cursor-pointer shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50", categoryFilter === "POLL" ? "bg-foreground text-background font-black" : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground")}>
                   Polls
                 </button>
-                <button type="button" onClick={() => setCategoryFilter("EVENT")} aria-pressed={categoryFilter === "EVENT"} className={cn("min-h-10 shrink-0 px-3 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50", categoryFilter === "EVENT" ? "bg-foreground text-background font-black" : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground")}>
+                <button type="button" onClick={() => setCategoryFilter("EVENT")} aria-pressed={categoryFilter === "EVENT"} className={cn("min-h-10 shrink-0 px-3 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-ui cursor-pointer shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50", categoryFilter === "EVENT" ? "bg-foreground text-background font-black" : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground")}>
                   Events
                 </button>
               </div>
@@ -401,7 +404,7 @@ export function CollegeHubClient({
               </Link>
               <Link
                 href={`/post/new?college=${college.slug}`}
-                className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full bg-primary px-4 text-xs font-bold text-primary-foreground shadow-xs transition-all hover:bg-primary/95 cursor-pointer shrink-0"
+                className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full bg-primary px-4 text-xs font-bold text-primary-foreground shadow-xs transition-ui hover:bg-primary/95 cursor-pointer shrink-0"
               >
                 <Plus className="size-3.5" />
                 <span>New Post</span>
@@ -473,6 +476,7 @@ export function CollegeHubClient({
           studentCount={students.length}
           nirfRank={college.nirfRank}
           description={college.description}
+          emailFormat={emailFormatInfo}
           onAskSeniorClick={handleAskSenior}
         />
       )}
@@ -495,7 +499,7 @@ export function CollegeHubClient({
 
           <Link
             href={`/sign-up?college=${college.slug}${allowedDomains[0] ? `&domain=${allowedDomains[0].domain}` : ""}`}
-            className="px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-all cursor-pointer shadow-md shrink-0"
+            className="px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/95 transition-ui cursor-pointer shadow-md shrink-0"
           >
             Join {shortName} Hub
           </Link>

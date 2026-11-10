@@ -4,11 +4,15 @@ import {
   ArrowRight,
   FolderPlus,
   Sparkles,
+  Trophy,
   TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
+import useSWR from "swr";
 import { useScrollIsolation } from "@/hooks/use-scroll-isolation";
+import { fetcher } from "@/lib/api";
 import { sounds } from "@/lib/sounds";
+import { getAvatarUrl } from "@/lib/utils";
 import type { AcademicPlaylistData } from "@/components/academics/academic-playlist-card";
 
 interface AcademicContextRailProps {
@@ -21,34 +25,35 @@ interface AcademicContextRailProps {
   playlistsError?: unknown;
 }
 
-const POPULAR_THIS_WEEK = [
-  {
-    code: "CS302",
-    name: "Database Management Systems",
-    tag: "PYQ + Notes",
-    views: "2.4k views",
-  },
-  {
-    code: "CS201",
-    name: "Data Structures & Algorithms",
-    tag: "Exam Solved",
-    views: "1.9k views",
-  },
-  {
-    code: "CS303",
-    name: "Operating Systems",
-    tag: "Quantum Notes",
-    views: "1.6k views",
-  },
-  {
-    code: "MA101",
-    name: "Engineering Mathematics I",
-    tag: "Cheat Sheets",
-    views: "1.2k views",
-  },
-];
+interface TrendingItem {
+  id: string;
+  subjectCode: string;
+  subjectName: string;
+  resourceType: string;
+  viewsCount: number;
+}
 
+interface TopUploader {
+  id: string;
+  username: string;
+  displayName: string;
+  avatarUrl?: string | null;
+  uploadCount: number;
+  totalUpvotes: number;
+}
 
+function formatViews(n: number): string {
+  if (n >= 1000) return `${(n / 1000).toFixed(1)}k views`;
+  return `${n} ${n === 1 ? "view" : "views"}`;
+}
+
+function formatResourceType(type: string): string {
+  if (type === "PYQ") return "PYQ";
+  if (type === "CHEAT_SHEET") return "Cheat Sheet";
+  return (type || "Notes").replace("_", " ");
+}
+
+const MEDALS = ["🥇", "🥈", "🥉"];
 
 export function AcademicContextRail({
   onSelectTopic,
@@ -60,6 +65,16 @@ export function AcademicContextRail({
   playlistsError,
 }: AcademicContextRailProps) {
   const scrollRef = useScrollIsolation<HTMLElement>();
+  const { data: trendingData } = useSWR<{ items: TrendingItem[] }>(
+    "/api/academics/trending?scope=campus&limit=4",
+    fetcher
+  );
+  const { data: uploadersData } = useSWR<{ uploaders: TopUploader[] }>(
+    "/api/academics/top-uploaders",
+    fetcher
+  );
+  const trendingItems = trendingData?.items || [];
+  const topUploaders = uploadersData?.uploaders || [];
 
   return (
     <aside
@@ -67,7 +82,7 @@ export function AcademicContextRail({
       className="hidden xl:flex flex-col gap-4.5 w-72 shrink-0 select-none sticky top-4 h-[calc(100vh-2rem)] max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain no-scrollbar pr-1 pb-16"
     >
       {/* ─── 1. Personalized Context Pill ─── */}
-      <div className="rounded-2xl border border-border/40 bg-card/60 backdrop-blur-md p-4 space-y-2">
+      <div className="rounded-xl border border-border bg-surface p-4 space-y-2">
         <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
           <Sparkles className="size-3.5 text-primary" />
           <span>Recommended for You</span>
@@ -79,52 +94,97 @@ export function AcademicContextRail({
       </div>
 
       {/* ─── 2. Popular This Week ─── */}
-      <div className="rounded-2xl border border-border/40 bg-card/60 backdrop-blur-md p-4 space-y-3">
+      <div className="rounded-xl border border-border bg-surface p-4 space-y-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-muted-foreground">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-fg-muted">
             <TrendingUp className="size-3.5 text-primary" />
             <span>Popular this week</span>
           </div>
         </div>
 
         <div className="space-y-1 divide-y divide-border/20 -mx-1">
-          {POPULAR_THIS_WEEK.map((item) => (
-            <button
-              key={item.code}
-              type="button"
-              onClick={() => {
-                sounds.tap();
-                if (onSelectTopic) onSelectTopic(item.code);
-              }}
-              className="w-full pt-2 first:pt-0 pb-1 px-1 flex items-start justify-between text-left hover:bg-muted/40 rounded-xl transition-colors cursor-pointer group"
-            >
-              <div className="min-w-0 pr-2">
-                <div className="flex items-center gap-1.5">
-                  <span className="font-mono text-xs font-bold text-primary group-hover:underline">
-                    {item.code}
-                  </span>
-                  <span className="text-[10px] text-muted-foreground/70">·</span>
-                  <span className="text-[10px] font-semibold text-muted-foreground">
-                    {item.tag}
-                  </span>
+          {trendingItems.length === 0 ? (
+            <p className="px-1 py-2 text-[11px] text-muted-foreground">
+              Be the first to upload trending notes this week.
+            </p>
+          ) : (
+            trendingItems.map((item) => (
+              <Link
+                key={item.id}
+                href={`/academics/study-material/${item.id}`}
+                onClick={() => {
+                  sounds.tap();
+                  if (onSelectTopic) onSelectTopic(item.subjectCode);
+                }}
+                className="w-full pt-2 first:pt-0 pb-1 px-1 flex items-start justify-between text-left hover:bg-muted/40 rounded-xl transition-colors cursor-pointer group"
+              >
+                <div className="min-w-0 pr-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-mono text-xs font-bold text-primary group-hover:underline">
+                      {item.subjectCode}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground/70">·</span>
+                    <span className="text-[10px] font-semibold text-muted-foreground">
+                      {formatResourceType(item.resourceType)}
+                    </span>
+                  </div>
+                  <p className="text-xs font-medium text-foreground truncate mt-0.5">{item.subjectName}</p>
                 </div>
-                <p className="text-xs font-medium text-foreground truncate mt-0.5">
-                  {item.name}
-                </p>
-              </div>
-              <span className="text-[10px] text-muted-foreground/60 shrink-0 tabular-nums">
-                {item.views}
-              </span>
-            </button>
-          ))}
+                <span className="text-[10px] text-muted-foreground/60 shrink-0 tabular-nums">
+                  {formatViews(item.viewsCount)}
+                </span>
+              </Link>
+            ))
+          )}
         </div>
       </div>
 
+      {/* ─── 2b. Top Contributors (leaderboard / gamification) ─── */}
+      <div className="rounded-xl border border-border bg-surface p-4 space-y-3">
+        <div className="flex items-center gap-1.5 text-xs font-semibold text-fg-muted">
+          <Trophy className="size-3.5 text-reward" />
+          <span>Top Contributors</span>
+        </div>
+
+        {topUploaders.length === 0 ? (
+          <p className="text-[11px] text-muted-foreground">
+            Upload your first resource to top the leaderboard.
+          </p>
+        ) : (
+          <div className="space-y-1.5">
+            {topUploaders.slice(0, 5).map((u, idx) => (
+              <Link
+                key={u.id}
+                href={`/@${u.username}?tab=academics`}
+                onClick={() => sounds.tap()}
+                className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-muted/40 transition-colors group"
+              >
+                <span className="w-5 text-center text-xs shrink-0">{MEDALS[idx] || idx + 1}</span>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={getAvatarUrl(u.avatarUrl, u.username)}
+                  alt=""
+                  className="size-6.5 rounded-full border border-border/40 shrink-0"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">
+                    {u.displayName}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground truncate">
+                    {u.uploadCount} {u.uploadCount === 1 ? "upload" : "uploads"} · {u.totalUpvotes} helpful
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* ─── 3. Curated Study Stacks / Playlists ─── */}
-      <div className="rounded-2xl border border-border/40 bg-card/60 backdrop-blur-md p-4 space-y-3">
+      <div className="rounded-xl border border-border bg-surface p-4 space-y-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-muted-foreground">
-            <FolderPlus className="size-3.5 text-indigo-400" />
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-fg-muted">
+            <FolderPlus className="size-3.5 text-brand-text" />
             <span>Study Playlists</span>
           </div>
           <Link

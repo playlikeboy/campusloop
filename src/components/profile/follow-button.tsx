@@ -80,11 +80,11 @@ export function FollowButton({
       disabled={isPending}
       aria-pressed={isFollowing}
       className={cn(
-        "inline-flex items-center justify-center gap-1.5 rounded-full font-bold shadow-2xs transition-all active:scale-95 cursor-pointer disabled:opacity-70 disabled:cursor-wait",
+        "inline-flex items-center justify-center gap-1.5 rounded-full font-bold shadow-2xs transition-[opacity,transform] active:scale-95 cursor-pointer disabled:opacity-70 disabled:cursor-wait",
         size === "sm" ? "h-8 px-3.5 text-xs" : "h-9 px-4 text-xs",
         isFollowing
           ? "border border-border/80 bg-transparent text-foreground hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
-          : "bg-primary text-white font-bold hover:opacity-90 shadow-xs shadow-emerald-500/25",
+          : "bg-primary text-white font-bold hover:opacity-90 shadow-xs",
         className
       )}
     >

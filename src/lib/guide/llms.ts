@@ -22,6 +22,11 @@ export function buildLlmsTxt(): string {
     `- [For investors](${SITE_URL}/investors): problem, solution, moats, revenue, growth`,
     `- [About](${SITE_URL}/about)`,
     "",
+    "## Developers",
+    `- [Login with CampusLoop docs](${SITE_URL}/developers): OpenID Connect provider that verifies Indian college students; quickstarts for Better Auth, Auth.js, Express, Django, Flask, Spring, Rails, Laravel, Go, Expo, Flutter`,
+    `- [Agent skill: Login with CampusLoop](${SITE_URL}/developers/SKILL.md): step-by-step setup instructions for AI coding agents`,
+    `- [OpenID configuration](${SITE_URL}/.well-known/openid-configuration)`,
+    "",
   ];
   for (const cat of GUIDE_CATEGORIES) {
     lines.push(`## ${cat.name}`);

@@ -45,7 +45,7 @@ export function ScrollToTop({ threshold = 1200, className }: { threshold?: numbe
         window.scrollTo({ top: 0, behavior: "smooth" });
       }}
       className={cn(
-        "fixed bottom-24 right-4 z-40 flex size-11 items-center justify-center rounded-full border border-border/60 bg-card/95 text-foreground shadow-lg backdrop-blur-xl transition-all duration-200 cursor-pointer hover:bg-muted active:scale-90 md:bottom-8 md:right-8",
+        "fixed bottom-24 right-4 z-40 flex size-11 items-center justify-center rounded-full bg-surface-raised/95 text-fg shadow-lg backdrop-blur-xl transition-[opacity,transform] duration-200 cursor-pointer hover:bg-surface-muted active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg md:bottom-8 md:right-8",
         visible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-3 opacity-0",
         className
       )}

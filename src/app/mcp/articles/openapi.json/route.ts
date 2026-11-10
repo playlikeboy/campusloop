@@ -25,7 +25,7 @@ export async function GET(req: Request) {
       contact: {
         name: "CampusLoop Editorial & Articles Team",
         url: "https://campusloop.space/articles",
-        email: "support@mail.campsy.app",
+        email: "support@mail.campusloop.space",
       },
     },
     servers: [

@@ -414,7 +414,7 @@ export function AcademicsSearchClient({
                   setViewMode("grid");
                 }}
                 className={cn(
-                  "p-1.5 rounded-full transition-all cursor-pointer",
+                  "p-1.5 rounded-full transition-ui cursor-pointer",
                   viewMode === "grid"
                     ? "bg-background text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
@@ -430,7 +430,7 @@ export function AcademicsSearchClient({
                   setViewMode("list");
                 }}
                 className={cn(
-                  "p-1.5 rounded-full transition-all cursor-pointer",
+                  "p-1.5 rounded-full transition-ui cursor-pointer",
                   viewMode === "list"
                     ? "bg-background text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
@@ -448,7 +448,7 @@ export function AcademicsSearchClient({
                 sounds.tap();
                 haptics.light();
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 active:scale-95 transition-all shadow-xs cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 active:scale-95 transition-ui shadow-xs cursor-pointer"
             >
               <Upload className="size-3.5" />
               <span className="hidden sm:inline">Contribute Notes</span>
@@ -474,7 +474,7 @@ export function AcademicsSearchClient({
               onFocus={() => setIsFocused(true)}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Search notes, subjects, course codes…"
-              className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 focus:border-primary/60 focus:bg-background focus:ring-0 pl-10 pr-24 text-xs sm:text-sm font-medium placeholder:text-muted-foreground/60 outline-none transition-all text-foreground shadow-xs"
+              className="w-full h-11 rounded-2xl bg-muted/40 border border-border/50 focus:border-primary/60 focus:bg-background focus:ring-0 pl-10 pr-24 text-xs sm:text-sm font-medium placeholder:text-muted-foreground/60 outline-none transition-ui text-foreground shadow-xs"
             />
             <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
               {searchInput && (
@@ -489,7 +489,7 @@ export function AcademicsSearchClient({
               )}
               <button
                 type="submit"
-                className="px-2.5 py-1 rounded-xl bg-primary text-primary-foreground text-[11px] font-bold hover:opacity-90 active:scale-95 transition-all cursor-pointer shadow-xs"
+                className="px-2.5 py-1 rounded-xl bg-primary text-primary-foreground text-[11px] font-bold hover:opacity-90 active:scale-95 transition-ui cursor-pointer shadow-xs"
               >
                 Search
               </button>
@@ -542,7 +542,7 @@ export function AcademicsSearchClient({
                 {/* Popular Curriculum Codes */}
                 <div className="space-y-1.5">
                   <div className="text-[11px] font-bold text-muted-foreground px-1 flex items-center gap-1.5">
-                    <Sparkles className="size-3 text-amber-500" />
+                    <Sparkles className="size-3 text-brand-text" />
                     Curriculum Subject Codes
                   </div>
                   <div className="flex flex-wrap gap-1.5">
@@ -551,7 +551,7 @@ export function AcademicsSearchClient({
                         key={item.code}
                         type="button"
                         onClick={() => handleSelectQuery(item.code)}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-primary/10 hover:bg-primary/15 text-primary text-xs font-bold border border-primary/20 transition-all cursor-pointer"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-primary/10 hover:bg-primary/15 text-primary text-xs font-bold border border-primary/20 transition-ui cursor-pointer"
                       >
                         <span>{item.code}</span>
                         <span className="text-[10px] text-muted-foreground font-normal">({item.label})</span>
@@ -646,13 +646,13 @@ export function AcademicsSearchClient({
                   setSelectedScope("global");
                 }}
                 className={cn(
-                  "flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer",
+                  "flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition-ui cursor-pointer",
                   selectedScope === "global"
                     ? "bg-background text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
-                <Globe className="size-3 text-sky-500" />
+                <Globe className="size-3 text-brand-text" />
                 <span>All India</span>
               </button>
               <button
@@ -663,13 +663,13 @@ export function AcademicsSearchClient({
                   setSelectedScope("campus");
                 }}
                 className={cn(
-                  "flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer",
+                  "flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition-ui cursor-pointer",
                   selectedScope === "campus"
                     ? "bg-background text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
-                <Building2 className="size-3 text-amber-500" />
+                <Building2 className="size-3 text-fg-muted" />
                 <span>My College</span>
               </button>
             </div>
@@ -875,7 +875,7 @@ export function AcademicsSearchClient({
                 </span>
               )}
               {selectedScope === "campus" && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-bold">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-brand-subtle text-brand-text text-[10px] font-bold">
                   My Campus
                   <button
                     type="button"
@@ -930,7 +930,7 @@ export function AcademicsSearchClient({
                   <Link
                     href="/academics/study-material/playlists/new"
                     onClick={() => sounds.tap()}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-all shadow-xs cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-ui shadow-xs cursor-pointer"
                   >
                     <Library className="size-3.5" />
                     <span>Create Study Playlist</span>
@@ -1045,7 +1045,7 @@ export function AcademicsSearchClient({
               <Link
                 href="/academics/study-material/upload"
                 onClick={() => sounds.tap()}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-all shadow-xs cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-ui shadow-xs cursor-pointer"
               >
                 <Upload className="size-3.5" />
                 <span>Upload Missing Notes</span>

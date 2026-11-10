@@ -5,7 +5,7 @@ import { hexclaveServerApp } from "@/hexclave/server";
 import { MyTicketsClient } from "./my-tickets-client";
 
 export const metadata: Metadata = {
-  title: "My Event Tickets & Passes | CampusLoop",
+  title: "My Event Tickets & Passes",
   description: "View and manage your registered passes for college hackathons, fests, and workshops on CampusLoop.",
 };
 

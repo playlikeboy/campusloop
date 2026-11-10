@@ -1,215 +1,37 @@
 "use client";
 
 import {
-  Activity,
   ArrowRight,
-  BookOpen,
-  FileText,
-  Ghost,
-  LayoutDashboard,
-  Link2,
-  Megaphone,
-  MessageSquare,
-  RotateCw,
-  School,
-  ScrollText,
   Search,
-  Server,
-  Settings,
-  ShieldAlert,
-  ShoppingBag,
-  TrendingUp,
-  Users,
   X,
-  Zap,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
+import { ADMIN_NAV_SECTIONS } from "./admin-sidebar";
 
 interface SearchItem {
   id: string;
   title: string;
   description: string;
-  category: "Operations" | "Content" | "Integrations" | "System";
+  category: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
   keywords?: string[];
 }
 
-const SEARCH_ITEMS: SearchItem[] = [
-  {
-    id: "dashboard",
-    title: "Dashboard Overview",
-    description: "Real-time network telemetry, active users, and KPI summaries",
-    category: "Operations",
-    href: "/admin",
-    icon: LayoutDashboard,
-    keywords: ["home", "kpi", "overview", "stats"],
-  },
-  {
-    id: "review",
-    title: "Review Queue",
-    description: "Quarantined and auto-flagged posts awaiting human moderation",
-    category: "Operations",
-    href: "/admin/review",
-    icon: ShieldAlert,
-    keywords: ["flagged", "pending", "queue", "safety", "toxic"],
-  },
-  {
-    id: "reports",
-    title: "Content Reports",
-    description: "Student-reported posts, abuse reasons, and triage actions",
-    category: "Operations",
-    href: "/admin/reports",
-    icon: ShieldAlert,
-    keywords: ["violations", "complaints", "flags", "triage"],
-  },
-  {
-    id: "confessions",
-    title: "Sealed Confessions",
-    description: "Anonymous confession moderation with zero identity disclosure",
-    category: "Operations",
-    href: "/admin/confessions",
-    icon: Ghost,
-    keywords: ["anon", "anonymous", "whispers", "secrets"],
-  },
-  {
-    id: "posts",
-    title: "Posts Management",
-    description: "Search, filter, unlist, or hide authentic and seeded campus posts",
-    category: "Content",
-    href: "/admin/posts",
-    icon: FileText,
-    keywords: ["timeline", "content", "unlisted", "seeded", "publish"],
-  },
-  {
-    id: "comments",
-    title: "Comments Moderation",
-    description: "Threaded discussion moderation and comment removals",
-    category: "Content",
-    href: "/admin/comments",
-    icon: MessageSquare,
-    keywords: ["replies", "discussions", "chat"],
-  },
-  {
-    id: "users",
-    title: "User Directory & Analytics",
-    description: "Student profiles, campus affiliations, roles, suspensions",
-    category: "Content",
-    href: "/admin/users",
-    icon: Users,
-    keywords: ["students", "profiles", "bans", "suspensions", "moderators"],
-  },
-  {
-    id: "colleges",
-    title: "Campus Hubs & Colleges",
-    description: "1,350+ indexed Indian college hubs, email domains, NIRF ranks",
-    category: "Content",
-    href: "/admin/colleges",
-    icon: School,
-    keywords: ["institutions", "universities", "domains", "nirf", "campus"],
-  },
-  {
-    id: "academics",
-    title: "Academics Vault",
-    description: "Resource moderation, PYQ notes, syllabus verification",
-    category: "Content",
-    href: "/admin/academics",
-    icon: BookOpen,
-    keywords: ["notes", "pyqs", "study", "vault"],
-  },
-  {
-    id: "feed-curation",
-    title: "Feed Curation & Boosts",
-    description: "Editorial pinned posts and algorithm multiplier controls",
-    category: "Content",
-    href: "/admin/feed",
-    icon: TrendingUp,
-    keywords: ["boosts", "algorithm", "curation", "ranking"],
-  },
-  {
-    id: "broadcasts",
-    title: "Campus Broadcasts",
-    description: "Platform-wide emergency broadcasts and announcements",
-    category: "Content",
-    href: "/admin/broadcasts",
-    icon: Megaphone,
-    keywords: ["announcements", "notifications", "alerts", "emergency"],
-  },
-  {
-    id: "reddit",
-    title: "Reddit Ingestion Studio",
-    description: "Fetch discussions from university subreddits into campus feeds",
-    category: "Integrations",
-    href: "/admin/composio",
-    icon: Zap,
-    keywords: ["reddit", "btechtards", "fetch", "import", "composio"],
-  },
-  {
-    id: "jobs",
-    title: "Background Jobs & Pipelines",
-    description: "Async ingestion runs, cache purges, webhooks, and telemetry exports",
-    category: "Integrations",
-    href: "/admin/jobs",
-    icon: RotateCw,
-    keywords: ["async", "queue", "tasks", "pipeline", "cron"],
-  },
-  {
-    id: "marketplace",
-    title: "Marketplace & Merchants",
-    description: "Night canteens, campus shops, student rentals, and orders",
-    category: "Integrations",
-    href: "/admin/marketplace",
-    icon: ShoppingBag,
-    keywords: ["shops", "stores", "food", "rentals", "orders"],
-  },
-  {
-    id: "links",
-    title: "Short Links & Embeds",
-    description: "URL shorteners, ref trackers, and rich media inspectors",
-    category: "Integrations",
-    href: "/admin/links",
-    icon: Link2,
-    keywords: ["urls", "shortener", "refs", "embeds"],
-  },
-  {
-    id: "system",
-    title: "System Health Matrix",
-    description: "Database, Redis, Qdrant, auth, CDN latency checks and diagnostic status",
-    category: "System",
-    href: "/admin/system",
-    icon: Server,
-    keywords: ["health", "latency", "neon", "redis", "qdrant", "cloudflare"],
-  },
-  {
-    id: "analytics",
-    title: "Analytics & Platform Pulse",
-    description: "Engagement velocity, daily active students, and retention",
-    category: "System",
-    href: "/admin/analytics",
-    icon: Activity,
-    keywords: ["metrics", "growth", "active", "charts"],
-  },
-  {
-    id: "audit",
-    title: "Audit Log Trail",
-    description: "Immutable log of every admin mutation and identity reveal",
-    category: "System",
-    href: "/admin/audit",
-    icon: ScrollText,
-    keywords: ["security", "log", "moderator", "reveals", "compliance"],
-  },
-  {
-    id: "settings",
-    title: "Admin Settings",
-    description: "Platform safety rules, keyword blocklists, and notification webhooks",
-    category: "System",
-    href: "/admin/settings",
-    icon: Settings,
-    keywords: ["config", "rules", "filters", "webhooks", "keys"],
-  },
-];
+/** Derived from the sidebar so search never lists pages that no longer exist. */
+const SEARCH_ITEMS: SearchItem[] = ADMIN_NAV_SECTIONS.flatMap((section) =>
+  section.items.map((item) => ({
+    id: item.href,
+    title: item.label,
+    description: item.desc,
+    category: section.title,
+    href: item.href,
+    icon: item.icon,
+    keywords: item.keywords,
+  }))
+);
 
 interface AdminGlobalSearchProps {
   isOpen: boolean;

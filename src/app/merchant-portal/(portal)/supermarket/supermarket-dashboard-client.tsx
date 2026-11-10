@@ -91,13 +91,13 @@ export function SupermarketDashboardClient() {
       {/* ─── Top Mart Store Status & Actions ─── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-3xl bg-card border border-border shadow-xs">
         <div className="flex items-center gap-3.5">
-          <div className="size-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-black">
+          <div className="size-12 rounded-2xl bg-warning-subtle text-warning flex items-center justify-center font-bold">
             <ShoppingBag className="size-6" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-lg font-black text-foreground">{merchant?.name || "Campus Supermarket"}</h1>
-              <span className="px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-500 text-[10px] font-black uppercase">
+              <h1 className="text-lg font-bold text-foreground">{merchant?.name || "Campus Supermarket"}</h1>
+              <span className="px-2 py-0.5 rounded-full bg-warning-subtle text-warning text-[10px] font-bold">
                 Mart Mode
               </span>
             </div>
@@ -113,10 +113,10 @@ export function SupermarketDashboardClient() {
             disabled={updatingStoreOpen}
             onClick={handleToggleStoreOpen}
             className={cn(
-              "flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-black transition-all cursor-pointer shadow-xs disabled:opacity-50",
+              "flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-bold transition-colors cursor-pointer shadow-xs disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
               merchant?.isOpen
-                ? "bg-emerald-500 text-black hover:bg-emerald-400"
-                : "bg-rose-500 text-white hover:bg-rose-600"
+                ? "bg-success text-black hover:opacity-90"
+                : "bg-danger text-danger-fg hover:opacity-90"
             )}
           >
             <Power className="size-3.5 stroke-3" />
@@ -125,7 +125,7 @@ export function SupermarketDashboardClient() {
 
           <Link
             href="/merchant-portal/products/new"
-            className="flex items-center gap-1 px-3.5 py-2 rounded-2xl bg-foreground text-background text-xs font-black hover:opacity-90 transition-opacity"
+            className="flex items-center gap-1 px-3.5 py-2 rounded-2xl bg-foreground text-background text-xs font-bold hover:opacity-90 transition-opacity"
           >
             <Plus className="size-3.5 stroke-3" />
             <span>Add Item</span>
@@ -136,26 +136,26 @@ export function SupermarketDashboardClient() {
       {/* ─── Metric Highlights ─── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
         <div className="p-4 rounded-2xl bg-card border border-border space-y-1 shadow-xs">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+          <p className="text-[11px] font-bold text-muted-foreground">
             Today&apos;s Revenue
           </p>
-          <p className="text-2xl font-black text-emerald-500">₹{stats.todayRevenue || 0}</p>
+          <p className="text-2xl font-bold text-success">₹{stats.todayRevenue || 0}</p>
         </div>
         <div className="p-4 rounded-2xl bg-card border border-border space-y-1 shadow-xs">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+          <p className="text-[11px] font-bold text-muted-foreground">
             Orders Packed
           </p>
-          <p className="text-2xl font-black text-foreground">{stats.todayOrdersCount || 0}</p>
+          <p className="text-2xl font-bold text-foreground">{stats.todayOrdersCount || 0}</p>
         </div>
         <div className="p-4 rounded-2xl bg-card border border-border space-y-1 shadow-xs">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+          <p className="text-[11px] font-bold text-muted-foreground">
             Total Mart SKUs
           </p>
-          <p className="text-2xl font-black text-foreground">{products.length}</p>
+          <p className="text-2xl font-bold text-foreground">{products.length}</p>
         </div>
         <div className="p-4 rounded-2xl bg-card border border-border space-y-1 shadow-xs">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Out of Stock</p>
-          <p className={cn("text-2xl font-black", outOfStockCount > 0 ? "text-rose-500" : "text-foreground")}>
+          <p className="text-[11px] font-bold text-muted-foreground">Out of Stock</p>
+          <p className={cn("text-2xl font-bold", outOfStockCount > 0 ? "text-danger" : "text-foreground")}>
             {outOfStockCount}
           </p>
         </div>
@@ -165,8 +165,8 @@ export function SupermarketDashboardClient() {
       <div className="space-y-3">
         <div className="flex items-center justify-between px-1">
           <div className="flex items-center gap-2">
-            <Package className="size-4.5 text-amber-500" />
-            <h2 className="text-sm font-black text-foreground uppercase tracking-wider">
+            <Package className="size-4.5 text-warning" />
+            <h2 className="text-sm font-bold text-foreground">
               Pending Orders for Packing ({incomingOrders.length})
             </h2>
           </div>
@@ -188,11 +188,11 @@ export function SupermarketDashboardClient() {
               return (
                 <div
                   key={order.id}
-                  className="p-5 rounded-3xl border border-amber-500/30 bg-card shadow-md space-y-4 relative overflow-hidden"
+                  className="p-5 rounded-3xl border border-warning/30 bg-card shadow-md space-y-4 relative overflow-hidden"
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-xs font-black text-foreground">Order #{order.orderNumber}</span>
+                      <span className="text-xs font-bold text-foreground">Order #{order.orderNumber}</span>
                       <p className="text-[11px] text-muted-foreground">
                         {order.deliveryAddress?.hostelName
                           ? `${order.deliveryAddress.hostelName} · Room ${order.deliveryAddress.roomNumber}`
@@ -200,20 +200,20 @@ export function SupermarketDashboardClient() {
                       </p>
                     </div>
 
-                    <span className="px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 font-black text-[10px] uppercase tracking-wider animate-pulse">
+                    <span className="px-2.5 py-0.5 rounded-full bg-warning-subtle text-warning font-bold text-[10px] animate-pulse">
                       {order.status}
                     </span>
                   </div>
 
                   {/* Item Checklist for Mart Picker */}
                   <div className="bg-muted/40 p-3 rounded-2xl border border-border/60 space-y-1.5 text-xs">
-                    <p className="text-[10px] font-black uppercase text-muted-foreground">
+                    <p className="text-[10px] font-bold text-muted-foreground">
                       Pick &amp; Bag Checklist:
                     </p>
                     {(order.items || []).map((item: any) => (
                       <div key={item.id} className="flex items-center justify-between font-medium">
                         <span>
-                          <strong className="font-black text-foreground">{item.quantity}x</strong> {item.name}
+                          <strong className="font-bold text-foreground">{item.quantity}x</strong> {item.name}
                         </span>
                         <span className="text-muted-foreground">₹{item.price * item.quantity}</span>
                       </div>
@@ -221,7 +221,7 @@ export function SupermarketDashboardClient() {
                   </div>
 
                   <div className="flex items-center justify-between pt-1">
-                    <span className="text-sm font-black text-foreground">Total: ₹{order.total}</span>
+                    <span className="text-sm font-bold text-foreground">Total: ₹{order.total}</span>
 
                     {/* Step Transitions: PLACED -> PREPARING (PACKING) -> READY -> OUT_FOR_DELIVERY */}
                     <div className="flex items-center gap-2">
@@ -230,7 +230,7 @@ export function SupermarketDashboardClient() {
                           type="button"
                           disabled={isActioning}
                           onClick={() => handleUpdateOrderStatus(order.id, "PREPARING")}
-                          className="px-3.5 py-1.5 rounded-xl bg-amber-500 text-black text-xs font-black hover:bg-amber-400 cursor-pointer disabled:opacity-50"
+                          className="px-3.5 py-1.5 rounded-xl bg-warning text-black text-xs font-bold hover:opacity-90 cursor-pointer disabled:opacity-50"
                         >
                           Start Packing
                         </button>
@@ -241,7 +241,7 @@ export function SupermarketDashboardClient() {
                           type="button"
                           disabled={isActioning}
                           onClick={() => handleUpdateOrderStatus(order.id, "READY")}
-                          className="px-3.5 py-1.5 rounded-xl bg-blue-500 text-white text-xs font-black hover:bg-blue-600 cursor-pointer disabled:opacity-50"
+                          className="px-3.5 py-1.5 rounded-xl bg-brand text-brand-fg text-xs font-bold hover:bg-brand-hover cursor-pointer disabled:opacity-50"
                         >
                           Bag Packed
                         </button>
@@ -252,7 +252,7 @@ export function SupermarketDashboardClient() {
                           type="button"
                           disabled={isActioning}
                           onClick={() => handleUpdateOrderStatus(order.id, "OUT_FOR_DELIVERY")}
-                          className="px-3.5 py-1.5 rounded-xl bg-emerald-500 text-black text-xs font-black hover:bg-emerald-400 cursor-pointer disabled:opacity-50 flex items-center gap-1"
+                          className="px-3.5 py-1.5 rounded-xl bg-success text-black text-xs font-bold hover:opacity-90 cursor-pointer disabled:opacity-50 flex items-center gap-1"
                         >
                           <Truck className="size-3" />
                           <span>Dispatch</span>
@@ -266,8 +266,8 @@ export function SupermarketDashboardClient() {
           </div>
         ) : (
           <div className="p-8 rounded-3xl border border-dashed border-border bg-card/40 text-center space-y-2">
-            <Check className="size-8 text-emerald-500 mx-auto" />
-            <h3 className="text-xs font-black text-foreground">All Mart Orders Packed!</h3>
+            <Check className="size-8 text-success mx-auto" />
+            <h3 className="text-xs font-bold text-foreground">All Mart Orders Packed!</h3>
             <p className="text-[11px] text-muted-foreground">
               New incoming customer orders will appear here automatically with instant audio alerts.
             </p>
@@ -279,7 +279,7 @@ export function SupermarketDashboardClient() {
       <div className="p-5 rounded-3xl border border-border bg-card space-y-3 shadow-xs">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-sm font-black text-foreground">Mart Inventory Matrix</h3>
+            <h3 className="text-sm font-bold text-foreground">Mart Inventory Matrix</h3>
             <p className="text-xs text-muted-foreground">Quickly view or toggle out-of-stock items</p>
           </div>
 
@@ -307,8 +307,8 @@ export function SupermarketDashboardClient() {
 
               <span
                 className={cn(
-                  "px-2 py-0.5 rounded-md text-[10px] font-black uppercase",
-                  p.isAvailable ? "bg-emerald-500/15 text-emerald-500" : "bg-rose-500/15 text-rose-500"
+                  "px-2 py-0.5 rounded-md text-[10px] font-bold",
+                  p.isAvailable ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger"
                 )}
               >
                 {p.isAvailable ? "IN STOCK" : "OUT"}

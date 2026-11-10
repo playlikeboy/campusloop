@@ -50,7 +50,7 @@ export function CollegeRequestClient() {
             <div className="mb-4 flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
               <GraduationCap className="size-6" />
             </div>
-            <h1 className="text-2xl font-black tracking-tight sm:text-3xl">Is your college missing?</h1>
+            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Is your college missing?</h1>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
               Tell us the official student email domain. We&apos;ll review the institution and add its email pattern to the CampusLoop college index.
             </p>
@@ -58,10 +58,10 @@ export function CollegeRequestClient() {
 
           {submitted ? (
             <div className="p-6 text-center sm:p-8">
-              <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500">
+              <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-success-subtle text-success">
                 <CheckCircle2 className="size-7" />
               </div>
-              <h2 className="mt-4 text-xl font-black">Request received</h2>
+              <h2 className="mt-4 text-xl font-bold">Request received</h2>
               <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-muted-foreground">
                 Thanks. We&apos;ve received the college and email-domain details and will review the request.
               </p>
@@ -117,7 +117,7 @@ export function CollegeRequestClient() {
                 </div>
               </div>
 
-              <Button type="submit" disabled={submitting} className="h-11 w-full rounded-xl font-black">
+              <Button type="submit" disabled={submitting} className="h-11 w-full rounded-xl font-bold">
                 <Send className="size-4" />
                 {submitting ? "Submitting…" : "Request college indexing"}
               </Button>

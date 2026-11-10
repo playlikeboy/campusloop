@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export function DatingCardSkeleton() {
   return (
     <div className="relative mx-auto flex h-full w-full max-w-sm flex-col gap-4 py-1 select-none" aria-label="Loading student profiles">
-      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-[28px] bg-card shadow-lg">
+      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl bg-card shadow-lg">
         <div className="relative min-h-[48%] flex-1 overflow-hidden bg-muted/40 skeleton-shimmer">
           <div className="absolute inset-x-4 top-4 flex gap-1.5">
             <Skeleton className="h-1 flex-1 rounded-full bg-white/45" />

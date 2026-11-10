@@ -168,7 +168,7 @@ export function MerchantLoginClient() {
             <button
               type="submit"
               disabled={isLoading || !username || !password}
-              className="w-full h-11 rounded-2xl bg-foreground text-background text-xs font-black flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.99] transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-sm"
+              className="w-full h-11 rounded-2xl bg-foreground text-background text-xs font-black flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.99] transition-ui disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-sm"
             >
               {isLoading ? (
                 <>

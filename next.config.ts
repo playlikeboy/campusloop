@@ -44,6 +44,15 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
+        // Login with CampusLoop consent screen must never be framed (clickjacking).
+        source: "/oauth/:path*",
+        headers: [
+          { key: "Content-Security-Policy", value: "frame-ancestors 'none'" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Referrer-Policy", value: "no-referrer" },
+        ],
+      },
+      {
         source: "/icons/:path*",
         headers: [
           {

@@ -29,7 +29,7 @@ export function EditorialHeader({ profile }: EditorialHeaderProps) {
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
           <Link
             href="/feeds"
-            className="flex size-8.5 items-center justify-center rounded-full border border-border/40 bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-all cursor-pointer shrink-0"
+            className="flex size-8.5 items-center justify-center rounded-full border border-border/40 bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-ui cursor-pointer shrink-0"
             title="Back to Campus Feed"
           >
             <ArrowLeft className="size-4" />
@@ -54,7 +54,7 @@ export function EditorialHeader({ profile }: EditorialHeaderProps) {
           {profile && (
             <Link
               href="/articles/dashboard"
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/50 bg-card hover:bg-muted text-xs font-semibold text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/50 bg-card hover:bg-muted text-xs font-semibold text-muted-foreground hover:text-foreground transition-ui cursor-pointer"
             >
               <LayoutDashboard className="size-3.5" />
               <span>My Articles</span>
@@ -63,7 +63,7 @@ export function EditorialHeader({ profile }: EditorialHeaderProps) {
 
           <Link
             href="/articles/new"
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-all cursor-pointer active:scale-95"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-ui cursor-pointer active:scale-95"
           >
             <PenTool className="size-3.5" />
             <span>Write</span>

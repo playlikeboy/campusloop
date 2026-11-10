@@ -77,6 +77,7 @@ export const INVESTOR_POINTS = {
     "Campus-by-campus network effects: each new student makes the feed, Vault, matches and marketplace better for their classmates.",
     "Compounding academic content: every upload helps every future batch and brings search traffic.",
     "Safety and moderation infrastructure that is costly to rebuild.",
+    "Login with CampusLoop: an OpenID Connect provider that lets any website verify Indian college students in one tap, turning the verified graph into identity infrastructure other products build on.",
   ],
   revenue: [
     "Marketplace commission and delivery fees on campus orders, paid online through Razorpay.",

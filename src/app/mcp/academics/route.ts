@@ -1,3 +1,4 @@
+import { MCP_DOCS_STYLE } from "../docs-theme";
 import { randomUUID } from "node:crypto";
 import { and, desc, eq, ilike, isNull, or, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
@@ -297,6 +298,7 @@ const MCP_ACADEMIC_TOOLS = [
           default: "SEMESTER_PACK",
         },
         visibility: { type: "string", enum: ["PUBLIC", "UNLISTED", "PRIVATE"], default: "PUBLIC" },
+        // ds-allow: stored DB value, matches the schema default; not a rendered class
         coverGradient: { type: "string", default: "from-slate-900 to-stone-900" },
         tags: { type: "array", items: { type: "string" } },
         isFeatured: { type: "boolean", default: false },
@@ -382,7 +384,7 @@ function getOpenApiSpec(serverUrl = "https://campusloop.space") {
       contact: {
         name: "CampusLoop Academics Team",
         url: "https://campusloop.space/academics",
-        email: "support@mail.campsy.app",
+        email: "support@mail.campusloop.space",
       },
     },
     servers: [
@@ -898,6 +900,7 @@ export async function POST(req: Request) {
           semester: playlistSemester,
           category: playlistCategory,
           visibility: typeof body.visibility === "string" ? body.visibility : "PUBLIC",
+          // ds-allow: stored DB value, matches the schema default; not a rendered class
           coverGradient: typeof body.coverGradient === "string" ? body.coverGradient : "from-slate-900 to-stone-900",
           isFeatured: Boolean(body.isFeatured),
           isVerified: false,
@@ -1539,6 +1542,7 @@ async function handleJsonRpcRequest(req: Request, body: Record<string, unknown>)
         const sameTitle = await db.query.academicPlaylists.findFirst({ where: and(...dupeConditions) });
         if (sameTitle) { const full = await db.query.academicPlaylists.findFirst({ where: eq(academicPlaylists.id, sameTitle.id), with: { institution: { columns: { id: true, name: true, slug: true } }, creator: { columns: { username: true, displayName: true } } } }); return NextResponse.json({ jsonrpc: "2.0", id, result: { content: [{ type: "text", text: JSON.stringify({ success: true, duplicate: true, playlist: formatPlaylist(full || sameTitle) }) }] } }, { headers: CORS_HEADERS }); }
         const resolved = await resolveUploaderAndInstitution(db); if (!resolved.uploaderId) throw new Error("No valid creator profile is configured");
+        // ds-allow: stored DB value, matches the schema default; not a rendered class
         const [created] = await db.insert(academicPlaylists).values({ id: "pl_" + nanoid(12), slug: (slugify(title).slice(0, 60) || "study-pack") + "-" + nanoid(5).toLowerCase(), title, description: typeof args.description === "string" ? args.description.trim().slice(0, 5000) : null, creatorId: resolved.uploaderId, institutionId: resolved.institutionId || null, branch, semester, category, visibility, coverGradient: typeof args.coverGradient === "string" && args.coverGradient.trim() ? args.coverGradient.trim().slice(0, 160) : "from-slate-900 to-stone-900", tags: Array.isArray(args.tags) ? [...new Set(args.tags.filter((tag: unknown): tag is string => typeof tag === "string").map((tag: string) => tag.trim()).filter(Boolean))].slice(0, 30) : [], isFeatured: false, isVerified: args.isVerified === true, itemsCount: 0 }).returning();
         const resourceIds = Array.isArray(args.resourceIds) ? [...new Set(args.resourceIds.filter((value: unknown): value is string => typeof value === "string" && Boolean(value.trim())).map((value: string) => value.trim()))].slice(0, 100) : [];
         let added = 0;
@@ -1738,19 +1742,15 @@ function getDocumentationHtml(): string {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CampusLoop MCP Academic Vault & Notes Engine</title>
+  ${MCP_DOCS_STYLE}
   <style>
     :root {
-      --bg: #09090b;
-      --card: #18181b;
-      --border: #27272a;
-      --primary: #f97316;
-      --foreground: #fafafa;
-      --muted: #a1a1aa;
+      --card: var(--surface);
+      --primary: var(--brand);
+      --foreground: var(--fg);
+      --muted: var(--fg-muted);
     }
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--foreground);
       margin: 0;
       padding: 2rem 1rem;
       line-height: 1.6;
@@ -1764,13 +1764,13 @@ function getDocumentationHtml(): string {
       font-weight: 800;
       letter-spacing: -0.03em;
       margin-bottom: 0.5rem;
-      color: #fff;
+      color: var(--fg);
     }
     .badge {
       display: inline-block;
-      background: rgba(249, 115, 22, 0.15);
-      color: var(--primary);
-      border: 1px solid rgba(249, 115, 22, 0.3);
+      background: var(--brand-subtle);
+      color: var(--brand-text);
+      border: 1px solid var(--brand-subtle-border);
       padding: 0.25rem 0.75rem;
       border-radius: 9999px;
       font-size: 0.8125rem;
@@ -1785,14 +1785,14 @@ function getDocumentationHtml(): string {
       margin-bottom: 1.5rem;
     }
     code {
-      background: #27272a;
+      background: var(--surface-muted);
       padding: 0.2rem 0.4rem;
       border-radius: 0.375rem;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       font-size: 0.875rem;
     }
     pre {
-      background: #121215;
+      background: var(--surface-muted);
       border: 1px solid var(--border);
       padding: 1rem;
       border-radius: 0.75rem;
@@ -1806,14 +1806,14 @@ function getDocumentationHtml(): string {
       margin-top: 1rem;
     }
     .tool-item {
-      background: #202024;
+      background: var(--surface-muted);
       padding: 1rem;
       border-radius: 0.75rem;
       border: 1px solid var(--border);
     }
     .tool-name {
       font-weight: 700;
-      color: var(--primary);
+      color: var(--brand-text);
       font-family: monospace;
       margin-bottom: 0.25rem;
     }
@@ -1825,10 +1825,10 @@ function getDocumentationHtml(): string {
       border-radius: 0.25rem;
       margin-right: 0.5rem;
     }
-    .get { background: #15803d; color: #fff; }
-    .post { background: #0369a1; color: #fff; }
-    .put { background: #b45309; color: #fff; }
-    .delete { background: #b91c1c; color: #fff; }
+    .get { background: var(--success); color: var(--success-fg); }
+    .post { background: var(--brand); color: var(--brand-fg); }
+    .put { background: var(--warning); color: var(--warning-fg); }
+    .delete { background: var(--danger); color: var(--danger-fg); }
   </style>
 </head>
 <body>

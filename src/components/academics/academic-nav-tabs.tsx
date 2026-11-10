@@ -1,6 +1,6 @@
 "use client";
 
-import { Bookmark, FileText, FolderOpen, GraduationCap, Sparkles } from "lucide-react";
+import { Bookmark, FileText, FolderOpen, GraduationCap, Sparkles, TrendingUp } from "lucide-react";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
@@ -21,6 +21,7 @@ interface AcademicNavTabsProps {
 
 const TABS: AcademicTabItem[] = [
   { id: "for_you", label: "For You", icon: Sparkles },
+  { id: "TRENDING", label: "Trending", icon: TrendingUp },
   { id: "NOTES", label: "Notes", icon: FileText },
   { id: "PYQ", label: "PYQs", icon: GraduationCap },
   { id: "PLAYLISTS", label: "Playlists", icon: FolderOpen },
@@ -53,7 +54,7 @@ export function AcademicNavTabs({ activeTab, onTabChange, savedCount, className 
               onTabChange(tab.id);
             }}
             className={cn(
-              "group relative inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-full text-xs sm:text-[13px] font-bold transition-all cursor-pointer shrink-0 whitespace-nowrap",
+              "group relative inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-full text-xs sm:text-[13px] font-bold transition-ui cursor-pointer shrink-0 whitespace-nowrap",
               isSelected
                 ? "bg-foreground text-background shadow-xs font-black"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/50"

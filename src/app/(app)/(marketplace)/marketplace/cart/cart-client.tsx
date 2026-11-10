@@ -69,7 +69,7 @@ export function CartClient() {
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col min-h-screen select-none pb-28">
       {/* ─── Header ─── */}
-      <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border/30 bg-background/85 px-4 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border/30 bg-background/85 px-4 backdrop-blur-sm">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -105,11 +105,11 @@ export function CartClient() {
       <div className="p-4 space-y-5">
         {/* ─── Multi-Merchant Alert Banner ─── */}
         {isMultiMerchant && (
-          <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-xs text-amber-500 flex items-start gap-2.5 leading-relaxed">
+          <div className="p-3.5 rounded-2xl bg-warning-subtle border border-warning text-xs text-warning flex items-start gap-2.5 leading-relaxed">
             <AlertCircle className="size-4 shrink-0 mt-0.5" />
             <div>
               <p className="font-bold">Items from {merchantGroups.length} different stores</p>
-              <p className="text-[11px] text-amber-500/85 mt-0.5">
+              <p className="text-[11px] text-warning mt-0.5">
                 Your cart contains items from multiple stores. They will be placed as separate orders so each
                 merchant can fulfill them directly.
               </p>
@@ -158,7 +158,7 @@ export function CartClient() {
                           </p>
                         )}
                         {item.selectedAddons && item.selectedAddons.length > 0 && (
-                          <p className="text-[10px] text-emerald-500 font-medium mt-0.5">
+                          <p className="text-[10px] text-success font-medium mt-0.5">
                             + {item.selectedAddons.map((a) => a.name).join(", ")}
                           </p>
                         )}
@@ -211,14 +211,14 @@ export function CartClient() {
 
         {/* ─── Bill Summary ─── */}
         <div className="rounded-3xl border border-border/40 bg-card p-4 space-y-2.5 shadow-xs">
-          <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">Bill Summary</h3>
+          <h3 className="text-xs font-bold text-muted-foreground">Bill Summary</h3>
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>Items Total</span>
             <span className="text-foreground font-bold">₹{overallSubtotal.toLocaleString("en-IN")}</span>
           </div>
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
-              <Truck className="size-3.5 text-emerald-500" />
+              <Truck className="size-3.5 text-success" />
               <span>Estimated Delivery Fee</span>
             </span>
             <span className="text-foreground font-bold">
@@ -227,7 +227,7 @@ export function CartClient() {
           </div>
           <div className="pt-2 border-t border-border/30 flex items-center justify-between text-sm font-black text-foreground">
             <span>To Pay</span>
-            <span className="text-base text-emerald-500">₹{grandTotal.toLocaleString("en-IN")}</span>
+            <span className="text-base text-success">₹{grandTotal.toLocaleString("en-IN")}</span>
           </div>
         </div>
 
@@ -239,7 +239,7 @@ export function CartClient() {
               sounds.send();
               haptics.success();
             }}
-            className="w-full h-12 rounded-2xl bg-foreground text-background font-black text-sm hover:opacity-90 active:scale-98 transition-all flex items-center justify-between px-5 shadow-lg cursor-pointer"
+            className="w-full h-12 rounded-2xl bg-foreground text-background font-black text-sm hover:opacity-90 active:scale-98 transition-[opacity,transform] flex items-center justify-between px-5 shadow-lg cursor-pointer"
           >
             <span>Proceed to Checkout</span>
             <div className="flex items-center gap-1.5">

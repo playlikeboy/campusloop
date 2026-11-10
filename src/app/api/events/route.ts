@@ -24,6 +24,8 @@ export async function GET(req: Request) {
     const hasPrizes = searchParams.get("hasPrizes") === "true";
     const query = searchParams.get("q") || "";
     const sort = searchParams.get("sort") || "trending"; // 'trending' | 'closing_soon' | 'highest_prize' | 'upcoming' | 'latest'
+    const limitParam = searchParams.get("limit");
+    const limit = limitParam ? Math.max(1, parseInt(limitParam, 10)) : null;
 
     // Authenticated user session
     let currentProfile = null;
@@ -169,6 +171,9 @@ export async function GET(req: Request) {
     const list = await db.query.events.findMany({
       where: whereClause,
       orderBy: [desc(events.startDate)],
+      // Sorting and status filtering happen in memory below, so fetch a bounded
+      // superset rather than the whole table.
+      limit: 500,
       with: {
         organizer: {
           columns: {
@@ -287,7 +292,9 @@ export async function GET(req: Request) {
 
     // Apply Status Filter if specified
     if (statusFilter !== "ALL") {
-      if (statusFilter === "LIVE") {
+      if (statusFilter === "ACTIVE") {
+        enriched = enriched.filter((e) => !e.isClosed);
+      } else if (statusFilter === "LIVE") {
         enriched = enriched.filter((e) => e.isLiveNow);
       } else if (statusFilter === "CLOSING_SOON") {
         enriched = enriched.filter((e) => e.isClosingSoon);
@@ -303,9 +310,19 @@ export async function GET(req: Request) {
       enriched = enriched.filter((e) => Boolean(e.prizesDescription));
     }
 
+    // Helper to prioritize open events over closed events
+    const prioritizeOpen = (a: any, b: any) => {
+      if (!a.isClosed && b.isClosed) return -1;
+      if (a.isClosed && !b.isClosed) return 1;
+      return 0;
+    };
+
     // Sorting
     if (sort === "trending") {
       enriched.sort((a, b) => {
+        const openDiff = prioritizeOpen(a, b);
+        if (openDiff !== 0) return openDiff;
+
         const regScoreA = Math.log10(1 + (a.attendeeCount || 0)) * 4.0;
         const regScoreB = Math.log10(1 + (b.attendeeCount || 0)) * 4.0;
 
@@ -331,12 +348,18 @@ export async function GET(req: Request) {
       });
     } else if (sort === "closing_soon") {
       enriched.sort((a, b) => {
+        const openDiff = prioritizeOpen(a, b);
+        if (openDiff !== 0) return openDiff;
+
         const deadlineA = a.registrationDeadline ? new Date(a.registrationDeadline).getTime() : Infinity;
         const deadlineB = b.registrationDeadline ? new Date(b.registrationDeadline).getTime() : Infinity;
         return deadlineA - deadlineB;
       });
     } else if (sort === "highest_prize") {
       enriched.sort((a, b) => {
+        const openDiff = prioritizeOpen(a, b);
+        if (openDiff !== 0) return openDiff;
+
         const hasA = Boolean(a.prizesDescription);
         const hasB = Boolean(b.prizesDescription);
         if (hasA && !hasB) return -1;
@@ -344,16 +367,25 @@ export async function GET(req: Request) {
         return (b.attendeeCount || 0) - (a.attendeeCount || 0);
       });
     } else if (sort === "upcoming") {
-      enriched.sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+      enriched.sort((a, b) => {
+        const openDiff = prioritizeOpen(a, b);
+        if (openDiff !== 0) return openDiff;
+        return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+      });
     } else if (sort === "latest") {
-      enriched.sort(
-        (a, b) =>
+      enriched.sort((a, b) => {
+        const openDiff = prioritizeOpen(a, b);
+        if (openDiff !== 0) return openDiff;
+        return (
           new Date(b.createdAt || b.startDate).getTime() - new Date(a.createdAt || a.startDate).getTime()
-      );
+        );
+      });
     }
 
+    const returnedEvents = limit ? enriched.slice(0, limit) : enriched;
+
     return NextResponse.json({
-      events: enriched,
+      events: returnedEvents,
       metrics: {
         totalOpportunities,
         liveHackathons,

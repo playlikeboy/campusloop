@@ -42,6 +42,7 @@ export function BirthdayCard({ student, isToday = false }: BirthdayCardProps) {
       particleCount: 60,
       spread: 75,
       origin: { x, y },
+      // ds-allow: canvas-confetti takes hex only; celebratory burst, not UI chrome
       colors: ["#ec4899", "#8b5cf6", "#3b82f6", "#f59e0b", "#10b981"],
     });
 
@@ -60,9 +61,9 @@ export function BirthdayCard({ student, isToday = false }: BirthdayCardProps) {
 
   return (
     <div
-      className={`group relative flex items-center justify-between p-3.5 sm:p-4 rounded-3xl transition-all duration-300 border-0 ${
+      className={`group relative flex items-center justify-between p-3.5 sm:p-4 rounded-3xl transition-colors duration-300 border-0 ${
         isToday
-          ? "bg-gradient-to-r from-pink-500/10 via-primary/5 to-amber-500/5 shadow-xs"
+          ? "bg-brand-subtle shadow-xs"
           : "bg-card/70 hover:bg-muted/30 shadow-2xs"
       }`}
     >
@@ -75,7 +76,7 @@ export function BirthdayCard({ student, isToday = false }: BirthdayCardProps) {
             </AvatarFallback>
           </Avatar>
           {isToday && (
-            <span className="absolute -bottom-1 -right-1 flex size-5 items-center justify-center rounded-full bg-pink-500 text-white shadow-xs text-[10px] animate-pulse">
+            <span className="absolute -bottom-1 -right-1 flex size-5 items-center justify-center rounded-full bg-danger text-white shadow-xs text-[10px] animate-pulse">
               <Cake className="size-3" />
             </span>
           )}
@@ -110,10 +111,10 @@ export function BirthdayCard({ student, isToday = false }: BirthdayCardProps) {
           <button
             type="button"
             onClick={handleConfetti}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer shadow-xs select-none active:scale-95 border-0 ${
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-transform cursor-pointer shadow-xs select-none active:scale-95 border-0 ${
               wished
-                ? "bg-pink-500/20 text-pink-500"
-                : "bg-pink-500 text-white hover:bg-pink-600 hover:scale-105"
+                ? "bg-danger/20 text-danger"
+                : "bg-danger text-white hover:bg-danger hover:scale-105"
             }`}
           >
             <PartyPopper className="size-3.5" />

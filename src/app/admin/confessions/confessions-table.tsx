@@ -132,7 +132,7 @@ export function ConfessionsTable({
               type="button"
               onClick={() => setStatusFilter(s)}
               className={cn(
-                "px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer",
+                "px-2.5 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer",
                 statusFilter === s
                   ? "bg-primary text-primary-foreground shadow-2xs"
                   : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground"
@@ -170,11 +170,11 @@ export function ConfessionsTable({
                     </span>
                     <span
                       className={cn(
-                        "px-1.5 py-0.5 rounded uppercase font-bold",
+                        "px-1.5 py-0.5 rounded font-bold",
                         item.status === "PUBLISHED"
-                          ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
+                          ? "bg-success-subtle text-success border border-success/20"
                           : item.status === "PENDING_REVIEW"
-                            ? "bg-amber-500/10 text-amber-500 border border-amber-500/20"
+                            ? "bg-warning-subtle text-warning border border-warning/20"
                             : "bg-muted text-muted-foreground"
                       )}
                     >
@@ -195,7 +195,7 @@ export function ConfessionsTable({
 
                 {/* Revealed Identity Notice if applicable */}
                 {revealed[item.id] && (
-                  <div className="p-2.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-[11px] text-blue-400 space-y-0.5">
+                  <div className="p-2.5 rounded-lg bg-brand-subtle border border-brand/20 text-[11px] text-brand-text space-y-0.5">
                     <span className="font-bold flex items-center gap-1">
                       <Shield className="size-3" /> Identity Revealed (Audit Logged)
                     </span>
@@ -218,7 +218,7 @@ export function ConfessionsTable({
                       type="button"
                       disabled={isLoading}
                       onClick={() => handleSetStatus(item.id, "PUBLISHED")}
-                      className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1 cursor-pointer"
+                      className="px-2.5 py-1 rounded-lg bg-success hover:opacity-90 text-success-fg text-xs font-bold flex items-center gap-1 cursor-pointer"
                     >
                       <CheckCircle2 className="size-3" />
                       <span>Publish</span>
@@ -249,7 +249,7 @@ export function ConfessionsTable({
                       type="button"
                       disabled={isLoading}
                       onClick={() => setRevealPostId(item.id)}
-                      className="p-1 rounded-lg hover:bg-blue-500/15 text-muted-foreground hover:text-blue-500 cursor-pointer"
+                      className="p-1 rounded-lg hover:bg-brand-subtle text-muted-foreground hover:text-brand-text cursor-pointer"
                       title="Reveal identity (Requires justification & logs audit trail)"
                     >
                       <Eye className="size-3.5" />
