@@ -32,6 +32,10 @@ jobs:
 
       - name: Unit Tests
         run: bun run test
+        # Route tests read from the real DB (no writes: all POST cases assert 401).
+        env:
+          DB_URL: ${{ secrets.DB_URL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Design System Guard (report)
         run: bun run check:design
