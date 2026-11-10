@@ -18,6 +18,7 @@ const FOOTER_GROUPS = [
     title: "Ecosystem",
     links: [
       { label: "DSALoop (DSA & System Design)", href: "https://dsaloop.campusloop.space" },
+      { label: "Opportunities", href: "https://opportunities.campusloop.space" },
       { label: "baby (Calm AI Journal)", href: "https://baby.campusloop.space" },
       { label: "About baby", href: "https://baby.campusloop.space/about" },
       { label: "Campus AI Assistant", href: "/ai" },
