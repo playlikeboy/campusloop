@@ -1,6 +1,6 @@
 import { HexclaveProvider } from "@hexclave/next";
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Figtree, JetBrains_Mono, Noto_Sans_Devanagari } from "next/font/google";
+import localFont from "next/font/local";
 import { Suspense } from "react";
 import { Toaster } from "sonner";
 import { GoogleAnalyticsScripts, GoogleAnalyticsTracker } from "@/components/analytics/google-analytics";
@@ -15,28 +15,33 @@ import { hexclaveServerApp } from "@/hexclave/server";
 import "./globals.css";
 
 // Display: heavy, slightly condensed captions (sticker headlines). Body/UI: Figtree.
-const bricolage = Bricolage_Grotesque({
-  subsets: ["latin"],
+// Self-hosted variable fonts (no network fetch at build time).
+const bricolage = localFont({
+  src: "./fonts/bricolage-latin.woff2",
   variable: "--font-bricolage",
   display: "swap",
-  axes: ["wdth", "opsz"],
+  weight: "200 800",
+  declarations: [{ prop: "font-stretch", value: "75% 100%" }],
 });
-const figtree = Figtree({
-  subsets: ["latin"],
+const figtree = localFont({
+  src: "./fonts/figtree-latin.woff2",
   variable: "--font-figtree",
   display: "swap",
+  weight: "300 900",
 });
-const devanagari = Noto_Sans_Devanagari({
-  subsets: ["devanagari"],
+const devanagari = localFont({
+  src: "./fonts/noto-devanagari.woff2",
   variable: "--font-devanagari",
   display: "swap",
-  weight: ["400", "500", "600", "700"],
+  weight: "400 700",
+  preload: false,
 });
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
+const jetbrainsMono = localFont({
+  src: "./fonts/jetbrains-mono-latin.woff2",
   variable: "--font-mono-custom",
-  weight: ["400", "500"],
   display: "swap",
+  weight: "400 500",
+  preload: false,
 });
 
 export const viewport: Viewport = {
