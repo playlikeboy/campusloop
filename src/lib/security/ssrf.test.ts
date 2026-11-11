@@ -4,7 +4,7 @@ import { isSafePublicUrl } from "./ssrf";
 describe("isSafePublicUrl SSRF Protection", () => {
   it("allows valid public URLs", () => {
     expect(isSafePublicUrl("https://example.com").safe).toBe(true);
-    expect(isSafePublicUrl("https://github.com/SH20RAJ/campusloop").safe).toBe(true);
+    expect(isSafePublicUrl("https://github.com/playlikeboy/campusloop").safe).toBe(true);
     expect(isSafePublicUrl("http://cdn.university.edu:8080/notes.pdf").safe).toBe(true);
     expect(isSafePublicUrl("https://8.8.8.8/dns-query").safe).toBe(true);
     expect(isSafePublicUrl("https://1.1.1.1").safe).toBe(true);

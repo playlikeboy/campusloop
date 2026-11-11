@@ -114,4 +114,4 @@ These are now live and active:
 - **Live Demo**: `https://campusloop.space/app/atlas`
 - **Public Dataset Query**: `https://sekwib79.api.sanity.io/v2024-03-01/data/query/production?query=*[_type==%22event%22]`
 - **Sanity Context MCP**: `https://sekwib79.api.sanity.io/v2024-03-01/context/mcp`
-- **Agent Session**: `https://github.com/SH20RAJ/campusloop/blob/main/sanity/AGENT_SESSION.md`
+- **Agent Session**: `https://github.com/playlikeboy/campusloop/blob/main/sanity/AGENT_SESSION.md`

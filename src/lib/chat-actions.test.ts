@@ -28,7 +28,7 @@ describe("Chat Media & Links Extractor", () => {
 
   it("extracts hyperlinks from messages and skips pure image URLs", () => {
     const body =
-      "Visit https://campusloop.space and read the docs at https://github.com/SH20RAJ/campusloop also see https://example.com/pic.jpg";
+      "Visit https://campusloop.space and read the docs at https://github.com/playlikeboy/campusloop also see https://example.com/pic.jpg";
     const urlRegex = /(https?:\/\/[^\s]+)/gi;
 
     const matches = body.match(urlRegex) || [];
@@ -36,7 +36,7 @@ describe("Chat Media & Links Extractor", () => {
 
     expect(webLinks).toHaveLength(2);
     expect(webLinks[0]).toBe("https://campusloop.space");
-    expect(webLinks[1]).toBe("https://github.com/SH20RAJ/campusloop");
+    expect(webLinks[1]).toBe("https://github.com/playlikeboy/campusloop");
   });
 
   it("correctly determines host domain from full URL", () => {
@@ -44,7 +44,7 @@ describe("Chat Media & Links Extractor", () => {
     const parsed1 = new URL(url1);
     expect(parsed1.hostname.replace(/^www\./, "")).toBe("campusloop.space");
 
-    const url2 = "https://github.com/SH20RAJ/campusloop";
+    const url2 = "https://github.com/playlikeboy/campusloop";
     const parsed2 = new URL(url2);
     expect(parsed2.hostname.replace(/^www\./, "")).toBe("github.com");
   });

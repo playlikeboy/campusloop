@@ -1,6 +1,6 @@
 # CampusLoop — Fix Everything + Design System v3
 
-A phased brief for Claude Code, written from the October 2026 audit of campusloop.space and the `sh20raj/campusloop` repo (commit `31b89e9`).
+A phased brief for Claude Code, written from the October 2026 audit of campusloop.space and the `playlikeboy/campusloop` repo (commit `31b89e9`).
 
 > Note: `main` has since moved to `b817bbdc` (merged redesign PR #8). Phase 0 baseline numbers in `docs/fix/BASELINE.md` are measured against that commit.
 

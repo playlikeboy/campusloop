@@ -2,7 +2,7 @@
 
 > **Sanity Challenge (Path One: Ship an Agent That Queries Real Content)**  
 > **Submission Post:** [CampusLoop Atlas: I Built an Agent That Knows What Is Actually Happening on Campus](https://dev.to/sh20raj/campusloop-atlas-i-built-an-agent-that-knows-what-is-actually-happening-on-campus-1iai)  
-> **Repository:** [https://github.com/SH20RAJ/campusloop](https://github.com/SH20RAJ/campusloop)  
+> **Repository:** [https://github.com/playlikeboy/campusloop](https://github.com/playlikeboy/campusloop)  
 > **Session Status:** Public & Curated (Zero secrets / PII redacted)
 
 ---

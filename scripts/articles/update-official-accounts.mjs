@@ -199,7 +199,7 @@ const OFFICIAL_SOCIAL_LINKS = {
     instagram: "campusloop.space",
     linkedin: "company/mycampusloop",
     twitter: "mycampusloop",
-    github: "SH20RAJ/campusloop",
+    github: "playlikeboy/campusloop",
   },
   custom: [
     { label: "CampusLoop Official Hub", url: "https://campusloop.space" },

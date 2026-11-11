@@ -2,7 +2,7 @@
  * Academic Materials Scraper & Vector DB Indexer
  * Scrapes all study materials, notes, lab manuals, and PYQs from:
  * 1. https://bithub.co.in/bit-mesra/
- * 2. https://bitsyll.pages.dev/ (via github.com/SH20RAJ/bitsyll source files)
+ * 2. https://bitsyll.pages.dev/ (via github.com/playlikeboy-archive/bitsyll source files)
  * 
  * Normalizes and inserts into Neon PostgreSQL `academic_resources`,
  * generates 384-dimensional vector embeddings, and indexes into Qdrant Cloud.
@@ -338,7 +338,7 @@ async function scrapeBitHub(): Promise<ScrapedResource[]> {
   return items;
 }
 
-// ── Scraper 2: BitSyll (bitsyll.pages.dev / SH20RAJ/bitsyll) ──
+// ── Scraper 2: BitSyll (bitsyll.pages.dev / playlikeboy-archive/bitsyll) ──
 async function scrapeBitSyll(): Promise<ScrapedResource[]> {
   console.log("Scraping BitSyll repository data...");
   const subjectCodes = [
@@ -351,7 +351,7 @@ async function scrapeBitSyll(): Promise<ScrapedResource[]> {
 
   for (const code of subjectCodes) {
     try {
-      const url = `https://raw.githubusercontent.com/SH20RAJ/bitsyll/main/src/app/subject/${code}/page.js`;
+      const url = `https://raw.githubusercontent.com/playlikeboy-archive/bitsyll/main/src/app/subject/${code}/page.js`;
       const res = await fetch(url);
       if (!res.ok) continue;
       const content = await res.text();

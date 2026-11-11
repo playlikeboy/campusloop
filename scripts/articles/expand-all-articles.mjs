@@ -453,7 +453,7 @@ Regardless of whether you are navigating collegiate academics, personal projects
 
 ### Curated Resources for Further Exploration
 - [CampusLoop Student Knowledge Hub](https://campusloop.space/articles)
-- [Open Source Collegiate Resources & Guides](https://github.com/SH20RAJ/campusloop)
+- [Open Source Collegiate Resources & Guides](https://github.com/playlikeboy/campusloop)
 `
 };
 

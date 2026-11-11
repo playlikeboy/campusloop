@@ -283,7 +283,7 @@ src/
 
 ### 1. Installation
 ```bash
-git clone https://github.com/SH20RAJ/campusloop.git
+git clone https://github.com/playlikeboy/campusloop.git
 cd campusloop
 bun install
 ```
