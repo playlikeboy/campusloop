@@ -34,8 +34,39 @@ function clamp(value: string | null, max: number, fallback: string): string {
   return clean.length > max ? `${clean.slice(0, max - 1)}…` : clean;
 }
 
-export function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
+/** Cloudflare's edge cache, when running on Workers. Undefined in Node (dev, tests). */
+function edgeCache(): Cache | undefined {
+  const store = (globalThis as { caches?: CacheStorage & { default?: Cache } }).caches;
+  return store?.default;
+}
+
+/**
+ * Rendering an OG image costs 0.4–2.6s of CPU, and crawlers request the same
+ * URLs again and again. Workers run in front of Cloudflare's CDN cache, so the
+ * Cache-Control header alone never stops a re-render: store the PNG in the
+ * edge cache ourselves, keyed by the normalised URL.
+ */
+export async function GET(request: Request) {
+  const cache = edgeCache();
+  const url = new URL(request.url);
+  const key = new Request(`${url.origin}/og?${url.searchParams.toString()}`, { method: "GET" });
+  if (cache) {
+    try {
+      const hit = await cache.match(key);
+      if (hit) return hit;
+    } catch {}
+  }
+
+  const response = render(url.searchParams);
+  if (cache) {
+    try {
+      await cache.put(key, response.clone());
+    } catch {}
+  }
+  return response;
+}
+
+function render(searchParams: URLSearchParams) {
   const title = clamp(searchParams.get("title"), 90, "Your campus, in one app");
   const kicker = clamp(searchParams.get("kicker"), 32, "campusloop.space");
   const fontSize = title.length > 60 ? 56 : title.length > 32 ? 68 : 84;

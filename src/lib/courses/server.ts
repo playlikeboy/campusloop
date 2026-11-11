@@ -43,7 +43,8 @@ export async function requireProfile(): Promise<
 const DURATION_RANGE: Record<CatalogDuration, [number, number]> = {
   short: [0, 3 * 3600],
   medium: [3 * 3600, 10 * 3600],
-  long: [10 * 3600, Number.MAX_SAFE_INTEGER],
+  // duration_sec is int4: keep the upper bound inside its range.
+  long: [10 * 3600, 2_147_483_647],
 };
 
 const listCoursesCache = new IsolateCache<{ courses: Course[]; total: number; page: number; pages: number }>(60_000, 100);
