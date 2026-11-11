@@ -52,6 +52,10 @@
 	"observability": {
 		"enabled": true
 	},
+	// Next.js server rendering needs 30–2000ms CPU per request; Workers Paid allows up to 300000.
+	"limits": {
+		"cpu_ms": 30000
+	},
 	"upload_source_maps": false,
 	"minify": true,
 	/**
