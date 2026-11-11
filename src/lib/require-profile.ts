@@ -1,9 +1,5 @@
-import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { cache } from "react";
-import { getDb } from "@/db";
-import { userProfiles } from "@/db/schema";
-import { getCachedAuthUser } from "@/lib/server-cache";
+import { getCachedAuthUser, getCachedBareProfile } from "@/lib/server-cache";
 
 /**
  * requireProfile()
@@ -27,9 +23,10 @@ import { getCachedAuthUser } from "@/lib/server-cache";
  * `rejectViewerWrite(profile)` is intentionally not folded in: routes keep
  * calling it themselves so its position relative to other checks is unchanged.
  *
- * Both lookups are memoized per request with React `cache`, so a layout,
- * page, or metadata function that already resolved the same user/profile
- * shares the result. The profile is the bare row (no relations) to match what
+ * Both lookups are memoized per request with React `cache` and cached per
+ * Worker isolate for 30s (see `src/lib/server-cache.ts`), so a layout, page,
+ * or metadata function that already resolved the same user/profile shares
+ * the result. The profile is the bare row (no relations) to match what
  * routes returned before; use `getCachedUserProfile` when the institution
  * relation is needed.
  */
@@ -45,14 +42,6 @@ export interface RequireProfileOptions {
   /** HTTP status for a signed-in user with no profile row. Default 404. */
   profileStatus?: 403 | 404;
 }
-
-const getCachedBareProfile = cache(async (userId: string) => {
-  if (!userId) return null;
-  const db = getDb();
-  return await db.query.userProfiles.findFirst({
-    where: eq(userProfiles.userId, userId),
-  });
-});
 
 export async function requireProfile(options: RequireProfileOptions = {}): Promise<RequireProfileResult> {
   const user = await getCachedAuthUser();

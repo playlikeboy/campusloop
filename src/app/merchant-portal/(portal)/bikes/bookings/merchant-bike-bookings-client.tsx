@@ -26,7 +26,7 @@ export function MerchantBikeBookingsClient() {
   const { data, error, isLoading, mutate } = useSWR<{ bookings: any[] }>(
     `/api/merchant/bikes/bookings?filter=${tab}`,
     fetcher,
-    { refreshInterval: 5000 }
+    { refreshInterval: 5000, refreshWhenHidden: false, refreshWhenOffline: false }
   );
   const { busyId, setStatus, reject, rejectDialog } = useBookingActions(mutate);
   const bookings = data?.bookings || [];

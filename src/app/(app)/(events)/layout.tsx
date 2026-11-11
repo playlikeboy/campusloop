@@ -1,6 +1,6 @@
 import { FirstVisitNotificationPrompt } from "@/components/notifications/first-visit-notification-prompt";
 import { AppShell } from "@/components/shells/app-shell";
-import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
+import { getCachedAuthUser, getCachedUserProfile, toShellProfile } from "@/lib/server-cache";
 import { isViewerProfile } from "@/lib/viewer";
 
 export default async function EventsLayout({ children }: { children: React.ReactNode }) {
@@ -11,7 +11,7 @@ export default async function EventsLayout({ children }: { children: React.React
 
   return (
     <AppShell
-      profile={profile || undefined}
+      profile={toShellProfile(profile)}
       collegeName={viewerMode ? "Viewer Mode" : (college?.name ?? "CampusLoop")}
       isAdmin={profile?.role === "ADMIN"}
       isViewer={viewerMode}

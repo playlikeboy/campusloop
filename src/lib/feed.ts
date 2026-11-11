@@ -414,6 +414,11 @@ type HydratedFeedPost = Awaited<ReturnType<typeof resolveFeedPage>>[number];
  * editorially boosted posts so promotion still works on older content.
  */
 const RANKED_CANDIDATE_POOL = 400;
+/**
+ * Hard ceiling on the pool. Deep pages used to grow it with the offset, which
+ * made every ranked subquery scan more rows the further a viewer scrolled.
+ */
+const MAX_RANKED_CANDIDATE_POOL = 600;
 
 async function narrowToCandidatePool(
   options: { conditions: SQL[]; sort: ApiFeedSort; limit: number; offset: number },
@@ -422,7 +427,14 @@ async function narrowToCandidatePool(
   const base = and(...options.conditions);
   if (options.sort === "latest" || options.sort === "random") return base;
 
-  const poolSize = Math.max(RANKED_CANDIDATE_POOL, options.offset + options.limit * 4);
+  // 4x headroom keeps ranking meaningful, but never past the ceiling. A page
+  // that ends beyond the ceiling still gets a pool just large enough to fill
+  // it, so deep pagination never comes back empty.
+  const pageEnd = options.offset + options.limit;
+  const poolSize = Math.min(
+    Math.max(RANKED_CANDIDATE_POOL, options.offset + options.limit * 4),
+    Math.max(MAX_RANKED_CANDIDATE_POOL, pageEnd)
+  );
   const recent = await getDb()
     .select({ id: posts.id })
     .from(posts)
@@ -513,8 +525,6 @@ export async function resolveFeedPage(options: {
           points: true,
           role: true,
           isCollegeVerified: true,
-          email: true,
-          lastSeenAt: true,
         },
       },
       institution: {
@@ -553,8 +563,21 @@ export async function resolveFeedPage(options: {
           },
         },
       },
+      // Per-option totals and the viewer's own pick are aggregated in SQL;
+      // loading every poll_votes row only to count it scaled with poll size.
+      // poll_votes is referenced by a raw alias: inside nested-relation extras
+      // Drizzle rewrites every column interpolation to the relation's alias.
       pollOptions: {
-        with: { votes: true },
+        columns: { id: true, text: true },
+        extras: (option, { sql: rawSql }) => ({
+          votesCount: rawSql<number>`(select count(*)::int from poll_votes pv where pv.option_id = ${option.id})`.as(
+            "votes_count"
+          ),
+          userVoted: (options.viewerProfileId
+            ? rawSql<boolean>`exists(select 1 from poll_votes pv where pv.option_id = ${option.id} and pv.user_id = ${options.viewerProfileId})`
+            : rawSql<boolean>`false`
+          ).as("user_voted"),
+        }),
       },
     },
   });
@@ -609,6 +632,49 @@ function stripAuthorForAnonymity<
   return post;
 }
 
+type PollOptionInput = {
+  id: string;
+  text: string;
+  /** Pre-aggregated in SQL by `resolveFeedPage`. */
+  votesCount?: number | string | null;
+  userVoted?: boolean | null;
+  /** Raw vote rows, still passed by search and related-posts callers. */
+  votes?: Array<{ userId?: string | null } | null> | null;
+};
+
+/**
+ * Shape poll options for the client. Accepts either SQL-aggregated options
+ * (`votesCount` / `userVoted`) or options carrying their raw vote rows.
+ */
+export function formatPollOptions(
+  options: PollOptionInput[] | null | undefined,
+  viewerProfileId?: string | null
+) {
+  const pollOptions = options?.map((opt) => {
+    if (opt.votesCount !== undefined && opt.votesCount !== null) {
+      return {
+        id: opt.id,
+        text: opt.text,
+        votesCount: Number(opt.votesCount) || 0,
+        userVoted: Boolean(viewerProfileId) && Boolean(opt.userVoted),
+      };
+    }
+    const optVotesList = opt.votes || [];
+    return {
+      id: opt.id,
+      text: opt.text,
+      votesCount: optVotesList.length,
+      userVoted: optVotesList.some((v) => v?.userId === viewerProfileId),
+    };
+  });
+
+  return {
+    pollOptions,
+    hasVotedPoll: pollOptions?.some((opt) => opt.userVoted) || false,
+    totalPollVotes: pollOptions?.reduce((acc, opt) => acc + opt.votesCount, 0) || 0,
+  };
+}
+
 export async function formatApiFeedPosts(rawFeed: HydratedFeedPost[], viewerProfileId?: string | null) {
   const db = getDb();
 
@@ -652,8 +718,6 @@ export async function formatApiFeedPosts(rawFeed: HydratedFeedPost[], viewerProf
                   points: true,
                   role: true,
                   isCollegeVerified: true,
-                  email: true,
-                  lastSeenAt: true,
                 },
               },
               institution: {
@@ -733,15 +797,10 @@ export async function formatApiFeedPosts(rawFeed: HydratedFeedPost[], viewerProf
     const commentsCount =
       rawCommentCount !== undefined ? Math.max(rawCommentCount, commentsList.length) : commentsList.length;
 
-    const formattedPollOptions = post.pollOptions?.map((opt) => {
-      const optVotesList = opt.votes || [];
-      const optVotesCount = optVotesList.length;
-      const userVoted = optVotesList.some((v) => v?.userId === viewerProfileId);
-      return { id: opt.id, text: opt.text, votesCount: optVotesCount, userVoted };
-    });
-
-    const hasVotedPoll = formattedPollOptions?.some((opt) => opt.userVoted) || false;
-    const totalPollVotes = formattedPollOptions?.reduce((acc, opt) => acc + opt.votesCount, 0) || 0;
+    const { pollOptions: formattedPollOptions, hasVotedPoll, totalPollVotes } = formatPollOptions(
+      post.pollOptions,
+      viewerProfileId
+    );
     const repostOf = post.repostOfId ? repostedPostsMap.get(post.repostOfId) || null : null;
     const safeRepostOf = repostOf ? stripAuthorForAnonymity(repostOf) : null;
 

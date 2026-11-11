@@ -57,9 +57,9 @@ async function enforceRateLimit(req: NextRequest): Promise<NextResponse | null> 
   const redis = rule.store === "redis" ? getRedis() : null;
   if (redis) {
     try {
-      const count = Number(await redis.incr(key));
-      if (count === 1) await redis.expire(key, rule.windowSec);
-      allowed = count <= rule.max;
+      // One round trip: INCR plus EXPIRE NX (sets the window TTL only when the key has none).
+      const [count] = await redis.pipeline().incr(key).expire(key, rule.windowSec, "NX").exec<[number, number]>();
+      allowed = Number(count) <= rule.max;
     } catch {
       // Redis error: fall through to the in-memory limiter
     }

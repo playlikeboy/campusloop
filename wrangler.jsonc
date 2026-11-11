@@ -41,6 +41,20 @@
 		{
 			"binding": "MEDIA_BUCKET",
 			"bucket_name": "campusloop-media"
+		},
+		{
+			// OpenNext incremental cache (ISR / unstable_cache / fetch cache)
+			// see https://opennext.js.org/cloudflare/caching
+			"binding": "NEXT_INC_CACHE_R2_BUCKET",
+			"bucket_name": "campusloop-next-cache"
+		}
+	],
+	"d1_databases": [
+		{
+			// OpenNext tag cache for revalidateTag / revalidatePath
+			"binding": "NEXT_TAG_CACHE_D1",
+			"database_name": "campusloop-next-tag-cache",
+			"database_id": "b1f0ff68-a14b-41f0-b24d-ae22d6de771c"
 		}
 	],
 	"routes": [

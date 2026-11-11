@@ -57,6 +57,7 @@ export const posts = pgTable(
     index("posts_community_status_created_idx").on(table.communityId, table.status, table.createdAt),
     index("posts_repost_idx").on(table.repostOfId),
     index("posts_is_seeded_idx").on(table.isSeeded, table.status, table.createdAt),
+    index("posts_status_created_idx").on(table.status, table.createdAt.desc()),
   ]
 );
 
@@ -86,6 +87,7 @@ export const comments = pgTable(
     index("comments_parent_created_idx").on(table.parentId, table.createdAt),
     index("comments_author_idx").on(table.authorId),
     index("comments_post_pinned_idx").on(table.postId, table.isPinned),
+    index("comments_post_status_created_idx").on(table.postId, table.status, table.createdAt),
   ]
 );
 
@@ -139,6 +141,7 @@ export const votes = pgTable(
   (table) => [
     uniqueIndex("votes_user_post_idx").on(table.userId, table.postId),
     index("votes_post_idx").on(table.postId),
+    index("votes_post_created_idx").on(table.postId, table.createdAt),
   ]
 );
 

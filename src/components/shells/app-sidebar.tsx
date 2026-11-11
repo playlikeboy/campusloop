@@ -6,12 +6,12 @@ import { usePathname } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { DESKTOP_NAV_ITEMS, ROUTES } from "@/constants/navigation";
-import type { UserProfile } from "@/db/schema";
+import type { ShellProfile } from "@/lib/server-cache";
 import { cn, getAvatarUrl, initialOf } from "@/lib/utils";
 import { isPathActive, navPress, profileHref } from "./nav-utils";
 
 interface AppSidebarProps {
-  profile?: UserProfile;
+  profile?: ShellProfile;
   isAdmin?: boolean;
   isViewer?: boolean;
 }

@@ -59,6 +59,9 @@ export async function GET(request: Request) {
 
     const where = and(...filters);
 
+    // Member counts and the viewer's membership are correlated subqueries, so no
+    // member rows are loaded. The subqueries use an explicit alias because the
+    // relational query builder rewrites column references to the root table.
     const allCommunities = await db.query.communities.findMany({
       where,
       orderBy:
@@ -67,8 +70,16 @@ export async function GET(request: Request) {
           : [desc(communities.createdAt)],
       limit,
       offset,
+      extras: {
+        activeMembersCount: sql<number>`(select count(*)::int from ${communityMembers} cm where cm.community_id = ${communities.id} and cm.status = 'ACTIVE')`.as(
+          "active_members_count"
+        ),
+        viewerIsMember: (currentProfileId
+          ? sql<boolean>`exists (select 1 from ${communityMembers} cm where cm.community_id = ${communities.id} and cm.user_id = ${currentProfileId} and cm.status = 'ACTIVE')`
+          : sql<boolean>`false`
+        ).as("viewer_is_member"),
+      },
       with: {
-        members: true,
         creator: {
           columns: {
             id: true,
@@ -80,11 +91,8 @@ export async function GET(request: Request) {
       },
     });
 
-    const response = allCommunities.map((comm) => {
-      const membersCount = comm.members ? comm.members.filter((m) => m.status === "ACTIVE").length : 0;
-      const isMember = currentProfileId
-        ? (comm.members || []).some((m) => m.userId === currentProfileId && m.status === "ACTIVE")
-        : false;
+    const response = allCommunities.map(({ activeMembersCount, viewerIsMember, ...comm }) => {
+      const membersCount = Number(activeMembersCount) || 0;
 
       return {
         ...comm,
@@ -92,7 +100,7 @@ export async function GET(request: Request) {
         membersCount,
         memberCount: membersCount,
         isPrivate: comm.privacy === "PRIVATE",
-        isMember,
+        isMember: Boolean(viewerIsMember),
       };
     });
 

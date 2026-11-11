@@ -141,8 +141,11 @@ export function getPhoenixValueScoreSql(
 
   // New-Author / Cold-Start Exploration Budget (X New-Author Boost):
   // Gives new authors with <= 5 posts a temporary distribution boost to discover their initial campus audience
+  // "<= 5 posts" is tested as "no 6th post exists": the probe walks
+  // posts_author_created_idx and stops after six rows, where a full count(*)
+  // per candidate grew with each prolific author's history.
   const newAuthorExplorationBoostSql = sql<number>`(case 
-    when ${posts.authorId} is not null and (select count(*)::int from "posts" p2 where p2.author_id = ${posts.authorId}) <= 5 
+    when ${posts.authorId} is not null and not exists (select 1 from "posts" p2 where p2.author_id = ${posts.authorId} offset 5) 
     then 18.0 
     else 0.0 
   end)`;

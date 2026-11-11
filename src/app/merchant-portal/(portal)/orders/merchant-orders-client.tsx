@@ -52,7 +52,12 @@ export function MerchantOrdersClient() {
     orders: MerchantOrder[];
     counts: Record<string, number>;
     merchant?: { categorySlug?: string; verticalType?: string };
-  }>(`/api/merchant/orders?status=${tab}`, fetcher, { refreshInterval: 5000, dedupingInterval: 2500 });
+  }>(`/api/merchant/orders?status=${tab}`, fetcher, {
+    refreshInterval: 5000,
+    dedupingInterval: 2500,
+    refreshWhenHidden: false,
+    refreshWhenOffline: false,
+  });
   const { busyId, advance, reject, rejectDialog } = useOrderActions(mutate);
   useNewOrderAlert(data?.orders, soundOn);
 

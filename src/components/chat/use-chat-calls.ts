@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
+import { useSmartInterval } from "@/hooks/use-smart-interval";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 
@@ -45,20 +46,19 @@ export function useChatCalls({
   const [activeCall, setActiveCall] = useState<ActiveCall | null>(null);
   const [incomingCall, setIncomingCall] = useState<IncomingCall | null>(null);
 
-  useEffect(() => {
-    if (!currentUserId || activeCall) return;
-    const interval = setInterval(async () => {
-      try {
-        const res = await fetch("/api/calls");
-        if (!res.ok) return;
-        const data = (await res.json()) as { incomingCall?: IncomingCall | null };
-        setIncomingCall(data?.incomingCall?.status === "CALLING" ? data.incomingCall : null);
-      } catch {
-        // Offline: try again on the next tick.
-      }
-    }, 2800);
-    return () => clearInterval(interval);
-  }, [currentUserId, activeCall]);
+  // Incoming-call check: 5s, backing off to 15s while nothing rings, paused on
+  // hidden tabs (one check fires as soon as the tab is visible again).
+  useSmartInterval(
+    async () => {
+      const res = await fetch("/api/calls");
+      if (!res.ok) return false;
+      const data = (await res.json()) as { incomingCall?: IncomingCall | null };
+      const ringing = data?.incomingCall?.status === "CALLING" ? data.incomingCall : null;
+      setIncomingCall(ringing);
+      return Boolean(ringing);
+    },
+    { baseMs: 8000, maxMs: 20000, enabled: Boolean(currentUserId) && !activeCall }
+  );
 
   const startCall = useCallback(
     async (type: CallType, partner: CallPartner) => {

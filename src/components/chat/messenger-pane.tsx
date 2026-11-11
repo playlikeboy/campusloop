@@ -13,6 +13,7 @@ import { GifPickerModal } from "@/components/ui/gif-picker-modal";
 import { Spinner } from "@/components/ui/spinner";
 import { StickerPickerModal } from "@/components/ui/sticker-picker-modal";
 import { triggerBrowserNotification } from "@/hooks/use-push-notifications";
+import { useSmartInterval } from "@/hooks/use-smart-interval";
 import {
   type CachedMessage,
   getCachedMessages,
@@ -40,6 +41,12 @@ import { useChatMedia } from "./use-chat-media";
 import { useMentionSuggestions } from "./use-mention-suggestions";
 
 const PAGE = 35;
+
+/** Cheap change marker for a message list: count plus newest id. */
+function messageSignature(list: CachedMessage[] | undefined): string {
+  if (!list?.length) return "0";
+  return `${list.length}:${list[list.length - 1].id}`;
+}
 
 const fetcher = async <T,>(url: string): Promise<T> => {
   const res = await fetch(url);
@@ -104,12 +111,23 @@ export function MessengerPane({
     fetcher,
     {
       fallbackData: (conversationId && getCachedMessages(conversationId)) || undefined,
-      refreshInterval: 2000,
       revalidateOnFocus: true,
       onSuccess: (data) => {
         if (conversationId && data) setCachedMessages(conversationId, data);
       },
     }
+  );
+
+  // Poll for new messages: 2s while the chat is active, backing off to 15s when
+  // quiet, paused on hidden tabs. Sending a message resets it to 2s.
+  const { reset: resetMessagePoll } = useSmartInterval(
+    async () => {
+      const before = messageSignature(messages);
+      const fresh = await mutate();
+      if (!fresh) return false;
+      return messageSignature(fresh) !== before;
+    },
+    { baseMs: 3000, maxMs: 15000, enabled: Boolean(conversationId) }
   );
 
   const calls = useChatCalls({
@@ -173,9 +191,10 @@ export function MessengerPane({
       } finally {
         mutate();
         setIsSending(false);
+        resetMessagePoll();
       }
     },
-    [conversationId, currentUserId, replyingTo, mutate]
+    [conversationId, currentUserId, replyingTo, mutate, resetMessagePoll]
   );
 
   const media = useChatMedia(conversationId, sendMessage);

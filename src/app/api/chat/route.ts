@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, gt, inArray, isNull, ne, or, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { conversationParticipants, conversations, messages, userProfiles } from "@/db/schema";
@@ -8,6 +8,24 @@ import { notifyNewMessage } from "@/lib/chat-notifications";
 import { rejectViewerWrite } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
+
+// Profile fields the inbox, thread header and info drawer read. Everything else
+// on the profile row (email, dob, dating data...) stays out of the payload.
+const INBOX_USER_COLUMNS = {
+  id: true,
+  userId: true,
+  username: true,
+  displayName: true,
+  avatarUrl: true,
+  bio: true,
+  institutionId: true,
+  course: true,
+  branch: true,
+  year: true,
+  points: true,
+  lastSeenAt: true,
+  isCollegeVerified: true,
+} as const;
 
 export async function GET() {
   try {
@@ -30,24 +48,72 @@ export async function GET() {
 
     const participationMap = new Map(userParticipations.map((p) => [p.conversationId, p]));
 
-    // Query conversations with participants and recent messages
-    const rawConversations = await db.query.conversations.findMany({
-      where: inArray(conversations.id, conversationIds),
-      orderBy: [desc(conversations.updatedAt)],
-      limit: 200,
-      with: {
-        community: true,
-        participants: {
-          with: {
-            user: true,
+    // Query conversations with the inbox-facing participant fields and only the
+    // latest message. Unread counts come from one grouped SQL count instead of
+    // being derived from a capped window of recent messages.
+    const [rawConversations, unreadRows] = await Promise.all([
+      db.query.conversations.findMany({
+        where: inArray(conversations.id, conversationIds),
+        orderBy: [desc(conversations.updatedAt)],
+        limit: 200,
+        with: {
+          community: {
+            columns: {
+              id: true,
+              name: true,
+              slug: true,
+              avatarUrl: true,
+              description: true,
+              points: true,
+            },
+          },
+          participants: {
+            columns: { userId: true },
+            with: {
+              user: { columns: INBOX_USER_COLUMNS },
+            },
+          },
+          messages: {
+            columns: {
+              id: true,
+              body: true,
+              senderId: true,
+              readAt: true,
+              createdAt: true,
+            },
+            orderBy: [desc(messages.createdAt)],
+            limit: 1,
           },
         },
-        messages: {
-          orderBy: [desc(messages.createdAt)],
-          limit: 15,
-        },
-      },
-    });
+      }),
+      db
+        .select({
+          conversationId: messages.conversationId,
+          count: sql<number>`count(*)::int`,
+        })
+        .from(messages)
+        .innerJoin(
+          conversationParticipants,
+          and(
+            eq(conversationParticipants.conversationId, messages.conversationId),
+            eq(conversationParticipants.userId, profile.id)
+          )
+        )
+        .where(
+          and(
+            inArray(messages.conversationId, conversationIds),
+            ne(messages.senderId, profile.id),
+            isNull(messages.readAt),
+            or(
+              isNull(conversationParticipants.lastClearedAt),
+              gt(messages.createdAt, conversationParticipants.lastClearedAt)
+            )
+          )
+        )
+        .groupBy(messages.conversationId),
+    ]);
+
+    const unreadMap = new Map(unreadRows.map((r) => [r.conversationId, Number(r.count) || 0]));
 
     // Format the response payload with WhatsApp style unread counting and action flags
     const formatted = rawConversations
@@ -91,13 +157,11 @@ export async function GET() {
         if (!otherParticipant) return null;
 
         const lastClearedAt = participation?.lastClearedAt ? new Date(participation.lastClearedAt) : null;
-        const validMessages = lastClearedAt
-          ? conv.messages.filter((m) => new Date(m.createdAt) > lastClearedAt)
-          : conv.messages;
+        const latest = conv.messages[0] || null;
+        // A latest message from before the clear point means the whole thread is cleared.
+        const lastMessage = latest && (!lastClearedAt || new Date(latest.createdAt) > lastClearedAt) ? latest : null;
 
-        const lastMessage = validMessages[0] || null;
-
-        const unreadCount = validMessages.filter((m) => m.senderId !== profile.id && !m.readAt).length;
+        const unreadCount = unreadMap.get(conv.id) ?? 0;
 
         return {
           id: conv.id,

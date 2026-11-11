@@ -40,6 +40,8 @@ export function MerchantDashboardClient() {
   const [soundOn, setSoundOn] = useState(true);
   const { data, error, isLoading, mutate } = useSWR<DashboardData>("/api/merchant/dashboard", fetcher, {
     refreshInterval: 5000,
+    refreshWhenHidden: false,
+    refreshWhenOffline: false,
   });
   const { busyId, advance, reject, rejectDialog } = useOrderActions(mutate);
 

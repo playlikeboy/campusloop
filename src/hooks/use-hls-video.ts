@@ -1,6 +1,6 @@
 "use client";
 
-import Hls from "hls.js";
+import type HlsClass from "hls.js";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 // Global registry of all playing/active reel video and audio elements
@@ -61,7 +61,7 @@ export function useHlsVideo({
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [usingHls, setUsingHls] = useState(false);
-  const hlsRef = useRef<Hls | null>(null);
+  const hlsRef = useRef<HlsClass | null>(null);
 
   // Synchronous ref to prevent race conditions during async promise resolutions
   const isActiveRef = useRef(isActive);
@@ -90,67 +90,93 @@ export function useHlsVideo({
       hlsRef.current = null;
     }
 
-    if (hlsUrl && Hls.isSupported()) {
-      const hls = new Hls({
-        enableWorker: true,
-        lowLatencyMode: true,
-        backBufferLength: 30,
-        capLevelToPlayerSize: false,
-      });
-      hls.autoLevelCapping = -1;
+    // hls.js is loaded on demand (only for HLS sources) so it stays out of the
+    // server bundle and the initial client chunk.
+    const attach = (Hls: typeof HlsClass | null) => {
+      if (hlsUrl && Hls?.isSupported()) {
+        const hls = new Hls({
+          enableWorker: true,
+          lowLatencyMode: true,
+          backBufferLength: 30,
+          capLevelToPlayerSize: false,
+        });
+        hls.autoLevelCapping = -1;
 
-      hlsRef.current = hls;
-      hls.loadSource(hlsUrl);
-      hls.attachMedia(video);
+        hlsRef.current = hls;
+        hls.loadSource(hlsUrl);
+        hls.attachMedia(video);
 
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        if (!isSubscribed) return;
-        // Automatically pick the highest available resolution level (720p HD)
-        if (hls.levels && hls.levels.length > 0) {
-          hls.currentLevel = hls.levels.length - 1;
-        }
-        setIsLoading(false);
-
-        // Strictly verify active state before triggering playback
-        if (isActiveRef.current) {
-          video.muted = isMutedRef.current;
-          const p = video.play();
-          if (p !== undefined) {
-            p.then(() => {
-              if (isSubscribed && isActiveRef.current) {
-                setIsPlaying(true);
-              } else {
-                video.pause();
-              }
-            }).catch(() => {
-              if (!isActiveRef.current) return;
-              // Browser policy restricted unmuted playback; fallback to muted
-              video.muted = true;
-              video
-                .play()
-                .then(() => {
-                  if (isSubscribed && isActiveRef.current) {
-                    setIsPlaying(true);
-                  } else {
-                    video.pause();
-                  }
-                })
-                .catch(() => {});
-            });
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          if (!isSubscribed) return;
+          // Automatically pick the highest available resolution level (720p HD)
+          if (hls.levels && hls.levels.length > 0) {
+            hls.currentLevel = hls.levels.length - 1;
           }
-        }
-      });
+          setIsLoading(false);
 
-      let networkRetryCount = 0;
-      hls.on(Hls.Events.ERROR, (_event, data) => {
-        if (!isSubscribed) return;
-        if (data.fatal) {
-          switch (data.type) {
-            case Hls.ErrorTypes.NETWORK_ERROR:
-              if (networkRetryCount < 1) {
-                networkRetryCount++;
-                hls.startLoad();
-              } else {
+          // Strictly verify active state before triggering playback
+          if (isActiveRef.current) {
+            video.muted = isMutedRef.current;
+            const p = video.play();
+            if (p !== undefined) {
+              p.then(() => {
+                if (isSubscribed && isActiveRef.current) {
+                  setIsPlaying(true);
+                } else {
+                  video.pause();
+                }
+              }).catch(() => {
+                if (!isActiveRef.current) return;
+                // Browser policy restricted unmuted playback; fallback to muted
+                video.muted = true;
+                video
+                  .play()
+                  .then(() => {
+                    if (isSubscribed && isActiveRef.current) {
+                      setIsPlaying(true);
+                    } else {
+                      video.pause();
+                    }
+                  })
+                  .catch(() => {});
+              });
+            }
+          }
+        });
+
+        let networkRetryCount = 0;
+        hls.on(Hls.Events.ERROR, (_event, data) => {
+          if (!isSubscribed) return;
+          if (data.fatal) {
+            switch (data.type) {
+              case Hls.ErrorTypes.NETWORK_ERROR:
+                if (networkRetryCount < 1) {
+                  networkRetryCount++;
+                  hls.startLoad();
+                } else {
+                  hls.destroy();
+                  hlsRef.current = null;
+                  setUsingHls(false);
+                  if (videoUrl) {
+                    video.src = videoUrl;
+                    if (isActiveRef.current) {
+                      video
+                        .play()
+                        .then(() => {
+                          if (isSubscribed && isActiveRef.current) setIsPlaying(true);
+                        })
+                        .catch(() => {});
+                    }
+                  } else {
+                    setHasError(true);
+                    setIsLoading(false);
+                  }
+                }
+                break;
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                hls.recoverMediaError();
+                break;
+              default:
                 hls.destroy();
                 hlsRef.current = null;
                 setUsingHls(false);
@@ -168,89 +194,79 @@ export function useHlsVideo({
                   setHasError(true);
                   setIsLoading(false);
                 }
-              }
-              break;
-            case Hls.ErrorTypes.MEDIA_ERROR:
-              hls.recoverMediaError();
-              break;
-            default:
-              hls.destroy();
-              hlsRef.current = null;
-              setUsingHls(false);
-              if (videoUrl) {
-                video.src = videoUrl;
-                if (isActiveRef.current) {
-                  video
-                    .play()
-                    .then(() => {
-                      if (isSubscribed && isActiveRef.current) setIsPlaying(true);
-                    })
-                    .catch(() => {});
-                }
+                break;
+            }
+          }
+        });
+
+        setUsingHls(true);
+      } else if (hlsUrl && video.canPlayType("application/vnd.apple.mpegurl")) {
+        // Native Apple Safari HLS engine
+        video.src = hlsUrl;
+        setUsingHls(true);
+        setIsLoading(false);
+        if (isActiveRef.current) {
+          video.muted = isMutedRef.current;
+          const p = video.play();
+          if (p !== undefined) {
+            p.then(() => {
+              if (isSubscribed && isActiveRef.current) {
+                setIsPlaying(true);
               } else {
-                setHasError(true);
-                setIsLoading(false);
+                video.pause();
               }
-              break;
+            }).catch(() => {
+              if (!isActiveRef.current) return;
+              video.muted = true;
+              video
+                .play()
+                .then(() => {
+                  if (isSubscribed && isActiveRef.current) setIsPlaying(true);
+                })
+                .catch(() => {});
+            });
           }
         }
-      });
+      } else if (videoUrl) {
+        // Standard video file or fallback
+        video.src = videoUrl;
+        setUsingHls(false);
+        setIsLoading(false);
+        if (isActiveRef.current) {
+          video.muted = isMutedRef.current;
+          const p = video.play();
+          if (p !== undefined) {
+            p.then(() => {
+              if (isSubscribed && isActiveRef.current) {
+                setIsPlaying(true);
+              } else {
+                video.pause();
+              }
+            }).catch(() => {
+              if (!isActiveRef.current) return;
+              video.muted = true;
+              video
+                .play()
+                .then(() => {
+                  if (isSubscribed && isActiveRef.current) setIsPlaying(true);
+                })
+                .catch(() => {});
+            });
+          }
+        }
+      }
+    };
 
-      setUsingHls(true);
-    } else if (hlsUrl && video.canPlayType("application/vnd.apple.mpegurl")) {
-      // Native Apple Safari HLS engine
-      video.src = hlsUrl;
-      setUsingHls(true);
-      setIsLoading(false);
-      if (isActiveRef.current) {
-        video.muted = isMutedRef.current;
-        const p = video.play();
-        if (p !== undefined) {
-          p.then(() => {
-            if (isSubscribed && isActiveRef.current) {
-              setIsPlaying(true);
-            } else {
-              video.pause();
-            }
-          }).catch(() => {
-            if (!isActiveRef.current) return;
-            video.muted = true;
-            video
-              .play()
-              .then(() => {
-                if (isSubscribed && isActiveRef.current) setIsPlaying(true);
-              })
-              .catch(() => {});
-          });
-        }
-      }
-    } else if (videoUrl) {
-      // Standard video file or fallback
-      video.src = videoUrl;
-      setUsingHls(false);
-      setIsLoading(false);
-      if (isActiveRef.current) {
-        video.muted = isMutedRef.current;
-        const p = video.play();
-        if (p !== undefined) {
-          p.then(() => {
-            if (isSubscribed && isActiveRef.current) {
-              setIsPlaying(true);
-            } else {
-              video.pause();
-            }
-          }).catch(() => {
-            if (!isActiveRef.current) return;
-            video.muted = true;
-            video
-              .play()
-              .then(() => {
-                if (isSubscribed && isActiveRef.current) setIsPlaying(true);
-              })
-              .catch(() => {});
-          });
-        }
-      }
+    if (hlsUrl) {
+      import("hls.js")
+        .then((mod) => {
+          if (isSubscribed) attach(mod.default);
+        })
+        .catch(() => {
+          if (isSubscribed) attach(null);
+        });
+    } else {
+      attach(null);
     }
 
     return () => {

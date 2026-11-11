@@ -30,6 +30,8 @@ interface DashboardData {
 export function SupermarketDashboardClient() {
   const { data, error, isLoading, mutate } = useSWR<DashboardData>("/api/merchant/dashboard", fetcher, {
     refreshInterval: 6000,
+    refreshWhenHidden: false,
+    refreshWhenOffline: false,
   });
   const { data: productsData } = useSWR<{ products: any[] }>("/api/merchant/products", fetcher);
   const { busyId, advance, reject, rejectDialog } = useOrderActions(mutate);

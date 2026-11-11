@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AppShell } from "@/components/shells/app-shell";
-import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
+import { getCachedAuthUser, getCachedUserProfile, toShellProfile } from "@/lib/server-cache";
 import { isViewerProfile } from "@/lib/viewer";
 
 // Each post page sets its own title, canonical and robots with buildMetadata().
@@ -24,7 +24,7 @@ export default async function PostLayout({ children }: { children: React.ReactNo
   // The post deck scrolls itself; the shell goes full-bleed so wheel scroll stays on the deck.
   return (
     <AppShell
-      profile={profile || undefined}
+      profile={toShellProfile(profile)}
       collegeName={viewerMode ? "Viewer Mode" : (college?.name ?? "Campus")}
       isAdmin={profile?.role === "ADMIN"}
       isViewer={viewerMode}

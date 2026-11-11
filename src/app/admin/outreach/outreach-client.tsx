@@ -195,11 +195,16 @@ export function OutreachClient({ initialContacts, initialMetrics, colleges }: Ou
         success?: boolean;
         successCount?: number;
         failCount?: number;
+        queued?: number;
         error?: string;
       };
 
       if (data.success) {
-        toast.success(`Sent ${data.successCount ?? 0} invites (${data.failCount ?? 0} failed)`, {
+        const message =
+          typeof data.queued === "number"
+            ? `Sending ${data.queued} invites in the background. Refresh in a minute to see results.`
+            : `Sent ${data.successCount ?? 0} invites (${data.failCount ?? 0} failed)`;
+        toast.success(message, {
           id: "outreach-send-all",
         });
         await refreshData();

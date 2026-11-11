@@ -9,6 +9,7 @@ import { runInBackground } from "@/lib/background";
 import { sendEmail } from "@/lib/email";
 import { buildWelcomeEmail } from "@/lib/email-templates";
 import { findWhitelistedDomain } from "@/lib/institutions";
+import { invalidateProfileCache } from "@/lib/server-cache";
 import { getAvatarUrl } from "@/lib/utils";
 import { validateDisplayName, validateUsername } from "@/lib/validation";
 import { getViewerInstitutionId } from "@/lib/viewer";
@@ -190,6 +191,7 @@ export async function completeOnboarding(formData: FormData): Promise<Onboarding
           onboardingCompleted: true,
         },
       });
+    invalidateProfileCache(user.id);
 
     if (referrerProfile) {
       await db
@@ -199,6 +201,7 @@ export async function completeOnboarding(formData: FormData): Promise<Onboarding
           points: sql`${userProfiles.points} + 20`,
         })
         .where(eq(userProfiles.id, referrerProfile.id));
+      invalidateProfileCache(referrerProfile.userId);
     }
 
     // Dispatch welcome email asynchronously via mail.campusloop.space

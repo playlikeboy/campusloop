@@ -109,8 +109,13 @@ export function getAddictiveReelsScoreSql(
   // Loop count signal: rewatches in user_behavior_events
   const loopCountSql = sql<number>`coalesce((select count(*) from ${userBehaviorEvents} where ${userBehaviorEvents.targetId} = "posts"."id" and ${userBehaviorEvents.eventType} = 'REEL_LOOP'), 0)`;
 
-  // Completion count signal
-  const completionCountSql = sql<number>`coalesce((select count(*) from ${userBehaviorEvents} where ${userBehaviorEvents.targetId} = "posts"."id" and (${userBehaviorEvents.eventType} = 'REEL_LOOP' or (${userBehaviorEvents.metadata}->>'completed')::boolean = true)), 0)`;
+  // Completion count signal: every loop, plus any other event on the reel
+  // flagged completed. Kept as two ANDed lookups (instead of one `target_id = X
+  // and (event_type = 'REEL_LOOP' or completed)`) so each side probes
+  // user_behavior_events_target_id_type_idx rather than filtering every event
+  // row for the target. The halves are disjoint, so the sum is unchanged.
+  const completedNonLoopCountSql = sql<number>`coalesce((select count(*) from ${userBehaviorEvents} where ${userBehaviorEvents.targetId} = "posts"."id" and ${userBehaviorEvents.eventType} <> 'REEL_LOOP' and (${userBehaviorEvents.metadata}->>'completed')::boolean = true), 0)`;
+  const completionCountSql = sql<number>`(${loopCountSql} + ${completedNonLoopCountSql})`;
 
   // Fast skip count penalty
   const skipCountSql = sql<number>`coalesce((select count(*) from ${userBehaviorEvents} where ${userBehaviorEvents.targetId} = "posts"."id" and ${userBehaviorEvents.eventType} = 'REEL_SKIP'), 0)`;

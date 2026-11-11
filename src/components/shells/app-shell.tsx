@@ -6,7 +6,7 @@ import { MobileDrawer } from "@/components/navigation/mobile-drawer";
 import { PreviewModeBanner } from "@/components/preview/preview-mode-banner";
 import { GlobalSearchModal } from "@/components/search/global-search-modal";
 import { ROUTES } from "@/constants/navigation";
-import type { UserProfile } from "@/db/schema";
+import type { ShellProfile } from "@/lib/server-cache";
 import { useUnreadNotificationsCount } from "@/hooks/use-notifications";
 import { cn } from "@/lib/utils";
 import { AppBottomNav } from "./app-bottom-nav";
@@ -17,7 +17,7 @@ import { navPress } from "./nav-utils";
 type AnonMode = "ALL" | "NON_ANONYMOUS";
 
 export interface AppChromeProps {
-  profile?: UserProfile;
+  profile?: ShellProfile;
   collegeName?: string;
   isAdmin?: boolean;
   isViewer?: boolean;

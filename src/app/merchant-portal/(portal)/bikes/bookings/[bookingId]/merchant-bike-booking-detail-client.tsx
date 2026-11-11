@@ -38,6 +38,8 @@ export function MerchantBikeBookingDetailClient({ bookingId }: MerchantBikeBooki
     fetcher,
     {
       refreshInterval: 5000,
+      refreshWhenHidden: false,
+      refreshWhenOffline: false,
     }
   );
   const { busyId, setStatus, reject, rejectDialog } = useBookingActions(mutate);

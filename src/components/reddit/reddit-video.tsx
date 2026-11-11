@@ -1,6 +1,6 @@
 "use client";
 
-import Hls from "hls.js";
+import type HlsClass from "hls.js";
 import { AlertCircle, ExternalLink, Loader2, Play, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ExternalPostInfo, ExternalPostMedia } from "@/hooks/use-feed";
@@ -43,54 +43,72 @@ export function RedditVideo({
     const video = videoRef.current;
     if (!video) return;
 
-    let hls: Hls | null = null;
+    let hls: HlsClass | null = null;
+    let cancelled = false;
     setHasError(false);
     setIsLoading(true);
 
-    if (hlsUrl && Hls.isSupported()) {
-      hls = new Hls({
-        enableWorker: true,
-        lowLatencyMode: true,
-        backBufferLength: 30,
-        capLevelToPlayerSize: false,
-      });
-      hls.autoLevelCapping = -1;
-      hls.loadSource(hlsUrl);
-      hls.attachMedia(video);
+    // hls.js is loaded on demand (only for HLS sources) so it stays out of the
+    // server bundle and the initial client chunk.
+    const attach = (Hls: typeof HlsClass | null) => {
+      if (hlsUrl && Hls?.isSupported()) {
+        hls = new Hls({
+          enableWorker: true,
+          lowLatencyMode: true,
+          backBufferLength: 30,
+          capLevelToPlayerSize: false,
+        });
+        hls.autoLevelCapping = -1;
+        hls.loadSource(hlsUrl);
+        hls.attachMedia(video);
 
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        if (hls && hls.levels && hls.levels.length > 0) {
-          hls.currentLevel = hls.levels.length - 1;
-        }
-        setIsLoading(false);
-      });
-
-      hls.on(Hls.Events.ERROR, (_event, data) => {
-        if (data.fatal) {
-          switch (data.type) {
-            case Hls.ErrorTypes.NETWORK_ERROR:
-              hls?.startLoad();
-              break;
-            case Hls.ErrorTypes.MEDIA_ERROR:
-              hls?.recoverMediaError();
-              break;
-            default:
-              hls?.destroy();
-              hls = null;
-              video.src = videoUrl;
-              break;
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          if (hls && hls.levels && hls.levels.length > 0) {
+            hls.currentLevel = hls.levels.length - 1;
           }
-        }
-      });
-    } else if (hlsUrl && video.canPlayType("application/vnd.apple.mpegurl")) {
-      video.src = hlsUrl;
-      setIsLoading(false);
+          setIsLoading(false);
+        });
+
+        hls.on(Hls.Events.ERROR, (_event, data) => {
+          if (data.fatal) {
+            switch (data.type) {
+              case Hls.ErrorTypes.NETWORK_ERROR:
+                hls?.startLoad();
+                break;
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                hls?.recoverMediaError();
+                break;
+              default:
+                hls?.destroy();
+                hls = null;
+                video.src = videoUrl;
+                break;
+            }
+          }
+        });
+      } else if (hlsUrl && video.canPlayType("application/vnd.apple.mpegurl")) {
+        video.src = hlsUrl;
+        setIsLoading(false);
+      } else {
+        video.src = videoUrl;
+        setIsLoading(false);
+      }
+    };
+
+    if (hlsUrl) {
+      import("hls.js")
+        .then((mod) => {
+          if (!cancelled) attach(mod.default);
+        })
+        .catch(() => {
+          if (!cancelled) attach(null);
+        });
     } else {
-      video.src = videoUrl;
-      setIsLoading(false);
+      attach(null);
     }
 
     return () => {
+      cancelled = true;
       if (hls) {
         hls.destroy();
       }

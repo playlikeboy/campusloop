@@ -1,6 +1,9 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/seo/constants";
 
+// Metadata routes cannot set response headers; regenerate at most hourly instead.
+export const revalidate = 3600;
+
 /**
  * Everything not listed here is crawlable by default, so there are no Allow
  * rules. Each Disallow below is a route whose pages also carry meta noindex

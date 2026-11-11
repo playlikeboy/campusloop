@@ -1,7 +1,7 @@
 import { AcademicsSwitch } from "@/components/courses/academics-switch";
 import { FirstVisitNotificationPrompt } from "@/components/notifications/first-visit-notification-prompt";
 import { AppShell } from "@/components/shells/app-shell";
-import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
+import { getCachedAuthUser, getCachedUserProfile, toShellProfile } from "@/lib/server-cache";
 import { isViewerProfile } from "@/lib/viewer";
 
 /** Academics is browsable signed out; the shell shows Sign in instead of the profile. */
@@ -13,7 +13,7 @@ export default async function AcademicsLayout({ children }: { children: React.Re
 
   return (
     <AppShell
-      profile={signedIn && profile ? profile : undefined}
+      profile={signedIn ? toShellProfile(profile) : undefined}
       collegeName={viewerMode ? "Viewer Mode" : (profile?.institution?.name ?? undefined)}
       isAdmin={profile?.role === "ADMIN"}
       isViewer={viewerMode}

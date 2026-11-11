@@ -3,6 +3,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { requireAdminApi } from "@/app/admin/_lib/guard";
 import { getDb } from "@/db";
 import { outreachContacts, type OutreachContact } from "@/db/schema";
+import { runInBackground } from "@/lib/background";
 import { sendEmail } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
@@ -86,6 +87,60 @@ function generateOutreachEmailHtml({
   `.trim();
 }
 
+type OutreachSendResult = { id: string; email: string; success: boolean; error?: string };
+
+/** Sends one outreach email and records the outcome on the contact row. */
+async function sendOutreachEmail(
+  db: ReturnType<typeof getDb>,
+  contact: OutreachContact
+): Promise<OutreachSendResult> {
+  const emailHtml = generateOutreachEmailHtml({
+    name: contact.name,
+    collegeName: contact.collegeName,
+    collegeSlug: contact.collegeSlug,
+    role: contact.role,
+  });
+
+  const emailSubject = `Invitation to test run CampusLoop at ${contact.collegeName}`;
+
+  let errMessage: string;
+  try {
+    const sendResult = await sendEmail({
+      to: { email: contact.email, name: contact.name },
+      subject: emailSubject,
+      html: emailHtml,
+      text: `Hi ${contact.name},\n\nWe would love to invite you to test run CampusLoop at ${contact.collegeName}.\nCampusLoop is India's verified student-only campus network (https://campusloop.space).\n\nCheck out your college hub and share your feedback by replying directly to this email.\n\nWarm regards,\nThe CampusLoop Team`,
+    });
+
+    if (sendResult.success) {
+      await db
+        .update(outreachContacts)
+        .set({
+          status: "SENT",
+          sentAt: new Date(),
+          lastError: null,
+          updatedAt: new Date(),
+        })
+        .where(eq(outreachContacts.id, contact.id));
+
+      return { id: contact.id, email: contact.email, success: true };
+    }
+    errMessage = sendResult.error || "Email delivery failed";
+  } catch (err) {
+    errMessage = err instanceof Error ? err.message : "Unexpected error sending email";
+  }
+
+  await db
+    .update(outreachContacts)
+    .set({
+      lastError: errMessage,
+      updatedAt: new Date(),
+    })
+    .where(eq(outreachContacts.id, contact.id));
+
+  return { id: contact.id, email: contact.email, success: false, error: errMessage };
+}
+
 export async function POST(req: NextRequest) {
   try {
     const auth = await requireAdminApi();
@@ -128,81 +183,36 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let successCount = 0;
-    let failCount = 0;
-    const results: Array<{ id: string; email: string; success: boolean; error?: string }> = [];
-
-    for (const contact of targetContacts) {
-      const emailHtml = generateOutreachEmailHtml({
-        name: contact.name,
-        collegeName: contact.collegeName,
-        collegeSlug: contact.collegeSlug,
-        role: contact.role,
+    // A single invite is sent inline so the admin sees the real result right away.
+    if (targetContacts.length === 1) {
+      const result = await sendOutreachEmail(db, targetContacts[0]);
+      return NextResponse.json({
+        success: true,
+        processed: 1,
+        successCount: result.success ? 1 : 0,
+        failCount: result.success ? 0 : 1,
+        results: [result],
       });
-
-      const emailSubject = `Invitation to test run CampusLoop at ${contact.collegeName}`;
-
-      try {
-        const sendResult = await sendEmail({
-          to: { email: contact.email, name: contact.name },
-          subject: emailSubject,
-          html: emailHtml,
-          text: `Hi ${contact.name},\n\nWe would love to invite you to test run CampusLoop at ${contact.collegeName}.\nCampusLoop is India's verified student-only campus network (https://campusloop.space).\n\nCheck out your college hub and share your feedback by replying directly to this email.\n\nWarm regards,\nThe CampusLoop Team`,
-        });
-
-        if (sendResult.success) {
-          successCount++;
-          await db
-            .update(outreachContacts)
-            .set({
-              status: "SENT",
-              sentAt: new Date(),
-              lastError: null,
-              updatedAt: new Date(),
-            })
-            .where(eq(outreachContacts.id, contact.id));
-
-          results.push({ id: contact.id, email: contact.email, success: true });
-        } else {
-          failCount++;
-          const errMessage = sendResult.error || "Email delivery failed";
-          await db
-            .update(outreachContacts)
-            .set({
-              lastError: errMessage,
-              updatedAt: new Date(),
-            })
-            .where(eq(outreachContacts.id, contact.id));
-
-          results.push({ id: contact.id, email: contact.email, success: false, error: errMessage });
-        }
-      } catch (err) {
-        failCount++;
-        const errMessage = err instanceof Error ? err.message : "Unexpected error sending email";
-        await db
-          .update(outreachContacts)
-          .set({
-            lastError: errMessage,
-            updatedAt: new Date(),
-          })
-          .where(eq(outreachContacts.id, contact.id));
-
-        results.push({ id: contact.id, email: contact.email, success: false, error: errMessage });
-      }
-
-      // Small throttling delay to prevent rapid-fire burst
-      if (targetContacts.length > 1) {
-        await new Promise((r) => setTimeout(r, 120));
-      }
     }
 
-    return NextResponse.json({
-      success: true,
-      processed: targetContacts.length,
-      successCount,
-      failCount,
-      results,
-    });
+    // Batches go out after the response (kept alive with waitUntil); each
+    // contact's status / lastError row records how its send went.
+    const contacts = targetContacts;
+    runInBackground(
+      (async () => {
+        for (const contact of contacts) {
+          await sendOutreachEmail(db, contact);
+          // Small throttling delay to prevent rapid-fire burst
+          await new Promise((r) => setTimeout(r, 120));
+        }
+      })(),
+      "admin outreach send"
+    );
+
+    return NextResponse.json(
+      { success: true, queued: contacts.length, processed: contacts.length },
+      { status: 202 }
+    );
   } catch (error) {
     console.error("[Admin Outreach Send] Error:", error);
     return NextResponse.json(

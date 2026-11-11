@@ -1,15 +1,20 @@
 import { randomUUID } from "node:crypto";
-import { and, desc, eq, ilike, or } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, inArray, lte, or, type SQL, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
 const nanoid = (len = 12) => randomUUID().replace(/-/g, "").slice(0, len);
 
 import { getDb } from "@/db";
-import { events, userProfiles } from "@/db/schema";
+import { eventRegistrations, events, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { rejectIfLacksCapability } from "@/lib/capabilities";
 
 export const dynamic = "force-dynamic";
+
+// Upper bound for one list response when the caller does not pass `limit`.
+const MAX_LIST_SIZE = 500;
+// Registrant avatars returned per event for the "going" preview.
+const RECENT_ATTENDEES = 4;
 
 export async function GET(req: Request) {
   try {
@@ -25,7 +30,10 @@ export async function GET(req: Request) {
     const query = searchParams.get("q") || "";
     const sort = searchParams.get("sort") || "trending"; // 'trending' | 'closing_soon' | 'highest_prize' | 'upcoming' | 'latest'
     const limitParam = searchParams.get("limit");
-    const limit = limitParam ? Math.max(1, parseInt(limitParam, 10)) : null;
+    const parsedLimit = limitParam ? parseInt(limitParam, 10) : NaN;
+    const limit = Number.isFinite(parsedLimit) ? Math.min(MAX_LIST_SIZE, Math.max(1, parsedLimit)) : null;
+    const offsetParam = parseInt(searchParams.get("offset") || "0", 10);
+    const offset = Number.isFinite(offsetParam) && offsetParam > 0 ? offsetParam : 0;
 
     // Authenticated user session
     let currentProfile = null;
@@ -166,14 +174,99 @@ export async function GET(req: Request) {
       }
     }
 
+    // Viewer-only scope: guests have no registrations, so the answer is empty.
+    if (scope === "REGISTERED") {
+      if (!currentProfile) {
+        return NextResponse.json({
+          events: [],
+          metrics: {
+            totalOpportunities: 0,
+            liveHackathons: 0,
+            cashPrizeCount: 0,
+            totalPrizePool: "₹15,00,000+",
+            totalRegistrations: 0,
+          },
+        });
+      }
+      conditions.push(
+        sql`exists (select 1 from ${eventRegistrations} er where er.event_id = ${events.id} and er.profile_id = ${currentProfile.id})`
+      );
+    }
+
     const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-    const list = await db.query.events.findMany({
-      where: whereClause,
-      orderBy: [desc(events.startDate)],
-      // Sorting and status filtering happen in memory below, so fetch a bounded
-      // superset rather than the whole table.
-      limit: 500,
+    // Lifecycle state is evaluated in SQL against one fixed "now", so filtering,
+    // ordering and pagination happen in the database. Timestamps are stored as
+    // UTC wall-clock values, which is what an ISO string cast to timestamp gives.
+    const now = Date.now();
+    const nowTs = sql`${new Date(now).toISOString()}::timestamp`;
+    const soonTs = sql`${new Date(now + 3 * 24 * 60 * 60 * 1000).toISOString()}::timestamp`;
+    const isClosedSql = sql`(${events.status} in ('COMPLETED', 'CANCELLED') or ${events.endDate} < ${nowTs})`;
+    const isLiveSql = sql`(${events.startDate} <= ${nowTs} and ${events.endDate} >= ${nowTs})`;
+    const isClosingSoonSql = sql`(not ${isClosedSql} and ${events.registrationDeadline} > ${nowTs} and ${events.registrationDeadline} <= ${soonTs})`;
+    const hasPrizeSql = sql`(coalesce(${events.prizesDescription}, '') <> '')`;
+    // Subqueries name the registrations table by an explicit alias: the relational
+    // query builder rewrites every column reference to the root "events" alias.
+    const regCountSql = sql`(select count(*) from ${eventRegistrations} er where er.event_id = ${events.id})`;
+
+    // Platform metrics cover every accessible event, before status/prize filters.
+    const metricsPromise = db
+      .select({
+        totalOpportunities: sql<number>`count(*)::int`,
+        liveHackathons: sql<number>`(count(*) filter (where ${events.eventType} = 'HACKATHON' and not ${isClosedSql}))::int`,
+        cashPrizeCount: sql<number>`(count(*) filter (where ${hasPrizeSql} and not ${isClosedSql}))::int`,
+        totalRegistrations: sql<number>`coalesce(sum(${regCountSql}), 0)::int`,
+      })
+      .from(events)
+      .where(whereClause);
+
+    const listConditions = [...conditions];
+    if (statusFilter === "ACTIVE") listConditions.push(sql`not ${isClosedSql}`);
+    else if (statusFilter === "LIVE") listConditions.push(isLiveSql);
+    else if (statusFilter === "CLOSING_SOON") listConditions.push(isClosingSoonSql);
+    else if (statusFilter === "UPCOMING") listConditions.push(sql`(not ${isClosedSql} and not ${isLiveSql})`);
+    else if (statusFilter === "CLOSED") listConditions.push(isClosedSql);
+    if (hasPrizes) listConditions.push(hasPrizeSql);
+
+    // Open events first for every named sort; ties fall back to newest start.
+    const openFirst = sql`${isClosedSql} asc`;
+    const newestStart = desc(events.startDate);
+    let orderBy: SQL[];
+    if (sort === "trending") {
+      const daysUntilStart = sql`greatest(0, extract(epoch from (${events.startDate} - ${nowTs})) / 86400.0)`;
+      const affinity = currentProfile?.institutionId
+        ? sql`(case when ${events.institutionId} = ${currentProfile.institutionId} then 2.5 else 0 end)`
+        : sql`0`;
+      const score = sql`(log(1 + ${regCountSql}::float8) * 4.0 + (case when ${daysUntilStart} <= 14 then ((14 - ${daysUntilStart}) / 14.0) * 3.0 else 0 end) + ${affinity})`;
+      orderBy = [openFirst, sql`${score} desc`, newestStart];
+    } else if (sort === "closing_soon") {
+      orderBy = [openFirst, sql`${events.registrationDeadline} asc nulls last`, newestStart];
+    } else if (sort === "highest_prize") {
+      orderBy = [openFirst, sql`${hasPrizeSql} desc`, sql`${regCountSql} desc`, newestStart];
+    } else if (sort === "upcoming") {
+      orderBy = [openFirst, asc(events.startDate)];
+    } else if (sort === "latest") {
+      orderBy = [openFirst, desc(events.createdAt), newestStart];
+    } else {
+      orderBy = [newestStart];
+    }
+
+    const listPromise = db.query.events.findMany({
+      where: and(...listConditions),
+      orderBy,
+      limit: limit ?? MAX_LIST_SIZE,
+      offset,
+      extras: {
+        attendeeCount: sql<number>`(select count(*)::int from ${eventRegistrations} er where er.event_id = ${events.id})`.as(
+          "attendee_count"
+        ),
+        attendedCount: sql<number>`(select count(*)::int from ${eventRegistrations} er where er.event_id = ${events.id} and er.status = 'ATTENDED')`.as(
+          "attended_count"
+        ),
+        confirmedCount: sql<number>`(select count(*)::int from ${eventRegistrations} er where er.event_id = ${events.id} and er.status in ('CONFIRMED', 'ATTENDED'))`.as(
+          "confirmed_count"
+        ),
+      },
       with: {
         organizer: {
           columns: {
@@ -191,39 +284,86 @@ export async function GET(req: Request) {
             logoUrl: true,
           },
         },
-        registrations: {
-          columns: {
-            id: true,
-            profileId: true,
-            reminderSet: true,
-            status: true,
-            registrationType: true,
-            teamName: true,
-            teamMembers: true,
-            contactPhone: true,
-            createdAt: true,
-          },
-          with: {
-            profile: {
-              columns: {
-                id: true,
-                username: true,
-                displayName: true,
-                avatarUrl: true,
-              },
-            },
-          },
-        },
       },
     });
 
-    const now = Date.now();
+    const [[metricsRow], list] = await Promise.all([metricsPromise, listPromise]);
+    const eventIds = list.map((ev) => ev.id);
 
-    let enriched = list.map((ev) => {
-      const isRegistered = currentProfile
-        ? ev.registrations.some((r) => r.profileId === currentProfile.id)
-        : false;
-      const userReg = currentProfile ? ev.registrations.find((r) => r.profileId === currentProfile.id) : null;
+    // Two small follow-ups scoped to the returned page: the viewer's own
+    // registrations and the first few registrants per event for the avatar stack.
+    const viewerRegsPromise =
+      currentProfile && eventIds.length > 0
+        ? db
+            .select({
+              id: eventRegistrations.id,
+              eventId: eventRegistrations.eventId,
+              profileId: eventRegistrations.profileId,
+              reminderSet: eventRegistrations.reminderSet,
+              status: eventRegistrations.status,
+              registrationType: eventRegistrations.registrationType,
+              teamName: eventRegistrations.teamName,
+              teamMembers: eventRegistrations.teamMembers,
+              contactPhone: eventRegistrations.contactPhone,
+              createdAt: eventRegistrations.createdAt,
+            })
+            .from(eventRegistrations)
+            .where(
+              and(eq(eventRegistrations.profileId, currentProfile.id), inArray(eventRegistrations.eventId, eventIds))
+            )
+        : Promise.resolve([]);
+
+    const recentPromise = (async () => {
+      if (eventIds.length === 0) return [];
+      const ranked = db
+        .select({
+          eventId: eventRegistrations.eventId,
+          profileId: eventRegistrations.profileId,
+          rn: sql<number>`row_number() over (partition by ${eventRegistrations.eventId} order by ${eventRegistrations.createdAt}, ${eventRegistrations.id})`.as(
+            "rn"
+          ),
+        })
+        .from(eventRegistrations)
+        .where(inArray(eventRegistrations.eventId, eventIds))
+        .as("ranked");
+      return db
+        .select({
+          eventId: ranked.eventId,
+          rn: ranked.rn,
+          id: userProfiles.id,
+          username: userProfiles.username,
+          displayName: userProfiles.displayName,
+          avatarUrl: userProfiles.avatarUrl,
+        })
+        .from(ranked)
+        .innerJoin(userProfiles, eq(userProfiles.id, ranked.profileId))
+        .where(lte(ranked.rn, RECENT_ATTENDEES))
+        .orderBy(ranked.eventId, ranked.rn);
+    })();
+
+    const [viewerRegs, recentRows] = await Promise.all([viewerRegsPromise, recentPromise]);
+
+    const viewerProfile = currentProfile
+      ? {
+          id: currentProfile.id,
+          username: currentProfile.username,
+          displayName: currentProfile.displayName,
+          avatarUrl: currentProfile.avatarUrl,
+        }
+      : null;
+    const regByEvent = new Map(
+      viewerRegs.map(({ eventId, ...reg }) => [eventId, { ...reg, profile: viewerProfile }])
+    );
+    const recentByEvent = new Map<string, Array<{ id: string; username: string; displayName: string; avatarUrl: string | null }>>();
+    for (const { eventId, rn: _rn, ...profile } of recentRows) {
+      const bucket = recentByEvent.get(eventId);
+      if (bucket) bucket.push(profile);
+      else recentByEvent.set(eventId, [profile]);
+    }
+
+    const enriched = list.map((ev) => {
+      const userReg = regByEvent.get(ev.id) ?? null;
+      const isRegistered = Boolean(userReg);
 
       const startMs = new Date(ev.startDate).getTime();
       const endMs = new Date(ev.endDate).getTime();
@@ -262,13 +402,10 @@ export async function GET(req: Request) {
         perks: ev.perks,
         loopPointsReward: ev.loopPointsReward,
         status: ev.status,
-        attendeeCount: ev.registrations.length,
-        attendedCount: ev.registrations.filter((r: any) => r.status === "ATTENDED").length,
-        confirmedCount: ev.registrations.filter((r: any) => r.status === "CONFIRMED" || r.status === "ATTENDED").length,
-        recentAttendees: ev.registrations
-          .slice(0, 4)
-          .map((r: any) => r.profile)
-          .filter(Boolean),
+        attendeeCount: Number(ev.attendeeCount) || 0,
+        attendedCount: Number(ev.attendedCount) || 0,
+        confirmedCount: Number(ev.confirmedCount) || 0,
+        recentAttendees: recentByEvent.get(ev.id) ?? [],
         isRegistered,
         userRegistration: userReg,
         reminderSet: userReg?.reminderSet ?? false,
@@ -279,119 +416,14 @@ export async function GET(req: Request) {
       };
     });
 
-    // If scope is REGISTERED, filter to user registered events only
-    if (scope === "REGISTERED") {
-      enriched = enriched.filter((e) => e.isRegistered);
-    }
-
-    // Compute platform-level Unstop metrics across all accessible events
-    const totalOpportunities = enriched.length;
-    const liveHackathons = enriched.filter((e) => e.eventType === "HACKATHON" && !e.isClosed).length;
-    const cashPrizeCount = enriched.filter((e) => Boolean(e.prizesDescription) && !e.isClosed).length;
-    const totalRegistrations = enriched.reduce((acc, e) => acc + (e.attendeeCount || 0), 0);
-
-    // Apply Status Filter if specified
-    if (statusFilter !== "ALL") {
-      if (statusFilter === "ACTIVE") {
-        enriched = enriched.filter((e) => !e.isClosed);
-      } else if (statusFilter === "LIVE") {
-        enriched = enriched.filter((e) => e.isLiveNow);
-      } else if (statusFilter === "CLOSING_SOON") {
-        enriched = enriched.filter((e) => e.isClosingSoon);
-      } else if (statusFilter === "UPCOMING") {
-        enriched = enriched.filter((e) => !e.isClosed && !e.isLiveNow);
-      } else if (statusFilter === "CLOSED") {
-        enriched = enriched.filter((e) => e.isClosed);
-      }
-    }
-
-    // Apply Has Prizes filter
-    if (hasPrizes) {
-      enriched = enriched.filter((e) => Boolean(e.prizesDescription));
-    }
-
-    // Helper to prioritize open events over closed events
-    const prioritizeOpen = (a: any, b: any) => {
-      if (!a.isClosed && b.isClosed) return -1;
-      if (a.isClosed && !b.isClosed) return 1;
-      return 0;
-    };
-
-    // Sorting
-    if (sort === "trending") {
-      enriched.sort((a, b) => {
-        const openDiff = prioritizeOpen(a, b);
-        if (openDiff !== 0) return openDiff;
-
-        const regScoreA = Math.log10(1 + (a.attendeeCount || 0)) * 4.0;
-        const regScoreB = Math.log10(1 + (b.attendeeCount || 0)) * 4.0;
-
-        const startDiffDaysA = Math.max(0, (new Date(a.startDate).getTime() - now) / (1000 * 60 * 60 * 24));
-        const startDiffDaysB = Math.max(0, (new Date(b.startDate).getTime() - now) / (1000 * 60 * 60 * 24));
-
-        const urgencyA = startDiffDaysA <= 14 ? ((14 - startDiffDaysA) / 14) * 3.0 : 0;
-        const urgencyB = startDiffDaysB <= 14 ? ((14 - startDiffDaysB) / 14) * 3.0 : 0;
-
-        const affinityA =
-          currentProfile?.institutionId && (a.institution as any)?.id === currentProfile.institutionId
-            ? 2.5
-            : 0;
-        const affinityB =
-          currentProfile?.institutionId && (b.institution as any)?.id === currentProfile.institutionId
-            ? 2.5
-            : 0;
-
-        const scoreA = regScoreA + urgencyA + affinityA;
-        const scoreB = regScoreB + urgencyB + affinityB;
-
-        return scoreB - scoreA;
-      });
-    } else if (sort === "closing_soon") {
-      enriched.sort((a, b) => {
-        const openDiff = prioritizeOpen(a, b);
-        if (openDiff !== 0) return openDiff;
-
-        const deadlineA = a.registrationDeadline ? new Date(a.registrationDeadline).getTime() : Infinity;
-        const deadlineB = b.registrationDeadline ? new Date(b.registrationDeadline).getTime() : Infinity;
-        return deadlineA - deadlineB;
-      });
-    } else if (sort === "highest_prize") {
-      enriched.sort((a, b) => {
-        const openDiff = prioritizeOpen(a, b);
-        if (openDiff !== 0) return openDiff;
-
-        const hasA = Boolean(a.prizesDescription);
-        const hasB = Boolean(b.prizesDescription);
-        if (hasA && !hasB) return -1;
-        if (!hasA && hasB) return 1;
-        return (b.attendeeCount || 0) - (a.attendeeCount || 0);
-      });
-    } else if (sort === "upcoming") {
-      enriched.sort((a, b) => {
-        const openDiff = prioritizeOpen(a, b);
-        if (openDiff !== 0) return openDiff;
-        return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
-      });
-    } else if (sort === "latest") {
-      enriched.sort((a, b) => {
-        const openDiff = prioritizeOpen(a, b);
-        if (openDiff !== 0) return openDiff;
-        return (
-          new Date(b.createdAt || b.startDate).getTime() - new Date(a.createdAt || a.startDate).getTime()
-        );
-      });
-    }
-
-    const returnedEvents = limit ? enriched.slice(0, limit) : enriched;
-
     return NextResponse.json({
-      events: returnedEvents,
+      events: enriched,
       metrics: {
-        totalOpportunities,
-        liveHackathons,
-        cashPrizeCount,
+        totalOpportunities: Number(metricsRow?.totalOpportunities) || 0,
+        liveHackathons: Number(metricsRow?.liveHackathons) || 0,
+        cashPrizeCount: Number(metricsRow?.cashPrizeCount) || 0,
         totalPrizePool: "₹15,00,000+",
-        totalRegistrations,
+        totalRegistrations: Number(metricsRow?.totalRegistrations) || 0,
       },
     });
   } catch (error) {

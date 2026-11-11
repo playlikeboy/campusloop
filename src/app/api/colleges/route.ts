@@ -71,16 +71,17 @@ export async function GET(request: Request) {
     const validConditions = conditions.filter((c): c is SQL => Boolean(c));
     const whereClause = validConditions.length > 0 ? and(...validConditions) : undefined;
 
-    // Get total matching institutions count for accurate pagination
-    const [countResult] = await db.select({ total: count() }).from(institutions).where(whereClause);
+    // Total (for pagination) and the page itself are independent, so run them together.
+    const [[countResult], list] = await Promise.all([
+      db.select({ total: count() }).from(institutions).where(whereClause),
+      db.query.institutions.findMany({
+        where: whereClause,
+        orderBy: [desc(institutions.createdAt)],
+        limit,
+        offset,
+      }),
+    ]);
     const total = Number(countResult?.total ?? 0);
-
-    const list = await db.query.institutions.findMany({
-      where: whereClause,
-      orderBy: [desc(institutions.createdAt)],
-      limit,
-      offset,
-    });
 
     const enriched = list.map((college) => ({
       id: college.id,

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AppShell } from "@/components/shells/app-shell";
-import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
+import { getCachedAuthUser, getCachedUserProfile, toShellProfile } from "@/lib/server-cache";
 import { isViewerProfile } from "@/lib/viewer";
 
 // Only the title template lives here. Each page sets its own canonical and
@@ -23,7 +23,7 @@ export default async function ArticlesLayout({ children }: { children: React.Rea
 
   return (
     <AppShell
-      profile={profile || undefined}
+      profile={toShellProfile(profile)}
       collegeName={viewerMode ? "Viewer Mode" : (profile?.institution?.name ?? undefined)}
       isAdmin={profile?.role === "ADMIN"}
       isViewer={viewerMode}

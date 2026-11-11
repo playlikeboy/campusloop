@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { institutions, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { invalidateProfileCache } from "@/lib/server-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -84,6 +85,7 @@ export async function POST(req: Request) {
         targetInstitutionIds: sanitizedIds,
       })
       .where(eq(userProfiles.id, profile.id));
+    invalidateProfileCache(user.id);
 
     return NextResponse.json({
       success: true,

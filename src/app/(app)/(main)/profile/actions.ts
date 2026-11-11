@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
 import { userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { invalidateProfileCache } from "@/lib/server-cache";
 
 export async function updateProfile(
   displayName: string,
@@ -75,6 +76,7 @@ export async function updateProfile(
       updatedAt: new Date(),
     })
     .where(eq(userProfiles.userId, user.id));
+  invalidateProfileCache(user.id);
 
   revalidatePath("/profile");
   revalidatePath("/feeds");

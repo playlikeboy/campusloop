@@ -7,6 +7,7 @@ import { runInBackground } from "@/lib/background";
 import { checkCampusUpgradeEligibility } from "@/lib/campus-upgrade";
 import { sendEmail } from "@/lib/email";
 import { buildWelcomeEmail } from "@/lib/email-templates";
+import { invalidateProfileCache } from "@/lib/server-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -81,6 +82,7 @@ export async function POST(req: Request) {
         status: "ACTIVE",
       })
       .where(eq(userProfiles.id, profile.id));
+    invalidateProfileCache(user.id);
 
     // Dispatch welcome / verification email asynchronously via mail.campusloop.space
     try {

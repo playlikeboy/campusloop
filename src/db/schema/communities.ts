@@ -27,6 +27,7 @@ export const communities = pgTable(
     uniqueIndex("communities_name_idx").on(table.name),
     index("communities_creator_created_idx").on(table.creatorId, table.createdAt),
     index("communities_created_idx").on(table.createdAt),
+    index("communities_points_idx").on(table.points.desc()),
   ]
 );
 
@@ -44,7 +45,10 @@ export const communityMembers = pgTable(
     status: text("status").default("ACTIVE").notNull(), // 'ACTIVE' | 'PENDING' | 'BANNED'
     createdAt,
   },
-  (table) => [uniqueIndex("community_members_join_idx").on(table.communityId, table.userId)]
+  (table) => [
+    uniqueIndex("community_members_join_idx").on(table.communityId, table.userId),
+    index("community_members_user_idx").on(table.userId),
+  ]
 );
 
 export const communityWebhooks = pgTable(

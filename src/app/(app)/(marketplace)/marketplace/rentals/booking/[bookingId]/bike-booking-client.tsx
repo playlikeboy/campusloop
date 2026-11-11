@@ -62,7 +62,7 @@ export function BikeBookingClient({ bookingId }: BikeBookingClientProps) {
   const { data, isLoading, error, mutate } = useSWR<{ booking: any }>(
     `/api/marketplace/rentals/bookings/${bookingId}`,
     fetcher,
-    { refreshInterval: 5000 }
+    { refreshInterval: 5000, refreshWhenHidden: false, refreshWhenOffline: false }
   );
   const booking = data?.booking;
 

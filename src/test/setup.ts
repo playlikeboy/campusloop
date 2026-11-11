@@ -17,5 +17,5 @@ vi.mock("server-only", () => ({}));
 // URLs here: any test that forgets to mock `@/db` fails loudly with
 // "Missing DATABASE_URL" instead of silently querying production.
 // Mock it with `vi.mock("@/db", ...)` and the helper in `src/test/mock-db.ts`.
-delete process.env.DATABASE_URL;
-delete process.env.DB_URL;
+Reflect.deleteProperty(process.env, "DATABASE_URL");
+Reflect.deleteProperty(process.env, "DB_URL");

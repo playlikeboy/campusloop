@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SignOutButton } from "@/components/ui/sign-out-button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import type { UserProfile } from "@/db/schema";
+import type { ShellProfile } from "@/lib/server-cache";
 import { getAvatarUrl, initialOf } from "@/lib/utils";
 import { navPress, profileHref } from "./nav-utils";
 
@@ -20,7 +20,7 @@ export function AccountMenu({
   campus,
   isAdmin,
 }: {
-  profile: UserProfile;
+  profile: ShellProfile;
   campus?: string | null;
   isAdmin?: boolean;
 }) {

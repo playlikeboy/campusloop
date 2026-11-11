@@ -4,6 +4,7 @@ import { getDb } from "@/db";
 import { userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { requireProfile } from "@/lib/require-profile";
+import { invalidateProfileCache } from "@/lib/server-cache";
 import { sanitizeSocialLinks } from "@/lib/social-links";
 import { validateDisplayName, validateUsername } from "@/lib/validation";
 
@@ -39,7 +40,7 @@ export async function PATCH(req: Request) {
   try {
     const auth = await requireProfile();
     if (!auth.ok) return auth.response;
-    const { profile: existingProfile } = auth;
+    const { user, profile: existingProfile } = auth;
 
     const db = getDb();
 
@@ -170,6 +171,7 @@ export async function PATCH(req: Request) {
       .set(updateData)
       .where(eq(userProfiles.id, existingProfile.id))
       .returning();
+    invalidateProfileCache(user.id);
 
     return NextResponse.json(updated);
   } catch (error) {

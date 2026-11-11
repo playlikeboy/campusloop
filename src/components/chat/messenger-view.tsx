@@ -4,6 +4,7 @@ import { UserPlus } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
+import { useSmartInterval } from "@/hooks/use-smart-interval";
 import { type CachedConversation, getCachedConversations, setCachedConversations } from "@/lib/chat-cache";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -26,6 +27,12 @@ interface MessengerViewProps {
   currentUserId: string;
   initialTargetUserId?: string;
   initialConversationId?: string;
+}
+
+/** Change marker for the inbox: order, last messages and unread counts. */
+function inboxSignature(list: CachedConversation[] | undefined): string {
+  if (!list?.length) return "0";
+  return list.map((c) => `${c.id}:${c.lastMessage?.id ?? ""}:${c.unreadCount ?? 0}`).join("|");
 }
 
 /** Two-pane messenger: inbox on the left, open chat on the right (one pane at a time on phones). */
@@ -57,12 +64,23 @@ export function MessengerView({
     mutate,
   } = useSWR<CachedConversation[]>("/api/chat", fetcher, {
     fallbackData: initialCache || undefined,
-    refreshInterval: 2500,
     revalidateOnFocus: true,
     onSuccess: (data) => {
       if (data) setCachedConversations(data);
     },
   });
+
+  // Inbox poll: 4s while conversations are changing, backing off to 30s when
+  // quiet, paused on hidden tabs.
+  useSmartInterval(
+    async () => {
+      const before = inboxSignature(conversations);
+      const fresh = await mutate();
+      if (!fresh) return false;
+      return inboxSignature(fresh) !== before;
+    },
+    { baseMs: 8000, maxMs: 30000 }
+  );
 
   // On desktop, opening /chat selects the newest chat.
   useEffect(() => {

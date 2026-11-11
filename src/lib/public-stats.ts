@@ -50,26 +50,29 @@ async function countDirectoryColleges(): Promise<number> {
 }
 
 async function computePublicStats(): Promise<PublicStats> {
-  const directoryColleges = await countDirectoryColleges();
+  // countDirectoryColleges never rejects, so it can run alongside the other two.
+  const directoryCollegesPromise = countDirectoryColleges();
   try {
     const db = getDb();
 
-    const [studentRow] = await db
-      .select({ students: count(), colleges: countDistinct(userProfiles.institutionId) })
-      .from(userProfiles)
-      .where(realStudent);
-
-    const [resourceRow] = await db
-      .select({ value: count() })
-      .from(academicResources)
-      .innerJoin(userProfiles, eq(academicResources.uploaderId, userProfiles.id))
-      .where(
-        and(
-          notLike(academicResources.id, SEED_ID_PREFIX),
-          eq(userProfiles.isSeeded, false),
-          notLike(userProfiles.id, SEED_ID_PREFIX)
-        )
-      );
+    const [directoryColleges, [studentRow], [resourceRow]] = await Promise.all([
+      directoryCollegesPromise,
+      db
+        .select({ students: count(), colleges: countDistinct(userProfiles.institutionId) })
+        .from(userProfiles)
+        .where(realStudent),
+      db
+        .select({ value: count() })
+        .from(academicResources)
+        .innerJoin(userProfiles, eq(academicResources.uploaderId, userProfiles.id))
+        .where(
+          and(
+            notLike(academicResources.id, SEED_ID_PREFIX),
+            eq(userProfiles.isSeeded, false),
+            notLike(userProfiles.id, SEED_ID_PREFIX)
+          )
+        ),
+    ]);
 
     return {
       students: aboveThreshold(Number(studentRow?.students ?? 0), THRESHOLDS.students),
@@ -79,7 +82,12 @@ async function computePublicStats(): Promise<PublicStats> {
     };
   } catch (error) {
     console.error("getPublicStats failed:", error);
-    return { students: null, resources: null, activeColleges: null, directoryColleges };
+    return {
+      students: null,
+      resources: null,
+      activeColleges: null,
+      directoryColleges: await directoryCollegesPromise,
+    };
   }
 }
 

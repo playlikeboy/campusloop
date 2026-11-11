@@ -1,6 +1,7 @@
 import { getDocsSlugs } from "@/lib/docs-features";
 import { GUIDES } from "@/lib/guide";
 import { buildUrlset, type SitemapEntry, xmlResponse } from "@/lib/seo/sitemap";
+import { withSitemapCache } from "@/app/sitemaps/cache-headers";
 
 /** Hand-maintained public pages. Needs no database, so it never fails. */
 const PAGES: SitemapEntry[] = [
@@ -32,5 +33,5 @@ const PAGES: SitemapEntry[] = [
 ];
 
 export function GET() {
-  return xmlResponse(buildUrlset(PAGES), 86400, 604800);
+  return withSitemapCache(xmlResponse(buildUrlset(PAGES), 86400, 604800));
 }

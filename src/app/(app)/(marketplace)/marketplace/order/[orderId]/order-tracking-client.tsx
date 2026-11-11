@@ -49,6 +49,8 @@ export function OrderTrackingClient({ orderId }: OrderTrackingClientProps) {
     fetcher,
     {
       refreshInterval: 5000,
+      refreshWhenHidden: false,
+      refreshWhenOffline: false,
     }
   );
   const order = data?.order;

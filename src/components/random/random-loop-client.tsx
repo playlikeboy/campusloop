@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
 import { ActiveCallOverlay } from "@/components/calls/active-call-overlay";
+import { useSmartInterval } from "@/hooks/use-smart-interval";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { RANDOM_LOOP_STARTERS } from "@/lib/random-loop-safety";
@@ -36,6 +37,13 @@ async function postAction(sessionId: string, body: Record<string, unknown>) {
   });
 }
 
+/** Change marker for a random-chat session: newest message plus every session flag. */
+function sessionSignature(data: { session: any; messages: any[] } | undefined): string {
+  if (!data) return "";
+  const messages = data.messages || [];
+  return JSON.stringify([messages.length, messages[messages.length - 1]?.id, data.session]);
+}
+
 export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
   const router = useRouter();
 
@@ -64,9 +72,19 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
     session: any;
     partner: any;
     messages: any[];
-  }>(activeSessionId ? `/api/random/session/${activeSessionId}` : null, fetcher, {
-    refreshInterval: 2500, // Often enough for chat, light on mobile data
-  });
+  }>(activeSessionId ? `/api/random/session/${activeSessionId}` : null, fetcher);
+
+  // Session poll: 2.5s while the chat is moving, backing off to 10s when quiet,
+  // paused on hidden tabs. Sending a message resets it to 2.5s.
+  const { reset: resetSessionPoll } = useSmartInterval(
+    async () => {
+      const before = sessionSignature(sessionData);
+      const fresh = await mutateSession();
+      if (!fresh) return false;
+      return sessionSignature(fresh) !== before;
+    },
+    { baseMs: 2500, maxMs: 10000, enabled: Boolean(activeSessionId) }
+  );
 
   const session = sessionData?.session;
   const partner = sessionData?.partner;
@@ -106,25 +124,22 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
     isVideoActive,
   ]);
 
-  // Poll the queue while waiting for a match
-  useEffect(() => {
-    if (viewState !== "QUEUED") return;
-    const interval = setInterval(async () => {
-      try {
-        const res = await fetch("/api/random/queue");
-        const data = (await res.json()) as any;
-        if (data.status === "MATCHED" && data.sessionId) {
-          sounds.ting();
-          haptics.success();
-          setActiveSessionId(data.sessionId);
-          setViewState("ACTIVE");
-        }
-      } catch {
-        // Try again on the next tick
+  // Poll the queue while waiting for a match: 3s backing off to 6s, paused on hidden tabs.
+  useSmartInterval(
+    async () => {
+      const res = await fetch("/api/random/queue");
+      const data = (await res.json()) as any;
+      if (data.status === "MATCHED" && data.sessionId) {
+        sounds.ting();
+        haptics.success();
+        setActiveSessionId(data.sessionId);
+        setViewState("ACTIVE");
+        return true;
       }
-    }, 2500);
-    return () => clearInterval(interval);
-  }, [viewState]);
+      return false;
+    },
+    { baseMs: 3000, maxMs: 6000, enabled: viewState === "QUEUED" }
+  );
 
   function toggleInterest(id: string) {
     sounds.tap();
@@ -210,6 +225,7 @@ export function RandomLoopClient({ currentProfile }: RandomLoopClientProps) {
       }
       setInputText("");
       mutateSession();
+      resetSessionPoll();
     } catch {
       toast.error("Couldn't send. Check your connection and try again.");
     } finally {

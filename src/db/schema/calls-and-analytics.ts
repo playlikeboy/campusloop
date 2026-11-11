@@ -72,6 +72,8 @@ export const userBehaviorEvents = pgTable("user_behavior_events", {
   // Per-viewer ranking reads ("my last 14 days of feed impressions") and experiment rollups.
   index("user_behavior_events_user_type_created_idx").on(table.userId, table.eventType, table.createdAt),
   index("user_behavior_events_type_created_idx").on(table.eventType, table.createdAt),
+  // Per-target lookups (counts/dwell for one post or profile).
+  index("user_behavior_events_target_id_type_idx").on(table.targetId, table.eventType),
 ]);
 
 export type CallSession = typeof callSessions.$inferSelect;

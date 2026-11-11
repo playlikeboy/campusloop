@@ -11,7 +11,7 @@ import { SignOutButton } from "@/components/ui/sign-out-button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { VerifiedBadge } from "@/components/ui/verified-badge";
 import { DRAWER_SECTIONS, ROUTES } from "@/constants/navigation";
-import type { UserProfile } from "@/db/schema";
+import type { ShellProfile } from "@/lib/server-cache";
 import { cn, getAvatarUrl, getCollegeShortName, initialOf } from "@/lib/utils";
 
 type AnonMode = "ALL" | "NON_ANONYMOUS";
@@ -25,7 +25,7 @@ export interface MobileDrawerProps {
   open: boolean;
   onClose: () => void;
   pathname: string;
-  profile?: UserProfile;
+  profile?: ShellProfile;
   collegeName?: string;
   isAdmin?: boolean;
   isViewer?: boolean;

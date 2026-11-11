@@ -1,4 +1,5 @@
 import { and, count, desc, eq, ne, type SQL } from "drizzle-orm";
+import { unstable_cache } from "next/cache";
 import type { CollegeItem } from "@/components/colleges/college-hub-row";
 import { getDb } from "@/db";
 import { institutions } from "@/db/schema";
@@ -18,17 +19,31 @@ export interface CollegeDirectoryPage {
 /**
  * Same ordering and viewer-hub exclusion as GET /api/colleges, read directly
  * from the database so the directory page can ship college links in its HTML.
+ * Cached for 10 minutes per (page, state); invalidate with revalidateTag("colleges").
  */
 export async function getCollegeDirectoryPage(params: {
   page?: number;
   state?: string | null;
 }): Promise<CollegeDirectoryPage> {
-  const db = getDb();
   const page = Math.max(1, Math.floor(params.page ?? 1));
+  const state = params.state && params.state !== "ALL" ? params.state : null;
+  return cachedDirectoryPage(page, state);
+}
+
+// unstable_cache adds the (page, state) arguments to the cache key. The result
+// holds only strings, numbers and nulls (no Date columns), so it survives the
+// JSON round trip unchanged.
+const cachedDirectoryPage = unstable_cache(loadDirectoryPage, ["college-directory-page-v1"], {
+  revalidate: 600,
+  tags: ["colleges"],
+});
+
+async function loadDirectoryPage(page: number, state: string | null): Promise<CollegeDirectoryPage> {
+  const db = getDb();
   const offset = (page - 1) * COLLEGES_PAGE_SIZE;
 
   const conditions: SQL[] = [ne(institutions.slug, VIEWER_INSTITUTION_SLUG)];
-  if (params.state && params.state !== "ALL") conditions.push(eq(institutions.state, params.state));
+  if (state) conditions.push(eq(institutions.state, state));
   const where = and(...conditions);
 
   const [[countResult], rows] = await Promise.all([

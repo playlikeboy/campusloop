@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { ROUTES } from "@/constants/navigation";
-import type { UserProfile } from "@/db/schema";
+import type { ShellProfile } from "@/lib/server-cache";
 import { useUnreadNotificationsCount } from "@/hooks/use-notifications";
 import { cn, getCollegeShortName } from "@/lib/utils";
 import { AccountMenu } from "./account-menu";
@@ -13,7 +13,7 @@ import { formatCount, isPathActive, navPress } from "./nav-utils";
 import { PointsChip } from "./points-chip";
 
 interface AppTopBarProps {
-  profile?: UserProfile;
+  profile?: ShellProfile;
   collegeName?: string;
   isAdmin?: boolean;
   onOpenDrawer: () => void;

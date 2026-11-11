@@ -30,6 +30,8 @@ interface BikeDashboard {
 export function MerchantBikeDashboardClient() {
   const { data, error, isLoading, mutate } = useSWR<BikeDashboard>("/api/merchant/bikes", fetcher, {
     refreshInterval: 6000,
+    refreshWhenHidden: false,
+    refreshWhenOffline: false,
   });
   const stats = data?.fleetSummary;
   const today = data?.todaysBookings || [];

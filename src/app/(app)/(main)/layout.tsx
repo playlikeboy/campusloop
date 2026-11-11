@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { FirstVisitNotificationPrompt } from "@/components/notifications/first-visit-notification-prompt";
 import { AppShell } from "@/components/shells/app-shell";
-import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
+import { getCachedAuthUser, getCachedUserProfile, toShellProfile } from "@/lib/server-cache";
 import { isViewerProfile } from "@/lib/viewer";
 
 export const metadata: Metadata = {
@@ -34,7 +34,7 @@ export default async function MainLayout({ children }: { children: React.ReactNo
 
   return (
     <AppShell
-      profile={profile || undefined}
+      profile={toShellProfile(profile)}
       collegeName={viewerMode ? "Viewer Mode" : (college?.name ?? "Campus")}
       isAdmin={profile?.role === "ADMIN"}
       isViewer={viewerMode}

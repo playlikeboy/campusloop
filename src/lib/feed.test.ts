@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { normalizeApiFeedSort, sortFeedPosts } from "./feed";
+import { formatPollOptions, normalizeApiFeedSort, sortFeedPosts } from "./feed";
 import { getCloutTier, isAutoVerified } from "./gamification";
 
 describe("getCloutTier", () => {
@@ -115,5 +115,55 @@ describe("normalizeApiFeedSort", () => {
   it("defaults unknown values to latest", () => {
     expect(normalizeApiFeedSort("hacker")).toBe("latest");
     expect(normalizeApiFeedSort(null)).toBe("latest");
+  });
+});
+
+describe("formatPollOptions", () => {
+  it("uses SQL-aggregated counts and the viewer's own pick", () => {
+    const result = formatPollOptions(
+      [
+        { id: "a", text: "Yes", votesCount: "3", userVoted: false },
+        { id: "b", text: "No", votesCount: 2, userVoted: true },
+      ],
+      "viewer"
+    );
+    expect(result.pollOptions).toEqual([
+      { id: "a", text: "Yes", votesCount: 3, userVoted: false },
+      { id: "b", text: "No", votesCount: 2, userVoted: true },
+    ]);
+    expect(result.hasVotedPoll).toBe(true);
+    expect(result.totalPollVotes).toBe(5);
+  });
+
+  it("matches the raw vote-row shape still used by other callers", () => {
+    const aggregated = formatPollOptions(
+      [
+        { id: "a", text: "Yes", votesCount: 2, userVoted: true },
+        { id: "b", text: "No", votesCount: 1, userVoted: false },
+      ],
+      "viewer"
+    );
+    const raw = formatPollOptions(
+      [
+        { id: "a", text: "Yes", votes: [{ userId: "viewer" }, { userId: "x" }] },
+        { id: "b", text: "No", votes: [{ userId: "y" }] },
+      ],
+      "viewer"
+    );
+    expect(raw).toEqual(aggregated);
+  });
+
+  it("never marks a vote for a signed-out viewer and handles non-polls", () => {
+    expect(formatPollOptions([{ id: "a", text: "Yes", votesCount: 4, userVoted: true }], null)).toEqual({
+      pollOptions: [{ id: "a", text: "Yes", votesCount: 4, userVoted: false }],
+      hasVotedPoll: false,
+      totalPollVotes: 4,
+    });
+    expect(formatPollOptions([], "viewer")).toEqual({ pollOptions: [], hasVotedPoll: false, totalPollVotes: 0 });
+    expect(formatPollOptions(undefined, "viewer")).toEqual({
+      pollOptions: undefined,
+      hasVotedPoll: false,
+      totalPollVotes: 0,
+    });
   });
 });

@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { createSmartInterval, type SmartIntervalController } from "@/hooks/use-smart-interval";
 import { CallEngine, type CallState } from "@/lib/calls/call-engine";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -76,7 +77,8 @@ export function ActiveCallOverlay({
   }, [callState]);
 
   useEffect(() => {
-    let pollTimer: ReturnType<typeof setInterval> | null = null;
+    let poll: SmartIntervalController | null = null;
+    let cancelled = false;
     const engine = new CallEngine({
       onStateChange: (state, err) => {
         setCallState(state);
@@ -105,23 +107,33 @@ export function ActiveCallOverlay({
             engine.callPeer(remotePeerId, media);
             return;
           }
-          // Wait for the other person to answer.
-          pollTimer = setInterval(async () => {
-            try {
-              const res = await fetch(`/api/calls/${callId}`);
-              const data = (await res.json()) as { call?: { status?: string; receiverPeerId?: string } };
-              if (data?.call?.status === "ACCEPTED" && data.call.receiverPeerId) {
-                if (pollTimer) clearInterval(pollTimer);
-                engine.callPeer(data.call.receiverPeerId, media);
-              } else if (data?.call?.status === "DECLINED" || data?.call?.status === "ENDED") {
-                if (pollTimer) clearInterval(pollTimer);
-                toast.info(`${partner.displayName} didn't pick up`);
-                onEndedRef.current();
+          // Wait for the other person to answer: 2s backing off to 4s while it
+          // rings, paused on hidden tabs (one check fires when visible again).
+          if (cancelled) return;
+          poll = createSmartInterval(
+            async () => {
+              try {
+                const res = await fetch(`/api/calls/${callId}`);
+                const data = (await res.json()) as { call?: { status?: string; receiverPeerId?: string } };
+                if (data?.call?.status === "ACCEPTED" && data.call.receiverPeerId) {
+                  poll?.stop();
+                  engine.callPeer(data.call.receiverPeerId, media);
+                  return true;
+                }
+                if (data?.call?.status === "DECLINED" || data?.call?.status === "ENDED") {
+                  poll?.stop();
+                  toast.info(`${partner.displayName} didn't pick up`);
+                  onEndedRef.current();
+                  return true;
+                }
+              } catch {
+                // Keep waiting; the next poll retries.
               }
-            } catch {
-              // Keep waiting; the next poll retries.
-            }
-          }, 1800);
+              return false;
+            },
+            { baseMs: 2000, maxMs: 4000 }
+          );
+          poll.start();
         } else {
           await fetch(`/api/calls/${callId}`, {
             method: "POST",
@@ -137,7 +149,8 @@ export function ActiveCallOverlay({
 
     void start();
     return () => {
-      if (pollTimer) clearInterval(pollTimer);
+      cancelled = true;
+      poll?.stop();
       engine.destroy();
     };
   }, [callId, isCaller, type, remotePeerId, partner.displayName]);
