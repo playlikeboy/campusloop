@@ -346,6 +346,13 @@ The core vocabulary, from `src/components/ui/stickers`. Each has a `sticker` var
 - **Mention tag:** Violet Mist pill with violet `@username`; hovers to full violet when it links.
 - **Loop Points sticker:** Sticker Yellow pill with ink text, coin icon and caption-weight number.
 
+### Landing (Persuade only)
+Built in `src/components/landing`. These pieces never appear on Operate screens.
+- **Sticker headline:** The hero headline's second line sits on a white sticker tile with violet text, tilted 2 degrees, with the sticker-lift shadow.
+- **Tape:** An ink band rotated 1 degree across the seam under the hero, running section names in sticker caption type with small violet tiles between them. One 40s linear loop; reduced motion stops it.
+- **Story panels:** The feature wall is an uneven 12-column grid of 28px-radius panels, each a whole-panel link on its own field: ink, deep violet, Violet Mist, Paper Muted, and the pink and yellow washes for Campus Match and Loop Points only. Caption title on top, a tilted sticker at the bottom that straightens on hover. Panels carry no border and no shadow.
+- **Safety field:** The safety section sits on the mint wash, because mint means verified or safe, with one fact per hairline-divided row.
+
 ### Motion
 State changes use one transition set (colour, background, border, opacity, transform, shadow) at 180ms on `cubic-bezier(0.2, 0.8, 0.2, 1)`; never width, height or position. The sticker pop is the one authored moment: a 460ms settle from 86% scale and a slight rotation, starting visible. Reduced motion is honoured globally; only story progress timing opts out.
 

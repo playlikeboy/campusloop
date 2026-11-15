@@ -421,6 +421,16 @@
     --story-field-muted: var(--story-paper-muted);
   }
 
+  /* Landing tape: two identical runs side by side; sliding one run's width loops seamlessly. */
+  .landing-tape {
+    animation: landing-tape 40s linear infinite;
+  }
+  @keyframes landing-tape {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
   /* Chat */
   .chat-surface {
     background-color: var(--bg);

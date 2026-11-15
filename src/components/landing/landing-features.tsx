@@ -1,4 +1,4 @@
-import { Heart, PlayCircle } from "lucide-react";
+import { ArrowUpRight, Heart, PlayCircle } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
@@ -22,57 +22,113 @@ function exampleEventTarget(): number {
 }
 
 /**
- * One sticker on the wall. The whole unit is the link; its name is the title,
- * the line underneath is its description.
+ * The field behind a panel. Ink and deep are story fields; the washes follow the
+ * colour laws: pink is Campus Match only, yellow is Loop Points only.
  */
-function Feature({
-  id,
-  sticker,
-  title,
-  text,
-  href,
-  lead,
-  stickerClassName,
-  className,
-}: {
+const FIELDS = {
+  ink: "story-field story-frame-ink",
+  deep: "story-field story-frame-deep",
+  mist: "bg-brand-subtle text-fg",
+  muted: "bg-surface-muted text-fg",
+  crush: "bg-crush-subtle text-fg",
+  reward: "bg-reward-subtle text-fg",
+} as const;
+
+type Field = keyof typeof FIELDS;
+
+const ON_DARK: Record<Field, boolean> = {
+  ink: true,
+  deep: true,
+  mist: false,
+  muted: false,
+  crush: false,
+  reward: false,
+};
+
+interface PanelProps {
   id: string;
-  sticker: ReactNode;
+  field: Field;
   title: string;
   text: string;
   href: string;
+  sticker: ReactNode;
+  /** Lead panels get the largest caption. */
   lead?: boolean;
+  /** Sticker tilt at rest; it straightens on hover. */
+  tilt: string;
   stickerClassName?: string;
   className?: string;
-}) {
+}
+
+/**
+ * One story panel on the wall. The whole panel is the link; its name is the
+ * title, the line underneath is its description.
+ */
+function Panel({
+  id,
+  field,
+  title,
+  text,
+  href,
+  sticker,
+  lead,
+  tilt,
+  stickerClassName,
+  className,
+}: PanelProps) {
+  const dark = ON_DARK[field];
   return (
-    <li className={cn("relative min-w-0 hover:z-10 focus-within:z-10", className)}>
+    <li className={cn("min-w-0", className)}>
       <Link
         href={href}
         aria-labelledby={`${id}-title`}
         aria-describedby={`${id}-text`}
-        className="group block rounded-sticker outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4 focus-visible:ring-offset-bg"
+        className={cn(
+          "group relative flex h-full flex-col gap-8 overflow-hidden rounded-xl p-6 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg sm:p-8",
+          FIELDS[field]
+        )}
       >
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <h3
+              id={`${id}-title`}
+              className={cn(
+                "sticker-caption text-balance",
+                lead ? "max-w-[11ch] text-5xl sm:text-6xl" : "max-w-[12ch] text-4xl"
+              )}
+            >
+              {title}
+            </h3>
+            <p
+              id={`${id}-text`}
+              className={cn(
+                "mt-3 max-w-[32ch] text-pretty",
+                lead ? "text-lg" : "text-base",
+                dark ? "text-story-field-muted" : "text-fg-muted"
+              )}
+            >
+              {text}
+            </p>
+          </div>
+          <span
+            aria-hidden="true"
+            className={cn(
+              "flex size-11 shrink-0 items-center justify-center rounded-full transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5",
+              dark ? "bg-sticker text-sticker-fg" : "bg-fg text-bg"
+            )}
+          >
+            <ArrowUpRight className="size-5" />
+          </span>
+        </div>
         <div
           className={cn(
-            "w-full transition-transform duration-200 ease-out group-hover:-translate-y-1",
-            lead ? "max-w-md" : "max-w-xs",
+            "mt-auto w-full transition-transform duration-300 ease-out group-hover:rotate-0 group-hover:-translate-y-1",
+            tilt,
             stickerClassName
           )}
         >
           {sticker}
         </div>
-        <h3
-          id={`${id}-title`}
-          className={cn(
-            "mt-6 text-fg decoration-2 underline-offset-4 group-hover:text-brand-text group-hover:underline",
-            lead ? "text-3xl" : "text-xl"
-          )}
-        >
-          {title}
-        </h3>
-        <p id={`${id}-text`} className="mt-1.5 max-w-[34ch] text-pretty text-base text-fg-muted">
-          {text}
-        </p>
       </Link>
     </li>
   );
@@ -105,22 +161,27 @@ function notesText(stats: PublicStats): string {
     : "Notes and past papers by branch, plus free courses.";
 }
 
-/** What you can do here: an uneven sticker wall where each sticker is its own link. */
+/** What you can do here: an uneven wall of story panels, each on its own field and each its own link. */
 export function LandingFeatures({ courses, stats }: { courses: Course[]; stats: PublicStats }) {
   const picks = courses.slice(0, 3);
   const eventTarget = exampleEventTarget();
 
   return (
-    <section className={`${LANDING_CONTAINER} py-20 lg:py-28`} aria-labelledby="features-title">
-      <h2 id="features-title" className="max-w-[18ch] text-balance text-[length:var(--text-section)] text-fg">
+    <section className={`${LANDING_CONTAINER} pt-28 pb-20 lg:pt-36 lg:pb-28`} aria-labelledby="features-title">
+      <h2
+        id="features-title"
+        className="max-w-[14ch] text-balance text-[length:var(--text-display-s)] leading-none text-fg"
+      >
         What you can do here
       </h2>
-      <ul className="mt-14 grid gap-y-14 lg:grid-cols-12 lg:gap-x-8 lg:gap-y-0">
-        <Feature
+      <ul className="mt-10 grid gap-4 sm:gap-5 lg:mt-14 lg:grid-cols-12">
+        <Panel
           id="feature-confess"
+          field="ink"
           lead
           className="lg:col-span-7"
-          stickerClassName="lg:-rotate-2"
+          tilt="-rotate-2"
+          stickerClassName="max-w-md"
           title="Confess anonymously"
           text="Say the thing. Your name never shows."
           href="/confessions"
@@ -130,11 +191,13 @@ export function LandingFeatures({ courses, stats }: { courses: Course[]; stats: 
             </QuestionSticker>
           }
         />
-        <Feature
+        <Panel
           id="feature-poll"
+          field="mist"
           lead
-          className="lg:col-span-5 lg:mt-12"
-          stickerClassName="lg:rotate-2"
+          className="lg:col-span-5"
+          tilt="rotate-2"
+          stickerClassName="max-w-sm self-end"
           title="Ask your whole campus"
           text="Polls on anything, from mess food to fest dates."
           href="/feeds"
@@ -150,19 +213,12 @@ export function LandingFeatures({ courses, stats }: { courses: Course[]; stats: 
             />
           }
         />
-        <Feature
-          id="feature-events"
-          className="lg:col-span-3 lg:mt-16"
-          stickerClassName="lg:-rotate-3"
-          title="Never miss a fest"
-          text="Fests, talks and club meetups, with a reminder."
-          href="/events"
-          sticker={<CountdownSticker title="Robotics workshop" target={eventTarget} />}
-        />
-        <Feature
+        <Panel
           id="feature-notes"
-          className="lg:col-span-3 lg:-ml-12 lg:mt-28"
-          stickerClassName="lg:rotate-1"
+          field="deep"
+          className="lg:col-span-5"
+          tilt="rotate-1"
+          stickerClassName="max-w-sm"
           title="Notes, past papers, courses"
           text={notesText(stats)}
           href="/academics"
@@ -176,40 +232,55 @@ export function LandingFeatures({ courses, stats }: { courses: Course[]; stats: 
             )
           }
         />
-        <Feature
-          id="feature-match"
-          className="lg:col-span-3 lg:-ml-12 lg:mt-12"
-          stickerClassName="lg:-rotate-2"
-          title="Campus Match"
-          text="Verified students 18+. Likes show only when mutual."
-          href="/matching"
-          sticker={
-            <Sticker tone="crush" className="flex items-center gap-4 p-5">
-              <Heart className="size-9 shrink-0 fill-current" aria-hidden="true" />
-              <span>
-                <span className="sticker-caption block text-3xl">It's a match</span>
-                <span className="mt-1 block text-sm font-medium">You both liked each other.</span>
-              </span>
-            </Sticker>
-          }
+        <Panel
+          id="feature-events"
+          field="muted"
+          className="lg:col-span-3"
+          tilt="-rotate-3"
+          title="Never miss a fest"
+          text="Fests, talks and club meetups, with a reminder."
+          href="/events"
+          sticker={<CountdownSticker title="Robotics workshop" target={eventTarget} />}
         />
-        <Feature
-          id="feature-invite"
-          className="lg:col-span-3 lg:-ml-12 lg:mt-32"
-          stickerClassName="lg:rotate-3"
-          title="Bring your friends"
-          text="Invite a friend, get 20 Loop Points when they join."
-          href="/sign-up"
-          sticker={
-            <LoopPointsSticker
-              points={20}
-              label="Loop Points for an invite"
-              className="h-12 px-5 text-base"
+        <li className="grid min-w-0 gap-4 sm:gap-5 lg:col-span-4">
+          <ul className="contents">
+            <Panel
+              id="feature-match"
+              field="crush"
+              tilt="-rotate-2"
+              title="Campus Match"
+              text="Verified students 18+. Likes show only when mutual."
+              href="/matching"
+              sticker={
+                <Sticker tone="crush" className="flex items-center gap-4 p-5">
+                  <Heart className="size-9 shrink-0 fill-current" aria-hidden="true" />
+                  <span>
+                    <span className="sticker-caption block text-3xl">It's a match</span>
+                    <span className="mt-1 block text-sm font-medium">You both liked each other.</span>
+                  </span>
+                </Sticker>
+              }
             />
-          }
-        />
+            <Panel
+              id="feature-invite"
+              field="reward"
+              tilt="rotate-2"
+              stickerClassName="w-auto self-start"
+              title="Bring your friends"
+              text="Invite a friend, get 20 Loop Points when they join."
+              href="/sign-up"
+              sticker={
+                <LoopPointsSticker
+                  points={20}
+                  label="Loop Points for an invite"
+                  className="h-12 px-5 text-base"
+                />
+              }
+            />
+          </ul>
+        </li>
       </ul>
-      <p className="mt-16 text-sm text-fg-subtle">The posts and polls on this page are examples.</p>
+      <p className="mt-10 text-sm text-fg-subtle">The posts and polls on this page are examples.</p>
     </section>
   );
 }

@@ -6,12 +6,39 @@ import { ANONYMITY_STATEMENT, COMPLIANCE_LINE } from "@/constants/landing";
  */
 
 export const HERO = {
-  title: "Your campus. Only your campus.",
+  /** The headline is set in two lines; the second sits on a white sticker. */
+  titleLead: "Your campus.",
+  titleSticker: "Only your campus.",
   lead: "Confessions, polls, events and notes from students at your college. Sign up with your college email to get in.",
   cta: "Join with college email",
 } as const;
 
-export const SAFETY_PARAGRAPH = `You sign up with your college email, so the people here are students from your college. Anonymous posts never show your name to anyone. Every post has a report button, and three reports hide it until a person checks it, within 24 hours. ${COMPLIANCE_LINE}`;
+/** What lives on CampusLoop, as the running tape under the hero. Each word is a real section. */
+export const TAPE_WORDS = [
+  "Confessions",
+  "Polls",
+  "Fests",
+  "Notes",
+  "Past papers",
+  "Clubs",
+  "Free courses",
+  "Campus Match",
+] as const;
+
+/** The safety promise, one fact per line. Wording matches what the product does today. */
+export const SAFETY_POINTS: ReadonlyArray<readonly [string, string]> = [
+  [
+    "College email to get in",
+    "You sign up with your college email, so the people here are students from your college.",
+  ],
+  ["No name on anonymous posts", "Anonymous posts never show your name to anyone."],
+  [
+    "Three reports hide a post",
+    "Every post has a report button, and three reports hide it until a person checks it, within 24 hours.",
+  ],
+];
+
+export const SAFETY_COMPLIANCE = COMPLIANCE_LINE;
 
 export const FAQS: ReadonlyArray<readonly [string, string]> = [
   [
