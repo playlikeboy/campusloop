@@ -119,7 +119,8 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
       "Self-study usually means scattered YouTube tabs and no record of what you finished. Courses turn good free lectures into a structured path with progress, notes and a certificate, in a player built to be distraction-free.",
     whyUse: [
       "Watch all of Harvard's CS50 courses (CS50x, Python, Web, AI, SQL, Cybersecurity, R, Scratch, Technology, Business, Law, 2D Games, Mobile) for free.",
-      "Take full university courses from MIT OpenCourseWare, Stanford (including Andrew Ng's CS229), CMU, Caltech, NPTEL, Y Combinator Startup School, Harvard Justice, and DeepLearning.AI.",
+      "Take full university courses from MIT OpenCourseWare, Stanford (including Andrew Ng's CS229), CMU, Caltech, NPTEL (including the NPTEL-NOC IITM channel), the IIT Madras BS Degree Programme, Yale Courses, Y Combinator Startup School, Harvard Justice, and DeepLearning.AI.",
+      "Go deeper with specialist educators: KnowledgeGATE and mycodeschool for core CS, Martin Kleppmann for distributed systems, Ben Eater for computer architecture, StatQuest and fast.ai for machine learning, Steve Brunton and Dr. Trefor Bazett for engineering mathematics, Brian Douglas for control systems, Jeff Hanson and Ekeeda for mechanics, and Corey Schafer, Bro Code, Net Ninja, Traversy Media and Piyush Garg for programming and web development.",
       "Explore non-CS disciplines including Engineering Mathematics (Dr. Gajendra Purohit, Prof. Leonard), Electronics & Communication (ALL ABOUT ELECTRONICS, Engineering Funda), Mechanical (The Efficient Engineer), Finance & Accounting (Accounting Stuff), Economics (MRU), Medicine (Ninja Nerd), and Design (DesignCourse, Figma).",
       "Learn DBMS, OS, networks, DSA, OOP, web development and machine learning from popular Indian educators such as CodeWithHarry, CampusX, Gate Smashers, Neso Academy, Apna College, Striver, Jenny's Lectures and Chai aur Code, many in Hindi.",
       "Quick playlist importer allows you to paste any YouTube playlist, Dailymotion playlist, Archive.org collection, or Google Drive folder and fills in the course with video titles, descriptions, and durations ready for editing and publishing.",
@@ -240,7 +241,7 @@ export const ACADEMICS_AND_MARKETPLACE: GuideEntry[] = [
       "dailymotion import",
       "google drive course",
     ],
-    updated: "2026-10-22",
+    updated: "2026-11-15",
   },
   {
     slug: "campus-marketplace",

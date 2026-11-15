@@ -214,6 +214,46 @@ export const SOURCES: CourseSource[] = [
     include: /(Data ?Structures|Algorithm|Database|Operating System|Computer Network|Compiler|Theory of Computation|Programming|Machine Learning|Deep Learning|Artificial Intelligence|Discrete Math|Computer Architecture|Software Engineering|Cloud Computing|Cryptography|Python|Java|C\+\+)/i,
     maxCourses: 25,
   },
+  {
+    key: "nptel-noc",
+    name: "NPTEL-NOC IITM",
+    handle: "@nptel-nociitm9240",
+    kind: "UNIVERSITY",
+    language: "English",
+    bio: "NPTEL's online certification course channel run from IIT Madras, carrying full semester courses taught by IIT and IISc faculty.",
+    include: /(Data ?Structures|Algorithm|Database|Operating System|Computer Network|Compiler|Theory of Computation|Programming|Machine Learning|Deep Learning|Artificial Intelligence|Discrete Math|Computer Architecture|Software Engineering|Cloud Computing|Cryptography|Python|Java|C\+\+|Natural Language|Computer Vision|Signals and Systems|Control Systems?|Semiconductor Devices|Digital (Circuits|Signal|Communication|System)|Thermodynamics|Fluid Mechanics|Strength of Materials|Heat Transfer|Power (Systems?|Electronics)|Electrical Machines|Linear Algebra|Calculus|Probability)/i,
+    exclude: /(Tamil|Hindi|Telugu|Bengali|Kannada|Malayalam|Marathi|Gujarati|Biological|Tutorial|Actuarial|Drug Discovery|Kinetics of Materials|Interfacial|Inverse Methods|Variational|Accelerated|Sensors|Digital System Design)/i,
+    maxCourses: 30,
+  },
+  {
+    key: "iitm-bs",
+    name: "IIT Madras BS Degree Programme",
+    handle: "@IITMadrasBSDegreeProgramme",
+    kind: "UNIVERSITY",
+    language: "English",
+    bio: "Official lecture channel of IIT Madras's BS degree programme in Data Science and Applications.",
+    exclude: /(Qualifier|Diploma _|Statistics for Data Science - II|Search Methods|Lab\b|Live|Session|Tutorial|Revision|Week)/i,
+    maxCourses: 20,
+  },
+  {
+    key: "yale",
+    name: "Yale Courses",
+    handle: "@YaleCourses",
+    kind: "UNIVERSITY",
+    language: "English",
+    bio: "Yale University's official channel with complete lecture sets from the Open Yale Courses initiative.",
+    category: "Economics",
+    include: /^$/,
+    playlists: [
+      "PLD07B2225BB40E582", // Fundamentals of Physics II (Shankar)
+      "PL6EF60E1027E1A10B", // Game Theory (Polak)
+      "PL8FB14A2200B87185", // Financial Markets (Shiller)
+      "PLEDC55106E0BA18FC", // Financial Theory (Geanakoplos)
+      "PL3F629F73640F831D", // Freshman Organic Chemistry I
+      "PLB572BA3ED0F700F1", // Freshman Organic Chemistry II
+    ],
+    maxCourses: 6,
+  },
 
   // Indian educators & specialized creators
   {
@@ -326,4 +366,20 @@ export const SOURCES: CourseSource[] = [
   { key: "harkirat", name: "Harkirat Singh", handle: "@harkirat1", kind: "CREATOR", language: "Hindi", bio: "Harkirat Singh's full stack, web3 and DevOps sessions.", maxCourses: 4 },
   { key: "neetcode", name: "NeetCode", handle: "@NeetCode", kind: "CREATOR", language: "English", bio: "Coding interview problem walkthroughs organised by pattern.", maxCourses: 8 },
   { key: "fiset", name: "WilliamFiset", handle: "@WilliamFiset-videos", kind: "CREATOR", language: "English", bio: "Clear animated lectures on data structures and graph theory.", maxCourses: 4 },
+  { key: "mycodeschool", name: "mycodeschool", handle: "@mycodeschool", kind: "CREATOR", language: "English", bio: "Illustrated lectures on data structures, pointers, sorting and algorithms.", category: "Computer Science", maxCourses: 8 },
+  { key: "knowledgegate", name: "KnowledgeGATE by Sanchit Sir", handle: "@KNOWLEDGEGATE_kg", kind: "CREATOR", language: "Hindi", bio: "Sanchit Jain's GATE and university lectures on core computer science subjects.", include: /(Complete Playlist|Software Engineering|TOC English)/i, maxCourses: 15 },
+  { key: "kleppmann", name: "Martin Kleppmann", handle: "@kleppmann", kind: "CREATOR", language: "English", bio: "Martin Kleppmann's University of Cambridge lecture series on distributed systems.", category: "System Design", include: /Distributed Systems/i, maxCourses: 2 },
+  { key: "beneater", name: "Ben Eater", handle: "@BenEater", kind: "CREATOR", language: "English", bio: "Ben Eater builds computers from logic chips on breadboards to explain computer architecture and networking.", category: "Computer Science", maxCourses: 8 },
+  { key: "statquest", name: "StatQuest with Josh Starmer", handle: "@statquest", kind: "CREATOR", language: "English", bio: "Josh Starmer's step-by-step explanations of statistics, machine learning and neural networks.", category: "Data Science", include: /(^Machine Learning$|Statistics Fundamentals|Neural Networks|Logistic Regression|Machine Learning in R)/i, maxCourses: 10 },
+  { key: "fastai", name: "Jeremy Howard (fast.ai)", handle: "@howardjeremyp", kind: "CREATOR", language: "English", bio: "Jeremy Howard's fast.ai courses, including Practical Deep Learning for Coders.", category: "Artificial Intelligence", include: /(Practical Deep Learning|Introduction to Machine Learning for Coders)/i, maxCourses: 6 },
+  { key: "brunton", name: "Steve Brunton", handle: "@Eigensteve", kind: "CREATOR", language: "English", bio: "University of Washington professor Steve Brunton's lectures on engineering mathematics, control and data-driven science.", category: "Mathematics", exclude: /(Research Abstracts|Lyapunov)/i, maxCourses: 12 },
+  { key: "trefor", name: "Dr. Trefor Bazett", handle: "@DrTrefor", kind: "CREATOR", language: "English", bio: "Mathematics professor Trefor Bazett's full courses on calculus, linear algebra, discrete maths and differential equations.", category: "Mathematics", exclude: /(Cool Math|Older|Advice)/i, maxCourses: 10 },
+  { key: "briandouglas", name: "Brian Douglas", handle: "@BrianBDouglas", kind: "CREATOR", language: "English", bio: "Brian Douglas's control systems lectures, made to supplement a first controls course.", category: "Electrical Engineering", include: /^Classical Control Theory$/i, maxCourses: 1 },
+  { key: "jeffhanson", name: "Jeff Hanson", handle: "@1234jhanson", kind: "CREATOR", language: "English", bio: "Jeff Hanson's worked lecture series on statics, mechanics of materials and dynamics.", category: "Mechanical Engineering", include: /^Online (Statics|Mechanics of Materials \(Solids\)|Dynamics|Thermodynamics) Course$/i, maxCourses: 4 },
+  { key: "ekeeda", name: "Ekeeda", handle: "@Ekeeda", kind: "CREATOR", language: "English", bio: "Ekeeda's engineering video lectures for diploma and degree students across branches.", exclude: /(Class 1[12]|IIT JEE|Communication Skills|^Fluid Mechanics 1$)/i, maxCourses: 15 },
+  { key: "coreyschafer", name: "Corey Schafer", handle: "@coreyms", kind: "CREATOR", language: "English", bio: "Corey Schafer's Python, Django, Flask and Git tutorials for software developers.", category: "Programming", exclude: /(^Python Tutorials$|Programming Terms)/i, maxCourses: 10 },
+  { key: "brocode", name: "Bro Code", handle: "@BroCodez", kind: "CREATOR", language: "English", bio: "Beginner programming courses in Python, Java, C, C++ and JavaScript.", category: "Programming", maxCourses: 10 },
+  { key: "netninja", name: "Net Ninja", handle: "@NetNinja", kind: "CREATOR", language: "English", bio: "Shaun Pelling's playlist-based web development courses on JavaScript, React, Node, Next.js and more.", category: "Web Development", exclude: /(Vue JS 2|PSD|Vuetify)/i, maxCourses: 15 },
+  { key: "traversy", name: "Traversy Media", handle: "@TraversyMedia", kind: "CREATOR", language: "English", bio: "Brad Traversy's web development and programming tutorials.", category: "Web Development", include: /(Laravel From Scratch|Node\.js & Express From Scratch|PHP Front To Back|Learn The MERN Stack|ES6)/i, maxCourses: 5 },
+  { key: "piyushgarg", name: "Piyush Garg", handle: "@piyushgargdev", kind: "CREATOR", language: "Hindi", bio: "Piyush Garg's Hindi courses on Node.js, Docker, system design and full stack development.", category: "Web Development", exclude: /(The Rust Book)/i, maxCourses: 10 },
 ];
