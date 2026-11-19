@@ -2,59 +2,48 @@ import type { LucideIcon } from "lucide-react";
 import {
   Activity,
   Bell,
-  Bike,
   Bookmark,
   BookOpen,
-  Building2,
   Cake,
   Calendar,
-  Car,
+  CircleDashed,
+  ClipboardList,
   Compass,
   FileText,
   Flame,
   FlaskConical,
-  Gamepad2,
   Ghost,
   GraduationCap,
   Heart,
   HelpCircle,
   Home,
-  Hourglass,
   Inbox,
   KeyRound,
   LayoutGrid,
   Link2,
   Lock,
   Mail,
-  Map as MapIcon,
   Megaphone,
   MessageCircle,
   MessageSquare,
-  PackageSearch,
   PlayCircle,
-  Plus,
   School,
   ScrollText,
   Server,
   Settings,
   ShieldAlert,
   ShieldCheck,
-  ShoppingBag,
-  Sparkles,
-  Store,
-  Tag,
   Terminal,
   TrendingUp,
   User,
   Users,
-  UtensilsCrossed,
   Zap,
 } from "lucide-react";
 
 /**
  * Single source of truth for app navigation.
- * Every nav surface (sidebar, bottom bar, drawer, More page) reads from NAV_GROUPS.
- * One canonical route per feature; old duplicates redirect to these.
+ * Every nav surface (sidebar, bottom bar, drawer, More page) reads from this file.
+ * The app is five places: Home, Events, Learn, Chat and You.
  */
 
 /** Semantic badge tones, rendered through the Badge primitive's variants. */
@@ -72,9 +61,11 @@ export interface NavItem {
   external?: boolean;
   /** Still being tested. Listed under "Try new things" on the More page. */
   beta?: boolean;
+  /** Bottom tabs only: other path prefixes that light up this tab. */
+  match?: string[];
 }
 
-export type NavGroupId = "home" | "campus" | "connect" | "utilities" | "learn" | "you";
+export type NavGroupId = "home" | "events" | "learn" | "chat" | "you" | "more";
 
 export interface NavGroup {
   id?: NavGroupId | "other";
@@ -93,30 +84,26 @@ export const ROUTES = {
   communities: "/communities",
   events: "/events",
   confessions: "/confessions",
+  stories: "/stories/new",
   colleges: "/colleges",
   birthdays: "/birthdays",
   match: "/matching",
   crush: "/crush",
-  random: "/random",
-  gaming: "/gaming",
-  living: "/living",
-  marketplace: "/marketplace",
-  buySell: "/buy-and-sell",
-  housing: "/housing",
-  rideshare: "/rideshare",
-  lostFound: "/lost-and-found",
-  atlas: "/atlas",
-  capsule: "/capsule",
+  board: "/board",
+  buySell: "/board?tab=sell",
+  housing: "/board?tab=housing",
+  rideshare: "/board?tab=rides",
+  lostFound: "/board?tab=lost-found",
   academics: "/academics",
   courses: "/courses",
   articles: "/articles",
-  ai: "/ai",
   developer: "/developer",
   streaks: "/streaks",
   saved: "/saved",
   settings: "/settings",
   safety: "/safety",
   help: "/help",
+  download: "/download",
   more: "/more",
 } as const;
 
@@ -125,38 +112,54 @@ export const NAV_GROUPS: NavGroup[] = [
     id: "home",
     group: "Home",
     items: [
-      { icon: Home, href: ROUTES.home, label: "Home", desc: "Posts from your campus" },
-      { icon: Compass, href: ROUTES.explore, label: "Explore", desc: "Trending posts, tags and people" },
-      { icon: Bell, href: ROUTES.notifications, label: "Notifications", desc: "Replies, likes and mentions" },
-    ],
-  },
-  {
-    id: "campus",
-    group: "Campus",
-    items: [
+      { icon: Home, href: ROUTES.home, label: "Feed", desc: "Posts from your campus" },
+      { icon: Ghost, href: ROUTES.confessions, label: "Confessions", desc: "Say it without your name" },
       {
         icon: Users,
         href: ROUTES.communities,
         label: "Communities",
         desc: "Clubs and groups at your college",
       },
-      { icon: Calendar, href: ROUTES.events, label: "Events", desc: "Fests, hackathons and workshops" },
-      { icon: Flame, href: ROUTES.confessions, label: "Confessions", desc: "Say it without your name" },
-      { icon: School, href: ROUTES.colleges, label: "Colleges", desc: "Find any college on CampusLoop" },
-      { icon: Cake, href: ROUTES.birthdays, label: "Birthdays", desc: "Wish people born today" },
+      { icon: CircleDashed, href: ROUTES.stories, label: "Stories", desc: "Post a story for 24 hours" },
     ],
   },
   {
-    id: "connect",
-    group: "Connect",
+    id: "events",
+    group: "Events",
+    items: [{ icon: Calendar, href: ROUTES.events, label: "Events", desc: "Fests, hackathons and workshops" }],
+  },
+  {
+    id: "learn",
+    group: "Learn",
     items: [
-      { icon: MessageCircle, href: ROUTES.chat, label: "Chat", desc: "Your messages" },
       {
-        icon: Heart,
-        href: ROUTES.match,
-        label: "Campus Match",
-        desc: "Meet students who like what you like",
+        icon: PlayCircle,
+        href: ROUTES.courses,
+        label: "Courses",
+        desc: "Free courses from colleges and creators",
       },
+      {
+        icon: GraduationCap,
+        href: ROUTES.academics,
+        label: "Notes",
+        desc: "Notes, PYQs and syllabus",
+      },
+      { icon: BookOpen, href: ROUTES.articles, label: "Articles", desc: "Placement guides and long reads" },
+    ],
+  },
+  {
+    id: "chat",
+    group: "Chat",
+    items: [{ icon: MessageCircle, href: ROUTES.chat, label: "Chat", desc: "Your messages" }],
+  },
+  {
+    id: "you",
+    group: "You",
+    items: [
+      { icon: User, href: ROUTES.profile, label: "Profile", desc: "Your posts and info" },
+      { icon: Bell, href: ROUTES.notifications, label: "Notifications", desc: "Replies, likes and mentions" },
+      { icon: Bookmark, href: ROUTES.saved, label: "Saved", desc: "Posts you saved" },
+      { icon: Flame, href: ROUTES.streaks, label: "Streaks", desc: "Your daily streak and Loop Points" },
       {
         icon: Lock,
         href: ROUTES.crush,
@@ -164,119 +167,41 @@ export const NAV_GROUPS: NavGroup[] = [
         desc: "You both find out only if it's mutual",
       },
       {
-        icon: Zap,
-        href: ROUTES.random,
-        label: "Random chat",
-        desc: "Talk to a verified student you haven't met",
-        beta: true,
+        icon: Heart,
+        href: ROUTES.match,
+        label: "Campus Match",
+        desc: "Meet students who like what you like",
       },
       {
-        icon: Gamepad2,
-        href: ROUTES.gaming,
-        label: "Gaming",
-        desc: "Find teammates and join tournaments",
-        beta: true,
+        icon: ClipboardList,
+        href: ROUTES.board,
+        label: "Campus board",
+        desc: "Rides, rooms, lost and found, buy and sell",
       },
-    ],
-  },
-  {
-    id: "utilities",
-    group: "Utilities",
-    items: [
-      {
-        icon: LayoutGrid,
-        href: ROUTES.living,
-        label: "Campus living",
-        desc: "Everything for life around campus",
-      },
-      {
-        icon: ShoppingBag,
-        href: ROUTES.marketplace,
-        label: "Marketplace",
-        desc: "Order from campus shops",
-        beta: true,
-      },
-      { icon: Tag, href: ROUTES.buySell, label: "Buy and sell", desc: "Books, cycles and hostel stuff" },
-      {
-        icon: Building2,
-        href: ROUTES.housing,
-        label: "Housing",
-        desc: "Rooms, PGs and flatmates near campus",
-      },
-      {
-        icon: Car,
-        href: ROUTES.rideshare,
-        label: "Ride share",
-        desc: "Split a cab to the station or airport",
-      },
-      {
-        icon: PackageSearch,
-        href: ROUTES.lostFound,
-        label: "Lost and found",
-        desc: "Lost your ID card? Post it here",
-      },
-      {
-        icon: MapIcon,
-        href: ROUTES.atlas,
-        label: "Campus Atlas",
-        desc: "Ask about clubs, places and timings",
-        beta: true,
-      },
-      {
-        icon: Hourglass,
-        href: ROUTES.capsule,
-        label: "Time capsule",
-        desc: "Notes for your batch, opened later",
-        beta: true,
-      },
-    ],
-  },
-  {
-    id: "learn",
-    group: "Learn",
-    items: [
-      {
-        icon: GraduationCap,
-        href: ROUTES.academics,
-        label: "Study material",
-        desc: "Notes, PYQs and syllabus",
-      },
-      {
-        icon: PlayCircle,
-        href: ROUTES.courses,
-        label: "Courses",
-        desc: "Free courses from colleges and creators",
-      },
-      { icon: BookOpen, href: ROUTES.articles, label: "Articles", desc: "Placement guides and long reads" },
-      {
-        icon: Sparkles,
-        href: ROUTES.ai,
-        label: "Ask CampusLoop",
-        desc: "Ask questions about campus life",
-        beta: true,
-      },
-      {
-        icon: Terminal,
-        href: ROUTES.developer,
-        label: "Developers",
-        desc: "API keys and MCP for your tools",
-        beta: true,
-      },
-    ],
-  },
-  {
-    id: "you",
-    group: "You",
-    items: [
-      { icon: User, href: ROUTES.profile, label: "Profile", desc: "Your posts and info" },
-      { icon: Flame, href: ROUTES.streaks, label: "Streaks", desc: "Your daily streak and Loop Points" },
-      { icon: Bookmark, href: ROUTES.saved, label: "Saved", desc: "Posts you saved" },
       { icon: Settings, href: ROUTES.settings, label: "Settings", desc: "Account, privacy and alerts" },
-      { icon: ShieldCheck, href: ROUTES.safety, label: "Safety", desc: "Community rules and reporting" },
-      { icon: HelpCircle, href: ROUTES.help, label: "Help", desc: "Questions and contact" },
     ],
   },
 ];
+
+/** Less used places: in the drawer and on the More page, not in the sidebar. */
+export const MORE_GROUP: NavGroup = {
+  id: "more",
+  group: "More",
+  items: [
+    { icon: Compass, href: ROUTES.explore, label: "Explore", desc: "Trending posts, tags and people" },
+    { icon: School, href: ROUTES.colleges, label: "Colleges", desc: "Find any college on CampusLoop" },
+    { icon: Cake, href: ROUTES.birthdays, label: "Birthdays", desc: "Wish people born today" },
+    {
+      icon: Terminal,
+      href: ROUTES.developer,
+      label: "Developers",
+      desc: "API keys and MCP for your tools",
+      beta: true,
+    },
+    { icon: ShieldCheck, href: ROUTES.safety, label: "Safety", desc: "Community rules and reporting" },
+    { icon: HelpCircle, href: ROUTES.help, label: "Help", desc: "Questions and contact" },
+  ],
+};
 
 /** Other apps by the CampusLoop team. Shown on the More page, not in the drawer. */
 export const EXTERNAL_PRODUCTS: NavItem[] = [
@@ -296,48 +221,57 @@ export const EXTERNAL_PRODUCTS: NavItem[] = [
   },
 ];
 
-const ALL_ITEMS = NAV_GROUPS.flatMap((g) => g.items);
+const ALL_ITEMS = [...NAV_GROUPS, MORE_GROUP].flatMap((g) => g.items);
 
-function pick(...hrefs: string[]): NavItem[] {
-  return hrefs.map((href) => {
-    const item = ALL_ITEMS.find((i) => i.href === href);
-    if (!item) throw new Error(`navigation: ${href} is not in NAV_GROUPS`);
-    return item;
-  });
-}
-
-/** Desktop sidebar: the few places people go daily. Everything else is behind More. */
-export const DESKTOP_NAV_ITEMS: NavItem[] = [
-  ...pick(
-    ROUTES.home,
-    ROUTES.explore,
-    ROUTES.chat,
-    ROUTES.communities,
-    ROUTES.events,
-    ROUTES.academics,
-    ROUTES.match
-  ),
-  { icon: LayoutGrid, href: ROUTES.more, label: "More" },
+/** Desktop sidebar: the five groups, then More. */
+export const DESKTOP_NAV_SECTIONS: NavGroup[] = [
+  ...NAV_GROUPS,
+  { id: "more", group: "", items: [{ icon: LayoutGrid, href: ROUTES.more, label: "More" }] },
 ];
 
+/** Flat list of the sidebar rows. */
+export const DESKTOP_NAV_ITEMS: NavItem[] = DESKTOP_NAV_SECTIONS.flatMap((g) => g.items);
+
 /**
- * Mobile bottom tab bar. Exactly five; Post is the violet centre sticker.
- * Profile's href is swapped for `/@username` at render time when signed in.
+ * Mobile bottom tab bar. Exactly five. Posting lives in the top bar and the drawer.
+ * `match` lists the other pages that belong to each tab.
  */
 export const MOBILE_BOTTOM_ITEMS: NavItem[] = [
-  { icon: Home, href: ROUTES.home, label: "Home" },
-  { icon: Compass, href: ROUTES.explore, label: "Explore" },
-  { icon: Plus, href: ROUTES.newPost, label: "Post" },
+  {
+    icon: Home,
+    href: ROUTES.home,
+    label: "Home",
+    match: [ROUTES.confessions, ROUTES.communities, "/posts", ROUTES.explore],
+  },
+  { icon: Calendar, href: ROUTES.events, label: "Events" },
+  { icon: GraduationCap, href: ROUTES.courses, label: "Learn", match: [ROUTES.academics, ROUTES.articles] },
   { icon: MessageCircle, href: ROUTES.chat, label: "Chat" },
-  { icon: User, href: ROUTES.profile, label: "Profile" },
+  {
+    icon: User,
+    href: ROUTES.profile,
+    label: "You",
+    match: [
+      ROUTES.notifications,
+      ROUTES.saved,
+      ROUTES.streaks,
+      ROUTES.crush,
+      ROUTES.settings,
+      ROUTES.board,
+      "/rideshare",
+      "/housing",
+      "/lost-and-found",
+      "/buy-and-sell",
+    ],
+  },
 ];
 
 /** Mobile drawer: every group, in order. */
-export const DRAWER_SECTIONS: NavGroup[] = NAV_GROUPS;
+export const DRAWER_SECTIONS: NavGroup[] = [...NAV_GROUPS, MORE_GROUP];
 
-/** More page: every group except Home (already in the tab bar), plus other apps. */
+/** More page: every group except Home, plus other apps. */
 export const MORE_HUB_SECTIONS: NavGroup[] = [
   ...NAV_GROUPS.filter((g) => g.id !== "home"),
+  MORE_GROUP,
   { id: "other", group: "Other apps", items: EXTERNAL_PRODUCTS },
 ];
 
@@ -469,20 +403,6 @@ export const ADMIN_NAV_SECTIONS: { title: string; items: AdminNavItem[] }[] = [
     ],
   },
   {
-    title: "Marketplace",
-    items: [
-      { href: "/admin/marketplace", label: "Overview", icon: ShoppingBag, desc: "Orders and revenue" },
-      { href: "/admin/marketplace/merchants", label: "Merchants", icon: Store, desc: "Campus shops" },
-      {
-        href: "/admin/marketplace/products",
-        label: "Products",
-        icon: UtensilsCrossed,
-        desc: "Menus and listings",
-      },
-      { href: "/admin/marketplace/rentals", label: "Bike rentals", icon: Bike, desc: "Rental fleet" },
-    ],
-  },
-  {
     title: "Insights",
     items: [
       {
@@ -523,16 +443,24 @@ export const ADMIN_NAV_SECTIONS: { title: string; items: AdminNavItem[] }[] = [
  * next.config.ts can map these into `redirects()`.
  */
 export const LEGACY_ROUTE_REDIRECTS: { source: string; destination: string }[] = [
+  { source: "/rideshare", destination: ROUTES.rideshare },
   { source: "/ride-share", destination: ROUTES.rideshare },
+  { source: "/housing", destination: ROUTES.housing },
   { source: "/housing-and-flats", destination: ROUTES.housing },
-  { source: "/gaming-arena", destination: ROUTES.gaming },
+  { source: "/lost-and-found", destination: ROUTES.lostFound },
+  { source: "/buy-and-sell", destination: ROUTES.buySell },
+  { source: "/living/:path*", destination: ROUTES.board },
   { source: "/streak", destination: ROUTES.streaks },
   { source: "/discover", destination: ROUTES.explore },
   { source: "/search", destination: ROUTES.explore },
-  { source: "/utilities", destination: ROUTES.living },
-  { source: "/campus", destination: ROUTES.living },
-  { source: "/hub", destination: ROUTES.living },
+  { source: "/utilities", destination: ROUTES.board },
+  { source: "/campus", destination: ROUTES.board },
+  { source: "/hub", destination: ROUTES.board },
   { source: "/ecosystem", destination: ROUTES.more },
+  ...["/random", "/gaming", "/atlas", "/capsule", "/ai", "/marketplace"].map((source) => ({
+    source,
+    destination: ROUTES.home,
+  })),
   { source: "/dating", destination: ROUTES.match },
   { source: "/dating/discover", destination: ROUTES.match },
   { source: "/dating/:path(filters|likes|matches|requests|settings)", destination: `${ROUTES.match}/:path` },

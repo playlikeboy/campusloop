@@ -2,7 +2,7 @@ import { and, desc, eq, ne, or, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { eventRegistrations, events, userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
+import { getCachedAuthUser } from "@/lib/server-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +14,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     // Authenticated user session
     let currentProfile = null;
     try {
-      const user = await hexclaveServerApp.getUser();
+      const user = await getCachedAuthUser();
       if (user?.id) {
         currentProfile = await db.query.userProfiles.findFirst({
           where: eq(userProfiles.userId, user.id),
@@ -174,7 +174,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const user = await hexclaveServerApp.getUser();
+    const user = await getCachedAuthUser();
     if (!user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -213,7 +213,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const user = await hexclaveServerApp.getUser();
+    const user = await getCachedAuthUser();
     if (!user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

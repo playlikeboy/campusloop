@@ -2,18 +2,18 @@ import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
 import {
   DEFAULT_NOTIFICATION_PREFERENCES,
   getNotificationPreferences,
   type NotificationPreferenceSet,
   updateNotificationPreferences,
 } from "@/lib/notification-preferences";
+import { getCachedAuthUser } from "@/lib/server-cache";
 
 export const dynamic = "force-dynamic";
 
 async function getProfileId(): Promise<string | null> {
-  const user = await hexclaveServerApp.getUser();
+  const user = await getCachedAuthUser();
   if (!user) return null;
   const db = getDb();
   const profile = await db.query.userProfiles.findFirst({

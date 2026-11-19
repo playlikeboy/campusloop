@@ -91,7 +91,7 @@ describe("tokens and discovery", () => {
   });
   it("publishes a consistent discovery document", () => {
     const d = discoveryDocument();
-    expect(d.scopes_supported).toEqual(Object.keys(SCOPES));
+    expect(d.scopes_supported).toEqual(Object.keys(SCOPES).filter((s) => !SCOPES[s].firstPartyOnly));
     expect(d.code_challenge_methods_supported).toEqual(["S256"]);
     expect(d.claims_supported).toContain("student_verified");
   });

@@ -7,7 +7,7 @@
  * - Custom User Dimensions: Student verification status, Institution, Branch, Semester, Loop Points Tier, PWA mode
  * - Rich Academic Vault Telemetry: Note Views, Downloads, 5-Download Guest Quota tracking, Limit Reached prompts, Votes, Shares
  * - Social Feed & Dating Telemetry: Post impressions, Confession interactions, Swipe matching
- * - Marketplace & Community Event pipelines
+ * - Community, events, courses and Android beta download pipelines
  */
 
 export const GA_MEASUREMENT_ID = "G-3546ZQ6HB1";
@@ -67,7 +67,13 @@ export interface GA4UserProperties {
   semester?: number | string;
   loop_points_tier?: "bronze" | "silver" | "gold" | "campus_legend";
   anonymity_mode?: "all" | "no_anon";
+  verified?: boolean;
+  grad_year?: number | string;
+  platform?: GA4Platform;
+  signup_week?: string;
 }
+
+export type GA4Platform = "web" | "pwa" | "android";
 
 export function setGA4UserProperties(props: GA4UserProperties) {
   if (typeof window === "undefined") return;
@@ -80,8 +86,54 @@ export function setGA4UserProperties(props: GA4UserProperties) {
   if (props.semester) userProps.cl_semester = String(props.semester);
   if (props.loop_points_tier) userProps.cl_points_tier = props.loop_points_tier;
   if (props.anonymity_mode) userProps.cl_anon_mode = props.anonymity_mode;
+  if (props.verified !== undefined) userProps.cl_verified = props.verified ? "yes" : "no";
+  if (props.grad_year) userProps.cl_grad_year = String(props.grad_year);
+  if (props.platform) userProps.cl_platform = props.platform;
+  if (props.signup_week) userProps.cl_signup_week = props.signup_week;
 
   gtag("set", "user_properties", userProps);
+}
+
+/**
+ * Bind GA4 sessions to a CampusLoop profile id (never an email or name).
+ * Pass null on sign-out / guest so later hits are not attributed to the last user.
+ */
+export function setGA4UserId(profileId: string | null) {
+  if (typeof window === "undefined") return;
+  gtag("config", GA_MEASUREMENT_ID, { user_id: profileId ?? undefined, send_page_view: false });
+  gtag("set", { user_id: profileId ?? null });
+}
+
+/** web | pwa (installed, display-mode standalone) | android (the CampusLoop APK WebView). */
+export function detectPlatform(): GA4Platform {
+  if (typeof window === "undefined") return "web";
+  if (typeof navigator !== "undefined" && /CampusLoopApp/i.test(navigator.userAgent)) return "android";
+  try {
+    if (window.matchMedia("(display-mode: standalone)").matches) return "pwa";
+  } catch {}
+  return "web";
+}
+
+/** ISO-8601 week label, e.g. "2026-W47". */
+export function isoWeek(input: Date | string | number): string | undefined {
+  const d = new Date(input);
+  if (Number.isNaN(d.getTime())) return undefined;
+  const t = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+  const day = t.getUTCDay() || 7;
+  t.setUTCDate(t.getUTCDate() + 4 - day);
+  const yearStart = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+  const week = Math.ceil(((t.getTime() - yearStart.getTime()) / 86_400_000 + 1) / 7);
+  return `${t.getUTCFullYear()}-W${String(week).padStart(2, "0")}`;
+}
+
+/**
+ * Estimated graduation year from the current year of study (1-5).
+ * Indian academic years end around June; a 4-year course is assumed.
+ */
+export function estimateGradYear(yearOfStudy: number | null | undefined, now = new Date()): number | undefined {
+  if (!yearOfStudy || yearOfStudy < 1 || yearOfStudy > 6) return undefined;
+  const academicYearEnd = now.getMonth() >= 6 ? now.getFullYear() + 1 : now.getFullYear();
+  return academicYearEnd + Math.max(0, 4 - yearOfStudy);
 }
 
 /**
@@ -93,7 +145,10 @@ export function inferContentGroup(pathname: string): string {
   if (pathname.startsWith("/app/academics")) return "academics";
   if (pathname.startsWith("/app/matching") || pathname.startsWith("/app/dating")) return "dating";
   if (pathname.startsWith("/chat") || pathname.startsWith("/app/chat")) return "chat";
-  if (pathname.startsWith("/marketplace") || pathname.startsWith("/app/marketplace")) return "marketplace";
+  if (pathname.startsWith("/board")) return "board";
+  if (pathname.startsWith("/download")) return "download";
+  if (pathname.startsWith("/courses")) return "courses";
+  if (pathname.startsWith("/events")) return "events";
   if (pathname.startsWith("/articles") || pathname.startsWith("/app/articles") || pathname.startsWith("/a/")) return "articles";
   if (
     pathname.startsWith("/app/college") ||
@@ -286,4 +341,138 @@ export function trackPWAInstallOutcome(outcome: "accepted" | "dismissed") {
   gtagEvent("pwa_install_prompt_outcome", {
     outcome,
   });
+}
+
+// ─── 5. Core product events (GA4 recommended + CampusLoop custom) ───
+// Every helper is a one-liner at the call site. Fire only after the action succeeded.
+
+export type AuthMethod = "email" | "password" | "otp" | "magic_link" | "google" | "github" | "oauth" | string;
+export type PostContentType = "post" | "confession" | "poll";
+
+/** GA4 recommended: sign_up (key event). */
+export function trackSignUp(method: AuthMethod) {
+  gtagEvent("sign_up", { method });
+}
+
+/** GA4 recommended: login. */
+export function trackLogin(method: AuthMethod) {
+  gtagEvent("login", { method });
+}
+
+const AUTH_KEY = "cl_ga_uid";
+
+/**
+ * Hexclave's prebuilt <SignIn/>/<SignUp/> give no success callback, so sign_up and
+ * login are inferred once the profile loads: a profile created in the last 15 minutes
+ * is a sign_up; any other profile id this browser has not reported yet is a login.
+ * Call with null when the user signs out so the next sign-in counts again.
+ */
+export function trackAuthFromProfile(profile: { id: string; createdAt?: string | null } | null) {
+  if (typeof window === "undefined") return;
+  try {
+    if (!profile) {
+      localStorage.removeItem(AUTH_KEY);
+      return;
+    }
+    if (localStorage.getItem(AUTH_KEY) === profile.id) return;
+    localStorage.setItem(AUTH_KEY, profile.id);
+    const created = profile.createdAt ? new Date(profile.createdAt).getTime() : 0;
+    if (created && Date.now() - created < 15 * 60_000) trackSignUp("hexclave");
+    else trackLogin("hexclave");
+  } catch {}
+}
+
+/** GA4 recommended: tutorial_complete = onboarding finished. */
+export function trackOnboardingComplete() {
+  gtagEvent("tutorial_complete", { feature: "onboarding" });
+}
+
+/** Custom: post_create (key event). */
+export function trackPostCreate(params: { content_type: PostContentType; anonymous?: boolean; feature?: string }) {
+  gtagEvent("post_create", {
+    content_type: params.content_type,
+    anonymous: Boolean(params.anonymous),
+    feature: params.feature ?? "feed",
+  });
+}
+
+/** Custom: vote on a post / poll / comment / resource. */
+export function trackVote(content_type: string, extra: { item_id?: string; direction?: "up" | "down" | "remove" } = {}) {
+  gtagEvent("vote", { content_type, ...extra });
+}
+
+/** Custom: comment_create. */
+export function trackCommentCreate(content_type = "post", extra: { item_id?: string; anonymous?: boolean } = {}) {
+  gtagEvent("comment_create", { content_type, ...extra });
+}
+
+/** GA4 recommended: share. */
+export function trackShare(method: string, content_type: string, item_id?: string) {
+  gtagEvent("share", { method, content_type, item_id });
+}
+
+/** GA4 recommended: search. */
+export function trackSearch(search_term: string, scope?: string) {
+  if (!search_term.trim()) return;
+  gtagEvent("search", { search_term: search_term.trim().slice(0, 100), scope });
+}
+
+/** GA4 recommended: select_content. */
+export function trackSelectContent(content_type: string, item_id: string) {
+  gtagEvent("select_content", { content_type, item_id });
+}
+
+/** Custom: event_register (key event). */
+export function trackEventRegister(event_id: string) {
+  gtagEvent("event_register", { event_id, content_type: "event" });
+}
+
+/** Custom: course_enroll (key event). */
+export function trackCourseEnroll(course_id: string) {
+  gtagEvent("course_enroll", { course_id, content_type: "course" });
+}
+
+/** Custom: lecture_complete. */
+export function trackLectureComplete(course_id: string, lecture_id: string) {
+  gtagEvent("lecture_complete", { course_id, lecture_id, content_type: "lecture" });
+}
+
+/** Custom: chat_send. */
+export function trackChatSend(params: { scope?: "dm" | "group" | "community" | string; content_type?: string } = {}) {
+  gtagEvent("chat_send", { scope: params.scope ?? "dm", content_type: params.content_type ?? "text" });
+}
+
+/** GA4 recommended: join_group, sent as custom community_join. */
+export function trackCommunityJoin(community_id: string) {
+  gtagEvent("community_join", { community_id, content_type: "community" });
+}
+
+/** Custom: streak_qualify (first qualifying action of the day). */
+export function trackStreakQualify(params: { streak?: number; feature?: string } = {}) {
+  gtagEvent("streak_qualify", params);
+}
+
+/** Custom: follow. */
+export function trackFollow(target_id: string) {
+  gtagEvent("follow", { content_type: "user", item_id: target_id });
+}
+
+/** Custom: apk_download (key event). placement = where the button lives. */
+export function trackApkDownload(placement: "download_page" | "landing" | "settings" | string) {
+  gtagEvent("apk_download", { placement, method: "github_release" });
+}
+
+/** Custom: crush_send. */
+export function trackCrushSend() {
+  gtagEvent("crush_send", { feature: "secret_crush" });
+}
+
+/** Custom: notification_open. */
+export function trackNotificationOpen(content_type?: string) {
+  gtagEvent("notification_open", { content_type: content_type ?? "notification" });
+}
+
+/** Custom: board_view {tab}. */
+export function trackBoardView(tab: "rides" | "housing" | "lost-found" | "sell" | string) {
+  gtagEvent("board_view", { tab, content_group: "board" });
 }

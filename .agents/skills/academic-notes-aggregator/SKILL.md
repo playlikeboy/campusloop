@@ -132,9 +132,6 @@ if (!check.isValid) {
 ```
 
 ### Maintenance Scripts
-- **Scan for Broken Notes**: `bun run scripts/find-broken-academic-notes.ts`
-- **Fast Status Check**: `bun run scripts/fast-check-notes.ts`
-- **Auto-Fix Broken URLs**: `bun run scripts/fix-broken-notes.ts`
 - **Curate New Resources**: `bun run scripts/scrape-and-curate-academics.ts`
 
 ---

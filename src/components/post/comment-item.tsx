@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/mention-autocomplete";
 import { RichText } from "@/components/ui/rich-text";
 import type { Comment } from "@/db/schema";
+import { trackVote } from "@/lib/analytics/ga4";
 import { pinComment, voteComment } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -144,6 +145,7 @@ export function CommentItem({
       if (res && typeof res.likesCount === "number") {
         setLikesCount(res.likesCount);
         setLiked(res.hasLiked);
+        trackVote("comment", { item_id: comment.id, direction: res.hasLiked ? "up" : "remove" });
       }
     } catch {
       // Revert on failure

@@ -30,6 +30,7 @@ import {
 import { RichText } from "@/components/ui/rich-text";
 import type { FeedPost } from "@/hooks/use-feed";
 import { useProfile } from "@/hooks/use-profile";
+import { trackCommentCreate, trackVote } from "@/lib/analytics/ga4";
 import { voteComment } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -310,6 +311,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
       const res = await voteComment(post.id, commentId);
       if (res) {
         setLikedComments((prev) => ({ ...prev, [commentId]: res.hasLiked }));
+        trackVote("comment", { item_id: commentId, direction: res.hasLiked ? "up" : "remove" });
         mutate();
       }
     } catch {
@@ -388,6 +390,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
         const errData = (await res.json()) as { error?: string };
         throw new Error(errData.error || "Couldn't post your comment. Try again.");
       }
+      trackCommentCreate("post", { item_id: post.id, anonymous: isAnonymous });
 
       await mutate();
     } catch (err) {

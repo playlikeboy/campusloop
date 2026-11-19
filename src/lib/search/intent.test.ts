@@ -64,20 +64,6 @@ describe("detectSearchIntent", () => {
       expect(detectSearchIntent("ai meetup").primaryType).toBe("EVENTS");
     });
 
-    it("detects MARKETPLACE intent for campus food and store queries", () => {
-      const intent = detectSearchIntent("night canteen");
-      expect(intent.primaryType).toBe("MARKETPLACE");
-      expect(intent.badge).toBe("Campus Stores");
-      expect(intent.suggestedAction).toBe("Browse campus shops, canteens and rentals");
-    });
-
-    it("detects MARKETPLACE intent for campus rentals and shops", () => {
-      expect(detectSearchIntent("cycle rental").primaryType).toBe("MARKETPLACE");
-      expect(detectSearchIntent("hostel mess food").primaryType).toBe("MARKETPLACE");
-      expect(detectSearchIntent("campus laundry service").primaryType).toBe("MARKETPLACE");
-      expect(detectSearchIntent("maggi and rolls").primaryType).toBe("MARKETPLACE");
-    });
-
     it("detects COMMUNITIES intent for student clubs and chapters", () => {
       const intent = detectSearchIntent("gdsc club");
       expect(intent.primaryType).toBe("COMMUNITIES");

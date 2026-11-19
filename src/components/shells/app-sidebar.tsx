@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { BrandLogo } from "@/components/ui/brand-logo";
-import { DESKTOP_NAV_ITEMS, ROUTES } from "@/constants/navigation";
+import { DESKTOP_NAV_SECTIONS, type NavItem, ROUTES } from "@/constants/navigation";
 import type { ShellProfile } from "@/lib/server-cache";
 import { cn, getAvatarUrl, initialOf } from "@/lib/utils";
 import { isPathActive, navPress, profileHref } from "./nav-utils";
@@ -19,7 +19,7 @@ interface AppSidebarProps {
 const rowClass =
   "flex min-h-11 items-center gap-3 rounded-full px-4 text-[0.9375rem] font-medium transition-ui focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
-/** Desktop-only persistent sidebar (>= 1024px). Calm: a short list, one Post button, your profile. */
+/** Desktop-only persistent sidebar (>= 1024px): Home, Events, Learn, Chat, You, one Post button, your profile. */
 export function AppSidebar({ profile, isAdmin, isViewer }: AppSidebarProps) {
   const pathname = usePathname() || ROUTES.home;
   const avatar = profile ? getAvatarUrl(profile.avatarUrl, profile.username) : "";
@@ -34,56 +34,56 @@ export function AppSidebar({ profile, isAdmin, isViewer }: AppSidebarProps) {
       </div>
 
       <nav aria-label="Main" className="no-scrollbar flex-1 overflow-y-auto px-3 py-2">
-        <ul className="space-y-1">
-          {DESKTOP_NAV_ITEMS.map((item) => {
-            if (isViewer && item.href === ROUTES.chat) return null;
-            const Icon = item.icon;
-            const active = isPathActive(pathname, item.href);
-            return (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  prefetch
-                  onClick={navPress}
-                  aria-current={active ? "page" : undefined}
-                  className={cn(
-                    rowClass,
-                    active
-                      ? "bg-brand-subtle font-semibold text-brand-text"
-                      : "text-fg-muted hover:bg-surface-muted hover:text-fg"
-                  )}
-                >
-                  <Icon className="size-5 shrink-0" strokeWidth={active ? 2.25 : 1.75} aria-hidden="true" />
-                  <span className="truncate">{item.label}</span>
-                </Link>
-              </li>
-            );
-          })}
-          {isAdmin && (
-            <li>
-              <Link
-                href="/admin"
-                onClick={navPress}
-                className={cn(rowClass, "text-fg-muted hover:bg-surface-muted hover:text-fg")}
-              >
-                <ShieldCheck className="size-5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
-                <span className="truncate">Admin</span>
-              </Link>
-            </li>
-          )}
-        </ul>
-
         {!isViewer && profile && (
           <Link
             href={ROUTES.newPost}
             prefetch
             onClick={navPress}
-            className="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-brand text-[0.9375rem] font-semibold text-brand-fg transition-ui hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-[0.98]"
+            className="mb-4 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-brand text-[0.9375rem] font-semibold text-brand-fg transition-ui hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-[0.98]"
           >
             <Plus className="size-5" strokeWidth={2.5} aria-hidden="true" />
             Post
           </Link>
         )}
+
+        <div className="space-y-3">
+          {DESKTOP_NAV_SECTIONS.map((section) => {
+            const items = section.items.filter((item) => !(isViewer && item.href === ROUTES.chat));
+            if (items.length === 0) return null;
+            // A group with one row (Events, Chat) needs no heading; the row says it.
+            const showHeading = items.length > 1 && section.group;
+            const headingId = `sidebar-${section.id ?? section.group}`;
+            return (
+              <section key={section.id ?? section.group} aria-labelledby={showHeading ? headingId : undefined}>
+                {showHeading && (
+                  <h2 id={headingId} className="px-4 pb-1 text-xs font-semibold text-fg-subtle">
+                    {section.group}
+                  </h2>
+                )}
+                <ul className="space-y-0.5">
+                  {items.map((item) => (
+                    <SidebarRow key={item.href} item={item} active={isPathActive(pathname, item.href)} />
+                  ))}
+                </ul>
+              </section>
+            );
+          })}
+          {isAdmin && (
+            <ul>
+              <li>
+                <Link
+                  href="/admin"
+                  onClick={navPress}
+                  className={cn(rowClass, "text-fg-muted hover:bg-surface-muted hover:text-fg")}
+                >
+                  <ShieldCheck className="size-5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+                  <span className="truncate">Admin</span>
+                </Link>
+              </li>
+            </ul>
+          )}
+        </div>
+
       </nav>
 
       <div className="shrink-0 border-t border-border p-3">
@@ -116,5 +116,26 @@ export function AppSidebar({ profile, isAdmin, isViewer }: AppSidebarProps) {
         )}
       </div>
     </aside>
+  );
+}
+
+function SidebarRow({ item, active }: { item: NavItem; active: boolean }) {
+  const Icon = item.icon;
+  return (
+    <li>
+      <Link
+        href={item.href}
+        prefetch
+        onClick={navPress}
+        aria-current={active ? "page" : undefined}
+        className={cn(
+          rowClass,
+          active ? "bg-brand-subtle font-semibold text-brand-text" : "text-fg-muted hover:bg-surface-muted hover:text-fg"
+        )}
+      >
+        <Icon className="size-5 shrink-0" strokeWidth={active ? 2.25 : 1.75} aria-hidden="true" />
+        <span className="truncate">{item.label}</span>
+      </Link>
+    </li>
   );
 }

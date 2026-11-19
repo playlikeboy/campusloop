@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SegmentedControl } from "@/components/ui/segmented-control";
+import { trackEventRegister } from "@/lib/analytics/ga4";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 
@@ -86,6 +87,7 @@ export function EventRegisterDialog({
       const resData = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok)
         throw new Error(resData.error || "Couldn't register you. Check your connection and try again.");
+      trackEventRegister(event.id);
 
       sounds.pop();
       haptics.medium();

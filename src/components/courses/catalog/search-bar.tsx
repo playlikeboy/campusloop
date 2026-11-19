@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 import { fieldClassName } from "@/components/ui/input";
 import type { Course } from "@/db/schema";
+import { trackSearch } from "@/lib/analytics/ga4";
 import { cn } from "@/lib/utils";
 
 /** Catalog search. Submits to /courses?q= so results can be shared; suggests titles while typing. */
@@ -51,6 +52,7 @@ export function CatalogSearchBar({ initial = "", autoFocus }: { initial?: string
         e.preventDefault();
         setOpen(false);
         const term = q.trim();
+        if (term) trackSearch(term, "courses");
         router.push(term ? `/courses?${new URLSearchParams({ q: term })}` : "/courses");
       }}
       className="relative w-full"

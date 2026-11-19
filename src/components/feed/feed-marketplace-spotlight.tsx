@@ -30,7 +30,7 @@ function getCategoryIcon(category: string) {
 }
 
 export function FeedMarketplaceSpotlight({ className }: { className?: string }) {
-  const { data } = useSWR<{ items: MarketplaceItem[] }>("/api/marketplace/spotlight", fetcher, {
+  const { data } = useSWR<{ items: MarketplaceItem[] }>("/api/buy-and-sell/spotlight", fetcher, {
     revalidateOnFocus: false,
     dedupingInterval: 60_000,
   });

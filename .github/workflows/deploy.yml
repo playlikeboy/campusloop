@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+    # Mobile-only pushes build the APK (android-apk.yml); they never change the web app.
+    paths-ignore:
+      - "apps/mobile/**"
+      - ".github/workflows/android-apk.yml"
   workflow_dispatch:
 
 concurrency:

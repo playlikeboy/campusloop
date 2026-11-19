@@ -7,6 +7,7 @@ import { useMemo } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
 import { JoinCommunityButton } from "@/app/(app)/(main)/communities/join-community-button";
+import { trackShare } from "@/lib/analytics/ga4";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -98,6 +99,7 @@ export function CommunityEmbed({ slugOrId }: CommunityEmbedProps) {
       });
     } else {
       navigator.clipboard.writeText(url);
+      trackShare("copy_link", "community", community.id);
       toast.success("Community link copied to clipboard");
     }
   }

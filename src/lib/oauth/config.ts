@@ -20,7 +20,29 @@ export interface ScopeInfo {
    * anonymous identity) is never exposed through any scope.
    */
   needsReview: boolean;
+  /**
+   * Only CampusLoop's own apps (FULL_SESSION_CLIENTS) can get this scope. It is
+   * never shown in discovery, never requestable by developer-portal apps, and
+   * dropped from any other client's authorization request.
+   */
+  firstPartyOnly?: boolean;
 }
+
+/**
+ * The official CampusLoop Android app: a PUBLIC client (no secret, PKCE
+ * required). Register it with scripts/oauth/register-mobile-client.ts.
+ */
+export const MOBILE_CLIENT_ID = "campusloop-android";
+export const MOBILE_REDIRECT_URI = "campusloop://oauth";
+
+/**
+ * `app`: the access token acts as the student's full CampusLoop session on
+ * /api/* (see src/lib/oauth/bearer.ts). First-party only.
+ */
+export const APP_SCOPE = "app";
+
+/** Clients allowed to receive APP_SCOPE. Keyed on client id, not the admin "first-party" flag. */
+export const FULL_SESSION_CLIENTS: ReadonlySet<string> = new Set([MOBILE_CLIENT_ID]);
 
 export const SCOPES: Record<string, ScopeInfo> = {
   openid: { consent: "Sign you in with your CampusLoop account", claims: ["sub"], needsReview: false },
@@ -30,9 +52,13 @@ export const SCOPES: Record<string, ScopeInfo> = {
   academic: { consent: "See your branch, degree and year", claims: ["branch", "degree", "year"], needsReview: false },
   email: { consent: "See your email address", claims: ["email"], needsReview: false },
   offline_access: { consent: "Stay signed in when you're not using it", claims: [], needsReview: false },
+  [APP_SCOPE]: { consent: "Use CampusLoop as you in the official app", claims: [], needsReview: false, firstPartyOnly: true },
 };
 
-export const SUPPORTED_SCOPES = Object.keys(SCOPES);
+/** Every scope the server knows, including first-party-only ones. */
+export const ALL_SCOPES = Object.keys(SCOPES);
+/** Scopes any registered app may request (discovery, developer portal). Excludes first-party-only scopes. */
+export const SUPPORTED_SCOPES = ALL_SCOPES.filter((s) => !SCOPES[s].firstPartyOnly);
 export const SENSITIVE_SCOPES = SUPPORTED_SCOPES.filter((s) => SCOPES[s].needsReview);
 
 export const ENDPOINTS = {

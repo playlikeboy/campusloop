@@ -191,6 +191,30 @@ export const pushSubscriptions = pgTable(
 );
 
 /**
+ * Expo push tokens from the Android app (one row per install). The token is
+ * the natural key: registering it again moves it to the current account.
+ * Rows are pruned when Expo answers DeviceNotRegistered.
+ * Created by drizzle/manual/0012_device_push_tokens.sql.
+ */
+export const devicePushTokens = pgTable(
+  "device_push_tokens",
+  {
+    id: id(),
+    profileId: text("profile_id")
+      .notNull()
+      .references(() => userProfiles.id, { onDelete: "cascade" }),
+    expoToken: text("expo_token").notNull(),
+    platform: text("platform").default("android").notNull(), // android | ios
+    createdAt,
+    lastSeenAt: timestamp("last_seen_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("device_push_tokens_expo_token_idx").on(table.expoToken),
+    index("device_push_tokens_profile_idx").on(table.profileId),
+  ]
+);
+
+/**
  * Anonymous identity vault. Maps a pseudonym handle to the AES-256-GCM
  * sealed profile id of the real author. Deliberately has NO foreign key to
  * user_profiles, so no SQL join can deanonymize content — resolution requires

@@ -77,16 +77,6 @@ export function detectSearchIntent(query: string): SearchIntent {
     };
   }
 
-  // Marketplace / Stores keywords: canteen, food, maggi, chai, store, shop, rental, cycle, bike, buy, sell
-  if (/\b(canteens?|stores?|shops?|rentals?|cycles?|bikes?|laundry|barbers?|mess|food|burgers?|rolls?)\b/i.test(lower)) {
-    return {
-      primaryType: "MARKETPLACE",
-      badge: "Campus Stores",
-      suggestedAction: "Browse campus shops, canteens and rentals",
-      didYouMean,
-    };
-  }
-
   // Communities / Clubs keywords: club, society, team, guild, chapter
   if (/\b(clubs?|societ(y|ies)|chapters?|guilds?|acm|ieee|rotaract|gdsc|edc)\b/i.test(lower)) {
     return {

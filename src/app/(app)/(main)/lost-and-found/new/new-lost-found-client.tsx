@@ -103,7 +103,7 @@ export function NewLostFoundClient({ defaultCampusName = "your college" }: Props
       );
 
       const targetSlug = data.slug || data.item?.slug || data.item?.id;
-      router.push(targetSlug ? `/lost-and-found/${targetSlug}` : "/lost-and-found");
+      router.push(targetSlug ? `/lost-and-found/${targetSlug}` : "/board?tab=lost-found");
       router.refresh();
     } catch (err) {
       toast.error((err instanceof Error && err.message) || "Your report didn't post. Try again in a moment.");
@@ -115,7 +115,7 @@ export function NewLostFoundClient({ defaultCampusName = "your college" }: Props
   return (
     <div className="mx-auto w-full max-w-xl px-4 pt-4 pb-28 sm:pt-6">
       <Button asChild variant="ghost" size="sm" className="-ml-2">
-        <Link href="/lost-and-found">
+        <Link href="/board?tab=lost-found">
           <ArrowLeft className="size-4" aria-hidden="true" />
           Lost and found
         </Link>

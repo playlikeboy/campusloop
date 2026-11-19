@@ -4,7 +4,16 @@ import { usePathname, useSearchParams } from "next/navigation";
 import Script from "next/script";
 import { useEffect, useRef } from "react";
 import { useProfile } from "@/hooks/use-profile";
-import { GA_MEASUREMENT_ID, setGA4UserProperties, trackPageView } from "@/lib/analytics/ga4";
+import {
+  detectPlatform,
+  estimateGradYear,
+  GA_MEASUREMENT_ID,
+  isoWeek,
+  setGA4UserId,
+  setGA4UserProperties,
+  trackAuthFromProfile,
+  trackPageView,
+} from "@/lib/analytics/ga4";
 
 /**
  * Script injection for Google Analytics 4 (gtag.js)
@@ -45,6 +54,7 @@ export function GoogleAnalyticsTracker() {
   const searchParams = useSearchParams();
   const lastTrackedUrl = useRef<string>("");
   const { profile } = useProfile();
+  const boundUserId = useRef<string | null>(null);
 
   useEffect(() => {
     if (!pathname) return;
@@ -67,6 +77,8 @@ export function GoogleAnalyticsTracker() {
   // Sync GA4 User Properties when student profile is loaded or for guest
   useEffect(() => {
     if (profile) {
+      // /api/profile/me returns the full row; these two are not on the shared hook type.
+      const extra = profile as typeof profile & { isCollegeVerified?: boolean; createdAt?: string };
       const points = profile.loopPoints || profile.points || 0;
       let tier: "bronze" | "silver" | "gold" | "campus_legend" = "bronze";
       if (points >= 1000) tier = "campus_legend";
@@ -81,10 +93,26 @@ export function GoogleAnalyticsTracker() {
         semester: profile.year ? profile.year * 2 : undefined,
         loop_points_tier: tier,
         anonymity_mode: (profile.feedVisibility as "all" | "no_anon") || "all",
+        verified: Boolean(extra.isCollegeVerified),
+        grad_year: estimateGradYear(profile.year),
+        platform: detectPlatform(),
+        signup_week: extra.createdAt ? isoWeek(extra.createdAt) : undefined,
       });
+      // user_id = profile id only (no email/name). Lets GA4 join sessions across devices.
+      if (boundUserId.current !== profile.id) {
+        setGA4UserId(profile.id);
+        trackAuthFromProfile({ id: profile.id, createdAt: extra.createdAt });
+        boundUserId.current = profile.id;
+      }
     } else {
+      if (boundUserId.current) {
+        setGA4UserId(null);
+        trackAuthFromProfile(null);
+        boundUserId.current = null;
+      }
       setGA4UserProperties({
         user_type: "guest",
+        platform: detectPlatform(),
       });
     }
   }, [profile]);

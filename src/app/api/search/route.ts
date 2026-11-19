@@ -9,7 +9,6 @@ import {
   communities,
   events,
   institutions,
-  merchants,
   posts,
   userProfiles,
 } from "@/db/schema";
@@ -95,7 +94,6 @@ export async function GET(request: Request) {
     const shouldFetchEvents = isAll || type === "EVENTS";
     const shouldFetchArticles = isAll || type === "ARTICLES";
     const shouldFetchAcademics = isAll || type === "ACADEMICS";
-    const shouldFetchMarketplace = isAll || type === "MARKETPLACE";
 
     const [
       foundUsers,
@@ -106,7 +104,6 @@ export async function GET(request: Request) {
       foundArticles,
       foundAcademics,
       foundPlaylists,
-      foundMerchants,
     ] = await Promise.all([
       // 1. People / Students
       shouldFetchPeople
@@ -235,21 +232,6 @@ export async function GET(request: Request) {
             with: { creator: true },
           })
         : Promise.resolve([]),
-
-      // 9. Merchants / Stores
-      shouldFetchMarketplace
-        ? db.query.merchants.findMany({
-            where: and(
-              eq(merchants.status, "ACTIVE"),
-              or(
-                ilike(merchants.name, searchPattern),
-                ilike(merchants.description, searchPattern),
-                ilike(merchants.address, searchPattern)
-              )
-            ),
-            limit: entityLimit,
-          })
-        : Promise.resolve([]),
     ]);
 
     const formattedPosts = await formatApiFeedPosts(foundPosts as any);
@@ -368,19 +350,6 @@ export async function GET(request: Request) {
       score: 65,
     }));
 
-    const normalizedStores: SearchResult[] = foundMerchants.map((m) => ({
-      id: m.id,
-      type: "store",
-      title: m.name,
-      subtitle: m.categorySlug || "Campus Store & Canteen",
-      description: m.description || m.address || undefined,
-      imageUrl: m.logoUrl,
-      href: `/marketplace`,
-      metadata: {
-        address: m.address || "",
-      },
-      score: 55,
-    }));
 
     // Grouping
     const grouped: Record<string, SearchResult[]> = {
@@ -391,7 +360,6 @@ export async function GET(request: Request) {
       events: normalizedEvents,
       articles: normalizedArticles,
       academics: normalizedAcademics,
-      stores: normalizedStores,
     };
 
     // Flatten all results sorted by relevance score
@@ -403,7 +371,6 @@ export async function GET(request: Request) {
       ...normalizedEvents,
       ...normalizedArticles,
       ...normalizedAcademics,
-      ...normalizedStores,
     ].sort((a, b) => (b.score || 0) - (a.score || 0));
 
     return NextResponse.json({
@@ -419,7 +386,7 @@ export async function GET(request: Request) {
       colleges: foundColleges,
       users: foundUsers,
       communities: foundCommunities,
-      merchants: foundMerchants,
+      merchants: [],
       academics: foundAcademics,
       playlists: foundPlaylists,
       events: foundEvents,

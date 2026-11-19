@@ -56,6 +56,7 @@ import { QuestionSticker } from "@/components/ui/stickers";
 import { useCommunities } from "@/hooks/use-communities";
 import type { FeedPost } from "@/hooks/use-feed";
 import { useProfile } from "@/hooks/use-profile";
+import { trackPostCreate } from "@/lib/analytics/ga4";
 import { fetcher } from "@/lib/api";
 import { extractEmbedsFromText } from "@/lib/embeds";
 import { confirmOptimisticPost, optimisticAddPost, revertOptimisticPost } from "@/lib/feed-mutations";
@@ -630,6 +631,7 @@ export function PostComposer({
         };
         confirmOptimisticPost(tempId, confirmed);
         onPublishConfirmed?.(tempId, confirmed);
+        trackPostCreate({ content_type: postType === "CONFESSION" ? "confession" : postType === "POLL" ? "poll" : "post", anonymous: anon, feature: "composer" });
 
         // Only now do we have a real id to link to.
         toast.success("Posted", {

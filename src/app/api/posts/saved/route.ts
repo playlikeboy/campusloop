@@ -2,14 +2,14 @@ import { desc, eq, inArray } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { posts, savedPosts, userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
 import { sanitizeAnonRow } from "@/lib/anonymity";
+import { getCachedAuthUser } from "@/lib/server-cache";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   try {
-    const user = await hexclaveServerApp.getUser();
+    const user = await getCachedAuthUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

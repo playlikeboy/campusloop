@@ -2,6 +2,8 @@ import { and, desc, eq, isNull, ne, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { conversations, messages } from "@/db/schema";
+import { isDirectChatBlocked } from "@/lib/blocks";
+import { CHAT_USER_COLUMNS } from "@/lib/chat-columns";
 import { requireProfile } from "@/lib/require-profile";
 import { runInBackground } from "@/lib/background";
 import { requireConversationParticipant } from "@/lib/chat-auth";
@@ -56,7 +58,7 @@ export async function GET(req: Request, { params }: RouteParams) {
       orderBy: [desc(messages.createdAt)],
       limit,
       with: {
-        sender: true,
+        sender: { columns: CHAT_USER_COLUMNS },
       },
     });
 
@@ -87,6 +89,10 @@ export async function POST(req: Request, { params }: RouteParams) {
 
     const viewerBlocked = await rejectViewerWrite(profile);
     if (viewerBlocked) return viewerBlocked;
+
+    if (await isDirectChatBlocked(id, profile.id)) {
+      return NextResponse.json({ error: "You can't message this person" }, { status: 403 });
+    }
 
     const payload = (await req.json().catch(() => ({}))) as { body?: string };
     const body = payload.body?.trim() || "";
@@ -122,7 +128,7 @@ export async function POST(req: Request, { params }: RouteParams) {
     // Return message populated with sender
     const populatedMessage = {
       ...newMessage,
-      sender: profile,
+      sender: Object.fromEntries(Object.keys(CHAT_USER_COLUMNS).map((k) => [k, profile[k as keyof typeof CHAT_USER_COLUMNS]])),
     };
 
     return NextResponse.json(populatedMessage, { status: 201 });

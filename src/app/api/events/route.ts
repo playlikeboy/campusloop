@@ -6,8 +6,8 @@ const nanoid = (len = 12) => randomUUID().replace(/-/g, "").slice(0, len);
 
 import { getDb } from "@/db";
 import { eventRegistrations, events, userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
 import { rejectIfLacksCapability } from "@/lib/capabilities";
+import { getCachedAuthUser } from "@/lib/server-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -38,7 +38,7 @@ export async function GET(req: Request) {
     // Authenticated user session
     let currentProfile = null;
     try {
-      const user = await hexclaveServerApp.getUser();
+      const user = await getCachedAuthUser();
       if (user?.id) {
         currentProfile = await db.query.userProfiles.findFirst({
           where: eq(userProfiles.userId, user.id),
@@ -434,7 +434,7 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const user = await hexclaveServerApp.getUser();
+    const user = await getCachedAuthUser();
     if (!user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

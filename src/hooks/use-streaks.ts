@@ -4,6 +4,7 @@ import useSWR from "swr";
 import { toast } from "sonner";
 import type { StreakMilestone, StreakEventType } from "@/constants/streaks";
 import type { UserStreakState } from "@/lib/streaks/streak-service";
+import { trackStreakQualify } from "@/lib/analytics/ga4";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -48,6 +49,7 @@ export function useStreaks(profileId?: string) {
 
       if (result.success) {
         if (!result.alreadyQualifiedToday) {
+          trackStreakQualify({ streak: result.currentStreak, feature: eventType });
           sounds.ting();
           haptics.success();
           toast.success(

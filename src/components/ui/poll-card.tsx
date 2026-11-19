@@ -4,6 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { PollSticker } from "@/components/ui/stickers/poll-sticker";
 import type { FeedPost } from "@/hooks/use-feed";
+import { trackVote } from "@/lib/analytics/ga4";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 
@@ -36,6 +37,7 @@ export function PollCard({ post }: PollCardProps) {
         body: JSON.stringify({ optionId }),
       });
       if (!res.ok) throw new Error("Failed to cast poll vote");
+      trackVote("poll", { item_id: post.id });
     } catch (err) {
       console.error(err);
       setHasVoted(false);

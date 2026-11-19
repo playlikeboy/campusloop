@@ -1,4 +1,4 @@
-import { BookOpen, Car, Gamepad2, Home, PackageSearch, ShoppingBag } from "lucide-react";
+import { BookOpen, Car, Home, PackageSearch, ShoppingBag } from "lucide-react";
 import type { DedicatedHubType } from "@/components/communities/hub-types";
 import type { ComboboxOption } from "@/components/ui/searchable-combobox";
 
@@ -8,11 +8,10 @@ export const HUB_CATEGORIES: Array<{
   icon: React.ComponentType<{ className?: string }>;
   href: string;
 }> = [
-  { id: "lost_found", label: "Lost & found", icon: PackageSearch, href: "/lost-and-found" },
-  { id: "marketplace", label: "Buy & sell", icon: ShoppingBag, href: "/buy-and-sell" },
-  { id: "gaming", label: "Gaming", icon: Gamepad2, href: "/gaming" },
-  { id: "rideshare", label: "Ride share", icon: Car, href: "/rideshare" },
-  { id: "housing", label: "Rooms & flats", icon: Home, href: "/housing" },
+  { id: "lost_found", label: "Lost & found", icon: PackageSearch, href: "/board?tab=lost-found" },
+  { id: "marketplace", label: "Buy & sell", icon: ShoppingBag, href: "/board?tab=sell" },
+  { id: "rideshare", label: "Ride share", icon: Car, href: "/board?tab=rides" },
+  { id: "housing", label: "Rooms & flats", icon: Home, href: "/board?tab=housing" },
   { id: "academics", label: "Notes", icon: BookOpen, href: "/academics" },
 ];
 

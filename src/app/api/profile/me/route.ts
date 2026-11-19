@@ -4,7 +4,7 @@ import { getDb } from "@/db";
 import { userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { requireProfile } from "@/lib/require-profile";
-import { invalidateProfileCache } from "@/lib/server-cache";
+import { getCachedAuthUser, invalidateProfileCache } from "@/lib/server-cache";
 import { sanitizeSocialLinks } from "@/lib/social-links";
 import { validateDisplayName, validateUsername } from "@/lib/validation";
 
@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const user = await hexclaveServerApp.getUser();
+    const user = await getCachedAuthUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -177,5 +177,43 @@ export async function PATCH(req: Request) {
   } catch (error) {
     console.error("Error updating profile:", error);
     return NextResponse.json({ error: "Failed to update profile" }, { status: 500 });
+  }
+}
+
+/**
+ * Delete my account (Play Store / App Store requirement).
+ * Body: { "confirm": "DELETE" }. Removes the profile row (its posts, comments,
+ * follows, chats, OAuth grants, push tokens and so on cascade), then deletes
+ * the Hexclave sign-in account. Works with the web cookie or the app bearer token.
+ */
+export async function DELETE(req: Request) {
+  try {
+    const auth = await requireProfile();
+    if (!auth.ok) return auth.response;
+    const { user, profile } = auth;
+
+    const body = (await req.json().catch(() => ({}))) as { confirm?: unknown };
+    if (body.confirm !== "DELETE") {
+      return NextResponse.json({ error: 'Send { "confirm": "DELETE" } to delete your account' }, { status: 400 });
+    }
+    if (profile.role === "ADMIN") {
+      return NextResponse.json({ error: "Admin accounts must be removed by another admin" }, { status: 403 });
+    }
+
+    await getDb().delete(userProfiles).where(eq(userProfiles.id, profile.id));
+    invalidateProfileCache(user.id);
+
+    // The profile is gone either way; a failed auth-account delete is logged for follow-up.
+    try {
+      const authUser = await hexclaveServerApp.getUser(user.id);
+      await authUser?.delete();
+    } catch (error) {
+      console.error(`[account delete] Hexclave user delete failed for ${user.id}:`, error);
+    }
+
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    console.error("Error deleting account:", error);
+    return NextResponse.json({ error: "Could not delete your account. Try again or email support." }, { status: 500 });
   }
 }

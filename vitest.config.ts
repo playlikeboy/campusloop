@@ -7,6 +7,7 @@ loadLocalEnv();
 export default defineConfig({
 	test: {
 		include: ["src/**/*.test.ts"],
+		exclude: ["**/node_modules/**", "apps/**"],
 		environment: "node",
 		setupFiles: ["./src/test/setup.ts"],
 		env: {

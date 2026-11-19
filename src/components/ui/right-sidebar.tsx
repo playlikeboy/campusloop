@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SOCIAL_LINKS } from "@/constants/socials";
 import type { Institution, UserProfile } from "@/db/schema";
 import { useScrollIsolation } from "@/hooks/use-scroll-isolation";
+import { trackFollow } from "@/lib/analytics/ga4";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -92,6 +93,7 @@ export function RightSidebar({ className }: { className?: string } = {}) {
       if (nextState) {
         toast.success(`Following @${peer.username}`);
         await fetch(`/api/profile/${peer.username}/follow`, { method: "POST" });
+        trackFollow(peer.username);
         // Optimistically remove followed peer from suggested list and refresh in background
         mutateSuggested((current) => current?.filter((p) => p.id !== peer.id), false);
       } else {

@@ -43,6 +43,12 @@ export function LandingHero({ stats }: { stats: PublicStats }) {
             >
               I already have an account
             </Link>
+            <Link
+              href="/download"
+              className="rounded-sm text-base font-semibold text-story-field-fg underline underline-offset-4 outline-none focus-visible:ring-2 focus-visible:ring-story-field-fg"
+            >
+              Android app (beta)
+            </Link>
           </div>
           {stats.students !== null && (
             <p className="mt-4 text-sm text-story-field-muted">

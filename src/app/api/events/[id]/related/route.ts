@@ -2,7 +2,7 @@ import { and, desc, eq, ne, or } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { events } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
+import { getCachedAuthUser } from "@/lib/server-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +12,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     const db = getDb();
 
     // Authenticated user session (optional)
-    const user = await hexclaveServerApp.getUser();
+    const user = await getCachedAuthUser();
     let currentProfile = null;
     if (user?.id) {
       currentProfile = await db.query.userProfiles.findFirst({

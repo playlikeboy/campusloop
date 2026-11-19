@@ -42,11 +42,8 @@ export const RATE_LIMITS: RateRule[] = [
   { prefix: "/.well-known/", methods: "ALL", max: 300, windowSec: 60, store: "memory" },
 
   // Expensive or abusable endpoints
-  { prefix: "/api/ai", methods: "ALL", max: 20, windowSec: 60, store: "redis" },
-  { prefix: "/api/atlas", methods: "ALL", max: 30, windowSec: 60, store: "redis" },
   { prefix: "/api/upload", methods: "ALL", max: 30, windowSec: 60, store: "redis" },
   { prefix: "/api/files", methods: "WRITE", max: 30, windowSec: 60, store: "redis" },
-  { prefix: "/api/payments", methods: "ALL", max: 30, windowSec: 60, store: "redis" },
   { prefix: "/api/college-index-requests", methods: "WRITE", max: 5, windowSec: 600, store: "redis" },
   { prefix: "/api/mcp", methods: "ALL", max: 120, windowSec: 60, store: "redis" },
   { prefix: "/api/search", methods: "READ", max: 120, windowSec: 60, store: "memory" },
@@ -62,7 +59,6 @@ export const RATE_LIMITS: RateRule[] = [
   { prefix: "/api/academics", methods: "WRITE", max: 20, windowSec: 60, store: "redis" },
   { prefix: "/api/articles", methods: "WRITE", max: 30, windowSec: 60, store: "redis" },
   { prefix: "/api/stories", methods: "WRITE", max: 30, windowSec: 60, store: "redis" },
-  { prefix: "/api/capsules", methods: "WRITE", max: 30, windowSec: 60, store: "redis" },
   { prefix: "/api/highlights", methods: "WRITE", max: 30, windowSec: 60, store: "redis" },
   { prefix: "/api/reels", methods: "WRITE", max: 60, windowSec: 60, store: "redis" },
   { prefix: "/api/posts", methods: "WRITE", max: 60, windowSec: 60, store: "redis" },

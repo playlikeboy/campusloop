@@ -2,6 +2,7 @@ import { and, eq, ne } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { conversationParticipants, conversations, messages } from "@/db/schema";
+import { CHAT_USER_COLUMNS } from "@/lib/chat-columns";
 import { requireProfile } from "@/lib/require-profile";
 
 export const dynamic = "force-dynamic";
@@ -39,7 +40,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
         community: true,
         participants: {
           with: {
-            user: true,
+            user: { columns: CHAT_USER_COLUMNS },
           },
         },
       },

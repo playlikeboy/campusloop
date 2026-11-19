@@ -7,7 +7,7 @@ import { checkAuthorizeRequest, errorRedirect, successRedirect } from "@/lib/oau
 import { grantCovers } from "@/lib/oauth/policy";
 import { createCode, getActiveGrant, upsertGrant } from "@/lib/oauth/store";
 import { privateMetadata } from "@/lib/seo";
-import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
+import { getCachedSessionUser, getCachedUserProfile } from "@/lib/server-cache";
 import { isCollegeVerifiedUser } from "@/lib/user-verification";
 import { decideAuthorization } from "./actions";
 
@@ -54,7 +54,7 @@ async function resolveAuthorize(searchParams: Props["searchParams"]): Promise<Au
       return { kind: "problem", title: "Can't sign you in", message: check.message };
     if (check.kind === "error") redirect(check.redirectTo);
 
-    const user = await getCachedAuthUser().catch(() => null);
+    const user = await getCachedSessionUser().catch(() => null);
     if (!user) {
       if (check.prompt === "none")
         redirect(

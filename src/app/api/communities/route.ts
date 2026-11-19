@@ -3,7 +3,7 @@ import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { communities, communityMembers, userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
+import { getCachedAuthUser } from "@/lib/server-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +34,7 @@ export async function GET(request: Request) {
     // Check logged in user profile ID for membership status
     let currentProfileId: string | null = null;
     try {
-      const user = await hexclaveServerApp.getUser();
+      const user = await getCachedAuthUser();
       if (user) {
         const profile = await db.query.userProfiles.findFirst({
           where: eq(userProfiles.userId, user.id),
@@ -91,7 +91,8 @@ export async function GET(request: Request) {
       },
     });
 
-    const response = allCommunities.map(({ activeMembersCount, viewerIsMember, ...comm }) => {
+    // inviteCode is the join secret for private communities; never list it.
+    const response = allCommunities.map(({ activeMembersCount, viewerIsMember, inviteCode: _inviteCode, ...comm }) => {
       const membersCount = Number(activeMembersCount) || 0;
 
       return {
@@ -113,7 +114,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const user = await hexclaveServerApp.getUser();
+    const user = await getCachedAuthUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized", message: "You must be signed in to create a community" }, { status: 401 });
     }

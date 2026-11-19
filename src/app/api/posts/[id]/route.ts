@@ -3,12 +3,12 @@ import { NextResponse } from "next/server";
 import { MAX_POST_CHARS } from "@/constants/feed";
 import { getDb } from "@/db";
 import { anonIdentityVault, comments, pollOptions, posts, userProfiles, votes } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
 import { requireProfile } from "@/lib/require-profile";
 import { deriveAnonHandle, openSealedIdentity } from "@/lib/anonymity";
 import { runSafetyCheck } from "@/lib/moderation/rules";
 import { indexPostVector } from "@/lib/qdrant/indexer";
 import { rejectViewerWrite } from "@/lib/viewer";
+import { getCachedAuthUser } from "@/lib/server-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -62,7 +62,7 @@ export async function GET(req: Request, { params }: RouteParams) {
     // Optional user authentication for personalized vote hydration and moderator role check
     let viewerProfile: (typeof userProfiles.$inferSelect) | null = null;
     try {
-      const user = await hexclaveServerApp.getUser();
+      const user = await getCachedAuthUser();
       if (user) {
         viewerProfile = (await db.query.userProfiles.findFirst({
           where: eq(userProfiles.userId, user.id),

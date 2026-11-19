@@ -2,7 +2,7 @@ import { and, asc, eq, gt, inArray } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { comments, commentVotes, userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
+import { getCachedAuthUser } from "@/lib/server-cache";
 
 interface RouteParams {
   params: Promise<{ id: string; commentId: string }>;
@@ -20,7 +20,7 @@ export async function GET(req: Request, { params }: RouteParams) {
     // Optional user authentication for personalized like hydration
     let currentProfileId: string | null = null;
     try {
-      const user = await hexclaveServerApp.getUser();
+      const user = await getCachedAuthUser();
       if (user) {
         const profile = await db.query.userProfiles.findFirst({
           where: eq(userProfiles.userId, user.id),

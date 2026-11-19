@@ -4,6 +4,7 @@ import { BookOpen, Calendar, Command, Loader2, Search, Users, X } from "lucide-r
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { trackSearch } from "@/lib/analytics/ga4";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn, getAvatarUrl } from "@/lib/utils";
@@ -69,6 +70,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
   if (!isOpen) return null;
 
   const navigateTo = (href: string) => {
+    if (query.trim()) trackSearch(query.trim(), activeCategory.toLowerCase());
     sounds.tap();
     haptics.light();
     onClose();

@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen, Building2, Calendar, GraduationCap, ShoppingBag, Users, WifiOff } from "lucide-react";
+import { BookOpen, Building2, Calendar, GraduationCap, Users, WifiOff } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState, useTransition } from "react";
@@ -13,7 +13,6 @@ import {
   CommunityPreviewCard,
   EventPreviewCard,
   PersonPreviewCard,
-  StorePreviewCard,
 } from "@/components/explore/entity-card";
 import { ExploreHeader } from "@/components/explore/explore-header";
 import { ExploreSection } from "@/components/explore/explore-section";
@@ -39,7 +38,6 @@ interface ExploreHomeData {
   articles: any[];
   colleges: any[];
   people: any[];
-  marketplace: any[];
 }
 
 interface ExploreClientProps {
@@ -344,23 +342,6 @@ export function ExploreClient({
             </ExploreSection>
           )}
 
-          {/* Marketplace / Campus Stores Section */}
-          {homeData?.marketplace && homeData.marketplace.length > 0 && (
-            <ExploreSection
-              id="explore-marketplace"
-              title="Marketplace"
-              subtitle="Canteens and shops near campus"
-              icon={ShoppingBag}
-              viewAllHref="/marketplace"
-              viewAllLabel="See all"
-            >
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {homeData.marketplace.map((m: any) => (
-                  <StorePreviewCard key={m.id} store={m} />
-                ))}
-              </div>
-            </ExploreSection>
-          )}
         </div>
       )}
     </div>

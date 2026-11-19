@@ -2,7 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { posts, reelBookmarks, reels, savedPosts, userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
+import { getCachedAuthUser } from "@/lib/server-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +12,7 @@ interface RouteParams {
 
 export async function GET(req: Request, { params }: RouteParams) {
   try {
-    const user = await hexclaveServerApp.getUser();
+    const user = await getCachedAuthUser();
     if (!user) {
       return NextResponse.json({ saved: false });
     }
@@ -50,7 +50,7 @@ export async function GET(req: Request, { params }: RouteParams) {
 
 export async function POST(req: Request, { params }: RouteParams) {
   try {
-    const user = await hexclaveServerApp.getUser();
+    const user = await getCachedAuthUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -112,7 +112,7 @@ export async function POST(req: Request, { params }: RouteParams) {
 
 export async function DELETE(req: Request, { params }: RouteParams) {
   try {
-    const user = await hexclaveServerApp.getUser();
+    const user = await getCachedAuthUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

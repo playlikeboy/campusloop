@@ -12,6 +12,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { type NotificationItem, type NotificationTab, useNotifications } from "@/hooks/use-notifications";
+import { trackNotificationOpen } from "@/lib/analytics/ga4";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { groupByDay } from "./notification-meta";
@@ -63,6 +64,7 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
 
   function open(n: NotificationItem) {
     haptics.light();
+    trackNotificationOpen(n.type.toLowerCase());
     if (!n.isRead) markAsRead(n.id);
   }
 

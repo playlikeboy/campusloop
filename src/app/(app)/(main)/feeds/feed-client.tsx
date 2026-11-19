@@ -23,6 +23,7 @@ import { useFeedImpressions } from "@/hooks/use-feed-impressions";
 import { useProfile } from "@/hooks/use-profile";
 import { isCollegeVerifiedUser } from "@/lib/user-verification";
 import { getCollegeShortName } from "@/lib/utils";
+import { HomeTabs } from "./home-tabs";
 
 function readSavedVisibility(): string | null {
   try {
@@ -217,6 +218,8 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
             onRefresh={refresh}
             isRefreshing={isValidating}
           />
+
+          {!forcedType && <HomeTabs active="feed" className="border-b border-border" />}
 
           {/* Stories only take space when someone has actually posted one. */}
           {!storiesLoading && storyUsers.length > 0 && (

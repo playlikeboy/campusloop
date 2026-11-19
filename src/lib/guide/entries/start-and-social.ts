@@ -37,7 +37,7 @@ export const START_AND_SOCIAL: GuideEntry[] = [
       },
       {
         who: "Final-year student",
-        scenario: "Uses it for placement prep notes, batch memories and the time capsule before graduation.",
+        scenario: "Uses it for placement prep notes, batch memories before graduation.",
       },
       {
         who: "Student whose college isn't listed",
@@ -61,7 +61,7 @@ export const START_AND_SOCIAL: GuideEntry[] = [
       },
       {
         q: "Is it free?",
-        a: "Yes. CampusLoop is free for students. Some marketplace orders are paid to the store.",
+        a: "Yes. CampusLoop is free for students.",
       },
     ],
     related: ["aspirant-viewer-mode", "campus-feed", "colleges-directory", "verification-and-safety"],

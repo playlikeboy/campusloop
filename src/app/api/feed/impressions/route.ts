@@ -2,8 +2,8 @@ import { inArray } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { posts, userBehaviorEvents } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
 import { getRankingVariant, RANKING_EXPERIMENT } from "@/lib/recommendations/experiments";
+import { getCachedAuthUser } from "@/lib/server-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +19,7 @@ const MAX_DWELL_MS = 120_000;
  */
 export async function POST(req: Request) {
   try {
-    const user = await hexclaveServerApp.getUser();
+    const user = await getCachedAuthUser();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const body = (await req.json().catch(() => null)) as {

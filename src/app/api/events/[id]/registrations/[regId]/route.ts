@@ -2,7 +2,7 @@ import { eq, or } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { eventRegistrations, events, userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
+import { getCachedAuthUser } from "@/lib/server-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +13,7 @@ interface RouteParams {
 export async function PATCH(req: Request, { params }: RouteParams) {
   try {
     const { id, regId } = await params;
-    const user = await hexclaveServerApp.getUser();
+    const user = await getCachedAuthUser();
     if (!user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

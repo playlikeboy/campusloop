@@ -2,8 +2,8 @@ import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
 import { validateUsername } from "@/lib/validation";
+import { getCachedAuthUser } from "@/lib/server-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -48,7 +48,7 @@ export async function GET(req: NextRequest) {
   try {
     // Only signed-in users can probe handles, so this cannot be used to
     // enumerate the directory anonymously.
-    const user = await hexclaveServerApp.getUser();
+    const user = await getCachedAuthUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

@@ -30,7 +30,7 @@ export function AdminMobileDrawer({
     onClose();
   }, [pathname, onClose]);
 
-  // Longest matching href wins, so /admin/marketplace/products beats /admin/marketplace.
+  // Longest matching href wins, so a nested admin page beats its parent section.
   const activeHref = [...ALL_ITEMS]
     .sort((a, b) => b.href.length - a.href.length)
     .find((i) => matches(pathname, i.href))?.href;

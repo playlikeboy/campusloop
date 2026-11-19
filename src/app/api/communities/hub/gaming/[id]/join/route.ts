@@ -2,7 +2,7 @@ import { and, eq, lt, or, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { gamingLobbies, userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
+import { getCachedAuthUser } from "@/lib/server-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +19,7 @@ function hasPlayer(players: string | null | undefined, userId: string) {
 }
 
 async function getCurrentProfile() {
-  const user = await hexclaveServerApp.getUser();
+  const user = await getCachedAuthUser();
   if (!user) return { error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
 
   const db = getDb();

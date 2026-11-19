@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import useSWR, { mutate } from "swr";
 import { AddToCalendarDropdown } from "@/components/events/add-to-calendar-dropdown";
 import { Button } from "@/components/ui/button";
+import { trackEventRegister } from "@/lib/analytics/ga4";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -78,6 +79,7 @@ export function EventEmbed({ eventId }: EventEmbedProps) {
       if (!res.ok) {
         throw new Error(resData.error || "Couldn't sign you up. Try again.");
       }
+      trackEventRegister(event.id);
 
       sounds.pop();
       haptics.medium();

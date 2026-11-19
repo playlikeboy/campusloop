@@ -70,7 +70,7 @@ export default async function LostAndFoundDetailPage({ params }: PageProps) {
       {item && (
         <JsonLd
           data={breadcrumbJsonLd([
-            { name: "Lost and found", path: "/lost-and-found" },
+            { name: "Lost and found", path: "/board?tab=lost-found" },
             { name: item.title, path: `/lost-and-found/${item.slug || slug}` },
           ])}
         />

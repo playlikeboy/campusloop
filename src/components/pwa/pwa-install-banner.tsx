@@ -37,12 +37,12 @@ export function PWAInstallBanner() {
   const [showAndroidModal, setShowAndroidModal] = useState(false);
   const [, setInstalled] = useState(false);
 
-  // Merchant Portal & Admin have dedicated interfaces and MUST NOT show main student app install prompt
-  const isMerchantOrAdmin = pathname?.startsWith("/merchant-portal") || pathname?.startsWith("/admin");
+  // Admin has its own interface and MUST NOT show the student app install prompt
+  const isAdminRoute = pathname?.startsWith("/admin");
 
   // ─── PWA Badging API ───
   useEffect(() => {
-    if (isMerchantOrAdmin) return;
+    if (isAdminRoute) return;
     if (typeof navigator !== "undefined") {
       if ("setAppBadge" in navigator) {
         if (unreadCount > 0) {
@@ -52,11 +52,11 @@ export function PWAInstallBanner() {
         }
       }
     }
-  }, [unreadCount, isMerchantOrAdmin]);
+  }, [unreadCount, isAdminRoute]);
 
   // ─── PWA Audio & Haptic Network Cues ───
   useEffect(() => {
-    if (isMerchantOrAdmin) return;
+    if (isAdminRoute) return;
     function handleOnline() {
       sounds.ting();
       haptics.success();
@@ -70,10 +70,10 @@ export function PWAInstallBanner() {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
     };
-  }, [isMerchantOrAdmin]);
+  }, [isAdminRoute]);
 
   useEffect(() => {
-    if (isMerchantOrAdmin) return;
+    if (isAdminRoute) return;
     // Check if already running in standalone / PWA mode
     const isStandaloneMode =
       window.matchMedia("(display-mode: standalone)").matches ||
@@ -137,7 +137,7 @@ export function PWAInstallBanner() {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
       window.removeEventListener("campusloop_trigger_pwa_install", handleCustomTrigger);
     };
-  }, [isMerchantOrAdmin]);
+  }, [isAdminRoute]);
 
   async function handleInstallClick() {
     sounds.tap();
@@ -178,7 +178,7 @@ export function PWAInstallBanner() {
     } catch {}
   }
 
-  if (isMerchantOrAdmin || isStandalone) return null;
+  if (isAdminRoute || isStandalone) return null;
 
   return (
     <>

@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import useSWR, { mutate } from "swr";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { trackFollow } from "@/lib/analytics/ga4";
 import { fetcher } from "@/lib/api";
 import { getAvatarUrl } from "@/lib/utils";
 
@@ -67,6 +68,7 @@ export function UserProfileEmbed({ username }: UserProfileEmbedProps) {
     try {
       if (nextState) {
         await fetch(`/api/profile/${username}/follow`, { method: "POST" });
+        trackFollow(username);
         toast.success(`Following @${username}`);
       } else {
         await fetch(`/api/profile/${username}/follow`, { method: "DELETE" });

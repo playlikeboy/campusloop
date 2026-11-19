@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { checkAuthorizeRequest, errorRedirect, successRedirect } from "@/lib/oauth/authorize";
 import { createCode, upsertGrant } from "@/lib/oauth/store";
-import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
+import { getCachedSessionUser, getCachedUserProfile } from "@/lib/server-cache";
 
 /**
  * Consent decision. The original request is re-validated from its query
@@ -27,7 +27,7 @@ export async function decideAuthorization(formData: FormData) {
       )
     );
 
-  const user = await getCachedAuthUser().catch(() => null);
+  const user = await getCachedSessionUser().catch(() => null);
   const profile = user ? await getCachedUserProfile(user.id) : null;
   if (!profile) redirect(`/sign-in?returnTo=${encodeURIComponent(`/oauth/authorize?${query}`)}`);
 

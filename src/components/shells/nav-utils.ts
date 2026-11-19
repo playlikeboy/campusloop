@@ -6,7 +6,6 @@ export function isPathActive(pathname: string, href: string) {
   if (href.startsWith("http")) return false;
   if (href === "/feeds") return pathname === "/feeds" || pathname === "/";
   if (href === "/post/new") return pathname === "/post/new";
-  if (href === "/living") return ["/living", "/campus", "/utilities"].includes(pathname);
   if (href.startsWith("/@"))
     return pathname === href || pathname.startsWith(`${href}/`) || pathname.startsWith("/profile");
   return pathname === href || pathname.startsWith(`${href}/`);

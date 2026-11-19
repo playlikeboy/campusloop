@@ -102,28 +102,28 @@ export function getNotificationMeta(n: NotificationItem): NotificationMeta {
         Icon: Gamepad2,
         tone: "brand",
         text: "joined your lobby",
-        href: ref(n, "/gaming?id=", "/gaming"),
+        href: "/feeds",
       };
     case "GAMING_LOBBY_FULL":
       return {
         Icon: Gamepad2,
         tone: "brand",
         text: "Your lobby is full",
-        href: ref(n, "/gaming?id=", "/gaming"),
+        href: "/feeds",
       };
     case "GAMING_MATCH_READY":
       return {
         Icon: Trophy,
         tone: "brand",
         text: "Your tournament match is ready",
-        href: ref(n, "/gaming/tournaments/", "/gaming"),
+        href: "/feeds",
       };
     case "TOURNAMENT_UPDATE":
       return {
         Icon: Trophy,
         tone: "brand",
         text: "A tournament you're in was updated",
-        href: ref(n, "/gaming/tournaments/", "/gaming"),
+        href: "/feeds",
       };
     default:
       return { Icon: Bell, tone: "brand", text: "sent you a notification", href: "/feeds" };

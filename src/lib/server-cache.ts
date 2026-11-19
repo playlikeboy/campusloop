@@ -1,10 +1,11 @@
 import { asc, eq, ilike, or } from "drizzle-orm";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { cache } from "react";
 import { getDb } from "@/db";
 import { comments, communities, institutions, posts, type UserProfile, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { IsolateCache } from "@/lib/isolate-cache";
+import { readBearerToken, verifyAppBearer } from "@/lib/oauth/bearer";
 
 /**
  * Plain-data snapshot of the signed-in Hexclave user.
@@ -96,7 +97,10 @@ export const getCachedAuthUser = cache(async (): Promise<CachedAuthUser | null> 
   }
 
   const cacheKey = await getAuthCacheKey(jar);
-  if (cacheKey.kind === "anonymous") return null;
+  // No Hexclave cookie at all: the Android app's `Authorization: Bearer` token
+  // (first-party client + `app` scope only; see src/lib/oauth/bearer.ts).
+  // A cookie always wins, so browsers never switch identity via a header.
+  if (cacheKey.kind === "anonymous") return getBearerAuthUser();
   if (cacheKey.kind === "refresh-only") return toAuthSnapshot(await hexclaveServerApp.getUser());
 
   const hit = authUserCache.get(cacheKey.key);
@@ -105,6 +109,42 @@ export const getCachedAuthUser = cache(async (): Promise<CachedAuthUser | null> 
   const user = toAuthSnapshot(await hexclaveServerApp.getUser());
   if (user) authUserCache.set(cacheKey.key, user);
   return user;
+});
+
+/**
+ * The signed-in student from `Authorization: Bearer <access token>`, or null.
+ * Same shape as the cookie path so `requireProfile()` and every route using
+ * `getCachedAuthUser()` work unchanged for the mobile app.
+ */
+export const getBearerAuthUser = cache(async (): Promise<CachedAuthUser | null> => {
+  let token: string | null = null;
+  try {
+    token = readBearerToken((await headers()).get("authorization"));
+  } catch {
+    return null;
+  }
+  if (!token) return null;
+  try {
+    const result = await verifyAppBearer(token);
+    return result.ok ? result.user : null;
+  } catch (error) {
+    console.warn("[auth] bearer verification failed:", error);
+    return null;
+  }
+});
+
+/**
+ * Cookie-only variant for flows that must never be driven by an app token
+ * (the OAuth consent page: a mobile token must not mint grants for other apps).
+ */
+export const getCachedSessionUser = cache(async (): Promise<CachedAuthUser | null> => {
+  try {
+    const jar = await cookies();
+    if ((await getAuthCacheKey(jar)).kind === "anonymous") return null;
+  } catch {
+    // Outside a request scope: fall through to the normal lookup.
+  }
+  return getCachedAuthUser();
 });
 
 async function loadUserProfile(userId: string) {

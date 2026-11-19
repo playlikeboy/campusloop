@@ -11,7 +11,6 @@ import {
   reels,
   userProfiles,
 } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
 import { requireProfile } from "@/lib/require-profile";
 import { deriveAnonHandle, openSealedIdentity, sealIdentity } from "@/lib/anonymity";
 import { runInBackground } from "@/lib/background";
@@ -19,6 +18,7 @@ import { runSafetyCheck } from "@/lib/moderation/rules";
 import { cleanNotificationSnippet, createNotification, notifyMentions } from "@/lib/notifications";
 import { recordStreakActivity } from "@/lib/streaks/streak-service";
 import { rejectViewerWrite } from "@/lib/viewer";
+import { getCachedAuthUser } from "@/lib/server-cache";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -38,7 +38,7 @@ export async function GET(req: Request, { params }: RouteParams) {
     // Optional user authentication for personalized like hydration
     let currentProfileId: string | null = null;
     try {
-      const user = await hexclaveServerApp.getUser();
+      const user = await getCachedAuthUser();
       if (user) {
         const profile = await db.query.userProfiles.findFirst({
           where: eq(userProfiles.userId, user.id),

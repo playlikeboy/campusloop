@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
+import { trackCrushSend } from "@/lib/analytics/ga4";
 import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -34,6 +35,7 @@ export function useSecretCrush(enabled = true) {
       });
       const body = (await res.json().catch(() => ({}))) as { error?: string; matched?: boolean };
       if (!res.ok) throw new Error(body.error || "Couldn't add your crush. Try again in a moment.");
+      trackCrushSend();
 
       if (body.matched) {
         sounds.match();

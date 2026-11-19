@@ -5,6 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { notifyAuthRequired } from "@/components/auth/auth-required-overlay";
 import { Button } from "@/components/ui/button";
+import { trackCommunityJoin } from "@/lib/analytics/ga4";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
@@ -42,6 +43,7 @@ export function JoinCommunityButton({
       setIsMember(res.joined);
       onMembershipChange?.(res.joined);
       if (res.joined) sounds.tap();
+      if (res.joined) trackCommunityJoin(communityId);
       toast.success(res.joined ? "You joined" : "You left");
     } catch (error) {
       const message = error instanceof Error ? error.message : "Couldn't update your membership. Try again.";

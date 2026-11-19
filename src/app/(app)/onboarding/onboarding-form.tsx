@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { StoryProgress } from "@/components/ui/stickers";
 import { isUsernameBlocking, UsernameStatusHint } from "@/components/ui/username-status";
 import { useUsernameAvailability } from "@/hooks/use-username-availability";
+import { trackOnboardingComplete } from "@/lib/analytics/ga4";
 import { uploadImageToImgBB } from "@/lib/upload";
 import { getAvatarUrl } from "@/lib/utils";
 import { validateDisplayName, validateUsername } from "@/lib/validation";
@@ -117,6 +118,7 @@ export function OnboardingForm({
         setSaving(false);
         return;
       }
+      trackOnboardingComplete();
       toast.success("You're in. Welcome to CampusLoop.");
       router.replace("/feeds");
       router.refresh();

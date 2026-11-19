@@ -7,8 +7,6 @@ import {
   comments,
   externalPosts,
   institutions,
-  marketplaceOrders,
-  merchants,
   moderationActions,
   posts,
   reports,
@@ -34,9 +32,6 @@ export type DashboardStats = {
   colleges: number;
   lpCirculating: number;
   anonVaultEntries: number;
-  totalMerchants: number;
-  totalOrders: number;
-  totalGmv: number;
 };
 
 export async function getDashboardStats(db: Db): Promise<DashboardStats> {
@@ -64,7 +59,7 @@ export async function getDashboardStats(db: Db): Promise<DashboardStats> {
       .from(posts)
       .catch(() => []);
 
-    const [commentsRes, reportsRes, collegesRes, vaultRes, merchantsRes, ordersRes, extPostsRes] =
+    const [commentsRes, reportsRes, collegesRes, vaultRes, extPostsRes] =
       await Promise.all([
         db
           .select({ total: count() })
@@ -82,17 +77,6 @@ export async function getDashboardStats(db: Db): Promise<DashboardStats> {
           .select({ total: count() })
           .from(anonIdentityVault)
           .catch(() => [{ total: 0 }]),
-        db
-          .select({ total: count() })
-          .from(merchants)
-          .catch(() => [{ total: 0 }]),
-        db
-          .select({
-            total: count(),
-            gmv: sql<number>`coalesce(sum(case when ${marketplaceOrders.status} not in ('CANCELLED', 'REJECTED') then ${marketplaceOrders.total} else 0 end), 0)::int`,
-          })
-          .from(marketplaceOrders)
-          .catch(() => [{ total: 0, gmv: 0 }]),
         db
           .select({ total: count() })
           .from(externalPosts)
@@ -116,9 +100,6 @@ export async function getDashboardStats(db: Db): Promise<DashboardStats> {
       colleges: collegesRes[0]?.total ?? 0,
       lpCirculating: usersRow?.lp ?? 0,
       anonVaultEntries: vaultRes[0]?.total ?? 0,
-      totalMerchants: merchantsRes[0]?.total ?? 0,
-      totalOrders: ordersRes[0]?.total ?? 0,
-      totalGmv: ordersRes[0]?.gmv ?? 0,
     };
   } catch (error) {
     console.error("[getDashboardStats] error:", error);
@@ -139,9 +120,6 @@ export async function getDashboardStats(db: Db): Promise<DashboardStats> {
       colleges: 0,
       lpCirculating: 0,
       anonVaultEntries: 0,
-      totalMerchants: 0,
-      totalOrders: 0,
-      totalGmv: 0,
     };
   }
 }

@@ -202,8 +202,8 @@ export const DAILY_MISSION_SCHEDULE: DailyMissionTemplate[] = [
     dayOfWeek: 6, // Saturday
     title: "List something",
     instruction: "List an item on Buy and sell, Housing, Lost and found or Ride share.",
-    ctaLabel: "Open Living",
-    ctaHref: "/living",
+    ctaLabel: "Open campus board",
+    ctaHref: "/board",
     qualifyingEvent: "UTILITY_LIST",
   },
 ];

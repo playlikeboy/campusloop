@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { courseAction, useCourse } from "@/hooks/use-courses";
+import { trackCourseEnroll, trackShare } from "@/lib/analytics/ga4";
 import { formatDuration } from "@/lib/courses/format";
 import { lectureCount } from "./lecture-kind";
 import { ProgressBar } from "./progress-bar";
@@ -40,6 +41,7 @@ export function EnrollPanel({ slug }: { slug: string }) {
     setBusy(true);
     try {
       await courseAction(`/api/courses/${slug}/enroll`);
+      trackCourseEnroll(slug);
       await mutate();
       router.push(lectures[0] ? `/learn/${slug}/${lectures[0].id}` : `/courses/${slug}`);
     } catch (e) {
@@ -63,11 +65,12 @@ export function EnrollPanel({ slug }: { slug: string }) {
   async function share() {
     const url = `${window.location.origin}/courses/${slug}`;
     if (navigator.share) {
-      await navigator.share({ title: course.title, url }).catch(() => {});
+      await navigator.share({ title: course.title, url }).then(() => trackShare("native", "course", slug)).catch(() => {});
       return;
     }
     try {
       await navigator.clipboard.writeText(url);
+      trackShare("copy_link", "course", slug);
       toast.success("Link copied");
     } catch {
       toast.error("Couldn't copy the link. Copy it from the address bar instead.");

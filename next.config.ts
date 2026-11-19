@@ -88,19 +88,6 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: "/manifest-merchant.json",
-        headers: [
-          {
-            key: "Content-Type",
-            value: "application/manifest+json",
-          },
-          {
-            key: "Cache-Control",
-            value: "public, max-age=86400, stale-while-revalidate=604800",
-          },
-        ],
-      },
-      {
         source: "/:path*",
         headers: [
           {
@@ -180,19 +167,44 @@ const nextConfig: NextConfig = {
       // Old and duplicate app routes. Keep in sync with LEGACY_ROUTE_REDIRECTS
       // in src/constants/navigation.ts. Query strings are passed through.
       ...[
-        ["/ride-share", "/rideshare"],
-        ["/housing-and-flats", "/housing"],
-        ["/gaming-arena", "/gaming"],
         ["/streak", "/streaks"],
-        ["/utilities", "/living"],
-        ["/campus", "/living"],
-        ["/hub", "/living"],
         ["/ecosystem", "/more"],
         ["/overview", "/pitch"],
         ["/dating", "/matching"],
         ["/dating/discover", "/matching"],
         ["/dating/:path(filters|likes|matches|requests|settings)", "/matching/:path"],
       ].map(([source, destination]) => ({ source, destination, permanent: true })),
+      // Focus release (Nov 2026): campus list pages merged into /board, and
+      // removed features (random chat, gaming, atlas, living, capsules, AI,
+      // marketplace, merchant portal) send visitors to the nearest kept page.
+      // Temporary so the paths can be reused later. Only the list index pages
+      // of the board sections redirect; /new and detail pages stay.
+      ...[
+        ["/rideshare", "/board?tab=rides"],
+        ["/ride-share", "/board?tab=rides"],
+        ["/housing", "/board?tab=housing"],
+        ["/housing-and-flats", "/board?tab=housing"],
+        ["/lost-and-found", "/board?tab=lost-found"],
+        ["/buy-and-sell", "/board?tab=sell"],
+        ["/living/:path*", "/board"],
+        ["/utilities", "/board"],
+        ["/campus", "/board"],
+        ["/hub", "/board"],
+        ["/random/:path*", "/feeds"],
+        ["/gaming/:path*", "/feeds"],
+        ["/gaming-arena", "/feeds"],
+        ["/atlas/:path*", "/feeds"],
+        ["/capsule/:path*", "/feeds"],
+        ["/ai/:path*", "/feeds"],
+        ["/marketplace/:path*", "/feeds"],
+        ["/merchant-portal/:path*", "/"],
+        ["/admin/marketplace/:path*", "/admin"],
+        ["/docs/time-capsule", "/docs"],
+        [
+          "/guide/:slug(random-loop|gaming|time-capsule|campus-ai-and-atlas|campus-marketplace|online-payments|bike-rentals|merchant-portal)",
+          "/guide",
+        ],
+      ].map(([source, destination]) => ({ source, destination, permanent: false })),
     ];
   },
 };

@@ -2,14 +2,14 @@ import { and, desc, eq, ne, notInArray, sql } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { follows, userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
 import { getViewerInstitutionId } from "@/lib/viewer";
+import { getCachedAuthUser } from "@/lib/server-cache";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   try {
-    const user = await hexclaveServerApp.getUser();
+    const user = await getCachedAuthUser();
     const db = getDb();
 
     let currentProfile = null;

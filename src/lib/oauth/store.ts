@@ -7,6 +7,7 @@ import { TTL } from "./config";
 import { randomToken, safeEqual, sha256, verifyPkce } from "./crypto";
 import { OAuthError } from "./errors";
 import { signJwt, verifyJwt } from "./keys";
+import { forbiddenScopes } from "./policy";
 
 /** Database side of the OAuth server: clients, codes, grants and tokens. */
 
@@ -62,6 +63,7 @@ export async function createCode(input: {
   codeChallenge: string | null;
   nonce: string | null;
 }): Promise<string> {
+  assertScopesAllowed(input.client, input.scopes);
   const code = randomToken("cl_code_");
   await getDb()
     .insert(oauthCodes)
@@ -157,9 +159,21 @@ export async function loadClaimProfile(profileId: string): Promise<ClaimProfile 
   };
 }
 
+/**
+ * Defence in depth for first-party-only scopes (`app`): resolveScopes already
+ * drops them at /oauth/authorize, but a code, refresh token or grant row must
+ * never carry them for any other client either.
+ */
+export function assertScopesAllowed(client: Pick<OauthClient, "id">, scopes: string[]) {
+  const bad = forbiddenScopes(scopes, client.id);
+  if (bad.length) throw new OAuthError("invalid_scope", `Scope not available to this app: ${bad.join(" ")}`);
+}
+
 /** Issues access + id tokens, and a rotating refresh token when offline_access was granted. */
 export async function issueTokens(input: { client: OauthClient; grant: OauthGrant; scopes: string[]; nonce?: string | null; familyId?: string }) {
   const { client, grant, scopes } = input;
+  assertScopesAllowed(client, scopes);
+  if (grant.clientId !== client.id) throw new OAuthError("invalid_grant", "Grant belongs to another client");
   const profile = await loadClaimProfile(grant.profileId);
   if (!profile) throw new OAuthError("invalid_grant", "The account is no longer active");
   const sub = await pairwiseSub(grant.profileId, client);

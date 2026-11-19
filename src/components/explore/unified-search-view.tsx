@@ -27,7 +27,6 @@ const MORE_FILTERS: { id: SearchCategoryFilter; label: string }[] = [
   { id: "EVENTS", label: "Events" },
   { id: "ACADEMICS", label: "Study material" },
   { id: "ARTICLES", label: "Articles" },
-  { id: "MARKETPLACE", label: "Marketplace" },
   { id: "COLLEGES", label: "Colleges" },
   { id: "HASHTAGS", label: "Hashtags" },
 ];
@@ -206,15 +205,6 @@ export function UnifiedSearchView({
               title="Colleges"
               results={grouped.colleges}
               onSeeAll={() => onFilterChange("COLLEGES")}
-            />
-          )}
-
-          {/* Stores Section */}
-          {grouped.stores && grouped.stores.length > 0 && (
-            <GroupedSection
-              title="Marketplace"
-              results={grouped.stores}
-              onSeeAll={() => onFilterChange("MARKETPLACE")}
             />
           )}
         </div>

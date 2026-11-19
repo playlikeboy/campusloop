@@ -72,7 +72,7 @@ export function LostFoundDetailClient({ slug, currentProfileId }: Props) {
         description="It may have been returned or deleted by the person who posted it."
         action={
           <Button asChild>
-            <Link href="/lost-and-found">Go to lost and found</Link>
+            <Link href="/board?tab=lost-found">Go to lost and found</Link>
           </Button>
         }
       />
@@ -148,7 +148,7 @@ export function LostFoundDetailClient({ slug, currentProfileId }: Props) {
     <div className="mx-auto w-full max-w-2xl space-y-6 px-4 pt-4 pb-28 sm:pt-6">
       <div className="flex items-center justify-between gap-2">
         <Button asChild variant="ghost" size="sm" className="-ml-2">
-          <Link href="/lost-and-found">
+          <Link href="/board?tab=lost-found">
             <ArrowLeft className="size-4" aria-hidden="true" />
             Lost and found
           </Link>

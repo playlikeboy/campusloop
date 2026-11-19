@@ -14,6 +14,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { StickerPickerModal } from "@/components/ui/sticker-picker-modal";
 import { triggerBrowserNotification } from "@/hooks/use-push-notifications";
 import { useSmartInterval } from "@/hooks/use-smart-interval";
+import { trackChatSend } from "@/lib/analytics/ga4";
 import {
   type CachedMessage,
   getCachedMessages,
@@ -186,6 +187,7 @@ export function MessengerPane({
           body: JSON.stringify({ body }),
         });
         if (!res.ok) throw new Error("send failed");
+        trackChatSend({ scope: isGroupChat ? "group" : "dm" });
       } catch {
         toast.error("Message didn't send. Check your connection and try again.");
       } finally {
@@ -194,7 +196,7 @@ export function MessengerPane({
         resetMessagePoll();
       }
     },
-    [conversationId, currentUserId, replyingTo, mutate, resetMessagePoll]
+    [conversationId, currentUserId, replyingTo, mutate, resetMessagePoll, isGroupChat]
   );
 
   const media = useChatMedia(conversationId, sendMessage);

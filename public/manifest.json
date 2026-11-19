@@ -101,18 +101,6 @@
       ]
     },
     {
-      "name": "Campus Marketplace",
-      "short_name": "Market",
-      "description": "Order food, essentials, and hostel delivery",
-      "url": "/marketplace",
-      "icons": [
-        {
-          "src": "/icons/icon-192x192.png",
-          "sizes": "192x192"
-        }
-      ]
-    },
-    {
       "name": "Create Post",
       "short_name": "Post",
       "description": "Drop a confession, poll or campus thread",

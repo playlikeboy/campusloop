@@ -2,14 +2,14 @@ import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
 import { clearLocation, getLocation, isValidPoint, readRequestGeo, saveGpsLocation } from "@/lib/geo/location";
 import { invalidateViewerAffinity } from "@/lib/recommendations/viewer-affinity";
+import { getCachedAuthUser } from "@/lib/server-cache";
 
 export const dynamic = "force-dynamic";
 
 async function resolveProfileId(): Promise<string | null> {
-  const user = await hexclaveServerApp.getUser();
+  const user = await getCachedAuthUser();
   if (!user) return null;
   const profile = await getDb().query.userProfiles.findFirst({
     where: eq(userProfiles.userId, user.id),

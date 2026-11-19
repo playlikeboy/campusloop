@@ -1,4 +1,4 @@
-const CACHE_NAME = "campusloop-shell-v9";
+const CACHE_NAME = "campusloop-shell-v10";
 const STATIC_SHELL = [
   "/",
   "/feeds",
@@ -7,13 +7,7 @@ const STATIC_SHELL = [
   "/colleges",
   "/communities",
   "/notifications",
-  "/merchant-portal",
-  "/merchant-portal/orders",
-  "/merchant-portal/products",
-  "/merchant-portal/earnings",
-  "/merchant-portal/store",
   "/manifest.json",
-  "/manifest-merchant.json",
   "/favicon.svg",
   "/logo.png",
   "/icons/icon-192x192.png",
@@ -95,11 +89,8 @@ self.addEventListener("fetch", (event) => {
     url.pathname.startsWith("/api/colleges") ||
     url.pathname.startsWith("/api/communities") ||
     url.pathname.startsWith("/api/feed") ||
-    url.pathname.startsWith("/api/marketplace/stores") ||
-    url.pathname.startsWith("/api/marketplace/categories") ||
     url.pathname.startsWith("/api/profile/") ||
-    url.pathname.startsWith("/api/dating/profiles") ||
-    url.pathname.startsWith("/api/merchant/orders")
+    url.pathname.startsWith("/api/dating/profiles")
   ) {
     event.respondWith(
       fetch(request)
@@ -138,12 +129,6 @@ self.addEventListener("fetch", (event) => {
         .catch(async () => {
           const cached = await caches.match(request);
           if (cached) return cached;
-
-          // Merchant Portal isolated shell
-          if (url.pathname.startsWith("/merchant-portal")) {
-            const merchantShell = await caches.match("/merchant-portal");
-            if (merchantShell) return merchantShell;
-          }
 
           // Main Student App isolated shell
           const appShell = await caches.match("/feeds");

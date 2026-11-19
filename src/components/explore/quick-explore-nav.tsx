@@ -5,7 +5,6 @@ import {
   Building2,
   Calendar,
   GraduationCap,
-  ShoppingBag,
   TrendingUp,
   UserPlus,
   Users,
@@ -20,7 +19,6 @@ const CATEGORIES = [
   { id: "articles", label: "Articles", icon: BookOpen, targetId: "explore-articles" },
   { id: "colleges", label: "Colleges", icon: Building2, targetId: "explore-colleges" },
   { id: "people", label: "People", icon: UserPlus, targetId: "explore-people" },
-  { id: "marketplace", label: "Marketplace", icon: ShoppingBag, targetId: "explore-marketplace" },
 ];
 
 /** Chips that jump to a section further down Explore. */

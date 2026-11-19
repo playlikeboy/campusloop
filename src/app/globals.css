@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@source not "../../apps";
 @import "tw-animate-css";
 @import "../styles/tokens.css";
 @import "../styles/base.css" layer(base);

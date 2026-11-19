@@ -8,6 +8,7 @@ import {
   isNotificationAllowed,
 } from "@/lib/notification-preferences";
 import { dispatchNotificationEmail } from "@/lib/notifications-email";
+import { pushExpoToUsers } from "@/lib/expo-push";
 import { pushToUser } from "@/lib/push-dispatch";
 
 export type NotificationType =
@@ -121,9 +122,15 @@ export async function createNotification(params: CreateNotificationParams): Prom
     // Both side channels run under waitUntil — a bare un-awaited promise is
     // cancelled by the Workers runtime as soon as the response is returned.
     if (!params.silent) {
+      const urgency = HIGH_URGENCY_TYPES.has(params.type) ? "high" : "normal";
+      runInBackground(pushToUser(params.userId, urgency), "notification push");
       runInBackground(
-        pushToUser(params.userId, HIGH_URGENCY_TYPES.has(params.type) ? "high" : "normal"),
-        "notification push"
+        pushExpoToUsers(
+          [params.userId],
+          { type: params.type, actorId: params.actorId, referenceId: params.referenceId },
+          urgency
+        ),
+        "notification expo push"
       );
     }
 
@@ -201,6 +208,8 @@ export async function createNotificationsForMany({
       })(),
       "notification fan-out push"
     );
+    // Android app: one Expo request per 100 devices for the whole audience.
+    runInBackground(pushExpoToUsers(audience, { type, actorId, referenceId }, urgency), "notification fan-out expo push");
 
     return audience.length;
   } catch (error) {

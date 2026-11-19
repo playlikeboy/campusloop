@@ -2,7 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { pushSubscriptions, userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
+import { getCachedAuthUser } from "@/lib/server-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +12,7 @@ interface SubscribeBody {
 }
 
 async function getProfileId(): Promise<string | null> {
-  const user = await hexclaveServerApp.getUser();
+  const user = await getCachedAuthUser();
   if (!user) return null;
   const db = getDb();
   const profile = await db.query.userProfiles.findFirst({

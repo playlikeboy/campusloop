@@ -123,6 +123,7 @@ export function AppChrome({
           profile={profile}
           collegeName={collegeName}
           isAdmin={isAdmin}
+          canPost={Boolean(profile) && !isViewer}
           onOpenDrawer={() => setDrawerOpen(true)}
           onOpenSearch={openSearch}
         />

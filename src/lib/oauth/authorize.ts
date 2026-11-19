@@ -45,7 +45,7 @@ export async function checkAuthorizeRequest(p: URLSearchParams): Promise<Authori
   if (!client) return { kind: "fatal", message: "This app is not registered with CampusLoop." };
   if (client.status !== "ACTIVE") return { kind: "fatal", message: "This app has been suspended by CampusLoop." };
   const redirectUri = p.get("redirect_uri") ?? (client.redirectUris.length === 1 ? client.redirectUris[0] : "");
-  if (!redirectUri || !redirectUriAllowed(client.redirectUris, redirectUri)) {
+  if (!redirectUri || !redirectUriAllowed(client.redirectUris, redirectUri, client.id)) {
     return { kind: "fatal", message: "The redirect address this app sent is not registered for it, so we stopped here to keep your account safe." };
   }
   const state = p.get("state");

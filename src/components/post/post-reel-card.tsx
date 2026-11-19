@@ -37,6 +37,7 @@ import { VerifiedSticker } from "@/components/ui/stickers";
 import { VerifiedBadge } from "@/components/ui/verified-badge";
 import type { FeedPost } from "@/hooks/use-feed";
 import { useHlsVideo } from "@/hooks/use-hls-video";
+import { trackShare, trackVote } from "@/lib/analytics/ga4";
 import { repostPost, voteOnPost } from "@/lib/api";
 import type { UserCapability } from "@/lib/capabilities";
 import { hasAttachedVideoContent } from "@/lib/embeds";
@@ -284,6 +285,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
     try {
       const data = await voteOnPost(post.id, newValue);
       setUserVote(data.userVote);
+      trackVote("post", { item_id: post.id, direction: newValue > 0 ? "up" : newValue < 0 ? "down" : "remove" });
       if (typeof (data as any)?.votesCount === "number") {
         setVotesCount((data as any).votesCount);
       }
@@ -380,9 +382,11 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
           text: cleanSnippet(post.body, 100),
           url: shareUrl,
         })
+        .then(() => trackShare("native", "post", post.id))
         .catch(() => {});
     } else {
       navigator.clipboard.writeText(shareUrl);
+      trackShare("copy_link", "post", post.id);
       toast.success("Link copied");
     }
   }

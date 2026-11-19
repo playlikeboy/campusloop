@@ -45,6 +45,7 @@
     "node_modules",
     ".open-next",
     ".next/dev",
-    "**/*.test.ts"
+    "**/*.test.ts",
+    "apps/**"
   ]
 }

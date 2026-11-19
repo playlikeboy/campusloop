@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { type NextRequest, NextResponse } from "next/server";
-import { hexclaveServerApp } from "@/hexclave/server";
 import { putR2Object } from "@/lib/r2";
+import { getCachedAuthUser } from "@/lib/server-cache";
 import { timingSafeCompare } from "@/lib/security/timing";
 
 export const dynamic = "force-dynamic";
@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
     // 2. If no API key, check session via Hexclave safely
     if (!user) {
       try {
-        const hexclaveUser = await hexclaveServerApp.getUser();
+        const hexclaveUser = await getCachedAuthUser();
         if (hexclaveUser?.id) {
           user = { id: hexclaveUser.id };
         }

@@ -2,6 +2,7 @@ import { and, desc, eq, gt, inArray, isNull, ne, or, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { conversationParticipants, conversations, messages, userProfiles } from "@/db/schema";
+import { isBlockedEitherWay } from "@/lib/blocks";
 import { requireProfile } from "@/lib/require-profile";
 import { runInBackground } from "@/lib/background";
 import { notifyNewMessage } from "@/lib/chat-notifications";
@@ -333,6 +334,10 @@ export async function POST(req: Request) {
 
     if (!targetUserId) {
       return NextResponse.json({ error: "participantId or recipientId is required" }, { status: 400 });
+    }
+
+    if (await isBlockedEitherWay(profile.id, targetUserId)) {
+      return NextResponse.json({ error: "You can't message this person" }, { status: 403 });
     }
 
     // Check if participant exists

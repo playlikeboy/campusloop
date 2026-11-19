@@ -93,7 +93,7 @@ export function RideshareCard({ item, currentUserId }: RideshareCardProps) {
       <div className="space-y-3">
         {/* Origin & Destination Route */}
         <div className="flex items-start justify-between gap-3">
-          <div className="flex-1 space-y-2.5">
+          <div className="min-w-0 flex-1 space-y-2.5">
             <div className="flex items-center gap-2.5">
               <span className="flex size-3 items-center justify-center rounded-full bg-success ring-4 ring-success" />
               <span className="text-sm font-bold text-foreground truncate">{item.origin}</span>

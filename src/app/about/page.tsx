@@ -15,7 +15,7 @@ export const metadata = buildMetadata({
   path: "/about",
 });
 
-const FEATURE_GROUPS = NAV_GROUPS.filter((g) => g.id !== undefined && ["campus", "connect", "utilities", "learn"].includes(g.id));
+const FEATURE_GROUPS = NAV_GROUPS.filter((g) => g.id !== undefined && ["home", "events", "learn", "you"].includes(g.id));
 
 export default async function AboutPage() {
   const stats = await getPublicStats();

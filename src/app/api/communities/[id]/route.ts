@@ -3,9 +3,9 @@ import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { communities, communityMembers, posts, userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
 import { requireProfile } from "@/lib/require-profile";
 import { getShowSeededPosts } from "@/lib/platform-config";
+import { getCachedAuthUser } from "@/lib/server-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +21,7 @@ export async function GET(request: Request, { params }: RouteProps) {
     // Check logged in user profile ID
     let currentProfileId: string | null = null;
     try {
-      const user = await hexclaveServerApp.getUser();
+      const user = await getCachedAuthUser();
       if (user) {
         const profile = await db.query.userProfiles.findFirst({
           where: eq(userProfiles.userId, user.id),

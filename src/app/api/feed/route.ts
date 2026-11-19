@@ -2,7 +2,6 @@ import { eq, inArray, lt, or, type SQL, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { posts, userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
 import { formatApiFeedPosts, normalizeApiFeedSort, resolveFeedPage } from "@/lib/feed";
 import { getShowSeededPosts } from "@/lib/platform-config";
 import { getRankingVariant } from "@/lib/recommendations/experiments";
@@ -10,6 +9,7 @@ import { EMPTY_AFFINITY, getViewerAffinity } from "@/lib/recommendations/viewer-
 import { IsolateCache } from "@/lib/isolate-cache";
 import { getRedis } from "@/lib/redis";
 import { isViewerProfile } from "@/lib/viewer";
+import { getCachedAuthUser } from "@/lib/server-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -46,7 +46,7 @@ export async function GET(req: Request) {
     let user = null;
     const tAuth = performance.now();
     try {
-      user = await hexclaveServerApp.getUser();
+      user = await getCachedAuthUser();
     } catch {
       // Unauthenticated or public viewer
     }

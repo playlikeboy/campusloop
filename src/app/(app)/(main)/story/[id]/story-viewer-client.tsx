@@ -10,6 +10,7 @@ import { StoryHighlightDialog } from "@/components/stories/story-highlight-dialo
 import { StoryStickerStack } from "@/components/stories/story-stickers";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { StoryProgress } from "@/components/ui/stickers";
+import { trackChatSend, trackShare } from "@/lib/analytics/ga4";
 import { haptics } from "@/lib/haptics";
 import { SITE_URL } from "@/lib/seo";
 import { sounds } from "@/lib/sounds";
@@ -177,6 +178,7 @@ export function StoryViewerClient({
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({ title: `${story.author.displayName}'s story`, url });
+        trackShare("native", "story", story.id);
         return;
       } catch (err) {
         if ((err as Error).name === "AbortError") return;
@@ -184,6 +186,7 @@ export function StoryViewerClient({
     }
     try {
       await navigator.clipboard.writeText(url);
+      trackShare("copy_link", "story", story.id);
       toast.success("Link copied");
     } catch {
       toast.error("Couldn't copy the link.");
@@ -207,6 +210,7 @@ export function StoryViewerClient({
         }),
       });
       if (!res.ok) throw new Error();
+      trackChatSend({ scope: "dm", content_type: "story_reply" });
       toast.success(`Sent to @${story.author.username}`);
       setReplyText("");
     } catch {

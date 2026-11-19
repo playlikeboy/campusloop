@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { CourseReviews } from "@/components/courses/course-reviews";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { type CourseDetailResponse, courseAction } from "@/hooks/use-courses";
+import { trackLectureComplete } from "@/lib/analytics/ga4";
 import { cn } from "@/lib/utils";
 import { CurriculumSidebar } from "./curriculum-sidebar";
 import { LectureOverview, ResourcesList } from "./lecture-info";
@@ -92,6 +93,7 @@ export function PlayerShell({
       try {
         const r = await post({ lectureId: id, completed: done });
         setCompleted(new Set(r.completedIds));
+        if (done) trackLectureComplete(slug, id);
         if (r.courseComplete && done) toast.success("You finished the course. Your certificate is ready.");
       } catch (e) {
         toast.error(
@@ -99,7 +101,7 @@ export function PlayerShell({
         );
       }
     },
-    [completed, post]
+    [completed, post, slug]
   );
 
   const go = useCallback(

@@ -2,7 +2,7 @@ import { and, desc, eq, ilike, inArray, lt, or, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { follows, institutions, reelLikes, reels, userProfiles, votes } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
+import { getCachedAuthUser } from "@/lib/server-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +23,7 @@ export async function GET(req: Request, { params }: RouteParams) {
     // Authenticated viewer if present
     let viewerProfileId: string | null = null;
     try {
-      const user = await hexclaveServerApp.getUser();
+      const user = await getCachedAuthUser();
       if (user) {
         const vp = await db.query.userProfiles.findFirst({
           where: eq(userProfiles.userId, user.id),

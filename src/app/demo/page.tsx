@@ -36,7 +36,6 @@ const PAGES = [
   { href: "/matching", label: "Campus Match", line: "Swipe through verified students aged 18+." },
   { href: "/communities", label: "Communities", line: "Clubs, societies and interest groups." },
   { href: "/events", label: "Events", line: "Fests, hackathons and workshops." },
-  { href: "/marketplace", label: "Marketplace (beta)", line: "Order from campus shops and services." },
 ];
 
 export default function DemoPage() {

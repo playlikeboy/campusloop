@@ -90,7 +90,8 @@ export async function POST(req: Request) {
       );
     }
 
-    const anonymous = Boolean(isAnonymous);
+    // Confessions are always anonymous, whatever the client sends.
+    const anonymous = Boolean(isAnonymous) || postType === "CONFESSION";
 
     // Centralized safety engine (PII / doxxing / threats / abuse)
     const safety = runSafetyCheck({ title: trimmedTitle ?? undefined, body: trimmedBody });

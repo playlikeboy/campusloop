@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LinkedinIcon, XIcon } from "@/components/ui/social-icons";
+import { trackShare } from "@/lib/analytics/ga4";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { initialOf } from "@/lib/utils";
@@ -51,6 +52,7 @@ export function ShareProfileModal({ isOpen, onClose, profile }: ShareProfileModa
   async function copyLink() {
     try {
       await navigator.clipboard.writeText(url);
+      trackShare("copy_link", "profile", profile.username);
       sounds.ting();
       haptics.light();
       setCopied(true);
@@ -65,6 +67,7 @@ export function ShareProfileModal({ isOpen, onClose, profile }: ShareProfileModa
     if (navigator.share) {
       try {
         await navigator.share({ title: `${profile.displayName} on CampusLoop`, text: shareText, url });
+        trackShare("native", "profile", profile.username);
         return;
       } catch (err) {
         if ((err as Error).name === "AbortError") return;

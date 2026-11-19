@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { VerifiedSticker } from "@/components/ui/stickers";
 import type { FeedPost } from "@/hooks/use-feed";
+import { trackFollow } from "@/lib/analytics/ga4";
 import { isCollegeVerifiedUser } from "@/lib/user-verification";
 import { cn, formatTimeAgo, getCollegeShortName } from "@/lib/utils";
 
@@ -76,6 +77,7 @@ export function FeedCardHeader({
       });
       if (!res.ok) throw new Error("Failed");
       if (next) {
+        trackFollow(post.author.username);
         toast.success(`Following @${post.author.username}`);
       }
     } catch {

@@ -3,14 +3,14 @@ import { NextResponse } from "next/server";
 import { STREAK_QUALIFYING_EVENTS, type StreakEventType } from "@/constants/streaks";
 import { getDb } from "@/db";
 import { userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
 import { recordStreakActivity } from "@/lib/streaks/streak-service";
+import { getCachedAuthUser } from "@/lib/server-cache";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
-    const user = await hexclaveServerApp.getUser();
+    const user = await getCachedAuthUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

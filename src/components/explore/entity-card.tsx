@@ -6,7 +6,6 @@ import {
   Download,
   GraduationCap,
   MapPin,
-  ShoppingBag,
   UserCheck,
   UserPlus,
 } from "lucide-react";
@@ -16,6 +15,7 @@ import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { MentionTag } from "@/components/ui/stickers";
+import { trackFollow } from "@/lib/analytics/ga4";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn, initialOf } from "@/lib/utils";
@@ -283,6 +283,7 @@ export function PersonPreviewCard({
       if (nextState) {
         const res = await fetch(`/api/profile/${person.username}/follow`, { method: "POST" });
         if (!res.ok) throw new Error("follow failed");
+        trackFollow(person.username);
         toast.success(`Following @${person.username}`);
       } else {
         const res = await fetch(`/api/profile/${person.username}/follow`, { method: "DELETE" });
@@ -351,44 +352,3 @@ export function PersonPreviewCard({
   );
 }
 
-// ─── 7. Store Preview Card ───
-export function StorePreviewCard({
-  store,
-}: {
-  store: {
-    id: string;
-    name: string;
-    category?: string | null;
-    description?: string | null;
-    logoUrl?: string | null;
-    address?: string | null;
-  };
-}) {
-  return (
-    <Link
-      href="/marketplace"
-      className="group flex items-start gap-3 p-3 rounded-lg border border-border bg-surface hover:bg-surface-muted transition-ui"
-    >
-      <Avatar className="size-10 rounded-xl shrink-0 border border-border">
-        {store.logoUrl && <AvatarImage src={store.logoUrl} alt={store.name} />}
-        <AvatarFallback className="rounded-xl text-xs font-semibold bg-warning/10 text-warning">
-          <ShoppingBag className="size-4" />
-        </AvatarFallback>
-      </Avatar>
-
-      <div className="space-y-1 min-w-0 flex-1">
-        <div className="flex items-center justify-between gap-1.5">
-          <h3 className="text-sm font-semibold text-fg group-hover:text-brand-text transition-ui truncate">
-            {store.name}
-          </h3>
-          {store.category && (
-            <Badge variant="secondary" className="text-xs px-1.5 py-0 h-4 shrink-0 font-normal">
-              {store.category}
-            </Badge>
-          )}
-        </div>
-        {store.address && <p className="text-xs text-muted-foreground truncate">{store.address}</p>}
-      </div>
-    </Link>
-  );
-}

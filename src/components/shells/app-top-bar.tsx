@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Menu, Search } from "lucide-react";
+import { Bell, Menu, Plus, Search } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BrandLogo } from "@/components/ui/brand-logo";
@@ -16,6 +16,8 @@ interface AppTopBarProps {
   profile?: ShellProfile;
   collegeName?: string;
   isAdmin?: boolean;
+  /** Shows the phone-only Post button (signed in, not a preview account). */
+  canPost?: boolean;
   onOpenDrawer: () => void;
   onOpenSearch: () => void;
 }
@@ -23,8 +25,8 @@ interface AppTopBarProps {
 const iconButton =
   "relative flex size-11 shrink-0 items-center justify-center rounded-full text-fg-muted transition-ui hover:bg-surface-muted hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95";
 
-/** Top bar: menu + logo (mobile), search, Loop Points, notifications, account (desktop). Solid surface. */
-export function AppTopBar({ profile, collegeName, isAdmin, onOpenDrawer, onOpenSearch }: AppTopBarProps) {
+/** Top bar: menu + logo (mobile), search, Loop Points, Post (mobile), notifications, account (desktop). Solid surface. */
+export function AppTopBar({ profile, collegeName, isAdmin, canPost, onOpenDrawer, onOpenSearch }: AppTopBarProps) {
   const pathname = usePathname() || ROUTES.home;
   const unreadCount = useUnreadNotificationsCount();
   const campus =
@@ -80,7 +82,22 @@ export function AppTopBar({ profile, collegeName, isAdmin, onOpenDrawer, onOpenS
             <Search className="size-5" />
           </button>
 
-          {profile && <PointsChip points={profile.points ?? 0} />}
+          {/* On narrow phones the Post button takes this slot; points stay in the menu and on your profile. */}
+          {profile && (
+            <PointsChip points={profile.points ?? 0} className={cn(canPost && "hidden min-[400px]:flex")} />
+          )}
+
+          {canPost && (
+            <Link
+              href={ROUTES.newPost}
+              prefetch
+              onClick={navPress}
+              aria-label="Create a post"
+              className="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand text-brand-fg transition-ui hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-95 lg:hidden"
+            >
+              <Plus className="size-5" strokeWidth={2.5} aria-hidden="true" />
+            </Link>
+          )}
 
           <Link
             href={ROUTES.notifications}

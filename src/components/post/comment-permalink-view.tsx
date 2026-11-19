@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/mention-autocomplete";
 import { RichText } from "@/components/ui/rich-text";
 import { useProfile } from "@/hooks/use-profile";
+import { trackCommentCreate, trackVote } from "@/lib/analytics/ga4";
 import { voteComment } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -164,6 +165,7 @@ export function CommentPermalinkView({
       if (res && typeof res.likesCount === "number") {
         setLikesCount(res.likesCount);
         setLiked(res.hasLiked);
+        trackVote("comment", { item_id: comment.id, direction: res.hasLiked ? "up" : "remove" });
       }
     } catch {
       setLiked(liked);
@@ -240,6 +242,7 @@ export function CommentPermalinkView({
       });
 
       if (!res.ok) throw new Error("Failed to post reply");
+      trackCommentCreate("post", { item_id: comment.postId, anonymous: replyIsAnon });
       toast.success("Reply posted");
     } catch (err) {
       setReplies(previousReplies);

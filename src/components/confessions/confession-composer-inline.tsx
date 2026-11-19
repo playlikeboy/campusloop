@@ -8,6 +8,7 @@ import { SegmentedControl } from "@/components/ui/segmented-control";
 import { QuestionSticker } from "@/components/ui/stickers";
 import { MAX_POST_CHARS } from "@/constants";
 import { useProfile } from "@/hooks/use-profile";
+import { trackPostCreate } from "@/lib/analytics/ga4";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
@@ -107,6 +108,7 @@ export function ConfessionComposerInline({
         throw new Error(data.error || "Couldn't post your confession. Try again.");
       }
 
+      trackPostCreate({ content_type: "confession", anonymous: true, feature: "confession_inline" });
       sounds.pop();
       haptics.success();
       toast.success("Posted anonymously");

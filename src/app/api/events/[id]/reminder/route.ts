@@ -6,14 +6,14 @@ const nanoid = (len = 12) => randomUUID().replace(/-/g, "").slice(0, len);
 
 import { getDb } from "@/db";
 import { eventRegistrations, events, userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
+import { getCachedAuthUser } from "@/lib/server-cache";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const user = await hexclaveServerApp.getUser();
+    const user = await getCachedAuthUser();
     if (!user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

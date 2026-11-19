@@ -2,9 +2,9 @@ import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
 import { followUser, getFollowCounts, unfollowUser } from "@/lib/follows";
 import { createNotification } from "@/lib/notifications";
+import { getCachedAuthUser } from "@/lib/server-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +23,7 @@ function failure(message: string, status: number): ResolvedActors {
 }
 
 async function resolveActors(username: string): Promise<ResolvedActors> {
-  const user = await hexclaveServerApp.getUser();
+  const user = await getCachedAuthUser();
   if (!user) {
     return failure("Unauthorized", 401);
   }

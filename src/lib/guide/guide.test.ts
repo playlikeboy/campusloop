@@ -65,7 +65,7 @@ describe("product guide catalogue", () => {
       for (const r of g.routes) {
         // Concrete paths like /posts/POLL map onto dynamic segments.
         const candidates = [normalize(r.path), normalize(r.path.replace(/\/[^/]+$/, "/[x]"))];
-        const ok = r.path === "/merchant-portal" || candidates.some((c) => known.has(c));
+        const ok = candidates.some((c) => known.has(c));
         expect(ok, `${g.slug}: ${r.path}`).toBe(true);
       }
     }

@@ -3,9 +3,9 @@ import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { communities, communityMembers, userProfiles } from "@/db/schema";
-import { hexclaveServerApp } from "@/hexclave/server";
 import { runInBackground } from "@/lib/background";
 import { recordStreakActivity } from "@/lib/streaks/streak-service";
+import { getCachedAuthUser } from "@/lib/server-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +16,7 @@ interface RouteProps {
 export async function POST(request: Request, { params }: RouteProps) {
   try {
     const { id: paramId } = await params;
-    const user = await hexclaveServerApp.getUser();
+    const user = await getCachedAuthUser();
     if (!user) {
       return NextResponse.json(
         { error: "Unauthorized", message: "Sign in to join communities" },

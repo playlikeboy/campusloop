@@ -262,7 +262,7 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
     investorAngle:
       "An open AI and API surface positions CampusLoop as campus infrastructure, not just an app.",
     faq: [{ q: "Is it free?", a: "Yes for personal use." }],
-    related: ["campus-ai-and-atlas", "academic-vault"],
+    related: ["academic-vault"],
     keywords: ["MCP", "API", "Claude", "developer"],
     updated: U,
   },
@@ -348,7 +348,7 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
     slug: "admin-console",
     title: "Admin console",
     summary:
-      "Internal tools for the CampusLoop team: moderation, content, marketplace, analytics, experiments and system health.",
+      "Internal tools for the CampusLoop team: moderation, content, analytics, experiments and system health.",
     category: "Platform",
     audiences: ["Admins", "Investors"],
     routes: [{ path: "/admin", label: "Admin console (staff only)" }],
@@ -362,7 +362,6 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
       "Requests: the Inbox shows everything waiting for a decision (posts held by the safety filter, student reports, college hub requests, new developer apps), with the review queue, reports, confessions and developer apps one click away.",
       "People & campuses: users, colleges, outreach and campus broadcasts.",
       "Content: posts, comments, study material, feed boosts, Reddit import and short links.",
-      "Marketplace: overview, merchants, products, bike rentals.",
       "Insights: analytics, ranking experiments, system health and the audit log.",
     ],
     useCases: [
@@ -390,7 +389,7 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
     whyUse: [
       "Practise DSA problems on DSALoop.",
       "Keep a private journal on baby.",
-      "Find living services, gaming and developer tools from one page.",
+      "Find the campus board and developer tools from one page.",
     ],
     howToUse: [
       "Tap More in the menu, or open /more.",
@@ -411,7 +410,7 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
       },
       { q: "Can I connect my own AI agents?", a: "Yes, through the Developer & MCP Portal at /developer." },
     ],
-    related: ["developer-mcp", "campus-ai-and-atlas", "getting-started"],
+    related: ["developer-mcp", "getting-started"],
     keywords: ["more apps", "DSALoop", "baby", "campus apps", "campus tools"],
     updated: "2026-10-22",
   },

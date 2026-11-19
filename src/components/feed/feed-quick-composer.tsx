@@ -9,6 +9,7 @@ import { QuestionSticker } from "@/components/ui/stickers";
 import { MAX_POST_CHARS } from "@/constants";
 import type { FeedPost } from "@/hooks/use-feed";
 import type { useProfile } from "@/hooks/use-profile";
+import { trackPostCreate } from "@/lib/analytics/ga4";
 import { confirmOptimisticPost, optimisticAddPost, revertOptimisticPost } from "@/lib/feed-mutations";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
@@ -97,6 +98,7 @@ export function FeedQuickComposer({ profile, scope }: { profile: Profile; scope:
         id: serverPost.id,
         createdAt: serverPost.createdAt ? new Date(serverPost.createdAt) : optimisticPost.createdAt,
       });
+      trackPostCreate({ content_type: "post", anonymous: false, feature: "quick_composer" });
       toast.success("Posted");
     } catch (err: unknown) {
       revertOptimisticPost(optimisticPost.id);

@@ -4,6 +4,7 @@ import { Check, Copy, Download, MessageCircle, Share2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { FeedPost } from "@/hooks/use-feed";
+import { trackShare } from "@/lib/analytics/ga4";
 import { cleanSnippet } from "@/lib/utils";
 
 interface ShareStoryModalProps {
@@ -48,6 +49,7 @@ export function ShareStoryModal({ post, isOpen, onClose }: ShareStoryModalProps)
 
     const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
     window.open(waUrl, "_blank");
+    trackShare("whatsapp", "post", post.id);
     toast.success("Opening WhatsApp share!");
   }
 
@@ -69,6 +71,7 @@ export function ShareStoryModal({ post, isOpen, onClose }: ShareStoryModalProps)
                 text: `Check out this campus story: ${postUrl}`,
                 files: [file],
               });
+              trackShare("native_image", "post", post.id);
               return;
             } catch {
               // Fallback to text share
@@ -83,6 +86,7 @@ export function ShareStoryModal({ post, isOpen, onClose }: ShareStoryModalProps)
             text: `Check out this campus post on CampusLoop: "${cleanSnippet(post.body, 100)}"`,
             url: postUrl,
           });
+          trackShare("native", "post", post.id);
         } catch {
           handleCopyLink();
         }
@@ -94,6 +98,7 @@ export function ShareStoryModal({ post, isOpen, onClose }: ShareStoryModalProps)
 
   function handleCopyLink() {
     navigator.clipboard.writeText(postUrl);
+    trackShare("copy_link", "post", post.id);
     setCopied(true);
     toast.success("Link copied to clipboard!");
     setTimeout(() => setCopied(false), 2000);

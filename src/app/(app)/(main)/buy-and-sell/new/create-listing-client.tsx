@@ -102,7 +102,7 @@ export function CreateListingClient(_props: CreateListingClientProps) {
 
       toast.success("Your listing is up");
       mutate((key) => typeof key === "string" && key.includes("/api/communities/feed"));
-      router.push("/buy-and-sell");
+      router.push("/board?tab=sell");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Your listing didn't post. Try again in a moment.");
       setIsSubmitting(false);
@@ -112,7 +112,7 @@ export function CreateListingClient(_props: CreateListingClientProps) {
   return (
     <div className="mx-auto w-full max-w-xl px-4 pt-4 pb-28 sm:pt-6">
       <Button asChild variant="ghost" size="sm" className="-ml-2">
-        <Link href="/buy-and-sell">
+        <Link href="/board?tab=sell">
           <ArrowLeft className="size-4" aria-hidden="true" />
           Buy and sell
         </Link>

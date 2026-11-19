@@ -18,6 +18,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { RichText } from "@/components/ui/rich-text";
 import { startRouteProgress } from "@/components/ui/route-progress";
 import type { FeedPost } from "@/hooks/use-feed";
+import { trackShare, trackVote } from "@/lib/analytics/ga4";
 import { repostPost, voteOnPost } from "@/lib/api";
 import { hasAttachedVideoContent } from "@/lib/embeds";
 import { haptics } from "@/lib/haptics";
@@ -206,6 +207,7 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
     try {
       const data = await voteOnPost(post.id, newValue);
       setUserVote(data.userVote);
+      trackVote("post", { item_id: post.id, direction: newValue > 0 ? "up" : newValue < 0 ? "down" : "remove" });
     } catch (error) {
       console.error(error);
       setUserVote(userVote);
@@ -293,9 +295,11 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
           text: post.body?.slice(0, 100),
           url: postUrl,
         });
+        trackShare("native", "post", post.id);
       } catch {}
     } else {
       await navigator.clipboard.writeText(postUrl);
+      trackShare("copy_link", "post", post.id);
       toast.success("Link copied to clipboard");
     }
   }

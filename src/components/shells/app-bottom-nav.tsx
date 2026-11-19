@@ -4,23 +4,21 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { MOBILE_BOTTOM_ITEMS, ROUTES } from "@/constants/navigation";
 import { cn } from "@/lib/utils";
-import { isPathActive, navPress, profileHref, shouldHideBottomNav } from "./nav-utils";
+import { isPathActive, navPress, shouldHideBottomNav } from "./nav-utils";
 
 interface AppBottomNavProps {
-  /** Hide Post and Chat for preview accounts and signed-out visitors. */
+  /** Hide Chat for preview accounts and signed-out visitors. */
   restricted?: boolean;
-  /** Signed-in username; Profile links to /@username. */
+  /** Kept for callers; the You tab always opens /profile, which is your own page. */
   username?: string | null;
 }
 
-/** Mobile tab bar: Home, Explore, Post (violet sticker), Chat, Profile. Solid surface, thumb height. */
-export function AppBottomNav({ restricted, username }: AppBottomNavProps) {
+/** Mobile tab bar: Home, Events, Learn, Chat, You. Solid surface, thumb height. */
+export function AppBottomNav({ restricted }: AppBottomNavProps) {
   const pathname = usePathname() || ROUTES.home;
   if (shouldHideBottomNav(pathname)) return null;
 
-  const items = MOBILE_BOTTOM_ITEMS.filter(
-    (item) => !(restricted && (item.href === ROUTES.chat || item.href === ROUTES.newPost))
-  ).map((item) => (item.href === ROUTES.profile ? { ...item, href: profileHref(username) } : item));
+  const items = MOBILE_BOTTOM_ITEMS.filter((item) => !(restricted && item.href === ROUTES.chat));
 
   return (
     <nav
@@ -33,25 +31,9 @@ export function AppBottomNav({ restricted, username }: AppBottomNavProps) {
       >
         {items.map((item) => {
           const Icon = item.icon;
-          const active = isPathActive(pathname, item.href);
-          const isPost = item.href === ROUTES.newPost;
-
-          if (isPost) {
-            return (
-              <li key={item.href} className="flex items-center justify-center">
-                <Link
-                  href={item.href}
-                  prefetch
-                  onClick={navPress}
-                  aria-label="Create a post"
-                  className="flex size-12 items-center justify-center rounded-sticker bg-brand text-brand-fg shadow-sticker transition-ui hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-95"
-                >
-                  <Icon className="size-6" strokeWidth={2.5} aria-hidden="true" />
-                </Link>
-              </li>
-            );
-          }
-
+          const active =
+            isPathActive(pathname, item.href) ||
+            Boolean(item.match?.some((href) => isPathActive(pathname, href)));
           return (
             <li key={item.href} className="min-w-0">
               <Link

@@ -17,6 +17,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
 import { Button } from "@/components/ui/button";
+import { trackEventRegister } from "@/lib/analytics/ga4";
 import { fetcher } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -132,6 +133,7 @@ function FeedEventCard({ event }: { event: EventItem }) {
       });
       const data = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) throw new Error(data.error || "Couldn't sign you up. Try again.");
+      trackEventRegister(event.id);
 
       setRegistered(true);
       setAttendeeCount((prev) => prev + 1);

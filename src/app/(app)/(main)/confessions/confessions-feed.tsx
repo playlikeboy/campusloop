@@ -17,6 +17,7 @@ import { type FeedPost, useFeed } from "@/hooks/use-feed";
 import { useProfile } from "@/hooks/use-profile";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
+import { HomeTabs } from "../feeds/home-tabs";
 
 const CONFESSION_SORTS = [
   { id: "latest", label: "Latest" },
@@ -146,6 +147,7 @@ export function ConfessionsFeed() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
         <main className="lg:col-span-8 flex flex-col min-h-dvh pb-28 sm:pb-12 sm:rounded-lg sm:border sm:border-border bg-bg overflow-hidden">
           <div className="sm:sticky sm:top-12 lg:top-0 z-30 bg-bg border-b border-border">
+            <HomeTabs active="confessions" className="pb-0" />
             <div className="flex items-center justify-between gap-3 px-4 pt-3 pb-2">
               <div className="min-w-0">
                 <h1 className="flex items-center gap-2 text-xl">

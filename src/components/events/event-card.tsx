@@ -8,6 +8,7 @@ import { mutate } from "swr";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LoopPointsSticker } from "@/components/ui/stickers";
+import { trackEventRegister } from "@/lib/analytics/ga4";
 import { cn } from "@/lib/utils";
 import { EventCountdownTag, GoingSticker } from "./event-countdown-tag";
 import { EventDateTile } from "./event-date-tile";
@@ -133,6 +134,7 @@ function useQuickRegister(event: EventItem, closed: boolean) {
       if (!response.ok)
         throw new Error(data.error || "Couldn't register you. Check your connection and try again.");
       setIsRegistered(true);
+      trackEventRegister(event.id);
       setAttendeeCount((count) => count + 1);
       toast.success("You're in. Find your pass in My tickets.");
       void mutate((key) => typeof key === "string" && key.startsWith("/api/events"));

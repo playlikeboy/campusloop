@@ -431,57 +431,6 @@ export const DOCS_FEATURES: DocsFeature[] = [
     ],
   },
   {
-    slug: "time-capsule",
-    title: "Batch Time Capsule",
-    tagline:
-      "Why 4 years of college evaporate into lost screenshots (and how cryptographic sealing preserves it).",
-    category: "Connect",
-    readTime: "3 min read",
-    description:
-      "The Batch Time Capsule allows student batches to bury predictions, letters, photos, and memories cryptographically sealed until graduation day — with live countdowns and a batch-wide reveal.",
-    keywords: [
-      "time capsule",
-      "batch memories",
-      "convocation capsule",
-      "student memories",
-      "graduation letters",
-      "college nostalgia",
-    ],
-    hook: "In 2021, a freshman engineering batch wrote down their four-year predictions in a Reddit thread: who would get placed at Google, who would drop out to build a startup, and who would marry their first-year crush.\n\nBy 2025, the moderator had deleted the subreddit, the user accounts were deactivated, and every single prediction was lost forever.\n\nFour years of intense, transformative shared history disappeared into digital dust.",
-    problem:
-      "College memories have no permanent digital archive:\n1. Ephemeral chats: WhatsApp backups fail, phone numbers change, and group chats are abandoned after convocation.\n2. Premature spoilers: If you write a letter to your future self in a shared document, someone inevitably reads it within two weeks.\n3. The convocation void: Graduation is one of the most emotional moments of your life, but students have no shared artifact that captured who they were when they first walked through the campus gates.",
-    shift:
-      "A digital time capsule requires mathematical permanence and cryptographic sealing.\n\nOn CampusLoop, your batch capsule is sealed until your official Convocation Date:\n- You write predictions, letters to your future batchmates, and upload photos.\n- Once submitted, the entry is locked. No one can read it — not even administrators.\n- A live countdown ticker runs on the campus hub.\n- On Convocation Day, the lock dissolves, and the entire batch opens the capsule together.",
-    howItWorks: [
-      "Write your prediction or letter: Express your hopes, career dreams, or campus memories for your batch.",
-      "Cryptographic lock: Once sealed, entries cannot be edited, previewed, or deleted by anyone.",
-      "Live countdown clock: Tracks the days, hours, and minutes remaining until your batch's graduation ceremony.",
-      "Collective convocation reveal: The capsule unlocks simultaneously for all batch members on convocation day.",
-    ],
-    proofPoints: [
-      "Cryptographic immutability: Locked entries cannot be decrypted before the unlock timestamp.",
-      "Batch-scoped security: Only verified members of your graduating class can access the unlocked archive.",
-      "Permanent digital memory: Stored durably so you can revisit your freshman memories years into your career.",
-    ],
-    takeaways: [
-      "The value of a memory increases exponentially with time — if you protect it from premature exposure.",
-      "Creates an unforgettable bonding ritual for graduating seniors.",
-      "Transforms ephemeral college years into a permanent institutional milestone.",
-    ],
-    viralQuote:
-      "The person you are on day one of college is someone you will miss on day 1,460. The Time Capsule lets you meet them again.",
-    faq: [
-      {
-        q: "Can I edit my submission after sealing the capsule?",
-        a: "No. The sealing process is cryptographically final to preserve the authenticity of your original prediction.",
-      },
-      {
-        q: "Who can read my submission when the capsule opens?",
-        a: "Only verified members of your graduating batch will be able to browse the opened capsule entries on convocation day.",
-      },
-    ],
-  },
-  {
     slug: "loop-points",
     title: "Loop Points and Clout",
     tagline: "Measuring the real heroes of campus: the seniors answering doubts at 2 AM.",

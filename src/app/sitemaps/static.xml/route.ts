@@ -23,6 +23,7 @@ const PAGES: SitemapEntry[] = [
   { path: "/developers/SKILL.md", priority: 0.4, changefreq: "monthly" },
   { path: "/about", priority: 0.7, changefreq: "monthly" },
   { path: "/safety", priority: 0.7, changefreq: "monthly" },
+  { path: "/download", priority: 0.6, changefreq: "monthly" },
   { path: "/help", priority: 0.7, changefreq: "weekly" },
   { path: "/contact", priority: 0.5, changefreq: "monthly" },
   { path: "/investors", priority: 0.5, changefreq: "monthly" },

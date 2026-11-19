@@ -6,7 +6,6 @@ import {
   articles,
   communities,
   events,
-  merchants,
   posts,
   userProfiles,
 } from "@/db/schema";
@@ -52,7 +51,6 @@ export async function GET(req: Request) {
       previewArticles,
       previewColleges,
       suggestedPeople,
-      previewMerchants,
     ] = await Promise.all([
       // 1. Trending hashtags
       db.execute(
@@ -196,20 +194,6 @@ export async function GET(req: Request) {
           },
         },
       }).catch(() => []),
-
-      // 9. Marketplace / Stores
-      db.query.merchants.findMany({
-        where: eq(merchants.status, "ACTIVE"),
-        limit: 8,
-        columns: {
-          id: true,
-          name: true,
-          categorySlug: true,
-          description: true,
-          logoUrl: true,
-          address: true,
-        },
-      }).catch(() => []),
     ]);
 
     // Format tags
@@ -267,7 +251,6 @@ export async function GET(req: Request) {
       articles: previewArticles,
       colleges: previewColleges,
       people: suggestedPeople,
-      marketplace: previewMerchants,
     });
   } catch (error) {
     console.error("Explore home API error:", error);

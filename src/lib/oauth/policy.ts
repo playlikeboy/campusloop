@@ -1,4 +1,4 @@
-import { SCOPES, SUPPORTED_SCOPES } from "./config";
+import { ALL_SCOPES, FULL_SESSION_CLIENTS, MOBILE_CLIENT_ID, MOBILE_REDIRECT_URI, SCOPES } from "./config";
 
 /** Pure OAuth policy: redirect URIs and scopes. No DB, unit-tested. */
 
@@ -27,7 +27,10 @@ export function isValidRedirectUri(uri: string): boolean {
  * Exact match against a registered URI. Loopback URIs may use any port
  * (RFC 8252 section 7.3) because native and dev servers pick ports at runtime.
  */
-export function redirectUriAllowed(registered: string[], given: string): boolean {
+export function redirectUriAllowed(registered: string[], given: string, clientId?: string): boolean {
+  // The official app's custom scheme has no dot, so isValidRedirectUri (used
+  // for developer-portal registration) rejects it. Only that client may use it.
+  if (given === MOBILE_REDIRECT_URI) return clientId === MOBILE_CLIENT_ID && registered.includes(given);
   if (!isValidRedirectUri(given)) return false;
   if (registered.includes(given)) return true;
   const g = new URL(given);
@@ -43,6 +46,8 @@ export function redirectUriAllowed(registered: string[], given: string): boolean
 }
 
 export interface ScopePolicyClient {
+  /** Needed for first-party-only scopes (FULL_SESSION_CLIENTS); omitted means "not one of ours". */
+  id?: string;
   approvedScopes: string[];
   isFirstParty: boolean;
 }
@@ -50,19 +55,31 @@ export interface ScopePolicyClient {
 /**
  * Parses a space-separated scope string and keeps only what this client may
  * get: unknown scopes are ignored, sensitive ones need admin approval (or a
- * first-party app). Order follows SUPPORTED_SCOPES for stable output.
+ * first-party app), and first-party-only scopes (`app`) are dropped unless the
+ * client id is in FULL_SESSION_CLIENTS. Order follows ALL_SCOPES for stable output.
  */
 export function resolveScopes(requested: string | null | undefined, client: ScopePolicyClient): { granted: string[]; dropped: string[] } {
   const asked = new Set((requested ?? "").split(/\s+/).filter(Boolean));
   const granted: string[] = [];
   const dropped: string[] = [];
   for (const s of asked) if (!SCOPES[s]) dropped.push(s);
-  for (const s of SUPPORTED_SCOPES) {
+  for (const s of ALL_SCOPES) {
     if (!asked.has(s)) continue;
-    if (SCOPES[s].needsReview && !client.isFirstParty && !client.approvedScopes.includes(s)) dropped.push(s);
+    if (SCOPES[s].firstPartyOnly && !canUseFirstPartyScopes(client.id)) dropped.push(s);
+    else if (SCOPES[s].needsReview && !client.isFirstParty && !client.approvedScopes.includes(s)) dropped.push(s);
     else granted.push(s);
   }
   return { granted, dropped };
+}
+
+/** True only for CampusLoop's own full-session apps (the Android app). */
+export function canUseFirstPartyScopes(clientId: string | null | undefined): boolean {
+  return Boolean(clientId && FULL_SESSION_CLIENTS.has(clientId));
+}
+
+/** First-party-only scopes in `scopes` that `clientId` must not hold. */
+export function forbiddenScopes(scopes: string[], clientId: string | null | undefined): string[] {
+  return canUseFirstPartyScopes(clientId) ? [] : scopes.filter((s) => SCOPES[s]?.firstPartyOnly);
 }
 
 /** True when an existing grant already covers every scope asked for now. */

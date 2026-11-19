@@ -15,6 +15,7 @@ import { FeedCard } from "@/components/ui/feed-card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { FeedPost } from "@/hooks/use-feed";
 import { useProfile } from "@/hooks/use-profile";
+import { trackShare } from "@/lib/analytics/ga4";
 import { haptics } from "@/lib/haptics";
 import { initialOf } from "@/lib/utils";
 import { CommunityDetailHero } from "./community-detail-hero";
@@ -128,6 +129,7 @@ export function CommunityDetailClient({
     const url = `${window.location.origin}/communities/${identifier}`;
     try {
       await navigator.clipboard.writeText(`Join c/${community.name} on CampusLoop\n${url}`);
+      trackShare("copy_link", "community", community.id);
       toast.success("Invite link copied");
       recordCommunityInviteShare(community.id).catch(() => {});
     } catch {

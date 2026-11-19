@@ -19,6 +19,7 @@ import { LoopPointsSticker } from "@/components/ui/stickers";
 import type { FeedPost } from "@/hooks/use-feed";
 import { fetcher } from "@/lib/api";
 import { ProfileCoverActions } from "./profile-cover-actions";
+import { YouLinks } from "./you-links";
 import { AvatarOptionsDialog, PhotoLightbox } from "./profile-dialogs";
 import { type ProfileTab, ProfileTabBar, tabFromParam } from "./profile-tab-bar";
 import { ArchiveTab } from "./tabs/archive-tab";
@@ -280,6 +281,8 @@ export function ProfileClientView({
         />
 
         <ProfileHighlights userId={profile.id} username={profile.username} isOwnProfile={isOwnProfile} />
+
+        {isOwnProfile && <YouLinks />}
 
         <ProfileTabBar tabs={tabs} active={activeTab} onChange={changeTab} />
 

@@ -64,12 +64,6 @@ mock.module("@/lib/user-behavior", () => ({
   trackUserBehavior: mock(async () => {}),
 }));
 
-mock.module("@/lib/marketplace/order-number", () => ({
-  withUniqueOrderNumber: mock(async (fn: (orderNumber: string) => Promise<any>) => {
-    return await fn(`CL-${Math.floor(1000 + Math.random() * 9000)}`);
-  }),
-}));
-
 mock.module("@/lib/redis", () => ({
   getRedis: mock(() => null),
   redis: {
@@ -232,9 +226,6 @@ mock.module("@/db", () => ({
 }));
 
 // Import target routes and standalone caches after mocks are registered
-const { POST: checkoutRoute } = await import(
-  "@/app/api/marketplace/checkout/route"
-);
 const { inMemoryIdempotencyCache } = await import("@/lib/idempotency-cache");
 const { POST: registerEventRoute } = await import(
   "@/app/api/events/[id]/register/route"
@@ -334,160 +325,6 @@ describe("CampusLoop Security & Integrity Test Suite", () => {
       semester: 3,
       resourceType: "NOTES",
     };
-  });
-
-  // =========================================================================
-  // PHASE 12: Marketplace Checkout Atomicity, Pricing & Idempotency
-  // =========================================================================
-  describe("PHASE 12 — Marketplace Checkout Atomicity", () => {
-    it("enforces server-side authoritative pricing and ignores client-spoofed totals/fees", async () => {
-      // Client tries to spoof total = 1, deliveryFee = 0, unitPrice = 1
-      const spoofedPayload = {
-        merchantOrders: [
-          {
-            merchantId: "merchant_1",
-            fulfillmentType: "DELIVERY",
-            items: [{ productId: "prod_samosa", quantity: 2 }],
-            // Spoofed fields
-            subtotal: 2,
-            deliveryFee: 0,
-            total: 2,
-          },
-        ],
-        deliveryAddress: { hostelName: "Hostel 1", roomNumber: "101", phone: "9876543210" },
-      };
-
-      const req = new Request("https://campusloop.space/api/marketplace/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(spoofedPayload),
-      });
-
-      const res = await checkoutRoute(req);
-      expect(res.status).toBe(200);
-      const json = await res.json();
-      expect(json.success).toBe(true);
-
-      // Verify authoritative order was created in DB with server calculated amounts
-      expect(mockCreatedOrders.length).toBe(1);
-      const order = mockCreatedOrders[0];
-      // Product price = 20 * 2 = 40. Delivery fee = 20. Total = 60.
-      expect(order.subtotal).toBe(40);
-      expect(order.deliveryFee).toBe(20);
-      expect(order.total).toBe(60);
-    });
-
-    it("reserves stock atomically and reduces available inventory", async () => {
-      mockProducts[0].stockQuantity = 10;
-      mockProducts[0].lastRequestedQty = 3;
-
-      const payload = {
-        merchantOrders: [
-          {
-            merchantId: "merchant_1",
-            fulfillmentType: "DELIVERY",
-            items: [{ productId: "prod_samosa", quantity: 3 }],
-          },
-        ],
-        deliveryAddress: { phone: "9876543210" },
-      };
-
-      const req = new Request("https://campusloop.space/api/marketplace/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const res = await checkoutRoute(req);
-      expect(res.status).toBe(200);
-      // Stock reduced from 10 to 7
-      expect(mockProducts[0].stockQuantity).toBe(7);
-      expect(mockCreatedOrders.length).toBe(1);
-    });
-
-    it("aborts checkout and returns 409 STOCK_CONFLICT when stock reservation fails concurrently", async () => {
-      // Pricer sees stock available, but concurrent checkout races and claims it
-      mockProducts[0].stockQuantity = 10;
-      mockProducts[0].lastRequestedQty = 2;
-      simulateStockConflict = true;
-
-      const payload = {
-        merchantOrders: [
-          {
-            merchantId: "merchant_1",
-            fulfillmentType: "DELIVERY",
-            items: [{ productId: "prod_samosa", quantity: 2 }],
-          },
-        ],
-        deliveryAddress: { phone: "9876543210" },
-      };
-
-      const req = new Request("https://campusloop.space/api/marketplace/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const res = await checkoutRoute(req);
-      expect(res.status).toBe(409);
-      const json = await res.json();
-      expect(json.code).toBe("STOCK_CONFLICT");
-      // Zero orders persisted
-      expect(mockCreatedOrders.length).toBe(0);
-      expect(mockCreatedOrderItems.length).toBe(0);
-    });
-
-    it("handles Idempotency-Key to prevent duplicate checkout orders", async () => {
-      mockProducts[0].stockQuantity = 10;
-      mockProducts[0].lastRequestedQty = 1;
-
-      const payload = {
-        merchantOrders: [
-          {
-            merchantId: "merchant_1",
-            fulfillmentType: "PICKUP",
-            items: [{ productId: "prod_samosa", quantity: 1 }],
-          },
-        ],
-        deliveryAddress: { phone: "9876543210" },
-      };
-
-      const idempotencyKey = "client-uuid-checkout-001";
-
-      const req1 = new Request("https://campusloop.space/api/marketplace/checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Idempotency-Key": idempotencyKey,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const res1 = await checkoutRoute(req1);
-      expect(res1.status).toBe(200);
-      const data1 = await res1.json();
-      expect(data1.success).toBe(true);
-      expect(mockCreatedOrders.length).toBe(1);
-
-      // Replay request with exact same Idempotency-Key
-      const req2 = new Request("https://campusloop.space/api/marketplace/checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Idempotency-Key": idempotencyKey,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const res2 = await checkoutRoute(req2);
-      expect(res2.status).toBe(200);
-      expect(res2.headers.get("X-Idempotent-Replay")).toBe("true");
-      const data2 = await res2.json();
-      expect(data2.primaryOrderId).toBe(data1.primaryOrderId);
-
-      // Orders count remains exactly 1 (no duplicate order created)
-      expect(mockCreatedOrders.length).toBe(1);
-    });
   });
 
   // =========================================================================

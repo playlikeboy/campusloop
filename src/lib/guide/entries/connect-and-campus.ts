@@ -36,7 +36,7 @@ export const CONNECT_AND_CAMPUS: GuideEntry[] = [
     investorAngle:
       "Messaging converts discovery (feed, match, marketplace) into relationships, which is what keeps students on a network for years.",
     faq: [{ q: "Are calls recorded?", a: "No. Media goes directly between the two devices." }],
-    related: ["campus-match", "random-loop", "verification-and-safety"],
+    related: ["campus-match", "verification-and-safety"],
     keywords: ["student chat", "video call", "messages"],
     updated: U,
   },
@@ -115,37 +115,6 @@ export const CONNECT_AND_CAMPUS: GuideEntry[] = [
     related: ["campus-match", "chat-and-calls"],
     keywords: ["secret crush", "mutual crush"],
     essaySlug: "secret-crush",
-    updated: U,
-  },
-  {
-    slug: "random-loop",
-    title: "Random Loop",
-    summary: "Meet a random verified student in a real-time anonymous chat or call.",
-    category: "Connect",
-    audiences: ["Students"],
-    routes: [{ path: "/random", label: "Random Loop" }],
-    purpose:
-      "Spontaneous conversations with new people, without the safety problems of open random-chat sites.",
-    whyUse: ["Everyone is a verified student.", "Skip, report or block in one tap."],
-    howToUse: [
-      "Open /random and join the queue.",
-      "Chat when matched. Tap Next to move on.",
-      "Report or block if someone is inappropriate; they are removed from your future matches.",
-    ],
-    useCases: [
-      { who: "Student", scenario: "Bored at 1am, has a long talk with a student from another state." },
-    ],
-    privacy: ["Your identity stays hidden unless you choose to share it."],
-    investorAngle:
-      "Serendipitous matching creates cross-campus connections and late-night engagement that other features do not.",
-    faq: [
-      {
-        q: "What happens if I block someone?",
-        a: "You will not be matched again, and they disappear from your feed and suggestions.",
-      },
-    ],
-    related: ["chat-and-calls", "verification-and-safety"],
-    keywords: ["random chat", "meet students"],
     updated: U,
   },
   {
@@ -293,7 +262,6 @@ export const CONNECT_AND_CAMPUS: GuideEntry[] = [
     routes: [
       { path: "/colleges", label: "Colleges" },
       { path: "/colleges/[slug]", label: "College page" },
-      { path: "/living", label: "Campus living" },
       { path: "/college-request", label: "Request a college" },
     ],
     purpose:
@@ -319,62 +287,6 @@ export const CONNECT_AND_CAMPUS: GuideEntry[] = [
     related: ["getting-started", "aspirant-viewer-mode"],
     keywords: ["Indian colleges list", "college hub"],
     updated: "2026-11-05",
-  },
-  {
-    slug: "gaming",
-    title: "Gaming",
-    summary: "Find teammates, join lobbies and tournaments, and climb campus gaming leaderboards.",
-    category: "Campus life",
-    audiences: ["Students", "Clubs"],
-    routes: [
-      { path: "/gaming", label: "Gaming hub" },
-      { path: "/gaming/new", label: "Create lobby" },
-    ],
-    purpose: "Campus gamers need a place to find squads and run tournaments without random online toxicity.",
-    whyUse: [
-      "Find verified teammates by game and play style.",
-      "Join or host tournaments.",
-      "Earn progression and rank on leaderboards.",
-    ],
-    howToUse: [
-      "Open /gaming.",
-      "Browse lobbies or create one at /gaming/new with game, mode and slots.",
-      "Use Looking for Team to find players.",
-      "Join tournaments and track standings and your season rank.",
-    ],
-    useCases: [{ who: "Esports club", scenario: "Runs an inter-hostel BGMI tournament." }],
-    investorAngle:
-      "Gaming is a high-frequency youth vertical and a natural fit for sponsorships and brand tournaments.",
-    faq: [{ q: "Which games?", a: "Popular mobile and PC titles; lobbies specify the game." }],
-    related: ["communities", "events-and-tickets"],
-    keywords: ["campus esports", "find teammates", "college tournament"],
-    updated: U,
-  },
-  {
-    slug: "time-capsule",
-    title: "Time Capsule",
-    summary: "Seal messages, predictions and memories that unlock on a future date.",
-    category: "Campus life",
-    audiences: ["Students"],
-    routes: [{ path: "/capsule", label: "Time Capsule" }],
-    purpose: "Give batches a way to preserve memories and predictions to open at graduation or reunions.",
-    whyUse: ["Write a letter to your future self.", "Create batch capsules that open on convocation day."],
-    howToUse: [
-      "Open /capsule.",
-      "Write your message, choose an unlock date, and seal it.",
-      "You are notified when it unlocks.",
-    ],
-    useCases: [
-      { who: "Batch", scenario: "Predicts who will start a company, to be revealed at the 5-year reunion." },
-    ],
-    privacy: ["Sealed capsules cannot be read before their unlock date."],
-    investorAngle:
-      "Built-in reasons to return years later support long-term retention and alumni engagement.",
-    faq: [{ q: "Can I edit after sealing?", a: "No. That is the point of a capsule." }],
-    related: ["communities"],
-    keywords: ["time capsule", "batch memories"],
-    essaySlug: "time-capsule",
-    updated: U,
   },
   {
     slug: "articles",
@@ -466,38 +378,5 @@ export const CONNECT_AND_CAMPUS: GuideEntry[] = [
       "smart blocks",
     ],
     updated: "2026-10-17",
-  },
-  {
-    slug: "campus-ai-and-atlas",
-    title: "Campus AI and Atlas",
-    summary: "Ask questions about your campus in plain language and get answers grounded in campus content.",
-    category: "Campus life",
-    audiences: ["Students"],
-    routes: [
-      { path: "/ai", label: "Campus AI" },
-      { path: "/atlas", label: "Campus Atlas" },
-    ],
-    purpose: "Find notes, listings, events and discussions by asking, instead of digging through menus.",
-    whyUse: [
-      "Ask 'where are DBMS notes for sem 4' or 'what events are this weekend'.",
-      "Atlas answers about clubs, schedules and eligibility from campus records.",
-    ],
-    howToUse: [
-      "Open /ai or /atlas.",
-      "Type your question.",
-      "Follow the linked results to the source posts, notes or events.",
-    ],
-    useCases: [{ who: "First-year student", scenario: "Asks which clubs are recruiting this month." }],
-    investorAngle:
-      "An AI layer over a verified campus dataset is a differentiated product that general chatbots cannot replicate.",
-    faq: [
-      {
-        q: "Where do answers come from?",
-        a: "From CampusLoop content such as posts, notes, events and listings.",
-      },
-    ],
-    related: ["search-and-explore", "academic-vault"],
-    keywords: ["campus AI", "college assistant"],
-    updated: U,
   },
 ];

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { ARTICLES_CANONICAL_HOST } from "@/constants/articles";
+import { trackFollow, trackShare, trackVote } from "@/lib/analytics/ga4";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 
@@ -41,6 +42,7 @@ export function useArticleEngagement(input: EngagementInput) {
         body: JSON.stringify({ value: nextVote }),
       });
       if (!res.ok) throw new Error();
+      trackVote("article", { item_id: input.slug, direction: nextVote === 1 ? "up" : "remove" });
       const data = (await res.json()) as { upvotesCount?: number };
       if (typeof data.upvotesCount === "number") setUpvotes(data.upvotesCount);
     } catch {
@@ -80,6 +82,7 @@ export function useArticleEngagement(input: EngagementInput) {
     try {
       const res = await fetch(`/api/users/${input.authorUsername}/follow`, { method: "POST" });
       if (!res.ok) throw new Error();
+      if (next) trackFollow(input.authorUsername ?? input.authorId);
       toast.success(next ? `Following @${input.authorUsername}` : "Unfollowed");
     } catch {
       setIsFollowing(!next);
@@ -90,13 +93,14 @@ export function useArticleEngagement(input: EngagementInput) {
   function share() {
     const url = `${ARTICLES_CANONICAL_HOST}/articles/${input.slug}`;
     if (navigator.share) {
-      navigator.share({ title: input.title, text: input.excerpt || input.title, url }).catch(() => {});
+      navigator.share({ title: input.title, text: input.excerpt || input.title, url }).then(() => trackShare("native", "article", input.slug)).catch(() => {});
       return;
     }
     navigator.clipboard
       .writeText(url)
       .then(() => {
         setCopied(true);
+        trackShare("copy_link", "article", input.slug);
         toast.success("Link copied");
         setTimeout(() => setCopied(false), 2000);
       })

@@ -4,6 +4,7 @@ import { BadgeCheck, ChevronDown, Users } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { trackFollow } from "@/lib/analytics/ga4";
 import { getAvatarUrl } from "@/lib/utils";
 import type { DeckUserSuggestion } from "./deck-types";
 
@@ -35,6 +36,7 @@ export function DeckUserSuggestionsCard({ users, institutionName }: DeckUserSugg
         method: isCurrentlyFollowing ? "DELETE" : "POST",
       });
       if (!res.ok) throw new Error("Failed to toggle follow");
+      if (!isCurrentlyFollowing) trackFollow(username);
     } catch {
       // Revert
       setFollowingMap((prev) => ({ ...prev, [userId]: isCurrentlyFollowing }));
