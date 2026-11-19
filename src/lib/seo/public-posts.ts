@@ -1,4 +1,4 @@
-import { and, eq, isNull, notInArray, notLike } from "drizzle-orm";
+import { and, eq, isNull, notInArray, notLike, sql } from "drizzle-orm";
 import { externalPosts, posts } from "@/db/schema";
 
 /**
@@ -14,6 +14,8 @@ export function indexablePostsWhere() {
     eq(posts.isAnonymous, false),
     notInArray(posts.type, ["ANONYMOUS", "CONFESSION"]),
     eq(posts.isSeeded, false),
+    // Matches the post page: one-word posts ("Hello", "Test") are noindex there.
+    sql`char_length(${posts.body}) >= 40`,
     notLike(posts.id, "seed\\_202609\\_%"),
     isNull(externalPosts.id)
   );

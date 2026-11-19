@@ -1,6 +1,7 @@
-import { desc, ne } from "drizzle-orm";
+import { and, desc, ne, sql } from "drizzle-orm";
+import { COLLEGE_INDEX_RULE } from "@/components/colleges/college-facts";
 import { getDb } from "@/db";
-import { institutions } from "@/db/schema";
+import { academicResources, institutions, posts, userProfiles } from "@/db/schema";
 import { type SitemapEntry, sitemapFromQuery } from "@/lib/seo/sitemap";
 import { VIEWER_INSTITUTION_SLUG } from "@/lib/viewer";
 import { withSitemapCache } from "@/app/sitemaps/cache-headers";
@@ -21,15 +22,25 @@ export async function GET() {
           columns: { id: true, slug: true, createdAt: true, updatedAt: true },
           // The reserved Viewer Hub is internal plumbing for personal-email
           // accounts, not a real campus — it must never be handed to Google.
-          where: ne(institutions.slug, VIEWER_INSTITUTION_SLUG),
+          // Only pages that pass the same rule as the page's own robots tag
+          // (isCollegeIndexable): a rank, or enough students, posts or notes.
+          where: and(
+            ne(institutions.slug, VIEWER_INSTITUTION_SLUG),
+            sql`(
+              ${institutions.nirfRank} is not null
+              or (select count(*) from ${userProfiles} where ${userProfiles.institutionId} = ${institutions.id} and ${userProfiles.isSeeded} = false) >= ${COLLEGE_INDEX_RULE.minStudents}
+              or (select count(*) from ${posts} where ${posts.institutionId} = ${institutions.id} and ${posts.status} = 'PUBLISHED' and ${posts.isSeeded} = false) >= ${COLLEGE_INDEX_RULE.minPosts}
+              or (select count(*) from ${academicResources} where ${academicResources.institutionId} = ${institutions.id}) >= ${COLLEGE_INDEX_RULE.minNotes}
+            )`
+          ),
           orderBy: [desc(institutions.createdAt)],
           limit: SITEMAP_URL_CAP - STATIC.length,
         });
         return list.map((item) => ({
           path: `/college/${item.slug || item.id}`,
           lastmod: item.updatedAt ?? item.createdAt,
-          changefreq: "daily",
-          priority: 0.9,
+          changefreq: "weekly",
+          priority: 0.7,
         }));
       },
       43200

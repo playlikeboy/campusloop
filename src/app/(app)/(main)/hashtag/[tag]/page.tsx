@@ -1,6 +1,10 @@
+import { and, eq, ilike } from "drizzle-orm";
 import type { Metadata } from "next";
+import { getDb } from "@/db";
+import { externalPosts, posts } from "@/db/schema";
 import { breadcrumbJsonLd, buildMetadata } from "@/lib/seo";
 import { JsonLd } from "@/lib/seo/json-ld-script";
+import { indexablePostsWhere } from "@/lib/seo/public-posts";
 import HashtagFeed from "./hashtag-feed";
 
 interface PageProps {
@@ -17,10 +21,23 @@ function readTag(raw: string): string {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const tag = readTag((await params).tag);
+  // Any string is a valid URL here, so a tag is indexed only once a public post uses it.
+  const isRealTag = /^[A-Za-z0-9_]{2,50}$/.test(tag);
+  const used = isRealTag
+    ? await getDb()
+        .select({ id: posts.id })
+        .from(posts)
+        .leftJoin(externalPosts, eq(externalPosts.postId, posts.id))
+        .where(and(indexablePostsWhere(), ilike(posts.body, `%#${tag}%`)))
+        .limit(1)
+        .then((rows) => rows.length > 0)
+        .catch(() => true)
+    : false;
   return buildMetadata({
     title: `#${tag}`,
     description: `Posts, polls and questions tagged #${tag} by students on CampusLoop.`,
     path: `/hashtag/${encodeURIComponent(tag)}`,
+    noindex: !used,
   });
 }
 

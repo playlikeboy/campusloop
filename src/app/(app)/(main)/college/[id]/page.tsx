@@ -2,7 +2,13 @@ import { and, count, desc, eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 import { CollegeAboutSection } from "@/components/colleges/college-about-section";
-import { type CollegeFactsInput, collegeFaqs } from "@/components/colleges/college-facts";
+import {
+  type CollegeFactsInput,
+  collegeFaqs,
+  collegeMetaDescription,
+  collegeMetaTitle,
+  isCollegeIndexable,
+} from "@/components/colleges/college-facts";
 import { CollegeHubClient } from "@/components/colleges/college-hub-client";
 import { getDb } from "@/db";
 import { academicResources, institutions, posts } from "@/db/schema";
@@ -31,14 +37,48 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     });
   }
 
-  const place = [college.district, college.state].filter(Boolean).join(", ");
-  return buildMetadata({
-    title: college.name,
-    description: `See posts, notes and students from ${college.name}${place ? ` in ${place}` : ""}. Join with your college email to post and chat.`,
+  const db = getDb();
+  const showSeeded = await getShowSeededPosts();
+  const [[postTotal], [noteTotal]] = await Promise.all([
+    db
+      .select({ value: count() })
+      .from(posts)
+      .where(
+        and(
+          eq(posts.institutionId, college.id),
+          eq(posts.status, "PUBLISHED"),
+          showSeeded ? undefined : eq(posts.isSeeded, false)
+        )
+      ),
+    db
+      .select({ value: count() })
+      .from(academicResources)
+      .where(eq(academicResources.institutionId, college.id)),
+  ]).catch(() => [[{ value: 0 }], [{ value: 0 }]]);
+
+  const facts: CollegeFactsInput = {
+    name: college.name,
+    district: college.district,
+    state: college.state,
+    yearOfEstablishment: college.yearOfEstablishment,
+    nirfRank: college.nirfRank,
+    emailDomains: college.websiteDomain ? [college.websiteDomain.toLowerCase()] : [],
+    studentCount: (college.profiles || []).filter((p) => showSeeded || !p.isSeeded).length,
+    postCount: postTotal?.value ?? 0,
+    noteCount: noteTotal?.value ?? 0,
+  };
+
+  const metadata = buildMetadata({
+    title: collegeMetaTitle(facts),
+    description: collegeMetaDescription(facts),
     path: `/college/${college.slug || college.id}`,
     image: ogImageUrl(college.name, "College"),
-    keywords: [college.name, `${college.name} students`, `${college.name} notes`, `${college.name} PYQs`],
   });
+  // Pages with nothing of their own yet stay out of the index, but their links are followed.
+  if (!isCollegeIndexable(facts)) {
+    metadata.robots = { index: false, follow: true, googleBot: { index: false, follow: true } };
+  }
+  return metadata;
 }
 
 const HASHTAG_REGEX = /#[a-zA-Z0-9_]+/g;

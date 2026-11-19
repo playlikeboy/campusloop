@@ -77,3 +77,50 @@ export function collegeSummary(c: CollegeFactsInput): string {
       : ` Its students can join CampusLoop with a college email to share posts, polls, notes and events.`;
   return text;
 }
+
+/**
+ * A college page is offered to search engines only when it has something of its
+ * own: students, posts, study material or a national rank. The other pages stay
+ * reachable and followable, but are not indexed and are left out of the sitemap.
+ */
+export const COLLEGE_INDEX_RULE = { minStudents: 5, minPosts: 3, minNotes: 3 } as const;
+
+export function isCollegeIndexable(c: {
+  studentCount: number;
+  postCount: number;
+  noteCount: number;
+  nirfRank?: number | null;
+}): boolean {
+  return (
+    Boolean(c.nirfRank) ||
+    c.studentCount >= COLLEGE_INDEX_RULE.minStudents ||
+    c.postCount >= COLLEGE_INDEX_RULE.minPosts ||
+    c.noteCount >= COLLEGE_INDEX_RULE.minNotes
+  );
+}
+
+const cap = (text: string, max: number) => (text.length <= max ? text : `${text.slice(0, max - 1).trimEnd()}…`);
+
+/** Search title: short name plus what the page offers, kept inside the visible width. */
+export function collegeMetaTitle(c: Pick<CollegeFactsInput, "name" | "district" | "state">): string {
+  const short = collegeShortName(c.name);
+  const place = c.district || c.state;
+  const full = `${short}${place ? ` (${place})` : ""}: notes, PYQs and students`;
+  if (full.length <= 58) return full;
+  const noPlace = `${short}: notes, PYQs and students`;
+  return noPlace.length <= 58 ? noPlace : cap(c.name, 58);
+}
+
+/** Search description built from real numbers; never claims content the page does not have. */
+export function collegeMetaDescription(c: CollegeFactsInput): string {
+  const place = [c.district, c.state].filter(Boolean).join(", ");
+  const lead = `${c.name}${place ? ` in ${place}` : ""}${c.yearOfEstablishment ? `, est. ${c.yearOfEstablishment}` : ""}.`;
+  const has = [
+    c.noteCount > 0 ? `${c.noteCount} free notes and PYQs` : null,
+    c.postCount > 0 ? `${c.postCount} student posts` : null,
+    c.nirfRank ? `NIRF #${c.nirfRank}` : null,
+  ].filter(Boolean);
+  const middle = has.length ? ` ${has.join(", ")}.` : " Student posts, notes and PYQs.";
+  const domain = c.emailDomains[0];
+  return cap(`${lead}${middle} Join with your ${domain ? `@${domain}` : "college"} email.`, 155);
+}

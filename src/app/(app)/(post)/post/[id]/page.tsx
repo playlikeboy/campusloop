@@ -45,14 +45,19 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
   const campus = post.institution?.name?.split(",")[0] || "CampusLoop";
   const kind = post.type === "CONFESSION" ? "Confession" : post.type === "POLL" ? "Poll" : "Post";
 
+  const snippet = cleanSnippet(post.body, 155);
+  const headline = cleanSnippet(post.body, 48);
+  // "Hello" or "Test" is not a search result anyone wants.
+  const isThin = snippet.length < 40;
+
   return buildMetadata({
-    title: `${kind} by ${authorName} · ${campus}`,
-    description: cleanSnippet(post.body, 155) || `A ${kind.toLowerCase()} from a student at ${campus}.`,
+    title: headline.length >= 20 ? `${headline} · ${campus}` : `${kind} by ${authorName} · ${campus}`,
+    description: snippet || `A ${kind.toLowerCase()} from a student at ${campus}.`,
     path: `/post/${id}`,
     type: "article",
     publishedTime: new Date(post.createdAt).toISOString(),
     // Anonymous posts and confessions stay out of search engines regardless of status.
-    noindex: isPrivate,
+    noindex: isPrivate || isThin,
   });
 }
 

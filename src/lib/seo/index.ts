@@ -58,13 +58,15 @@ export type BuildMetadataInput = {
   modifiedTime?: string;
   authors?: string[];
   keywords?: string[];
+  /** Keep the query string in the canonical, for listings where `?page=2` is its own page. */
+  keepQuery?: boolean;
 };
 
 export function buildMetadata(input: BuildMetadataInput): Metadata {
   const title = cleanTitle(input.title);
   const fullTitle = input.absoluteTitle ? title : TITLE_TEMPLATE.replace("%s", title);
   const description = input.description.replace(/\s+/g, " ").trim();
-  const url = absoluteUrl(input.path.split("?")[0]);
+  const url = absoluteUrl(input.keepQuery ? input.path : input.path.split("?")[0]);
 
   const image =
     input.image === undefined

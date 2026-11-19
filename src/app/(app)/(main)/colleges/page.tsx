@@ -39,6 +39,9 @@ function directoryTitle(page: number, state: string) {
 
 export async function generateMetadata({ searchParams }: { searchParams: SearchParams }): Promise<Metadata> {
   const { page, state, q } = parseDirectoryParams(await searchParams);
+  // A page number or state that matches no college (?page=999, ?state=Atlantis) is not indexed.
+  const listing = q ? null : await getCollegeDirectoryPage({ page, state }).catch(() => null);
+  const isEmpty = !q && listing !== null && listing.colleges.length === 0;
   // Paginated and state-filtered listings are their own canonical; search results are not indexed.
   return buildMetadata({
     title: directoryTitle(page, state),
@@ -47,8 +50,9 @@ export async function generateMetadata({ searchParams }: { searchParams: SearchP
         ? `Find colleges in ${state} on CampusLoop. Open a college to see student posts, communities and study material.`
         : DESCRIPTION,
     path: collegesHref({ page, state }),
+    keepQuery: true,
     image: { url: "/og-colleges.png", width: 1536, height: 1024, alt: "Colleges on CampusLoop" },
-    noindex: Boolean(q),
+    noindex: Boolean(q) || isEmpty,
   });
 }
 

@@ -14,14 +14,14 @@ export async function GET() {
   return withSitemapCache(
     await sitemapFromQuery("communities", STATIC, async () => {
       const list = await getDb().query.communities.findMany({
-        columns: { id: true, createdAt: true, updatedAt: true },
+        columns: { id: true, slug: true, createdAt: true, updatedAt: true },
         // communities/[id] only indexes PUBLIC communities; the sitemap must match.
         where: eq(communities.privacy, "PUBLIC"),
         orderBy: [desc(communities.createdAt)],
         limit: SITEMAP_URL_CAP - STATIC.length,
       });
       return list.map((item) => ({
-        path: `/communities/${item.id}`,
+        path: `/communities/${item.slug || item.id}`,
         lastmod: item.updatedAt ?? item.createdAt,
         changefreq: "daily",
         priority: 0.8,

@@ -6,7 +6,8 @@ import { getCachedAuthUser, getCachedUserProfile, toShellProfile } from "@/lib/s
 import { isViewerProfile } from "@/lib/viewer";
 
 export const metadata: Metadata = {
-  title: "Your campus feed",
+  // A plain string here would drop the root "%s · CampusLoop" template for every child page.
+  title: { default: "Your campus feed", template: "%s · CampusLoop" },
   description: "Posts, polls and confessions from verified students at your college.",
   openGraph: {
     title: "CampusLoop | Your campus feed",
