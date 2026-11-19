@@ -70,9 +70,15 @@ export function LandingHero({ stats }: { stats: PublicStats }) {
 function TapeRun({ hidden }: { hidden?: boolean }) {
   return (
     <ul aria-hidden={hidden} className="flex shrink-0 items-center">
-      {TAPE_WORDS.map((word) => (
-        <li key={word} className="flex items-center">
-          <span className="sticker-caption px-5 text-3xl whitespace-nowrap sm:px-7 sm:text-5xl">{word}</span>
+      {TAPE_WORDS.map(({ label, href }) => (
+        <li key={label} className="flex items-center">
+          <Link
+            href={href}
+            tabIndex={hidden ? -1 : undefined}
+            className="sticker-caption px-5 text-3xl whitespace-nowrap underline-offset-8 hover:underline sm:px-7 sm:text-5xl"
+          >
+            {label}
+          </Link>
           <span aria-hidden="true" className="size-3 shrink-0 rotate-12 rounded-sm bg-brand sm:size-4" />
         </li>
       ))}

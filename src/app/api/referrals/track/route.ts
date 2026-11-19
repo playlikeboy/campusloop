@@ -2,6 +2,7 @@ import { eq, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { linkClicks, shortLinks } from "@/db/schema";
+import { isUtmRefCode } from "@/lib/referrals/utm";
 
 export const dynamic = "force-dynamic";
 
@@ -48,7 +49,9 @@ function parseUserAgent(userAgent?: string | null) {
 export async function POST(req: Request) {
   try {
     const body = (await req.json().catch(() => ({}))) as any;
-    const ref = (body.ref || "").trim();
+    const ref = String(body.ref || "")
+      .trim()
+      .slice(0, 128);
     const referer = body.referer || req.headers.get("referer") || null;
 
     if (!ref) {
@@ -63,10 +66,14 @@ export async function POST(req: Request) {
     const { device, browser, os } = parseUserAgent(userAgent);
     const db = getDb();
 
+    const isCampaign = isUtmRefCode(ref);
+
     // Check if ref corresponds to a short link
-    const matchedLink = await db.query.shortLinks.findFirst({
-      where: eq(shortLinks.slug, ref.toLowerCase()),
-    });
+    const matchedLink = isCampaign
+      ? null
+      : await db.query.shortLinks.findFirst({
+          where: eq(shortLinks.slug, ref.toLowerCase()),
+        });
 
     // Record click
     await db.insert(linkClicks).values({
@@ -92,6 +99,9 @@ export async function POST(req: Request) {
     }
 
     const response = NextResponse.json({ success: true, ref });
+
+    // A campaign click is only logged. The invite cookie is for people and short links.
+    if (isCampaign) return response;
 
     // Set 30-day attribution cookie
     response.cookies.set("campusloop_ref", ref, {

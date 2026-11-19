@@ -3,12 +3,15 @@
  * live counts come from getPublicStats() and are never written as literals.
  */
 
+import { SOCIAL_LINKS as OFFICIAL_SOCIAL_LINKS } from "./social";
+
 export const SITE_URL = "https://campusloop.space";
 
+/** URL-only view of the official channels. The source of truth is `@/constants/social`. */
 export const SOCIAL_LINKS = {
-  instagram: "https://www.instagram.com/campusloop.space/",
-  linkedin: "https://www.linkedin.com/company/mycampusloop/",
-  x: "https://x.com/mycampusloop",
+  instagram: OFFICIAL_SOCIAL_LINKS.instagram.url,
+  linkedin: OFFICIAL_SOCIAL_LINKS.linkedin.url,
+  x: OFFICIAL_SOCIAL_LINKS.x.url,
 } as const;
 
 export const FOUNDER = { name: "Shaswat Raj", campus: "BIT Mesra" } as const;

@@ -28,7 +28,10 @@ function parts(ms: number) {
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
-/** Countdown tiles, as on Stories. Renders "--" on the server, ticks on the client. */
+/**
+ * Countdown tiles, as on Stories. The server HTML carries the time left at
+ * render; the client takes over and ticks every second.
+ */
 export function CountdownSticker({
   title,
   target,
@@ -38,7 +41,7 @@ export function CountdownSticker({
   ...props
 }: CountdownStickerProps) {
   const end = new Date(target).getTime();
-  const [now, setNow] = useState<number | null>(null);
+  const [now, setNow] = useState<number | null>(() => Date.now());
 
   useEffect(() => {
     setNow(Date.now());
@@ -88,10 +91,17 @@ export function CountdownSticker({
       {left !== null && left <= 0 ? (
         <p className="font-semibold text-brand-text">{doneLabel}</p>
       ) : (
-        <time dateTime={new Date(end).toISOString()} aria-label={spoken} className="grid grid-cols-3 gap-2">
+        <time
+          dateTime={new Date(end).toISOString()}
+          aria-label={spoken}
+          suppressHydrationWarning
+          className="grid grid-cols-3 gap-2"
+        >
           {tiles.map(([n, unit]) => (
             <span key={unit} className="flex flex-col items-center rounded-md bg-fg py-2 text-bg">
-              <span className="sticker-caption text-3xl tabular-nums">{n}</span>
+              <span suppressHydrationWarning className="sticker-caption text-3xl tabular-nums">
+                {n}
+              </span>
               <span className="text-xs font-medium opacity-80">{unit}</span>
             </span>
           ))}

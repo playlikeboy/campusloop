@@ -15,14 +15,14 @@ export const HERO = {
 
 /** What lives on CampusLoop, as the running tape under the hero. Each word is a real section. */
 export const TAPE_WORDS = [
-  "Confessions",
-  "Polls",
-  "Fests",
-  "Notes",
-  "Past papers",
-  "Clubs",
-  "Free courses",
-  "Campus Match",
+  { label: "Confessions", href: "/confessions" },
+  { label: "Polls", href: "/feeds" },
+  { label: "Fests", href: "/events" },
+  { label: "Notes", href: "/academics" },
+  { label: "Past papers", href: "/academics" },
+  { label: "Clubs", href: "/communities" },
+  { label: "Free courses", href: "/courses" },
+  { label: "Campus Match", href: "/matching" },
 ] as const;
 
 /** The safety promise, one fact per line. Wording matches what the product does today. */
