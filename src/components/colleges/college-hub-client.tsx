@@ -57,11 +57,16 @@ interface CollegeHubClientProps {
   initialPosts: FeedPost[];
   academics?: CollegeAcademicResourceItem[];
   students: StudentItem[];
-  relatedColleges: NearbyCollege[];
+  relatedColleges?: NearbyCollege[];
   currentUserId?: string;
   isEnrolledHere: boolean;
   isVerifiedCollege?: boolean;
   trendingTags: string[];
+  /** Total published posts for the college (the feed loads them page by page). */
+  postCount?: number;
+  noteCount?: number;
+  /** Server-rendered facts, FAQ and nearby colleges shown under the tabs. */
+  children?: React.ReactNode;
 }
 
 type TabType = "feed" | "academics" | "students" | "clubs" | "info";
@@ -74,11 +79,13 @@ export function CollegeHubClient({
   initialPosts,
   academics = [],
   students,
-  relatedColleges,
   currentUserId,
   isEnrolledHere,
   isVerifiedCollege = false,
   trendingTags,
+  postCount,
+  noteCount,
+  children,
 }: CollegeHubClientProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType>("feed");
@@ -137,7 +144,6 @@ export function CollegeHubClient({
   }
 
   const shortName = college.name.split(",")[0];
-  const nearby = relatedColleges.slice(0, 5);
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col gap-4 px-4 pt-3 pb-24">
@@ -145,15 +151,15 @@ export function CollegeHubClient({
         college={college}
         allowedDomains={allowedDomains}
         studentCount={students.length}
-        postsCount={posts.length}
-        academicsCount={academics.length}
+        postsCount={postCount ?? posts.length}
+        academicsCount={noteCount ?? academics.length}
         isEnrolledHere={isEnrolledHere}
         isVerifiedCollege={isVerifiedCollege}
         isSignedIn={Boolean(currentUserId)}
         onAskSeniorClick={handleAskSenior}
       />
 
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabType)} className="gap-4">
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabType)} className="min-w-0 gap-4">
         <div className="sticky top-12 z-20 -mx-4 bg-bg px-4 lg:top-0">
           <TabsList
             variant="line"
@@ -222,23 +228,7 @@ export function CollegeHubClient({
         </section>
       )}
 
-      {nearby.length > 0 && (
-        <nav aria-label={`More colleges in ${college.state ?? "this state"}`} className="space-y-2 pt-2">
-          <h2 className="text-base font-bold text-fg">More colleges in {college.state}</h2>
-          <ul className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
-            {nearby.map((c) => (
-              <li key={c.id}>
-                <Link
-                  href={`/college/${c.slug || c.id}`}
-                  className="text-fg-muted underline-offset-4 transition-ui hover:text-fg hover:underline"
-                >
-                  {c.name.split(",")[0]}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      )}
+      {children}
     </main>
   );
 }

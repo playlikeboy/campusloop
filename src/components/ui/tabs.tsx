@@ -10,7 +10,10 @@ function Tabs({ className, orientation = "horizontal", ...props }: TabsPrimitive
     <TabsPrimitive.Root
       data-slot="tabs"
       data-orientation={orientation}
-      className={cn("group/tabs flex gap-3 data-horizontal:flex-col", className)}
+      className={cn(
+        "group/tabs flex min-w-0 flex-col gap-3 data-[orientation=vertical]:flex-row",
+        className
+      )}
       {...props}
     />
   );
@@ -18,7 +21,7 @@ function Tabs({ className, orientation = "horizontal", ...props }: TabsPrimitive
 
 /** `default` = pill track (switching views). `line` = underline tabs (page sections). */
 const tabsListVariants = cva(
-  "group/tabs-list inline-flex w-fit items-center text-fg-muted group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col",
+  "group/tabs-list inline-flex w-fit items-center text-fg-muted group-data-[orientation=vertical]/tabs:h-fit group-data-[orientation=vertical]/tabs:flex-col",
   {
     variants: {
       variant: {
@@ -55,7 +58,7 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
         "relative inline-flex min-h-10 flex-1 cursor-pointer items-center justify-center gap-1.5 px-4 text-sm font-semibold whitespace-nowrap text-fg-muted select-none",
         "transition-ui outline-none hover:text-fg focus-visible:ring-2 focus-visible:ring-ring",
         "disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50",
-        "group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start",
+        "group-data-[orientation=vertical]/tabs:w-full group-data-[orientation=vertical]/tabs:justify-start",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         // pill track
         "group-data-[variant=default]/tabs-list:rounded-full group-data-[variant=default]/tabs-list:data-active:bg-surface group-data-[variant=default]/tabs-list:data-active:text-fg group-data-[variant=default]/tabs-list:data-active:shadow-sm",

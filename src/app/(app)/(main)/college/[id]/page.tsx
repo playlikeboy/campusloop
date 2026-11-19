@@ -1,6 +1,8 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
+import { CollegeAboutSection } from "@/components/colleges/college-about-section";
+import { type CollegeFactsInput, collegeFaqs } from "@/components/colleges/college-facts";
 import { CollegeHubClient } from "@/components/colleges/college-hub-client";
 import { getDb } from "@/db";
 import { academicResources, institutions, posts } from "@/db/schema";
@@ -74,7 +76,12 @@ export default async function MainCollegePage({ params }: PageProps) {
   const showSeeded = await getShowSeededPosts();
 
   // Posts, nearby colleges (same state) and study material, fetched in parallel
-  const [collegePosts, rawRelatedColleges, collegeAcademics] = await Promise.all([
+  const publishedPosts = and(
+    eq(posts.institutionId, college.id),
+    eq(posts.status, "PUBLISHED"),
+    showSeeded ? undefined : eq(posts.isSeeded, false)
+  );
+  const [collegePosts, rawRelatedColleges, collegeAcademics, [postTotal], [noteTotal]] = await Promise.all([
     db.query.posts.findMany({
       where: and(
         eq(posts.institutionId, college.id),
@@ -118,6 +125,11 @@ export default async function MainCollegePage({ params }: PageProps) {
         },
       },
     }),
+    db.select({ value: count() }).from(posts).where(publishedPosts),
+    db
+      .select({ value: count() })
+      .from(academicResources)
+      .where(eq(academicResources.institutionId, college.id)),
   ]);
 
   const formattedPosts: FeedPost[] = collegePosts.map((post) => {
@@ -260,6 +272,23 @@ export default async function MainCollegePage({ params }: PageProps) {
 
   const isEnrolledHere = Boolean(profile && profile.institutionId === college.id);
   const collegePath = `/college/${college.slug || college.id}`;
+  const facts: CollegeFactsInput = {
+    name: college.name,
+    district: college.district,
+    state: college.state,
+    yearOfEstablishment: college.yearOfEstablishment,
+    nirfRank: college.nirfRank,
+    aisheCode: college.aisheCode,
+    locationType: college.locationType,
+    websiteHost: college.websiteDomain || null,
+    emailDomains: allowedDomains
+      .filter((d) => d.type !== "WEBSITE" && d.domain !== "campusloop.space")
+      .map((d) => d.domain),
+    studentCount: students.length,
+    postCount: postTotal?.value ?? formattedPosts.length,
+    noteCount: noteTotal?.value ?? formattedAcademics.length,
+  };
+  const faqs = collegeFaqs(facts);
 
   return (
     <>
@@ -281,6 +310,15 @@ export default async function MainCollegePage({ params }: PageProps) {
             { name: "Colleges", path: "/colleges" },
             { name: college.name, path: collegePath },
           ]),
+          {
+            "@type": "FAQPage",
+            "@id": `https://campusloop.space${collegePath}#faq`,
+            mainEntity: faqs.map((faq) => ({
+              "@type": "Question",
+              name: faq.q,
+              acceptedAnswer: { "@type": "Answer", text: faq.a },
+            })),
+          },
         ]}
       />
 
@@ -306,12 +344,20 @@ export default async function MainCollegePage({ params }: PageProps) {
         initialPosts={formattedPosts}
         academics={formattedAcademics}
         students={students}
-        relatedColleges={relatedColleges}
         currentUserId={profile?.id}
         isEnrolledHere={isEnrolledHere}
         isVerifiedCollege={isVerifiedCollege}
         trendingTags={trendingTags}
-      />
+        postCount={facts.postCount}
+        noteCount={facts.noteCount}
+      >
+        <CollegeAboutSection
+          facts={facts}
+          description={college.description}
+          state={college.state}
+          nearby={relatedColleges.slice(0, 5)}
+        />
+      </CollegeHubClient>
     </>
   );
 }

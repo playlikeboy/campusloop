@@ -191,7 +191,7 @@ export function AppShell({
         ) : (
           <div className="mx-auto flex w-full max-w-[var(--container)] flex-1 gap-8 px-[var(--gutter)] pb-[calc(var(--nav-mobile-h)+env(safe-area-inset-bottom))] lg:pb-8">
             <main id="main" className="min-w-0 flex-1">
-              {isViewer && <PreviewModeBanner />}
+              {isViewer && profile && <PreviewModeBanner />}
               {children}
             </main>
             {contextRail && (

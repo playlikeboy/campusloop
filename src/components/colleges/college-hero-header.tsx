@@ -45,10 +45,6 @@ interface CollegeHeroHeaderProps {
   onViewAcademicsClick?: () => void;
 }
 
-function plural(n: number, word: string) {
-  return `${n.toLocaleString("en-IN")} ${word}${n === 1 ? "" : "s"}`;
-}
-
 export function CollegeHeroHeader({
   college,
   allowedDomains,
@@ -80,10 +76,10 @@ export function CollegeHeroHeader({
   }
 
   const stats = [
-    plural(studentCount, "student"),
-    plural(postsCount, "post"),
-    academicsCount > 0 ? plural(academicsCount, "note") : null,
-  ].filter(Boolean);
+    { label: studentCount === 1 ? "student" : "students", value: studentCount },
+    { label: postsCount === 1 ? "post" : "posts", value: postsCount },
+    { label: academicsCount === 1 ? "note" : "notes", value: academicsCount },
+  ];
 
   return (
     <header className="space-y-3">
@@ -125,7 +121,7 @@ export function CollegeHeroHeader({
           <div className="flex items-start gap-4">
             <CollegeCrest name={college.name} logoUrl={college.logoUrl} size="lg" />
             <div className="min-w-0 flex-1 space-y-1.5">
-              <h1 className="text-2xl leading-tight font-bold text-balance text-fg sm:text-3xl">
+              <h1 className="text-xl leading-tight font-bold text-balance break-words text-fg sm:text-3xl">
                 {college.name}
               </h1>
               <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-fg-muted">
@@ -136,9 +132,17 @@ export function CollegeHeroHeader({
                 {college.nirfRank ? <span>· NIRF #{college.nirfRank}</span> : null}
                 {college.yearOfEstablishment ? <span>· Since {college.yearOfEstablishment}</span> : null}
               </p>
-              <p className="text-sm text-fg-muted tabular-nums">{stats.join(" · ")}</p>
             </div>
           </div>
+
+          <dl className="grid grid-cols-3 divide-x divide-border rounded-md border border-border">
+            {stats.map((stat) => (
+              <div key={stat.label} className="px-2 py-2.5 text-center">
+                <dd className="text-xl font-bold tabular-nums text-fg">{stat.value.toLocaleString("en-IN")}</dd>
+                <dt className="text-xs text-fg-muted">{stat.label}</dt>
+              </div>
+            ))}
+          </dl>
 
           {isEnrolledHere ? (
             <VerifiedSticker size="sm" label="Your college" />
