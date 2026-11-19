@@ -31,30 +31,32 @@ export function CommunityRow({
   const href = `/communities/${community.slug || community.id}`;
 
   return (
-    <div className="flex items-center gap-3 px-4 py-3">
+    <div className="flex items-center gap-3 px-3 py-3 sm:px-4">
       <Link href={href} className="group flex min-w-0 flex-1 items-center gap-3">
-        <Avatar className="size-12 shrink-0 rounded-sm">
+        <Avatar className="size-11 shrink-0 rounded-sm sm:size-12">
           <AvatarImage src={getAvatarUrl(community.avatarUrl, community.name)} alt="" />
           <AvatarFallback className="rounded-sm">{community.name.slice(0, 2).toUpperCase()}</AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5">
-            <h3 className="truncate font-semibold text-fg group-hover:text-brand-text">c/{community.name}</h3>
+          <div className="flex items-start gap-1.5">
+            <h3 className="line-clamp-2 leading-snug font-semibold break-words text-fg group-hover:text-brand-text">
+              c/{community.name}
+            </h3>
             {community.privacy === "PRIVATE" && (
-              <Lock className="size-3.5 shrink-0 text-fg-subtle" aria-label="Private" />
+              <Lock className="mt-1 size-3.5 shrink-0 text-fg-subtle" aria-label="Private" />
             )}
-            {isCreator && <Badge>You made this</Badge>}
+            {isCreator && <Badge className="shrink-0">You made this</Badge>}
           </div>
           {community.description && (
             <p className="line-clamp-1 text-sm text-fg-muted">{community.description}</p>
           )}
-          <p className="text-xs text-fg-subtle tabular-nums">
+          <p className="truncate text-xs text-fg-subtle tabular-nums">
             {plural(memberCount, "member")}
             {postCount > 0 ? ` · ${plural(postCount, "post")}` : ""} · {community.category}
           </p>
         </div>
       </Link>
-      <JoinCommunityButton communityId={community.id} initialIsMember={isMember} />
+      <JoinCommunityButton communityId={community.id} initialIsMember={isMember} className="shrink-0" />
     </div>
   );
 }

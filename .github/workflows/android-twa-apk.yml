@@ -1,0 +1,124 @@
+name: Android Chrome (TWA) beta APK
+
+# Builds the Trusted Web Activity in apps/twa (Bubblewrap-generated Gradle project that opens
+# https://campusloop.space in Chrome) into a signed release APK and publishes it to the GitHub
+# Release tagged `beta-twa`, so this URL always serves the newest build:
+#   https://github.com/playlikeboy/campusloop/releases/download/beta-twa/campusloop-twa-beta.apk
+#
+# Signing secrets (all four, or none):
+#   ANDROID_KEYSTORE_BASE64    base64 of the PKCS12 upload keystore
+#   ANDROID_KEYSTORE_PASSWORD  keystore password
+#   ANDROID_KEY_ALIAS          key alias ("campusloop")
+#   ANDROID_KEY_PASSWORD       key password
+# The release key's SHA-256 is listed in public/.well-known/assetlinks.json. Without the secrets
+# the APK is signed with a throwaway debug key: it installs, but Digital Asset Links verification
+# fails and Chrome shows the URL bar.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/twa/**"
+      - ".github/workflows/android-twa-apk.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-twa-apk
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    name: Build and publish TWA APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: apps/twa
+    env:
+      ANDROID_VERSION_CODE: ${{ github.run_number }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install SDK packages
+        run: sdkmanager --install "platforms;android-36" "build-tools;36.0.0" "platform-tools" > /dev/null
+
+      - name: Setup Gradle cache
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build unsigned release APK
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon --stacktrace
+
+      - name: Sign APK
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          build_tools="$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -n 1)"
+          unsigned="$(ls app/build/outputs/apk/release/*.apk | head -n 1)"
+          echo "Unsigned APK: $unsigned"
+          aligned="$RUNNER_TEMP/aligned.apk"
+          out="$GITHUB_WORKSPACE/campusloop-twa-beta.apk"
+          "${build_tools}zipalign" -f -p 4 "$unsigned" "$aligned"
+
+          if [ -n "$KEYSTORE_BASE64" ] && [ -n "$KEYSTORE_PASSWORD" ] && [ -n "$KEY_ALIAS" ] && [ -n "$KEY_PASSWORD" ]; then
+            keystore="$RUNNER_TEMP/campusloop-upload.p12"
+            printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$keystore"
+            "${build_tools}apksigner" sign \
+              --ks "$keystore" --ks-type PKCS12 \
+              --ks-pass env:KEYSTORE_PASSWORD \
+              --ks-key-alias "$KEY_ALIAS" \
+              --key-pass env:KEY_PASSWORD \
+              --out "$out" "$aligned"
+            rm -f "$keystore"
+            echo "Signed with the release keystore."
+          else
+            echo "::warning title=Debug-signed TWA APK::ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS or ANDROID_KEY_PASSWORD is missing, so this APK is signed with a throwaway debug key. Digital Asset Links will not verify and Chrome will show the URL bar."
+            keystore="$RUNNER_TEMP/debug.p12"
+            keytool -genkeypair -noprompt -storetype PKCS12 -keystore "$keystore" \
+              -storepass android -keypass android -alias androiddebugkey \
+              -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+            "${build_tools}apksigner" sign \
+              --ks "$keystore" --ks-type PKCS12 --ks-pass pass:android \
+              --ks-key-alias androiddebugkey --key-pass pass:android \
+              --out "$out" "$aligned"
+          fi
+
+          "${build_tools}apksigner" verify --print-certs "$out" | grep -E "Signer #1 certificate (DN|SHA-256)" || true
+          ls -lh "$out"
+
+      - name: Keep APK as a workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: campusloop-twa-beta-${{ github.run_number }}
+          path: campusloop-twa-beta.apk
+          retention-days: 14
+
+      - name: Publish to the beta-twa release
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          notes="Chrome Android beta (Trusted Web Activity) build ${{ github.run_number }} from ${GITHUB_SHA::7}. Runs CampusLoop in Chrome: every website feature, Google sign-in and notifications work. Download campusloop-twa-beta.apk below and open it on your phone to install."
+          if ! gh release view beta-twa >/dev/null 2>&1; then
+            gh release create beta-twa --target "$GITHUB_SHA" --title "CampusLoop Chrome Android beta" --notes "$notes" --latest=false
+          fi
+          gh release edit beta-twa --title "CampusLoop Chrome Android beta" --notes "$notes" --prerelease=false --latest=false
+          gh release upload beta-twa campusloop-twa-beta.apk --clobber

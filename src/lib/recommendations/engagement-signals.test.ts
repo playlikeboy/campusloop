@@ -31,9 +31,14 @@ describe("experiments", () => {
     expect(getRankingVariant("user_1")).toBe(getRankingVariant("user_1"));
     expect(getRankingVariant(null)).toBe("control");
     const arms = Array.from({ length: 2000 }, (_, i) => getRankingVariant(`p_${i}`));
-    const share = arms.filter((a) => a === "personalized").length / arms.length;
-    expect(share).toBeGreaterThan(0.45);
-    expect(share).toBeLessThan(0.55);
+    const share = (arm: string) => arms.filter((a) => a === arm).length / arms.length;
+    expect(share("control")).toBeGreaterThan(0.45);
+    expect(share("control")).toBeLessThan(0.55);
+    // Treatment is split evenly between v2 personalised and v3.
+    expect(share("personalized")).toBeGreaterThan(0.2);
+    expect(share("personalized")).toBeLessThan(0.3);
+    expect(share("ranking-v3")).toBeGreaterThan(0.2);
+    expect(share("ranking-v3")).toBeLessThan(0.3);
   });
 
   it("two-proportion z is signed and detects large differences", () => {

@@ -47,7 +47,7 @@ export function EventsDashboardClient(_props: {
   const shown = filter === "ALL" ? events : events.filter((ev) => ev.status === filter);
 
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-6 px-4 py-6">
+    <div className="mx-auto w-full max-w-3xl space-y-6 py-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-fg">My events</h1>
         <div className="flex gap-2">

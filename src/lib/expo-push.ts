@@ -179,3 +179,80 @@ export async function deleteDeviceToken(profileId: string, expoToken: string): P
     return false;
   }
 }
+
+export interface ExpoEndpointReport {
+  kind: "expo";
+  platform: string;
+  /** Last characters of the token only, enough to tell devices apart. */
+  device: string;
+  result: "sent" | "expired" | "failed";
+  detail?: string;
+}
+
+/**
+ * Send a test notification to every Android/iOS install of one student and
+ * report each ticket. Unregistered tokens are deleted as usual.
+ */
+export async function pushExpoTestToProfile(
+  profileId: string,
+  fetchImpl: typeof fetch = fetch
+): Promise<ExpoEndpointReport[]> {
+  let rows: { expoToken: string; platform: string }[] = [];
+  try {
+    rows = (
+      await getDb()
+        .select({ expoToken: devicePushTokens.expoToken, platform: devicePushTokens.platform })
+        .from(devicePushTokens)
+        .where(eq(devicePushTokens.profileId, profileId))
+    ).filter((r) => isExpoPushToken(r.expoToken));
+  } catch (error) {
+    logTableError("test token lookup", error);
+    return [];
+  }
+  if (rows.length === 0) return [];
+
+  const messages: ExpoMessage[] = rows.map((r) => ({
+    to: r.expoToken,
+    title: buildTitle("TEST", "CampusLoop"),
+    body: defaultBody("TEST", "CampusLoop"),
+    data: { url: "/settings", type: "TEST", referenceId: null },
+    sound: "default",
+    priority: "high",
+    channelId: "default",
+  }));
+
+  const headers: Record<string, string> = { Accept: "application/json", "Content-Type": "application/json" };
+  if (process.env.EXPO_ACCESS_TOKEN) headers.Authorization = `Bearer ${process.env.EXPO_ACCESS_TOKEN}`;
+  const mask = (t: string) => `…${t.replace(/\]$/, "").slice(-6)}`;
+
+  try {
+    const res = await fetchImpl(EXPO_PUSH_URL, { method: "POST", headers, body: JSON.stringify(messages) });
+    if (!res.ok) {
+      const detail = `Expo HTTP ${res.status}`;
+      return rows.map((r) => ({ kind: "expo", platform: r.platform, device: mask(r.expoToken), result: "failed", detail }));
+    }
+    const json = (await res.json().catch(() => null)) as { data?: ExpoTicket[] } | null;
+    const tickets = Array.isArray(json?.data) ? json.data : [];
+    const dead: string[] = [];
+    const reports = rows.map((r, i): ExpoEndpointReport => {
+      const t = tickets[i];
+      const base = { kind: "expo" as const, platform: r.platform, device: mask(r.expoToken) };
+      if (t?.status === "ok") return { ...base, result: "sent" };
+      if (t?.status === "error" && t.details?.error === "DeviceNotRegistered") {
+        dead.push(r.expoToken);
+        return { ...base, result: "expired", detail: "DeviceNotRegistered" };
+      }
+      return { ...base, result: "failed", detail: t?.status === "error" ? t.message || t.details?.error : "No ticket" };
+    });
+    if (dead.length > 0) await getDb().delete(devicePushTokens).where(inArray(devicePushTokens.expoToken, dead));
+    return reports;
+  } catch (error) {
+    return rows.map((r) => ({
+      kind: "expo",
+      platform: r.platform,
+      device: mask(r.expoToken),
+      result: "failed",
+      detail: error instanceof Error ? error.message : "Network error",
+    }));
+  }
+}

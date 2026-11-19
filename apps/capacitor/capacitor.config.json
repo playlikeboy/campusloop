@@ -1,0 +1,39 @@
+{
+  "appId": "space.campusloop.web",
+  "appName": "CampusLoop Web",
+  "webDir": "www",
+  "appendUserAgent": "CampusLoopWebApp/1.0",
+  "backgroundColor": "#ffffff",
+  "server": {
+    "url": "https://campusloop.space",
+    "androidScheme": "https",
+    "cleartext": false,
+    "allowNavigation": ["campusloop.space", "www.campusloop.space", "api.hexclave.com", "api.stack-auth.com"]
+  },
+  "android": {
+    "allowMixedContent": false,
+    "captureInput": false,
+    "webContentsDebuggingEnabled": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1200,
+      "launchAutoHide": true,
+      "launchFadeOutDuration": 200,
+      "backgroundColor": "#ffffff",
+      "showSpinner": false
+    },
+    "StatusBar": {
+      "style": "LIGHT",
+      "backgroundColor": "#ffffff",
+      "overlaysWebView": false
+    },
+    "SystemBars": {
+      "insetsHandling": "native",
+      "style": "LIGHT"
+    },
+    "App": {
+      "disableBackButtonHandler": true
+    }
+  }
+}

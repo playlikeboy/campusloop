@@ -7,9 +7,13 @@ import { hasActivePushSubscription, triggerBrowserNotification } from "@/hooks/u
 
 const UNREAD_COUNT_KEY = "/api/notifications/unread-count";
 
-/** The nav/sidebar badge polls its own key; refresh it whenever the list changes. */
+/**
+ * The nav/sidebar badge polls its own key, and every tab of the list has its
+ * own cache entry; refresh them all whenever read state changes so the badge,
+ * the other tabs and this one never disagree.
+ */
 function refreshUnreadBadge() {
-  globalMutate(UNREAD_COUNT_KEY);
+  globalMutate((key) => typeof key === "string" && key.startsWith("/api/notifications"));
 }
 
 export type NotificationTab =
@@ -42,10 +46,15 @@ export interface NotificationItem {
     | "MESSAGE"
     | "NEW_POST"
     | "EVENT_REGISTRATION"
+    | "EVENT_REMINDER"
+    | "EVENT_UPDATE"
+    | "COMMUNITY_JOIN_REQUEST"
+    | "COMMUNITY_JOIN_APPROVED"
     | "GAMING_LOBBY_JOIN"
     | "GAMING_LOBBY_FULL"
     | "GAMING_MATCH_READY"
-    | "TOURNAMENT_UPDATE";
+    | "TOURNAMENT_UPDATE"
+    | "REMINDER";
   actorId: string;
   referenceId: string | null;
   previewText: string | null;
@@ -71,8 +80,25 @@ interface NotificationsResponse {
   unreadCount: number;
 }
 
+/**
+ * The service worker posts `campusloop:push` to open tabs when a push lands;
+ * refresh every notifications key right away instead of waiting for the poll.
+ */
+function useRefreshOnPush() {
+  useEffect(() => {
+    if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) return;
+    function onMessage(event: MessageEvent) {
+      if (event.data?.type !== "campusloop:push") return;
+      globalMutate((key) => typeof key === "string" && key.startsWith("/api/notifications"));
+    }
+    navigator.serviceWorker.addEventListener("message", onMessage);
+    return () => navigator.serviceWorker.removeEventListener("message", onMessage);
+  }, []);
+}
+
 export function useNotifications(tab: NotificationTab = "all") {
   const lastTopIdRef = useRef<string | null>(null);
+  useRefreshOnPush();
 
   const { data, error, isLoading, mutate } = useSWR<NotificationsResponse>(
     `/api/notifications?tab=${tab}`,
@@ -231,6 +257,8 @@ export function useNotifications(tab: NotificationTab = "all") {
   return {
     notifications,
     unreadCount,
+    /** True once this tab has a server response; until then the page shows its server-rendered list. */
+    hasData: data !== undefined,
     isLoading,
     error,
     mutate,
@@ -242,6 +270,7 @@ export function useNotifications(tab: NotificationTab = "all") {
 }
 
 export function useUnreadNotificationsCount() {
+  useRefreshOnPush();
   const { data } = useSWR<{ unreadCount: number }>(UNREAD_COUNT_KEY, fetcher, {
     refreshInterval: 6000,
     dedupingInterval: 3000,

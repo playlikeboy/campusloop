@@ -168,10 +168,12 @@ export interface MarketingShellProps {
   children: React.ReactNode;
   className?: string;
   isAuthenticated?: boolean;
+  /** Replaces the default header, e.g. the landing page's section nav. */
+  nav?: React.ReactNode;
 }
 
 /** Public pages: simple header, main, small footer. */
-export function MarketingShell({ children, className, isAuthenticated }: MarketingShellProps) {
+export function MarketingShell({ children, className, isAuthenticated, nav }: MarketingShellProps) {
   return (
     <div className={cn("flex min-h-dvh flex-col bg-bg text-fg", className)}>
       <a
@@ -180,7 +182,7 @@ export function MarketingShell({ children, className, isAuthenticated }: Marketi
       >
         Skip to main content
       </a>
-      <MarketingNav isAuthenticated={isAuthenticated} />
+      {nav ?? <MarketingNav isAuthenticated={isAuthenticated} />}
       <main id="main" className="flex-1">
         {children}
       </main>

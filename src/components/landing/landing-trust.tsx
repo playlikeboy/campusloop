@@ -13,7 +13,7 @@ const TEXT_LINK =
 /** Who is here and how it stays safe: a mint field (mint means verified / safe) with one fact per line. */
 export function LandingSafety() {
   return (
-    <section className="bg-verified-subtle text-fg" aria-labelledby="safety-title">
+    <section id="safety" className="bg-verified-subtle text-fg" aria-labelledby="safety-title">
       <div className={`${LANDING_CONTAINER} grid gap-10 py-20 lg:grid-cols-12 lg:gap-12 lg:py-28`}>
         <div className="lg:col-span-5">
           <VerifiedSticker className="-rotate-3" />
@@ -49,6 +49,7 @@ export function LandingSafety() {
 export function LandingFaq() {
   return (
     <section
+      id="faq"
       className={`${LANDING_CONTAINER} grid gap-10 py-20 lg:grid-cols-12 lg:gap-12 lg:py-24`}
       aria-labelledby="faq-title"
     >

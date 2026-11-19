@@ -1,0 +1,90 @@
+{
+  "packageId": "space.campusloop.twa",
+  "host": "campusloop.space",
+  "name": "CampusLoop",
+  "launcherName": "CampusLoop",
+  "display": "standalone",
+  "themeColor": "#6B3DF5",
+  "themeColorDark": "#000000",
+  "navigationColor": "#FFFFFF",
+  "navigationColorDark": "#000000",
+  "navigationDividerColor": "#EEEEEE",
+  "navigationDividerColorDark": "#000000",
+  "backgroundColor": "#FFFFFF",
+  "enableNotifications": true,
+  "startUrl": "/feeds?source=twa",
+  "iconUrl": "https://campusloop.space/icons/icon-512x512.png",
+  "maskableIconUrl": "https://campusloop.space/icons/icon-512x512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "campusloop"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [
+    {
+      "name": "Campus Feed",
+      "shortName": "Feed",
+      "url": "https://campusloop.space/feeds",
+      "chosenIconUrl": "https://campusloop.space/icons/icon-192x192.png"
+    },
+    {
+      "name": "Create Post",
+      "shortName": "Post",
+      "url": "https://campusloop.space/post/new",
+      "chosenIconUrl": "https://campusloop.space/icons/icon-192x192.png"
+    },
+    {
+      "name": "Campus Match",
+      "shortName": "Match",
+      "url": "https://campusloop.space/dating",
+      "chosenIconUrl": "https://campusloop.space/icons/icon-192x192.png"
+    },
+    {
+      "name": "Direct Messages",
+      "shortName": "Chat",
+      "url": "https://campusloop.space/chat",
+      "chosenIconUrl": "https://campusloop.space/icons/icon-192x192.png"
+    }
+  ],
+  "generatorApp": "bubblewrap-core",
+  "webManifestUrl": "https://campusloop.space/manifest.json",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://campusloop.space/",
+  "minSdkVersion": 21,
+  "shareTarget": {
+    "action": "https://campusloop.space/post/new",
+    "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "orientation": "portrait",
+  "fingerprints": [
+    {
+      "name": "release",
+      "value": "D0:EA:99:F7:35:1B:1E:CD:58:41:57:6D:BF:1B:0D:80:51:22:DB:1D:93:E9:7F:9E:F0:0A:BD:6D:DE:1E:6A:56"
+    }
+  ],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "protocolHandlers": [],
+  "fileHandlers": [],
+  "launchHandlerClientMode": "focus-existing",
+  "displayOverride": [
+    "window-controls-overlay",
+    "standalone"
+  ],
+  "appVersion": "1.0.0"
+}

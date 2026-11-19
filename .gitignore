@@ -66,3 +66,6 @@ graphify-out/
 /apps/mobile/android
 /apps/mobile/ios
 /apps/mobile/.expo
+
+# Capacitor Android app (apps/capacitor): the android/ project is committed, its build output is not
+/apps/capacitor/node_modules

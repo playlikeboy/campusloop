@@ -84,33 +84,28 @@ export function EventPreviewCard({
   };
 }) {
   const formattedDate = new Date(event.startDate).toLocaleDateString("en-IN", {
+    weekday: "short",
     month: "short",
     day: "numeric",
   });
 
+  const place = event.mode === "ONLINE" ? "Online" : event.venue || "On campus";
+
   return (
     <Link
       href={`/events/${event.slug || event.id}`}
-      className="group flex flex-col justify-between p-3.5 rounded-lg border border-border bg-surface hover:bg-surface-muted transition-ui space-y-2.5"
+      className="group flex w-full min-w-0 flex-col gap-2 rounded-lg border border-border bg-surface p-3.5 transition-ui hover:border-border-strong"
     >
-      <div className="space-y-1">
-        <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
-          <span className="font-semibold text-primary truncate">{event.clubName}</span>
-          <span className="flex items-center gap-1 shrink-0">
-            <Calendar className="size-3 text-muted-foreground" />
-            <span>{formattedDate}</span>
-          </span>
-        </div>
-        <h3 className="text-sm font-semibold text-fg group-hover:text-brand-text transition-ui line-clamp-1">
-          {event.title}
-        </h3>
-        {event.tagline && <p className="text-xs text-muted-foreground line-clamp-1">{event.tagline}</p>}
-      </div>
-
-      <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-border">
-        <span className="truncate">{event.venue || event.mode}</span>
-        <span className="text-primary font-semibold text-xs">View event</span>
-      </div>
+      <span className="inline-flex h-7 w-fit items-center gap-1.5 rounded-full bg-brand-subtle px-2.5 text-xs font-semibold text-brand-text">
+        <Calendar className="size-3.5" aria-hidden />
+        {formattedDate}
+      </span>
+      <h3 className="line-clamp-2 font-semibold leading-snug break-words text-fg transition-ui group-hover:text-brand-text">
+        {event.title}
+      </h3>
+      <p className="mt-auto truncate text-sm text-fg-muted">
+        {event.clubName} · {place}
+      </p>
     </Link>
   );
 }

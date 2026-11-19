@@ -4,6 +4,7 @@ import { getDb } from "@/db";
 import { userBehaviorEvents, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { getRedis } from "@/lib/redis";
+import { recordImpressionDeltas } from "@/lib/recommendations/engagement-stats";
 
 export const dynamic = "force-dynamic";
 
@@ -141,6 +142,22 @@ export async function POST(req: Request) {
         console.error("[Reels Telemetry DB Error]:", dbErr);
       }
     }
+
+    // 3. Per-post counters for the v3 value model (completion and loops dominate for reels).
+    //    No-ops for ids that aren't posts and when the stats table is missing.
+    const watchMs = Math.max(0, Math.min(120_000, Number(watchDurationMs) || 0));
+    await recordImpressionDeltas([
+      {
+        postId,
+        impressions: action === "share" ? 0 : 1,
+        dwellMs: action === "share" ? 0 : watchMs,
+        longDwell: watchMs >= 8000 ? 1 : 0,
+        skips: skippedQuickly ? 1 : 0,
+        completions: completed ? 1 : 0,
+        loops: Math.max(0, Math.min(20, Number(loopCount) || 0)),
+        shares: action === "share" ? 1 : 0,
+      },
+    ]);
 
     return NextResponse.json({ ok: true, weight });
   } catch (error) {

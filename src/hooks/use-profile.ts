@@ -37,8 +37,9 @@ export interface UserProfileData {
   } | null;
 }
 
-export function useProfile() {
-  const { data, error, isLoading, mutate } = useSWR<UserProfileData>("/api/profile/me", fetcher, {
+/** `enabled: false` skips the request (signed-out visitors would only get a 401). */
+export function useProfile({ enabled = true }: { enabled?: boolean } = {}) {
+  const { data, error, isLoading, mutate } = useSWR<UserProfileData>(enabled ? "/api/profile/me" : null, fetcher, {
     revalidateIfStale: true,
     keepPreviousData: true,
     dedupingInterval: 15000,

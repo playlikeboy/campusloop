@@ -252,14 +252,16 @@ export default function HashtagFeed() {
       <div className="sticky top-[6.5rem] lg:top-14 z-20 bg-bg border-b border-border px-4 py-2 flex flex-wrap items-center gap-2">
         <SegmentedControl
           size="sm"
+          fullWidth
+          className="w-full sm:w-auto"
           value={scope}
           onChange={setScope}
           options={[
             { value: "GLOBAL", label: "All colleges", icon: <Globe2 className="size-3.5" aria-hidden /> },
-            { value: "CAMPUS", label: userCollege, icon: <Building2 className="size-3.5" aria-hidden /> },
+            { value: "CAMPUS", label: userCollege.length > 18 ? "My college" : userCollege, icon: <Building2 className="size-3.5" aria-hidden /> },
           ]}
         />
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+        <div className="no-scrollbar flex min-w-0 max-w-full items-center gap-1.5 overflow-x-auto">
           {tabs.map((t) => (
             <Chip
               key={t.value}

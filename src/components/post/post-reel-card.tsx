@@ -37,6 +37,7 @@ import { VerifiedSticker } from "@/components/ui/stickers";
 import { VerifiedBadge } from "@/components/ui/verified-badge";
 import type { FeedPost } from "@/hooks/use-feed";
 import { useHlsVideo } from "@/hooks/use-hls-video";
+import { useReelTelemetry } from "@/hooks/use-reel-telemetry";
 import { trackShare, trackVote } from "@/lib/analytics/ga4";
 import { repostPost, voteOnPost } from "@/lib/api";
 import type { UserCapability } from "@/lib/capabilities";
@@ -133,6 +134,21 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
     isActive,
     isMuted,
     loop: true,
+  });
+
+  // Watch %, loops and quick skips feed the reel ranker (one beacon per view).
+  const telemetryTags = useMemo(
+    () => Array.from((post.body || "").matchAll(HASHTAG_EXTRACTION_REGEX), (m) => m[1].toLowerCase()).slice(0, 5),
+    [post.body]
+  );
+  useReelTelemetry({
+    postId: post.id,
+    videoRef,
+    isActive,
+    enabled: Boolean(videoUrl),
+    authorId: post.isAnonymous ? null : (post.author?.id ?? null),
+    institutionId: post.institution?.id ?? post.institutionId ?? null,
+    tags: telemetryTags,
   });
 
   // Show only author-written text. Media markers and internal media URLs

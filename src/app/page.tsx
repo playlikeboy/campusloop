@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { FAQS } from "@/components/landing/landing-copy";
+import { LandingNav } from "@/components/landing/landing-nav";
 import { LandingPage } from "@/components/landing/landing-page";
+import { LAUNCH_VIDEO } from "@/components/landing/launch-video-meta";
 import { PwaLaunchRedirect } from "@/components/pwa/pwa-launch-redirect";
 import { MarketingShell } from "@/components/shells/marketing-shell";
 import { hexclaveServerApp } from "@/hexclave/server";
@@ -24,6 +26,18 @@ export const metadata: Metadata = {
   ...base,
   applicationName: "CampusLoop",
   alternates: { ...base.alternates, types: { "application/rss+xml": "/feed.xml" } },
+  openGraph: {
+    ...base.openGraph,
+    videos: [
+      {
+        url: `${SITE_URL}${LAUNCH_VIDEO.src}`,
+        secureUrl: `${SITE_URL}${LAUNCH_VIDEO.src}`,
+        type: "video/mp4",
+        width: LAUNCH_VIDEO.width,
+        height: LAUNCH_VIDEO.height,
+      },
+    ],
+  },
 };
 
 export default async function HomePage() {
@@ -45,6 +59,20 @@ export default async function HomePage() {
       operatingSystem: "Web",
       description: DESCRIPTION,
       offers: { "@type": "Offer", price: "0", priceCurrency: "INR" },
+    },
+    {
+      "@type": "VideoObject",
+      "@id": `${SITE_URL}/#video`,
+      name: LAUNCH_VIDEO.heading,
+      description: LAUNCH_VIDEO.description,
+      thumbnailUrl: [`${SITE_URL}${LAUNCH_VIDEO.poster}`],
+      uploadDate: LAUNCH_VIDEO.uploadDate,
+      contentUrl: `${SITE_URL}${LAUNCH_VIDEO.src}`,
+      embedUrl: `${SITE_URL}/#video`,
+      width: LAUNCH_VIDEO.width,
+      height: LAUNCH_VIDEO.height,
+      inLanguage: "en-IN",
+      publisher: { "@id": `${SITE_URL}/#organization` },
     },
     {
       "@type": "FAQPage",
@@ -73,7 +101,7 @@ export default async function HomePage() {
   ];
 
   return (
-    <MarketingShell>
+    <MarketingShell nav={<LandingNav />}>
       <PwaLaunchRedirect />
       <JsonLd data={jsonLd} />
       <LandingPage courses={showcase} stats={stats} />

@@ -1,0 +1,123 @@
+name: Android web beta APK (Capacitor)
+
+# Builds apps/capacitor (the "CampusLoop Web" app: campusloop.space in a Capacitor WebView) into a
+# signed release APK and publishes it to the GitHub Release tagged `beta-web`, so this URL always
+# serves the newest build:
+#   https://github.com/playlikeboy/campusloop/releases/download/beta-web/campusloop-web-beta.apk
+#
+# The Expo app (apps/mobile, workflow android-apk.yml, release `beta`) is separate. This release is
+# published with --latest=false so releases/latest keeps pointing at the Expo beta.
+#
+# The android/ project is committed (MainActivity, ShellPlugin, manifest, icons live there), so CI
+# only runs `cap sync` to copy www/ and the plugin list into it. No `cap add` on every build.
+#
+# Signing secrets (all four, or none), the same ones the Expo workflow uses:
+#   ANDROID_KEYSTORE_BASE64    base64 of the PKCS12 upload keystore
+#   ANDROID_KEYSTORE_PASSWORD  keystore password
+#   ANDROID_KEY_ALIAS          key alias ("campusloop")
+#   ANDROID_KEY_PASSWORD       key password
+# Without them the APK is signed with the debug keystore. That APK installs fine, but a later
+# build signed with the real key cannot update it in place.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/capacitor/**"
+      - ".github/workflows/android-capacitor-apk.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-capacitor-apk
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    name: Build and publish web beta APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: apps/capacitor
+    env:
+      ANDROID_VERSION_CODE: ${{ github.run_number }}
+      CAMPUSLOOP_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      CAMPUSLOOP_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      CAMPUSLOOP_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Capacitor 8 (Android Gradle Plugin 8.13) builds with JDK 21.
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/capacitor/package-lock.json
+
+      - name: Setup Gradle cache
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Sync web assets and plugins into the Android project
+        run: npx cap sync android
+
+      - name: Decode upload keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ] && [ -n "$CAMPUSLOOP_KEYSTORE_PASSWORD" ] && [ -n "$CAMPUSLOOP_KEY_ALIAS" ] && [ -n "$CAMPUSLOOP_KEY_PASSWORD" ]; then
+            keystore="$RUNNER_TEMP/campusloop-upload.p12"
+            printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$keystore"
+            echo "CAMPUSLOOP_KEYSTORE_PATH=$keystore" >> "$GITHUB_ENV"
+            echo "Release build will be signed with the upload keystore."
+          else
+            echo "::warning title=Debug-signed APK::ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS or ANDROID_KEY_PASSWORD is missing, so this APK is signed with the debug keystore. Add all four secrets to sign with the release key."
+          fi
+
+      - name: Build release APK
+        working-directory: apps/capacitor/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon --stacktrace
+
+      - name: Collect APK
+        run: |
+          apk=android/app/build/outputs/apk/release/app-release.apk
+          test -f "$apk"
+          cp "$apk" "$GITHUB_WORKSPACE/campusloop-web-beta.apk"
+          apksigner="$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -n 1)apksigner"
+          "$apksigner" verify --print-certs "$GITHUB_WORKSPACE/campusloop-web-beta.apk" | grep -E "Signer #1 certificate (DN|SHA-256)" || true
+          ls -lh "$GITHUB_WORKSPACE/campusloop-web-beta.apk"
+
+      - name: Keep APK as a workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: campusloop-web-beta-${{ github.run_number }}
+          path: campusloop-web-beta.apk
+          retention-days: 14
+
+      - name: Publish to the beta-web release
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          title="CampusLoop Web Android beta"
+          notes="CampusLoop Web Android beta build ${{ github.run_number }} from ${GITHUB_SHA::7}: the full campusloop.space website in an app. Download campusloop-web-beta.apk below and open it on your phone to install. It installs next to the CampusLoop app (beta)."
+          if ! gh release view beta-web >/dev/null 2>&1; then
+            gh release create beta-web --target "$GITHUB_SHA" --title "$title" --notes "$notes" --latest=false
+          fi
+          gh release edit beta-web --title "$title" --notes "$notes" --prerelease=false --latest=false
+          gh release upload beta-web campusloop-web-beta.apk --clobber

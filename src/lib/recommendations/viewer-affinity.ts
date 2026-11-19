@@ -4,6 +4,8 @@ import { blocks, comments, posts, userBehaviorEvents, userProfiles, votes } from
 import { getLocation, getNearbyInstitutionIds, isValidPoint } from "@/lib/geo/location";
 import { IsolateCache } from "@/lib/isolate-cache";
 import { getRedis } from "@/lib/redis";
+import { getRankingVariant } from "@/lib/recommendations/experiments";
+import { computeInterestVector, type InterestVector } from "@/lib/recommendations/interest-vector";
 import { bayesianRate } from "@/lib/recommendations/scoring-primitives";
 
 /**
@@ -33,6 +35,12 @@ export interface ViewerAffinity {
   /** Other campuses with students within ~40 km of the viewer, nearest first. */
   nearbyInstitutionIds: string[];
   blockedUserIds: string[];
+  /**
+   * Ranking v3 only: per-type/author/community/hashtag/campus weights with a
+   * 14-day half-life, seeded at cold start. Absent for other arms and for
+   * cache entries written before v3.
+   */
+  interest?: InterestVector;
 }
 
 export const EMPTY_AFFINITY: ViewerAffinity = {
@@ -180,6 +188,15 @@ async function computeViewerAffinity(viewerProfileId: string): Promise<ViewerAff
       );
     })().catch(() => [] as string[]);
 
+    // Only the v3 arm ranks with the interest vector, so only it pays for the queries.
+    const interestPromise: Promise<InterestVector | undefined> =
+      getRankingVariant(viewerProfileId) === "ranking-v3"
+        ? computeInterestVector(viewerProfileId).catch((err) => {
+            console.warn("[viewer-affinity] interest vector failed:", err);
+            return undefined;
+          })
+        : Promise.resolve(undefined);
+
     const [voteTypes, commentTypes, voteAuthors, commentAuthors, blockRows, skipTypes, skipAuthors] =
       await Promise.all([
       db
@@ -291,6 +308,8 @@ async function computeViewerAffinity(viewerProfileId: string): Promise<ViewerAff
         ),
       ].filter((id) => SAFE_ID.test(id)),
     };
+    const interest = await interestPromise;
+    if (interest) affinity.interest = interest;
 
     try {
       await getRedis()?.set(cacheKey, affinity, { ex: CACHE_TTL_SECONDS });

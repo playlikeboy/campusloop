@@ -15,7 +15,23 @@ const pct = (v: number) => `${(v * 100).toFixed(1)}%`;
 const secs = (ms: number) => `${(ms / 1000).toFixed(1)}s`;
 const num = (v: number) => v.toFixed(2);
 
-function Verdict({ z, lowerIsBetter, label }: { z: number; lowerIsBetter?: boolean; label: string }) {
+const ARM_LABEL: Record<string, string> = {
+  control: "Control",
+  personalized: "Personalised (v2)",
+  "ranking-v3": "Value model (v3)",
+};
+
+function Verdict({
+  z,
+  lowerIsBetter,
+  label,
+  arm,
+}: {
+  z: number;
+  lowerIsBetter?: boolean;
+  label: string;
+  arm: string;
+}) {
   const significant = Math.abs(z) >= 1.96;
   const better = lowerIsBetter ? z < 0 : z > 0;
   return (
@@ -31,8 +47,8 @@ function Verdict({ z, lowerIsBetter, label }: { z: number; lowerIsBetter?: boole
         {!significant
           ? "Not significant yet (need |z| of 1.96 or more)"
           : better
-            ? "Personalised feed is better"
-            : "Personalised feed is worse"}
+            ? `${arm} is better`
+            : `${arm} is worse`}
       </p>
     </div>
   );
@@ -80,6 +96,17 @@ export default async function AdminExperimentsPage({
       render: (a) => num(a.commentsPerUser),
       hint: "All comments in the window",
     },
+    {
+      label: "Session length",
+      render: (a) => secs(a.avgSessionMs),
+      hint: "Feed time per visit (new visit after 30 min idle). Higher is better",
+    },
+    { label: "Sessions / student", render: (a) => num(a.sessionsPerUser), hint: "Visits in the window" },
+    {
+      label: "D1 return",
+      render: (a) => (a.d1Eligible > 0 ? `${pct(a.d1Rate)} of ${a.d1Eligible}` : "Not enough data"),
+      hint: "Came back the day after their first feed day. Higher is better",
+    },
   ];
 
   return (
@@ -87,7 +114,7 @@ export default async function AdminExperimentsPage({
       <AdminPageHeader
         title="Ranking experiments"
         icon={FlaskConical}
-        description={`Experiment "${RANKING_EXPERIMENT.id}": ${RANKING_EXPERIMENT.treatmentPercent}% of students get the personalised For You feed. Everyone else gets the standard feed.`}
+        description={`Experiment "${RANKING_EXPERIMENT.id}": ${RANKING_EXPERIMENT.treatmentPercent}% of students get a personalised For You feed, split evenly between v2 and the v3 value model. Everyone else gets the standard feed.`}
       />
 
       <nav className="flex flex-wrap gap-2" aria-label="Time window">
@@ -125,9 +152,15 @@ export default async function AdminExperimentsPage({
         </div>
       ) : (
         <>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Verdict z={readout.skipRateZ} lowerIsBetter label="Skip rate, personalized vs control" />
-            <Verdict z={readout.longDwellZ} label="Long-read rate, personalized vs control" />
+          <div className="grid gap-3 sm:grid-cols-3">
+            {readout.comparisons.flatMap((c) => {
+              const arm = ARM_LABEL[c.variant] ?? c.variant;
+              return [
+                <Verdict key={`${c.variant}-skip`} z={c.skipRateZ} lowerIsBetter arm={arm} label={`Skip rate, ${arm} vs control`} />,
+                <Verdict key={`${c.variant}-long`} z={c.longDwellZ} arm={arm} label={`Long-read rate, ${arm} vs control`} />,
+                <Verdict key={`${c.variant}-d1`} z={c.d1ReturnZ} arm={arm} label={`D1 return, ${arm} vs control`} />,
+              ];
+            })}
           </div>
 
           <div className="overflow-x-auto rounded-lg border border-border bg-surface">
@@ -136,8 +169,8 @@ export default async function AdminExperimentsPage({
                 <tr className="text-left text-xs text-fg-muted">
                   <th className="px-4 py-3 font-semibold">Metric</th>
                   {readout.arms.map((a) => (
-                    <th key={a.variant} className="px-4 py-3 font-semibold capitalize">
-                      {a.variant}
+                    <th key={a.variant} className="px-4 py-3 font-semibold">
+                      {ARM_LABEL[a.variant] ?? a.variant}
                     </th>
                   ))}
                 </tr>

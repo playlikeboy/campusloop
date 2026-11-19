@@ -43,6 +43,7 @@ export const RATE_LIMITS: RateRule[] = [
 
   // Expensive or abusable endpoints
   { prefix: "/api/upload", methods: "ALL", max: 30, windowSec: 60, store: "redis" },
+  { prefix: "/api/push/test", methods: "WRITE", max: 5, windowSec: 60, store: "redis" },
   { prefix: "/api/files", methods: "WRITE", max: 30, windowSec: 60, store: "redis" },
   { prefix: "/api/college-index-requests", methods: "WRITE", max: 5, windowSec: 600, store: "redis" },
   { prefix: "/api/mcp", methods: "ALL", max: 120, windowSec: 60, store: "redis" },

@@ -17,6 +17,7 @@ import { getDb } from "@/db";
 import { streakEvents, userProfiles, userStreakMilestones, userStreaks } from "@/db/schema";
 import { awardPoints } from "@/lib/gamification-server";
 import { createNotification } from "@/lib/notifications";
+import { applyStreakFreezes } from "@/lib/streaks/streak-freeze";
 
 /**
  * Returns YYYY-MM-DD formatted string in the target timezone (defaults to Asia/Kolkata).
@@ -138,6 +139,9 @@ export async function getUserStreakState(
   const db = getDb();
   const todayStr = getLocalDateString(new Date(), timezone);
   const yesterdayStr = getYesterdayDateString(todayStr);
+
+  // 0. A freeze bought with Loop Points fills the missed days before anything is counted.
+  await applyStreakFreezes(profileId, todayStr);
 
   // 1. Fetch user streak row
   let streakRow = await db.query.userStreaks.findFirst({

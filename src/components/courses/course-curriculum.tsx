@@ -58,9 +58,11 @@ export function CourseCurriculum({
                   className={cn("size-4 shrink-0 text-fg-muted transition-ui", isOpen && "rotate-180")}
                   aria-hidden
                 />
-                <span className="flex-1 font-semibold text-fg">{s.title}</span>
-                <span className="shrink-0 text-xs tabular-nums text-fg-muted">
-                  {lectureCount(s.lectures.length)} · {formatDuration(dur)}
+                <span className="flex min-w-0 flex-1 flex-col gap-0.5 sm:flex-row sm:items-center sm:gap-3">
+                  <span className="min-w-0 font-semibold text-fg sm:flex-1">{s.title}</span>
+                  <span className="shrink-0 text-xs tabular-nums text-fg-muted">
+                    {lectureCount(s.lectures.length)} · {formatDuration(dur)}
+                  </span>
                 </span>
               </button>
               {isOpen && (
@@ -72,29 +74,39 @@ export function CourseCurriculum({
                     const inner = (
                       <>
                         <Icon
-                          className={cn("size-4 shrink-0", isDone ? "text-verified-text" : "text-fg-muted")}
+                          className={cn(
+                            "mt-0.5 size-4 shrink-0",
+                            isDone ? "text-verified-text" : "text-fg-muted"
+                          )}
                           role={isDone ? "img" : undefined}
                           aria-label={isDone ? "Done" : undefined}
                           aria-hidden={!isDone}
                         />
-                        <span className={cn("flex-1 text-sm", playable ? "text-fg" : "text-fg-muted")}>
-                          {l.title}
-                        </span>
-                        {l.isPreview && !enrolled && (
-                          <span className="text-xs font-semibold text-brand-text">Free preview</span>
-                        )}
-                        {!playable && (
-                          <Lock
-                            className="size-3.5 text-fg-subtle"
-                            role="img"
-                            aria-label="Join the course to watch"
-                          />
-                        )}
-                        {l.durationSec > 0 && (
-                          <span className="w-14 text-right text-xs tabular-nums text-fg-muted">
-                            {formatClock(l.durationSec)}
+                        <span className="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:gap-3">
+                          <span
+                            className={cn(
+                              "min-w-0 break-words text-sm leading-snug sm:flex-1",
+                              playable ? "text-fg" : "text-fg-muted"
+                            )}
+                          >
+                            {l.title}
                           </span>
-                        )}
+                          <span className="flex shrink-0 items-center gap-2 text-xs tabular-nums text-fg-muted">
+                            {l.isPreview && !enrolled && (
+                              <span className="font-semibold text-brand-text">Free preview</span>
+                            )}
+                            {!playable && (
+                              <Lock
+                                className="size-3.5 text-fg-subtle"
+                                role="img"
+                                aria-label="Join the course to watch"
+                              />
+                            )}
+                            {l.durationSec > 0 && (
+                              <span className="sm:w-14 sm:text-right">{formatClock(l.durationSec)}</span>
+                            )}
+                          </span>
+                        </span>
                       </>
                     );
                     return (
@@ -102,12 +114,12 @@ export function CourseCurriculum({
                         {playable ? (
                           <Link
                             href={`/learn/${slug}/${l.id}`}
-                            className="flex min-h-11 items-center gap-3 px-4 pl-11 transition-ui hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                            className="flex min-h-11 items-start gap-3 px-4 py-2.5 sm:items-center sm:pl-11 transition-ui hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                           >
                             {inner}
                           </Link>
                         ) : (
-                          <div className="flex min-h-11 items-center gap-3 px-4 pl-11">{inner}</div>
+                          <div className="flex min-h-11 items-start gap-3 px-4 py-2.5 sm:items-center sm:pl-11">{inner}</div>
                         )}
                       </li>
                     );

@@ -106,7 +106,7 @@ export default async function CollegesPage({ searchParams }: { searchParams: Sea
       {/* Crawlable state filters: the dropdown above is a <select>, which search engines cannot follow. */}
       <nav
         aria-label="Browse colleges by state"
-        className="mx-auto w-full max-w-3xl px-4 pb-28 text-sm text-fg-muted sm:px-6"
+        className="mx-auto w-full max-w-3xl pb-28 text-sm text-fg-muted"
       >
         <h2 className="mb-2 text-base font-bold text-fg">Colleges by state</h2>
         <ul className="flex flex-wrap gap-x-4 gap-y-2">

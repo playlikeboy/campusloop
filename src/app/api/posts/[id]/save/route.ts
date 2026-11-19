@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { posts, reelBookmarks, reels, savedPosts, userProfiles } from "@/db/schema";
 import { getCachedAuthUser } from "@/lib/server-cache";
+import { bumpPostStat } from "@/lib/recommendations/engagement-stats";
 
 export const dynamic = "force-dynamic";
 
@@ -102,6 +103,7 @@ export async function POST(req: Request, { params }: RouteParams) {
         postId,
       })
       .onConflictDoNothing({ target: [savedPosts.profileId, savedPosts.postId] });
+    bumpPostStat(postId, "saves");
 
     return NextResponse.json({ success: true, saved: true });
   } catch (error) {

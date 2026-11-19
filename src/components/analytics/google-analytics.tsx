@@ -2,8 +2,9 @@
 
 import { usePathname, useSearchParams } from "next/navigation";
 import Script from "next/script";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useProfile } from "@/hooks/use-profile";
+import { hasAuthCookie } from "@/lib/auth-cookie";
 import {
   detectPlatform,
   estimateGradYear,
@@ -53,7 +54,12 @@ export function GoogleAnalyticsTracker() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const lastTrackedUrl = useRef<string>("");
-  const { profile } = useProfile();
+  // Read after mount (cookies are not on the server render) and on every route change, so sign-in/out is picked up.
+  const [signedIn, setSignedIn] = useState(false);
+  useEffect(() => {
+    setSignedIn(hasAuthCookie());
+  }, [pathname]);
+  const { profile } = useProfile({ enabled: signedIn });
   const boundUserId = useRef<string | null>(null);
 
   useEffect(() => {

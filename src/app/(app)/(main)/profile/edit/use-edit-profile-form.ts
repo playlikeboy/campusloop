@@ -15,7 +15,8 @@ export interface EditProfileValues {
   displayName: string;
   username: string;
   headline: string;
-  gender: Gender;
+  /** null until the student picks one; never guessed. */
+  gender: Gender | null;
   dob: string;
   isDobPrivate: boolean;
   course: string;
@@ -34,7 +35,7 @@ const EMPTY: EditProfileValues = {
   displayName: "",
   username: "",
   headline: "",
-  gender: "MALE",
+  gender: null,
   dob: "",
   isDobPrivate: false,
   course: "",
@@ -66,7 +67,7 @@ export function useEditProfileForm() {
       displayName: profile.displayName || "",
       username: profile.username || "",
       headline: profile.headline || "",
-      gender: (profile.gender as Gender) || "MALE",
+      gender: (profile.gender as Gender | null) ?? null,
       dob: profile.dob || "",
       isDobPrivate: Boolean(profile.isDobPrivate),
       course: profile.course || "",
@@ -127,7 +128,7 @@ export function useEditProfileForm() {
           displayName: v.displayName.trim(),
           username: v.username.trim().toLowerCase(),
           headline: v.headline.trim(),
-          gender: v.gender,
+          ...(v.gender ? { gender: v.gender } : {}),
           dob: v.dob || null,
           isDobPrivate: v.isDobPrivate,
           course: v.course.trim(),

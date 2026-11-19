@@ -91,7 +91,7 @@ export function BroadcastClient({ eventId, initialSlug, eventTitle }: BroadcastC
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-6 px-4 py-6">
+    <div className="mx-auto w-full max-w-2xl space-y-6 py-6">
       <ManageHeader slug={slug} title="Send an update" eventTitle={eventTitle} />
 
       <fieldset className="min-w-0">

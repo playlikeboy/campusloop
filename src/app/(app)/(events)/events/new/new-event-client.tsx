@@ -228,7 +228,7 @@ export function NewEventClient() {
         </div>
       )}
 
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+      <div className="mx-auto max-w-7xl py-4 sm:py-6">
         <div className="mb-6 space-y-3">
           <SegmentedControl
             aria-label="Where the event happens"

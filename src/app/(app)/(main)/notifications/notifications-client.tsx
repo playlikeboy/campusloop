@@ -56,10 +56,12 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
     };
   }, [menuOpen]);
 
-  const { notifications, unreadCount, isLoading, error, mutate, markAllAsRead, markAsRead, clearAll } =
+  const { notifications, unreadCount, hasData, isLoading, error, mutate, markAllAsRead, markAsRead, clearAll } =
     useNotifications(activeTab);
-  const list = notifications.length > 0 ? notifications : activeTab === "all" ? initialNotifications : [];
-  const unread = unreadCount ?? initialUnreadCount;
+  // The server-rendered list only stands in until the first response. Falling
+  // back to it whenever the live list is empty brought deleted rows back.
+  const list = hasData ? notifications : activeTab === "all" ? initialNotifications : [];
+  const unread = hasData ? unreadCount : initialUnreadCount;
   const tab = TABS.find((t) => t.id === activeTab) ?? TABS[0];
 
   function open(n: NotificationItem) {
@@ -165,10 +167,10 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
       <PushNotificationToggle variant="banner" />
 
       {list.length > 0 ? (
-        <div className="space-y-2 pt-2">
+        <div className="pt-1">
           {groupByDay(list).map((group) => (
             <section key={group.id} aria-labelledby={`notif-group-${group.id}`}>
-              <h2 id={`notif-group-${group.id}`} className="px-4 py-2 text-sm font-semibold text-fg-muted">
+              <h2 id={`notif-group-${group.id}`} className="px-4 pt-3 pb-1 text-sm font-semibold text-fg-muted">
                 {group.label}
               </h2>
               <ul className="divide-y divide-border">

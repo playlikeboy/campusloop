@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { communities, communityMembers, userProfiles } from "@/db/schema";
 import { runInBackground } from "@/lib/background";
+import { notifyCommunityJoinRequest } from "@/lib/community-notifications";
 import { recordStreakActivity } from "@/lib/streaks/streak-service";
 import { getCachedAuthUser } from "@/lib/server-cache";
 
@@ -78,6 +79,11 @@ export async function POST(request: Request, { params }: RouteProps) {
         }),
         "streak activity"
       );
+    }
+
+    if (status === "PENDING") {
+      // Private community: the creator and admins have to approve, so tell them.
+      runInBackground(notifyCommunityJoinRequest(comm, profile), "community join request notification");
     }
 
     revalidatePath(`/communities/${comm.slug || comm.id}`);

@@ -5,8 +5,9 @@ import { redirect } from "next/navigation";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { SignOutButton } from "@/components/ui/sign-out-button";
 import { getDb } from "@/db";
-import { institutionDomains, userProfiles } from "@/db/schema";
+import { institutionDomains, institutions, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { getTasteQuizPosts } from "@/lib/growth/taste-quiz";
 import { findWhitelistedDomain } from "@/lib/institutions";
 import { privateMetadata } from "@/lib/seo";
 import { OnboardingForm } from "./onboarding-form";
@@ -68,6 +69,16 @@ export default async function OnboardingPage() {
     "student";
   const initialAvatarUrl = profile?.avatarUrl || (user as { picture?: string }).picture || "";
 
+  // The college comes from the email domain, so the student never has to pick it.
+  const campusId = !viewerMode && whitelistedDomain ? whitelistedDomain.institutionId : null;
+  const campus = campusId
+    ? await db.query.institutions.findFirst({
+        where: eq(institutions.id, campusId),
+        columns: { name: true },
+      })
+    : null;
+  const quizPosts = await getTasteQuizPosts(campusId).catch(() => []);
+
   return (
     <main className="min-h-svh bg-bg text-fg">
       <div className="mx-auto w-full max-w-xl px-[var(--gutter)]">
@@ -84,23 +95,12 @@ export default async function OnboardingPage() {
           </div>
         </header>
 
-        <div className="pt-8">
-          <h1 className="text-3xl text-fg">
-            {viewerMode ? "Set up your preview profile" : "Set up your profile"}
-          </h1>
-          <p className="mt-2 text-base text-fg-muted">
-            {viewerMode
-              ? "You signed up with a personal email, so you can look around but not post yet."
-              : "Three quick steps so classmates can find you."}
-          </p>
-        </div>
-
         {viewerMode && (
-          <p className="mt-5 flex gap-3 rounded-lg bg-surface-muted p-4 text-sm text-fg-muted">
+          <p className="mt-6 flex gap-3 rounded-lg bg-surface-muted p-4 text-sm text-fg-muted">
             <Lock className="mt-0.5 size-4 shrink-0 text-fg" aria-hidden="true" />
             <span>
-              To post, vote, chat or use Campus Match, you need a verified college email. Used the wrong
-              email? Sign out above and join again with your college email.
+              You signed up with a personal email, so you can look around but not post, vote, chat or use
+              Campus Match. Used the wrong email? Sign out above and join again with your college email.
             </span>
           </p>
         )}
@@ -110,6 +110,8 @@ export default async function OnboardingPage() {
           initialDisplayName={initialDisplayName}
           initialUsername={initialUsername}
           initialAvatarUrl={initialAvatarUrl}
+          collegeName={campus?.name ?? null}
+          quizPosts={quizPosts}
         />
       </div>
     </main>

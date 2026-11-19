@@ -158,7 +158,7 @@ export function EditEventClient({ eventId, initialSlug }: EditEventClientProps) 
 
   if (isLoading || (!form && !error)) {
     return (
-      <div className="mx-auto w-full max-w-3xl space-y-4 px-4 py-6" aria-busy="true">
+      <div className="mx-auto w-full max-w-3xl space-y-4 py-6" aria-busy="true">
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-96 w-full rounded-lg" />
       </div>
@@ -167,7 +167,7 @@ export function EditEventClient({ eventId, initialSlug }: EditEventClientProps) 
 
   if (error || !form) {
     return (
-      <div className="mx-auto w-full max-w-3xl px-4 py-12">
+      <div className="mx-auto w-full max-w-3xl py-12">
         <EmptyState
           title="This event didn't load"
           description="Check your connection and try again."
@@ -186,7 +186,7 @@ export function EditEventClient({ eventId, initialSlug }: EditEventClientProps) 
       ];
 
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-6 px-4 py-6">
+    <div className="mx-auto w-full max-w-3xl space-y-6 py-6">
       <ManageHeader
         slug={slug}
         title="Edit event"

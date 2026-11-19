@@ -6,6 +6,7 @@ import { MobileDrawer } from "@/components/navigation/mobile-drawer";
 import { PreviewModeBanner } from "@/components/preview/preview-mode-banner";
 import { GlobalSearchModal } from "@/components/search/global-search-modal";
 import { ROUTES } from "@/constants/navigation";
+import { useClientShellProfile } from "@/hooks/use-client-shell-profile";
 import type { ShellProfile } from "@/lib/server-cache";
 import { useUnreadNotificationsCount } from "@/hooks/use-notifications";
 import { cn } from "@/lib/utils";
@@ -43,14 +44,9 @@ export interface AppShellProps extends Omit<AppChromeProps, "topBar" | "children
  * Chrome: desktop sidebar, top bar, mobile drawer, bottom tab bar and the search palette.
  * Renders as `sidebar + [column: top bar + children]` inside the parent's flex row.
  */
-export function AppChrome({
-  profile,
-  collegeName,
-  isAdmin,
-  isViewer,
-  topBar = "full",
-  children,
-}: AppChromeProps) {
+export function AppChrome({ topBar = "full", children, ...server }: AppChromeProps) {
+  // Static signed-out snapshots (/courses) render with no profile; fill it in the browser.
+  const { profile, collegeName, isAdmin, isViewer } = useClientShellProfile(server);
   const pathname = usePathname() || ROUTES.home;
   const unreadCount = useUnreadNotificationsCount();
   const [drawerOpen, setDrawerOpen] = useState(false);

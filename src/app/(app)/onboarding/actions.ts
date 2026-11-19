@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, count, eq, inArray, ne } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { getDb } from "@/db";
 import { institutionDomains, institutions, userProfiles } from "@/db/schema";
@@ -8,7 +8,11 @@ import { hexclaveServerApp } from "@/hexclave/server";
 import { runInBackground } from "@/lib/background";
 import { sendEmail } from "@/lib/email";
 import { buildWelcomeEmail } from "@/lib/email-templates";
+import { followUser } from "@/lib/follows";
 import { findWhitelistedDomain } from "@/lib/institutions";
+import { createNotification } from "@/lib/notifications";
+import { getRecommendedUsers } from "@/lib/recommendations/recommended-users";
+import { seedInterestVector } from "@/lib/recommendations/interest-vector";
 import { creditInviter } from "@/lib/referrals/credit";
 import { canCreditInvite, INVITE_COOKIE, pickInviter, REF_COOKIE } from "@/lib/referrals/invite";
 import { invalidateProfileCache } from "@/lib/server-cache";
@@ -17,7 +21,7 @@ import { validateDisplayName, validateUsername } from "@/lib/validation";
 import { getViewerInstitutionId } from "@/lib/viewer";
 
 export type OnboardingResult =
-  | { success: true }
+  | { success: true; profileId: string; isVerifiedStudent: boolean }
   /** `step` is the onboarding step that holds the field to fix. */
   | { success: false; error: string; step?: number };
 
@@ -74,11 +78,13 @@ export async function completeOnboarding(formData: FormData): Promise<Onboarding
     targetInstitutionIds = [];
   }
 
-  // Strict Gender Validation
-  if (!rawGender || !["MALE", "FEMALE", "OTHER"].includes(rawGender)) {
-    return { success: false, error: "Pick a gender to continue.", step: 1 };
-  }
-  const gender = rawGender as "MALE" | "FEMALE" | "OTHER";
+  // Gender is asked only when the student opts into Campus Match (see the
+  // dating gender gate). A new profile stores null rather than the column's
+  // old default, so nobody is matched on a gender they never chose.
+  const gender =
+    rawGender && ["MALE", "FEMALE", "OTHER"].includes(rawGender)
+      ? (rawGender as "MALE" | "FEMALE" | "OTHER")
+      : null;
 
   // Strict Name & Username Validation
   const nameVal = validateDisplayName(displayName);
@@ -153,8 +159,9 @@ export async function completeOnboarding(formData: FormData): Promise<Onboarding
   const headline =
     aspirantStage && !isVerifiedCollegeEmail ? `${aspirantStage} · ${branch ?? "Aspirant"}` : null;
 
+  let savedProfileId = existingProfile?.id ?? "";
   try {
-    await db
+    const [saved] = await db
       .insert(userProfiles)
       .values({
         userId: user.id,
@@ -187,7 +194,6 @@ export async function completeOnboarding(formData: FormData): Promise<Onboarding
           username: username.trim().toLowerCase(),
           displayName: displayName.trim(),
           avatarUrl: cleanAvatarUrl,
-          gender,
           dob,
           isDobPrivate,
           course,
@@ -200,10 +206,14 @@ export async function completeOnboarding(formData: FormData): Promise<Onboarding
           institutionId,
           isCollegeVerified: isVerifiedCollegeEmail,
           onboardingCompleted: true,
+          // Never overwrite a gender chosen earlier with "not given".
+          ...(gender ? { gender } : {}),
           // A profile row created before onboarding has no inviter yet.
           ...(referrerId && !wasAlreadyOnboarded ? { referredById: referrerId } : {}),
         },
-      });
+      })
+      .returning({ id: userProfiles.id });
+    savedProfileId = saved?.id ?? savedProfileId;
     invalidateProfileCache(user.id);
 
     if (
@@ -216,7 +226,8 @@ export async function completeOnboarding(formData: FormData): Promise<Onboarding
       })
     ) {
       try {
-        await creditInviter(referrerProfile.id, existingProfile?.id);
+        // Both sides get Loop Points: the inviter and the student who just joined.
+        await creditInviter(referrerProfile.id, savedProfileId || undefined);
       } catch (error) {
         console.error("[invite] Failed to credit inviter:", error);
       }
@@ -270,5 +281,148 @@ export async function completeOnboarding(formData: FormData): Promise<Onboarding
     throw error;
   }
 
+  return { success: true, profileId: savedProfileId, isVerifiedStudent: isVerifiedCollegeEmail };
+}
+
+async function currentProfile() {
+  const user = await hexclaveServerApp.getUser();
+  if (!user) return null;
+  return (
+    (await getDb().query.userProfiles.findFirst({
+      where: eq(userProfiles.userId, user.id),
+      columns: { id: true, username: true, institutionId: true, interests: true, isCollegeVerified: true },
+    })) ?? null
+  );
+}
+
+/**
+ * Screen 2: the taste swipe. Likes and skips on real posts seed the feed's
+ * interest vector, and any picked interest chips are added to the profile.
+ */
+export async function saveTasteQuiz(input: {
+  likedPostIds: string[];
+  skippedPostIds: string[];
+  interests: string[];
+}): Promise<{ success: boolean }> {
+  const profile = await currentProfile();
+  if (!profile) return { success: false };
+
+  const clean = (ids: unknown) =>
+    Array.isArray(ids) ? ids.filter((id): id is string => typeof id === "string").slice(0, 20) : [];
+  const likedPostIds = clean(input.likedPostIds);
+  const skippedPostIds = clean(input.skippedPostIds);
+  const picked = clean(input.interests).map((tag) => tag.slice(0, 40));
+  const interests = Array.from(new Set([...(profile.interests ?? []), ...picked])).slice(0, 20);
+
+  if (picked.length > 0) {
+    await getDb().update(userProfiles).set({ interests }).where(eq(userProfiles.id, profile.id));
+  }
+
+  try {
+    await seedInterestVector(profile.id, { likedPostIds, skippedPostIds, interests });
+  } catch (error) {
+    // The feed still works without a seeded vector; it just starts less personal.
+    console.error("[onboarding] seedInterestVector failed:", error);
+  }
   return { success: true };
+}
+
+export interface FollowSuggestion {
+  id: string;
+  displayName: string;
+  username: string;
+  avatarUrl: string | null;
+  detail: string | null;
+  sameCampus: boolean;
+}
+
+export interface FollowSuggestions {
+  campusName: string | null;
+  /** Real count of verified classmates already on CampusLoop, not counting the student. */
+  classmates: number;
+  people: FollowSuggestion[];
+}
+
+/** Screen 3: who to follow. The headline count is a direct count of real classmates. */
+export async function getFollowSuggestions(): Promise<FollowSuggestions> {
+  const profile = await currentProfile();
+  if (!profile) return { campusName: null, classmates: 0, people: [] };
+  const db = getDb();
+
+  const [institution, classmateRows, recommended] = await Promise.all([
+    db.query.institutions.findFirst({
+      where: eq(institutions.id, profile.institutionId),
+      columns: { name: true, slug: true },
+    }),
+    profile.isCollegeVerified
+      ? db
+          .select({ n: count() })
+          .from(userProfiles)
+          .where(
+            and(
+              eq(userProfiles.institutionId, profile.institutionId),
+              ne(userProfiles.id, profile.id),
+              eq(userProfiles.isCollegeVerified, true),
+              eq(userProfiles.isSeeded, false),
+              eq(userProfiles.status, "ACTIVE")
+            )
+          )
+      : Promise.resolve([{ n: 0 }]),
+    getRecommendedUsers(profile.id, { limit: 16, scope: "CAMPUS" }).catch(() => []),
+  ]);
+
+  // Only real students: seeded demo profiles never show up as people to follow.
+  const ids = recommended.map((u) => u.id);
+  const real = ids.length
+    ? await db
+        .select({ id: userProfiles.id })
+        .from(userProfiles)
+        .where(and(inArray(userProfiles.id, ids), eq(userProfiles.isSeeded, false), eq(userProfiles.status, "ACTIVE")))
+    : [];
+  const realIds = new Set(real.map((r) => r.id));
+
+  const people = recommended
+    .filter((u) => realIds.has(u.id))
+    .map((u) => ({
+      id: u.id,
+      displayName: u.displayName,
+      username: u.username,
+      avatarUrl: u.avatarUrl,
+      detail: [u.branch, u.year ? `Year ${u.year}` : null].filter(Boolean).join(" · ") || u.institution?.name || null,
+      sameCampus: Boolean(institution?.slug && u.institution?.slug === institution.slug),
+    }))
+    .sort((a, b) => Number(b.sameCampus) - Number(a.sameCampus))
+    .slice(0, 12);
+
+  return {
+    campusName: institution?.name ? institution.name.split(",")[0].trim() : null,
+    classmates: Number(classmateRows[0]?.n ?? 0),
+    people,
+  };
+}
+
+/** Follows the picked students in one go. Each new follow notifies that student, as a normal follow does. */
+export async function followSuggested(profileIds: string[]): Promise<{ followed: number }> {
+  const profile = await currentProfile();
+  if (!profile || !Array.isArray(profileIds)) return { followed: 0 };
+  const ids = Array.from(new Set(profileIds.filter((id) => typeof id === "string" && id !== profile.id))).slice(0, 20);
+
+  let followed = 0;
+  for (const id of ids) {
+    try {
+      const result = await followUser(profile.id, id);
+      if (result.created) {
+        followed += 1;
+        await createNotification({
+          userId: id,
+          actorId: profile.id,
+          type: result.isFriend ? "FRIEND" : "FOLLOW",
+          referenceId: profile.username,
+        });
+      }
+    } catch (error) {
+      console.error("[onboarding] follow failed:", error);
+    }
+  }
+  return { followed };
 }

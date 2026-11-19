@@ -62,6 +62,18 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        // Launch video, poster and captions (Workers assets use public/_headers in production).
+        // Unversioned filenames, so a week plus SWR rather than immutable.
+        source: "/launch/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=604800, stale-while-revalidate=2592000",
+          },
+          { key: "Accept-Ranges", value: "bytes" },
+        ],
+      },
+      {
         source: "/sw.js",
         headers: [
           {

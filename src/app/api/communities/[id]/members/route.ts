@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { communities, communityMembers, userProfiles } from "@/db/schema";
+import { notifyCommunityJoinApproved } from "@/lib/community-notifications";
 import { requireProfile } from "@/lib/require-profile";
 
 export const dynamic = "force-dynamic";
@@ -214,6 +215,10 @@ export async function PATCH(request: Request, { params }: RouteProps) {
         .update(communities)
         .set({ points: sql`${communities.points} + 15` })
         .where(eq(communities.id, comm.id));
+
+      if (targetMember.status === "PENDING") {
+        await notifyCommunityJoinApproved(comm, targetUserId, profile.id);
+      }
     }
 
     revalidatePath(`/communities/${comm.slug || comm.id}/members`);

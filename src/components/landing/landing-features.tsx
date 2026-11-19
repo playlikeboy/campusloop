@@ -59,6 +59,8 @@ interface PanelProps {
   tilt: string;
   stickerClassName?: string;
   className?: string;
+  /** Page anchor for the landing nav, e.g. "learn". */
+  anchor?: string;
 }
 
 /**
@@ -76,10 +78,11 @@ function Panel({
   tilt,
   stickerClassName,
   className,
+  anchor,
 }: PanelProps) {
   const dark = ON_DARK[field];
   return (
-    <li className={cn("min-w-0", className)}>
+    <li id={anchor} className={cn("min-w-0", className)}>
       <Link
         href={href}
         aria-labelledby={`${id}-title`}
@@ -168,7 +171,11 @@ export function LandingFeatures({ courses, stats }: { courses: Course[]; stats: 
   const eventTarget = exampleEventTarget();
 
   return (
-    <section className={`${LANDING_CONTAINER} pt-28 pb-20 lg:pt-36 lg:pb-28`} aria-labelledby="features-title">
+    <section
+      id="features"
+      className={`${LANDING_CONTAINER} pt-28 pb-20 lg:pt-36 lg:pb-28`}
+      aria-labelledby="features-title"
+    >
       <h2
         id="features-title"
         className="max-w-[14ch] text-balance text-[length:var(--text-display-s)] leading-none text-fg"
@@ -216,6 +223,7 @@ export function LandingFeatures({ courses, stats }: { courses: Course[]; stats: 
         />
         <Panel
           id="feature-notes"
+          anchor="learn"
           field="deep"
           className="lg:col-span-5"
           tilt="rotate-1"
@@ -235,6 +243,7 @@ export function LandingFeatures({ courses, stats }: { courses: Course[]; stats: 
         />
         <Panel
           id="feature-events"
+          anchor="events"
           field="muted"
           className="lg:col-span-3"
           tilt="-rotate-3"

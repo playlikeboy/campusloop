@@ -197,7 +197,7 @@ export function CommunityDetailClient({
   }
 
   return (
-    <div className="mx-auto w-full max-w-5xl min-w-0 space-y-4 px-4 pt-3 pb-24">
+    <div className="mx-auto w-full max-w-5xl min-w-0 space-y-4 pt-3 pb-24">
       <CommunityDetailHero
         community={community}
         identifier={identifier}

@@ -128,7 +128,7 @@ export function ArticleReaderClient({
     <div className="relative min-h-dvh bg-bg pb-32">
       <ReadingProgress />
 
-      <article className="mx-auto max-w-3xl space-y-8 px-4 pt-6 sm:px-6">
+      <article className="mx-auto max-w-3xl space-y-8 px-1 pt-4 sm:px-6 sm:pt-6">
         <div className="flex items-center justify-between gap-3">
           <Button variant="ghost" size="sm" asChild className="-ml-3">
             <Link href="/articles">
@@ -153,7 +153,7 @@ export function ArticleReaderClient({
         </div>
 
         <header className="space-y-4">
-          <h1 className="text-4xl leading-[1.05] text-fg text-balance sm:text-5xl">{article.title}</h1>
+          <h1 className="text-[2rem] leading-[1.1] text-fg text-balance sm:text-5xl sm:leading-[1.05]">{article.title}</h1>
           {article.subtitle && (
             <p className="text-lg text-fg-muted text-pretty sm:text-xl">{article.subtitle}</p>
           )}
@@ -180,8 +180,8 @@ export function ArticleReaderClient({
           <ArticleToc content={article.content} />
         </div>
 
-        <div className="max-w-[70ch] text-lg leading-[1.75] text-fg">
-          <MarkdownContent content={article.content} autoEmbed />
+        <div className="max-w-[68ch] text-fg">
+          <MarkdownContent content={article.content} autoEmbed className="text-lg leading-[1.7]" />
         </div>
 
         {article.tags && article.tags.length > 0 && (

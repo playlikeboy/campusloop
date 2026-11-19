@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LoopPointsSticker, MentionTag } from "@/components/ui/stickers";
 import type { NotificationItem } from "@/hooks/use-notifications";
 import { cn, formatTimeAgo, getAvatarUrl, initialOf } from "@/lib/utils";
-import { getNotificationMeta, pointsFromNotification, SYSTEM_TYPES } from "./notification-meta";
+import { getNotificationMeta, pointsFromNotification, SYSTEM_TYPES, shortTimeAgo } from "./notification-meta";
 
 const TONE = {
   brand: "bg-brand-subtle text-brand-text",
@@ -35,7 +35,7 @@ export function NotificationRow({
         href={href}
         onClick={() => onOpen(n)}
         className={cn(
-          "flex items-start gap-3 px-4 py-3 transition-ui outline-none hover:bg-surface-muted focus-visible:bg-surface-muted",
+          "flex min-h-11 items-start gap-3 px-4 py-2.5 transition-ui outline-none hover:bg-surface-muted focus-visible:bg-surface-muted",
           !n.isRead && "bg-brand-subtle/40"
         )}
       >
@@ -62,8 +62,8 @@ export function NotificationRow({
           )}
         </span>
 
-        <div className="min-w-0 flex-1 space-y-1">
-          <span className="block text-sm leading-snug text-fg">
+        <div className="min-w-0 flex-1">
+          <p className="line-clamp-2 text-sm leading-snug text-fg">
             {isSystem ? (
               text
             ) : mention ? (
@@ -75,17 +75,26 @@ export function NotificationRow({
                 <span className="font-semibold">{name}</span> {text}
               </>
             )}
-          </span>
-          {points !== null && <LoopPointsSticker points={points} size="sm" className="w-fit" />}
-          {n.previewText && <span className="line-clamp-2 block text-sm text-fg-muted">{n.previewText}</span>}
-          <span className="block text-xs text-fg-subtle">{formatTimeAgo(n.createdAt)}</span>
+            {n.previewText && <span className="text-fg-muted">: {n.previewText}</span>}
+          </p>
+          {points !== null && <LoopPointsSticker points={points} size="sm" className="mt-1 w-fit" />}
         </div>
 
-        {!n.isRead && (
-          <span className="mt-2 size-2.5 shrink-0 rounded-full bg-brand">
-            <span className="sr-only">Unread</span>
-          </span>
-        )}
+        <span className="flex shrink-0 flex-col items-end gap-1.5 pt-0.5">
+          <time
+            dateTime={String(n.createdAt)}
+            title={formatTimeAgo(n.createdAt)}
+            className="text-xs whitespace-nowrap text-fg-subtle"
+            suppressHydrationWarning
+          >
+            {shortTimeAgo(n.createdAt)}
+          </time>
+          {!n.isRead && (
+            <span className="size-2.5 rounded-full bg-brand">
+              <span className="sr-only">Unread</span>
+            </span>
+          )}
+        </span>
       </Link>
     </li>
   );

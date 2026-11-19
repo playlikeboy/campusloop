@@ -21,7 +21,9 @@ import {
 } from "@/lib/feed-boosts";
 import { loadFollowedPostActivity } from "@/lib/feed-social-context";
 import { applyAuthorDiversityReranking } from "@/lib/recommendations/diversity-reranker";
+import { isEngagementStatsUnavailable, noteStatsError } from "@/lib/recommendations/engagement-stats";
 import { getPhoenixValueScoreSql } from "@/lib/recommendations/phoenix-ranker";
+import { selectV3PageIds } from "@/lib/recommendations/ranking-v3";
 import type { ViewerAffinity } from "@/lib/recommendations/viewer-affinity";
 import { RANKING_WEIGHTS } from "@/lib/recommendations/ranking-constants";
 import { getAddictiveReelsScoreSql } from "@/lib/reels/algorithm";
@@ -420,6 +422,19 @@ const RANKED_CANDIDATE_POOL = 400;
  */
 const MAX_RANKED_CANDIDATE_POOL = 600;
 
+/**
+ * 4x headroom keeps ranking meaningful, but never past the ceiling. A page
+ * that ends beyond the ceiling still gets a pool just large enough to fill
+ * it, so deep pagination never comes back empty.
+ */
+function candidatePoolSize(options: { limit: number; offset: number }): number {
+  const pageEnd = options.offset + options.limit;
+  return Math.min(
+    Math.max(RANKED_CANDIDATE_POOL, options.offset + options.limit * 4),
+    Math.max(MAX_RANKED_CANDIDATE_POOL, pageEnd)
+  );
+}
+
 async function narrowToCandidatePool(
   options: { conditions: SQL[]; sort: ApiFeedSort; limit: number; offset: number },
   boosts: ActiveBoost[]
@@ -427,14 +442,7 @@ async function narrowToCandidatePool(
   const base = and(...options.conditions);
   if (options.sort === "latest" || options.sort === "random") return base;
 
-  // 4x headroom keeps ranking meaningful, but never past the ceiling. A page
-  // that ends beyond the ceiling still gets a pool just large enough to fill
-  // it, so deep pagination never comes back empty.
-  const pageEnd = options.offset + options.limit;
-  const poolSize = Math.min(
-    Math.max(RANKED_CANDIDATE_POOL, options.offset + options.limit * 4),
-    Math.max(MAX_RANKED_CANDIDATE_POOL, pageEnd)
-  );
+  const poolSize = candidatePoolSize(options);
   const recent = await getDb()
     .select({ id: posts.id })
     .from(posts)
@@ -452,68 +460,35 @@ async function narrowToCandidatePool(
 }
 
 /**
- * Two-phase feed resolution: select the page's post IDs with full SQL
- * ordering flexibility (aggregates, time decay, seen post demotion),
- * then hydrate relations via the relational query builder and restore order in JS.
+ * v3 page ids, or null to rank with v2 instead: the stats table is missing
+ * (remembered for a few minutes) or the v3 query failed for any reason.
  */
-export async function resolveFeedPage(options: {
-  conditions: SQL[];
-  sort: ApiFeedSort;
-  limit: number;
-  offset: number;
-  userInstitutionId?: string | null;
-  seenIds?: string[];
-  viewerProfileId?: string | null;
-  /** Stable seed for deterministic Random pagination. */
-  seed?: number;
-  /** Viewer's campus, for narrowing INSTITUTION-scoped editorial boosts. */
-  viewerInstitutionId?: string | null;
-  /** Learned viewer preferences for the For You ranker. */
-  affinity?: ViewerAffinity | null;
-}) {
-  const db = getDb();
+async function selectV3Ids(
+  options: Parameters<typeof resolveFeedPage>[0],
+  boosts: ActiveBoost[]
+): Promise<string[] | null> {
+  if (isEngagementStatsUnavailable()) return null;
+  try {
+    return await selectV3PageIds({
+      base: and(...options.conditions),
+      poolSize: candidatePoolSize(options),
+      offset: options.offset,
+      limit: options.limit,
+      boosts,
+      viewerProfileId: options.viewerProfileId,
+      viewerInstitutionId: options.viewerCampusId ?? options.userInstitutionId,
+      affinity: options.affinity,
+      mode: options.sort === "reels" ? "reels" : "feed",
+    });
+  } catch (error) {
+    if (!noteStatsError(error)) console.error("[feed] ranking v3 failed, using v2:", error);
+    return null;
+  }
+}
 
-  // Redis-backed and request-memoized; adds no database round trip on the hot
-  // path, and degrades to an unboosted feed if the cache and table are both
-  // unreachable.
-  const boosts = applicableBoosts(
-    await loadActiveBoosts(),
-    options.viewerInstitutionId ?? options.userInstitutionId
-  );
-
-  const where = await narrowToCandidatePool(options, boosts);
-  if (!where) return [];
-
-  const idRows = await db
-    .select({
-      id: posts.id,
-      commentCount: commentCountSql,
-      voteScore: voteScoreSql,
-    })
-    .from(posts)
-    .where(where)
-    .orderBy(
-      ...getFeedOrderBy(
-        options.sort,
-        options.userInstitutionId,
-        options.seenIds,
-        options.viewerProfileId,
-        boosts,
-        options.seed,
-        options.affinity
-      )
-    )
-    .limit(options.limit)
-    .offset(options.offset);
-
-  const ids = idRows.map((row) => row.id);
-  if (ids.length === 0) return [];
-
-  const countsMap = new Map(
-    idRows.map((r) => [r.id, { commentCount: r.commentCount, voteScore: r.voteScore }])
-  );
-
-  const hydrated = await db.query.posts.findMany({
+function hydrateFeedPosts(ids: string[], viewerProfileId?: string | null) {
+  const options = { viewerProfileId };
+  return getDb().query.posts.findMany({
     where: inArray(posts.id, ids),
     with: {
       author: {
@@ -581,7 +556,17 @@ export async function resolveFeedPage(options: {
       },
     },
   });
+}
 
+type FeedCountRow = { id: string; commentCount: number; voteScore: number };
+
+/** Attach SQL-aggregated counts and restore the ranked order. */
+function assembleFeedPage(
+  ids: string[],
+  countRows: FeedCountRow[],
+  hydrated: Awaited<ReturnType<typeof hydrateFeedPosts>>
+) {
+  const countsMap = new Map(countRows.map((r) => [r.id, { commentCount: r.commentCount, voteScore: r.voteScore }]));
   const byId = new Map(
     hydrated.map((post) => {
       const dbCounts = countsMap.get(post.id);
@@ -601,9 +586,90 @@ export async function resolveFeedPage(options: {
       ];
     })
   );
-  const rawPosts = ids
-    .map((postId) => byId.get(postId))
-    .filter((post): post is NonNullable<typeof post> => Boolean(post));
+  return ids.map((postId) => byId.get(postId)).filter((post): post is NonNullable<typeof post> => Boolean(post));
+}
+
+/**
+ * Two-phase feed resolution: select the page's post IDs with full SQL
+ * ordering flexibility (aggregates, time decay, seen post demotion),
+ * then hydrate relations via the relational query builder and restore order in JS.
+ */
+export async function resolveFeedPage(options: {
+  conditions: SQL[];
+  sort: ApiFeedSort;
+  limit: number;
+  offset: number;
+  userInstitutionId?: string | null;
+  seenIds?: string[];
+  viewerProfileId?: string | null;
+  /** Stable seed for deterministic Random pagination. */
+  seed?: number;
+  /** Viewer's campus, for narrowing INSTITUTION-scoped editorial boosts. */
+  viewerInstitutionId?: string | null;
+  /** Learned viewer preferences for the For You ranker. */
+  affinity?: ViewerAffinity | null;
+  /** "v3" ranks for_you / reels with the value model (falls back to v2 on any failure). */
+  rankingVersion?: "v2" | "v3";
+  /** Viewer's own campus even on the GLOBAL scope; v3 uses it for traffic tiers. */
+  viewerCampusId?: string | null;
+}) {
+  const db = getDb();
+
+  // Redis-backed and request-memoized; adds no database round trip on the hot
+  // path, and degrades to an unboosted feed if the cache and table are both
+  // unreachable.
+  const boosts = applicableBoosts(
+    await loadActiveBoosts(),
+    options.viewerInstitutionId ?? options.userInstitutionId
+  );
+
+  const v3Ids =
+    options.rankingVersion === "v3" && (options.sort === "for_you" || options.sort === "reels")
+      ? await selectV3Ids(options, boosts)
+      : null;
+  if (v3Ids) {
+    if (v3Ids.length === 0) return [];
+    const [countRows, hydrated] = await Promise.all([
+      db
+        .select({ id: posts.id, commentCount: commentCountSql, voteScore: voteScoreSql })
+        .from(posts)
+        .where(inArray(posts.id, v3Ids)),
+      hydrateFeedPosts(v3Ids, options.viewerProfileId),
+    ]);
+    // Already diversified (author, type, community, hashtag) across the whole pool.
+    return assembleFeedPage(v3Ids, countRows, hydrated);
+  }
+
+  const where = await narrowToCandidatePool(options, boosts);
+  if (!where) return [];
+
+  const idRows = await db
+    .select({
+      id: posts.id,
+      commentCount: commentCountSql,
+      voteScore: voteScoreSql,
+    })
+    .from(posts)
+    .where(where)
+    .orderBy(
+      ...getFeedOrderBy(
+        options.sort,
+        options.userInstitutionId,
+        options.seenIds,
+        options.viewerProfileId,
+        boosts,
+        options.seed,
+        options.affinity
+      )
+    )
+    .limit(options.limit)
+    .offset(options.offset);
+
+  const ids = idRows.map((row) => row.id);
+  if (ids.length === 0) return [];
+
+  const hydrated = await hydrateFeedPosts(ids, options.viewerProfileId);
+  const rawPosts = assembleFeedPage(ids, idRows, hydrated);
 
   // 🎨 Apply VMRanker / DPP Author Diversity Reranking on for_you and trending feeds
   if (options.sort === "for_you" || options.sort === "trending") {

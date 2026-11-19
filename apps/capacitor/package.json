@@ -1,0 +1,22 @@
+{
+  "name": "campusloop-capacitor",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CampusLoop Web: Android shell that loads https://campusloop.space in a Capacitor WebView.",
+  "scripts": {
+    "sync": "cap sync android",
+    "icons": "node scripts/make-icons.mjs",
+    "build:apk": "cap sync android && cd android && ./gradlew assembleRelease"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.6.2",
+    "@capacitor/app": "8.1.2",
+    "@capacitor/browser": "8.0.5",
+    "@capacitor/core": "8.6.2",
+    "@capacitor/splash-screen": "8.0.2",
+    "@capacitor/status-bar": "8.0.4"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.6.2"
+  }
+}

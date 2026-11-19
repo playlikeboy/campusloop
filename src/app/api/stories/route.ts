@@ -48,7 +48,7 @@ export async function GET() {
       activeStories,
       followingIds,
       friendIds,
-      engagedAuthorIds: getRankingVariant(profile.id) === "personalized" ? affinity.engagedAuthorIds : [],
+      engagedAuthorIds: getRankingVariant(profile.id) !== "control" ? affinity.engagedAuthorIds : [],
       blockedUserIds: affinity.blockedUserIds,
     });
 

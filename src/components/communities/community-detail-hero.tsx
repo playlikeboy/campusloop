@@ -74,8 +74,14 @@ export function CommunityDetailHero({
           <img src={community.bannerUrl} alt="" className="h-32 w-full object-cover sm:h-44" />
         )}
         <div className="space-y-3 p-4 sm:p-5">
-          <div className="flex items-start gap-4">
-            <Avatar className="size-16 shrink-0 rounded-sm sm:size-20">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-4">
+            <Avatar
+              className={
+                community.bannerUrl
+                  ? "-mt-12 size-16 shrink-0 rounded-sm border-4 border-surface bg-surface sm:mt-0 sm:size-20 sm:border-0"
+                  : "size-14 shrink-0 rounded-sm sm:size-20"
+              }
+            >
               <AvatarImage
                 src={getAvatarUrl(community.avatarUrl, community.name)}
                 alt=""
@@ -86,14 +92,14 @@ export function CommunityDetailHero({
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1 space-y-1">
-              <h1 className="text-2xl leading-tight font-bold [overflow-wrap:anywhere] text-fg sm:text-3xl">
+              <h1 className="font-display text-2xl leading-tight font-extrabold text-balance [overflow-wrap:anywhere] text-fg sm:text-3xl">
                 c/{community.name}
               </h1>
               <p className="flex flex-wrap items-center gap-x-2 text-sm text-fg-muted">
                 <button
                   type="button"
                   onClick={onShowMembers}
-                  className="cursor-pointer underline-offset-4 hover:text-fg hover:underline"
+                  className="-my-3 min-h-11 cursor-pointer underline-offset-4 hover:text-fg hover:underline"
                 >
                   {plural(membersCount, "member")}
                 </button>
@@ -123,14 +129,14 @@ export function CommunityDetailHero({
             <p className="max-w-prose text-sm leading-relaxed text-fg-muted">{community.description}</p>
           )}
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex gap-2">
             <JoinCommunityButton
               communityId={community.id}
               initialIsMember={isMember}
               onMembershipChange={onMembershipChange}
-              className="h-11 px-5 text-sm"
+              className="h-11 flex-1 px-5 text-sm sm:flex-none"
             />
-            <Button variant="outline" onClick={onOpenChat} loading={isOpeningChat}>
+            <Button variant="outline" onClick={onOpenChat} loading={isOpeningChat} className="flex-1 sm:flex-none">
               {!isOpeningChat && <MessageSquare />}
               Group chat
             </Button>

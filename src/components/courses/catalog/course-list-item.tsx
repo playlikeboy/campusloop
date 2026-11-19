@@ -17,15 +17,15 @@ function badge(c: Course): string | null {
   return null;
 }
 
-/** Search/category result row: thumbnail left, details right. */
+/** Search/category result: thumbnail on top on phones, thumbnail left from sm up. */
 export function CourseListItem({ course: c }: { course: Course }) {
   const tag = badge(c);
   return (
     <Link
       href={`/courses/${c.slug}`}
-      className="group flex gap-3 rounded-lg p-2 transition-ui hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:gap-5 sm:p-3"
+      className="group flex flex-col gap-2.5 rounded-lg py-2 transition-ui sm:flex-row sm:p-3 hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:gap-5"
     >
-      <div className="relative aspect-video w-32 shrink-0 overflow-hidden rounded-md bg-surface-muted sm:w-60">
+      <div className="relative aspect-video w-full shrink-0 overflow-hidden rounded-md bg-surface-muted sm:w-60">
         {c.thumbnailUrl ? (
           <img src={c.thumbnailUrl} alt="" loading="lazy" className="h-full w-full object-cover" />
         ) : (
@@ -41,7 +41,7 @@ export function CourseListItem({ course: c }: { course: Course }) {
         {c.subtitle && (
           <p className="mt-1 line-clamp-2 hidden text-sm text-fg-muted sm:block">{c.subtitle}</p>
         )}
-        <p className="mt-1 truncate text-xs text-fg-muted">{c.instructorName}</p>
+        <p className="mt-1 truncate text-sm text-fg-muted sm:text-xs">{c.instructorName}</p>
         {c.ratingCount > 0 && (
           <div className="mt-1">
             <RatingStars value={c.ratingAvg} count={c.ratingCount} />

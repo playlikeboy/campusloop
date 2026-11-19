@@ -59,7 +59,7 @@ export function AcademicHeader({ scope, onScopeChange, campusName, totalCount }:
           {
             value: "campus",
             icon: <School />,
-            label: <span className="max-w-[10rem] truncate">{shortCampus || "My college"}</span>,
+            label: <span className="max-w-[7.5rem] truncate sm:max-w-[10rem]">{shortCampus || "My college"}</span>,
           },
           { value: "global", icon: <Globe />, label: "All colleges" },
         ]}

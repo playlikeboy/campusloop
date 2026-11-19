@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "space.campusloop.twa",
+      "sha256_cert_fingerprints": [
+        "D0:EA:99:F7:35:1B:1E:CD:58:41:57:6D:BF:1B:0D:80:51:22:DB:1D:93:E9:7F:9E:F0:0A:BD:6D:DE:1E:6A:56"
+      ]
+    }
+  }
+]

@@ -92,7 +92,8 @@ export function AboutSection({ values, set, nameError, usernameStatus }: AboutSe
           <SegmentedControl<Gender>
             aria-label="Gender"
             fullWidth
-            value={values.gender}
+            // No option is selected while gender is unset.
+            value={values.gender ?? ("" as Gender)}
             onChange={(g) => set("gender", g)}
             options={[
               { value: "MALE", label: "Male" },

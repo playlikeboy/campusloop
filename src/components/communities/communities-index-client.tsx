@@ -201,7 +201,7 @@ export function CommunitiesIndexClient({
   );
 
   return (
-    <main className="mx-auto min-h-dvh w-full max-w-3xl space-y-4 px-4 pt-4 pb-24 sm:px-6">
+    <main className="mx-auto min-h-dvh w-full max-w-3xl space-y-4 pt-4 pb-24">
       <header>
         <div className="flex items-center justify-between gap-3">
           <h1 className="min-w-0 truncate font-display text-3xl font-extrabold text-fg">Communities</h1>

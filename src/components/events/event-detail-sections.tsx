@@ -51,6 +51,8 @@ export function EventFacts({ event }: { event: any }) {
     month: "long",
     year: "numeric",
   });
+  const multiDay = end.getTime() - start.getTime() > 24 * 60 * 60 * 1000;
+  const endDate = end.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
   const time = `${start.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" })} – ${end.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" })}`;
   const restricted =
     Array.isArray(event.eligibleInstitutionIds) && !event.eligibleInstitutionIds.includes("ALL");
@@ -66,8 +68,17 @@ export function EventFacts({ event }: { event: any }) {
   return (
     <dl className="divide-y divide-border">
       <Fact icon={CalendarDays} label="When">
-        {date}
-        <span className="block text-sm font-normal tabular-nums text-fg-muted">{time}</span>
+        {multiDay ? (
+          <>
+            {date}
+            <span className="block text-sm font-normal text-fg-muted">to {endDate}</span>
+          </>
+        ) : (
+          <>
+            {date}
+            <span className="block text-sm font-normal tabular-nums text-fg-muted">{time}</span>
+          </>
+        )}
       </Fact>
       <Fact icon={MapPin} label="Where">
         {event.venue || eventModeLabel(event.mode)}
@@ -202,15 +213,14 @@ export function EventRelated({ related }: { related: any[] }) {
               href={`/events/${rel.slug || rel.id}`}
               className="flex items-center justify-between gap-3 px-4 py-3 transition-ui hover:bg-surface-muted"
             >
-              <span className="min-w-0">
-                <span className="block truncate font-semibold text-fg">{rel.title}</span>
-                <span className="block truncate text-sm text-fg-muted">
-                  {rel.clubName} · {eventModeLabel(rel.mode)}
+              <span className="min-w-0 flex-1">
+                <span className="line-clamp-2 font-semibold leading-snug break-words text-fg">{rel.title}</span>
+                <span className="mt-0.5 block truncate text-sm text-fg-muted">
+                  {[rel.clubName, eventModeLabel(rel.mode), rel.entryFee || "Free"].filter(Boolean).join(" · ")}
                 </span>
               </span>
-              <span className="shrink-0 text-right text-sm tabular-nums text-fg-muted">
+              <span className="shrink-0 rounded-full bg-brand-subtle px-2.5 py-1 text-xs font-semibold tabular-nums text-brand-text">
                 {new Date(rel.startDate).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
-                <span className="block text-fg">{rel.entryFee || "Free"}</span>
               </span>
             </Link>
           </li>

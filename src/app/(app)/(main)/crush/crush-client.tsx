@@ -1,6 +1,7 @@
 "use client";
 
 import { SecretCrushPanel } from "@/components/dating/secret-crush-panel";
+import { CrushHints } from "@/components/growth/crush-hints";
 
 export function CrushClient() {
   return (
@@ -12,6 +13,7 @@ export function CrushClient() {
         </p>
       </header>
       <SecretCrushPanel />
+      <CrushHints />
     </div>
   );
 }

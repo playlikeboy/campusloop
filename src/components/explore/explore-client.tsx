@@ -154,7 +154,7 @@ export function ExploreClient({
     | undefined;
 
   return (
-    <div className="mx-auto w-full max-w-7xl min-h-dvh px-3 sm:px-6 py-4 pb-28 space-y-7">
+    <div className="mx-auto w-full max-w-7xl min-h-dvh py-4 pb-28 space-y-7">
       {/* ─── Header & Search bar (shared across both states) ─── */}
       <ExploreHeader
         searchQuery={searchQuery}
@@ -262,9 +262,11 @@ export function ExploreClient({
                   />
                 </Link>
               )}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:snap-none sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:px-0 md:grid-cols-3 lg:grid-cols-4">
                 {homeData.events.map((ev: any) => (
-                  <EventPreviewCard key={ev.id} event={ev} />
+                  <div key={ev.id} className="flex w-[78%] shrink-0 snap-start sm:w-auto">
+                    <EventPreviewCard event={ev} />
+                  </div>
                 ))}
               </div>
             </ExploreSection>

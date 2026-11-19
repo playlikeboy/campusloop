@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { CurriculumSidebar } from "./curriculum-sidebar";
 import { LectureOverview, ResourcesList } from "./lecture-info";
 import { LectureMedia } from "./lecture-media";
-import { LectureToolbar } from "./lecture-toolbar";
+import { LectureNavBar, LectureToolbar } from "./lecture-toolbar";
 import { NotesPanel } from "./notes-panel";
 import { PlayerHeader } from "./player-header";
 import { QaPanel } from "./qa-panel";
@@ -184,6 +184,9 @@ export function PlayerShell({
             />
           </div>
           <LectureToolbar
+            title={lecture.title}
+            position={index + 1}
+            total={total}
             hasPrev={Boolean(prev)}
             hasNext={Boolean(next)}
             done={completed.has(lecture.id)}
@@ -271,6 +274,12 @@ export function PlayerShell({
           </aside>
         )}
       </div>
+      <LectureNavBar
+        hasPrev={Boolean(prev)}
+        hasNext={Boolean(next)}
+        onPrev={() => go(prev?.id)}
+        onNext={() => go(next?.id)}
+      />
     </div>
   );
 }

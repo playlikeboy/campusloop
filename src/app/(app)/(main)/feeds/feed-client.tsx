@@ -11,6 +11,8 @@ import { FeedQuickComposer } from "@/components/feed/feed-quick-composer";
 import { FeedRecommendedUsers } from "@/components/feed/feed-recommended-users";
 import { FeedCaughtUpCard, FeedEmptyState, FeedErrorState } from "@/components/feed/feed-state-cards";
 import { LocationOptInCard } from "@/components/geo/location-opt-in-card";
+import { SignupWallCard } from "@/components/growth/signup-wall-card";
+import { SocialProofChips } from "@/components/growth/social-proof-chips";
 import { Button } from "@/components/ui/button";
 import { FeedCard } from "@/components/ui/feed-card";
 import { InlineCommunitiesWidget } from "@/components/ui/inline-feed-widgets";
@@ -21,6 +23,7 @@ import { StoryRing } from "@/components/ui/story-ring";
 import { type FeedPost, useFeed, useStories } from "@/hooks/use-feed";
 import { useFeedImpressions } from "@/hooks/use-feed-impressions";
 import { useProfile } from "@/hooks/use-profile";
+import { PREVIEW_POST_COUNT } from "@/lib/growth/constants";
 import { isCollegeVerifiedUser } from "@/lib/user-verification";
 import { getCollegeShortName } from "@/lib/utils";
 import { HomeTabs } from "./home-tabs";
@@ -46,7 +49,9 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
   const sortParam = searchParams.get("sort") || "for_you";
   const [sort, setSortState] = useState<string>(sortParam);
   const [visibility, setVisibility] = useState<string>("all");
-  const { profile } = useProfile();
+  const { profile, isLoading: profileLoading, error: profileError } = useProfile();
+  // Signed-out visitors get a short preview of real posts, then the sign-up card.
+  const signedOut = !profileLoading && !profile && Boolean(profileError);
   const trackImpression = useFeedImpressions(Boolean(profile?.id), sort);
 
   useEffect(() => {
@@ -166,6 +171,8 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
     return uniquePosts;
   }, [feed, visibility]);
 
+  const visiblePosts = signedOut ? displayedPosts.slice(0, PREVIEW_POST_COUNT) : displayedPosts;
+
   const { stories, mutate: mutateStories, isLoading: storiesLoading } = useStories();
 
   // Infinite scroll trigger ref and observer with 600px prefetch rootMargin
@@ -221,6 +228,8 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
 
           {!forcedType && <HomeTabs active="feed" className="border-b border-border" />}
 
+          {!signedOut && <SocialProofChips className="border-b border-border" />}
+
           {/* Stories only take space when someone has actually posted one. */}
           {!storiesLoading && storyUsers.length > 0 && (
             <section className="w-full min-w-0" aria-label="Stories">
@@ -239,7 +248,7 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
               <FeedErrorState onRetry={() => refresh()} />
             ) : displayedPosts.length > 0 ? (
               <>
-                {displayedPosts.map((post, idx) => (
+                {visiblePosts.map((post, idx) => (
                   <div key={post.id}>
                     <div ref={trackImpression} data-feed-post-id={post.id}>
                       <FeedCard post={post} currentUserId={profile?.id} />
@@ -274,7 +283,9 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
                   </div>
                 ))}
 
-                {!isReachingEnd && (
+                {signedOut && <SignupWallCard placement="feeds" returnTo="/feeds" />}
+
+                {!signedOut && !isReachingEnd && (
                   <div ref={setLoadMoreRef} className="w-full">
                     {isError ? (
                       <div className="flex justify-center py-6">
@@ -288,7 +299,7 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
                   </div>
                 )}
 
-                {isReachingEnd && <FeedCaughtUpCard />}
+                {!signedOut && isReachingEnd && <FeedCaughtUpCard />}
               </>
             ) : (
               <FeedEmptyState />

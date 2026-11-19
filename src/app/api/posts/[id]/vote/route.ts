@@ -6,6 +6,7 @@ import { requireProfile } from "@/lib/require-profile";
 import { openSealedIdentity } from "@/lib/anonymity";
 import { createNotification } from "@/lib/notifications";
 import { rejectViewerWrite } from "@/lib/viewer";
+import { bumpPostStat } from "@/lib/recommendations/engagement-stats";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -138,6 +139,7 @@ export async function POST(req: Request, { params }: RouteParams) {
         // Trigger notification if updated to an upvote
         if (value === 1) {
           sendLikeNotification(id, profile.id).catch(() => {});
+          bumpPostStat(id, "votes");
         }
 
         return NextResponse.json({ message: "Vote updated", userVote: value });
@@ -157,6 +159,7 @@ export async function POST(req: Request, { params }: RouteParams) {
         // Trigger notification if it's an upvote
         if (value === 1) {
           sendLikeNotification(id, profile.id).catch(() => {});
+          bumpPostStat(id, "votes");
         }
 
         return NextResponse.json({ message: "Vote cast", userVote: value });

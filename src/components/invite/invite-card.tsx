@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Copy, MessageCircle, QrCode, Share2, Trophy } from "lucide-react";
+import { Camera, Check, Copy, MessageCircle, QrCode, Share2, Trophy } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -11,6 +11,7 @@ import { useProfile } from "@/hooks/use-profile";
 import { trackShare } from "@/lib/analytics/ga4";
 import { inviteUrl } from "@/lib/referrals/invite";
 import { cn } from "@/lib/utils";
+import { buildInviteStoryImage } from "./story-image";
 
 const REWARD = LP_ACTION_REWARDS.REFERRAL_SIGNUP;
 
@@ -19,12 +20,14 @@ export function InviteCard({ className }: { className?: string }) {
   const { profile } = useProfile();
   const [copied, setCopied] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
+  const [makingStory, setMakingStory] = useState(false);
 
   if (!profile?.username) return null;
 
   const link = inviteUrl(profile.username);
   const invites = profile.referralCount ?? 0;
-  const message = `Join me on CampusLoop, the app only for students of our college. ${link}`;
+  const college = profile.institution?.name?.split(",")[0]?.trim() ?? null;
+  const message = `Join me on CampusLoop, the app only for students of our college. We both get ${REWARD} Loop Points when you join: ${link}`;
 
   async function copy() {
     try {
@@ -48,6 +51,35 @@ export function InviteCard({ className }: { className?: string }) {
     }
   }
 
+  /** Instagram has no web share link for stories, so we share an image and copy the link for its link sticker. */
+  async function shareStory() {
+    if (!profile) return;
+    setMakingStory(true);
+    try {
+      const blob = await buildInviteStoryImage({ name: profile.displayName, college, link });
+      if (!blob) throw new Error("no image");
+      const file = new File([blob], "campusloop-invite.png", { type: "image/png" });
+      await navigator.clipboard?.writeText(link).catch(() => undefined);
+      if (typeof navigator.canShare === "function" && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file] });
+        toast.success("Link copied. Add it to your story with the link sticker.");
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "campusloop-invite.png";
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.success("Image saved and link copied. Post the image to your story and add the link sticker.");
+      }
+      trackShare("instagram_story", "invite", profile.username);
+    } catch {
+      // The student closed the share sheet.
+    } finally {
+      setMakingStory(false);
+    }
+  }
+
   return (
     <section
       className={cn("space-y-3 rounded-lg border border-border bg-surface p-4", className)}
@@ -59,8 +91,8 @@ export function InviteCard({ className }: { className?: string }) {
             Invite your friends
           </h2>
           <p className="text-sm text-fg-muted">
-            You get <span className="font-semibold text-reward-text">+{REWARD} LP</span> for every friend who
-            joins with their college email.
+            When a friend joins with their college email, you both get{" "}
+            <span className="font-semibold text-reward-text">+{REWARD} LP</span>.
           </p>
         </div>
         <p className="shrink-0 text-right">
@@ -86,8 +118,8 @@ export function InviteCard({ className }: { className?: string }) {
         )}
       </button>
 
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <Button asChild variant="success" size="sm">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        <Button asChild variant="success" className="col-span-2 sm:col-span-1">
           <a
             href={`https://wa.me/?text=${encodeURIComponent(message)}`}
             target="_blank"
@@ -97,13 +129,22 @@ export function InviteCard({ className }: { className?: string }) {
             <MessageCircle aria-hidden /> WhatsApp
           </a>
         </Button>
-        <Button variant="secondary" size="sm" onClick={share}>
-          <Share2 aria-hidden /> Share
+        <Button variant="secondary" onClick={shareStory} loading={makingStory}>
+          {!makingStory && <Camera aria-hidden />} Insta story
         </Button>
-        <Button variant="secondary" size="sm" onClick={() => setQrOpen(true)}>
+        <Button variant="secondary" onClick={copy}>
+          {copied ? <Check aria-hidden /> : <Copy aria-hidden />} Copy link
+        </Button>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        <Button variant="ghost" size="sm" onClick={share}>
+          <Share2 aria-hidden /> More apps
+        </Button>
+        <Button variant="ghost" size="sm" onClick={() => setQrOpen(true)}>
           <QrCode aria-hidden /> QR code
         </Button>
-        <Button asChild variant="outline" size="sm">
+        <Button asChild variant="ghost" size="sm">
           <Link href="/invites">
             <Trophy aria-hidden /> Top inviters
           </Link>

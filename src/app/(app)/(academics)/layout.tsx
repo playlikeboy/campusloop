@@ -20,7 +20,8 @@ export default async function AcademicsLayout({ children }: { children: React.Re
     >
       <AcademicsSwitch />
       {children}
-      {signedIn && <FirstVisitNotificationPrompt />}
+      {/* Self-gates on the session cookie, so it also works on the static signed-out snapshots. */}
+      <FirstVisitNotificationPrompt />
     </AppShell>
   );
 }

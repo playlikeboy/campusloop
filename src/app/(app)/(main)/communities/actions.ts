@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
 import { communities, communityMembers, communityWebhooks, posts, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { notifyCommunityJoinApproved, notifyCommunityJoinRequest } from "@/lib/community-notifications";
 
 export interface CreateCommunityInput {
   name: string;
@@ -196,6 +197,10 @@ export async function joinCommunity(communityId: string) {
       status: initialStatus,
     });
 
+    if (initialStatus === "PENDING") {
+      await notifyCommunityJoinRequest(comm, profile);
+    }
+
     // Reward community with +15 LP on new active member join
     if (initialStatus === "ACTIVE") {
       await db
@@ -239,10 +244,26 @@ export async function approveJoinRequest(communityId: string, targetUserId: stri
     throw new Error("Unauthorized to approve member requests");
   }
 
-  await db
+  const [approved] = await db
     .update(communityMembers)
     .set({ status: "ACTIVE" })
-    .where(and(eq(communityMembers.communityId, communityId), eq(communityMembers.userId, targetUserId)));
+    .where(
+      and(
+        eq(communityMembers.communityId, communityId),
+        eq(communityMembers.userId, targetUserId),
+        eq(communityMembers.status, "PENDING")
+      )
+    )
+    .returning({ userId: communityMembers.userId });
+
+  // Only a real PENDING -> ACTIVE change earns points and a notification, so a
+  // double-tap cannot farm LP or ping the student twice.
+  if (!approved) {
+    revalidatePath(`/communities/${communityId}/members`);
+    return { success: true };
+  }
+
+  await notifyCommunityJoinApproved(comm, targetUserId, profile.id);
 
   // Award +15 LP to community
   await db
@@ -264,6 +285,20 @@ export async function rejectJoinRequest(communityId: string, targetUserId: strin
   });
 
   if (!profile) throw new Error("Profile not found");
+
+  // Same rule as approving: only the creator or an admin may decline.
+  const comm = await db.query.communities.findFirst({ where: eq(communities.id, communityId) });
+  if (!comm) throw new Error("Community not found");
+  const callerMembership = await db.query.communityMembers.findFirst({
+    where: and(
+      eq(communityMembers.communityId, communityId),
+      eq(communityMembers.userId, profile.id),
+      eq(communityMembers.role, "ADMIN")
+    ),
+  });
+  if (comm.creatorId !== profile.id && !callerMembership) {
+    throw new Error("Unauthorized to decline member requests");
+  }
 
   await db
     .delete(communityMembers)

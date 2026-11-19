@@ -14,6 +14,13 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   return Uint8Array.from(raw, (char) => char.charCodeAt(0));
 }
 
+function sameKey(current: ArrayBuffer | null, expected: Uint8Array): boolean {
+  // Some browsers do not expose the key; trust the subscription then.
+  if (!current) return true;
+  const bytes = new Uint8Array(current);
+  return bytes.length === expected.length && bytes.every((b, i) => b === expected[i]);
+}
+
 /**
  * Whether this browser currently holds a Web Push subscription, i.e. the
  * service worker will surface new notifications on its own.
@@ -36,12 +43,21 @@ export async function hasActivePushSubscription(): Promise<boolean> {
  */
 async function registerPushSubscription(vapidPublicKey: string): Promise<boolean> {
   const registration = await navigator.serviceWorker.ready;
-  const existing = await registration.pushManager.getSubscription();
+  const serverKey = urlBase64ToUint8Array(vapidPublicKey.trim());
+  let existing = await registration.pushManager.getSubscription();
+
+  // A subscription made under an older VAPID key is rejected (403) by the push
+  // service for every send. Replace it rather than re-register a dead one.
+  if (existing && !sameKey(existing.options?.applicationServerKey ?? null, serverKey)) {
+    await existing.unsubscribe().catch(() => false);
+    existing = null;
+  }
+
   const subscription =
     existing ||
     (await registration.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(vapidPublicKey) as BufferSource,
+      applicationServerKey: serverKey as BufferSource,
     }));
 
   const res = await fetch("/api/push/subscribe", {
@@ -129,6 +145,8 @@ export function usePushNotifications() {
   const [permission, setPermission] = useState<PushPermission>("default");
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isBusy, setIsBusy] = useState(false);
+  // Known only in the browser; starting false keeps the first render equal to the server HTML (#418).
+  const [isSupported, setIsSupported] = useState(false);
 
   const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
 
@@ -138,6 +156,7 @@ export function usePushNotifications() {
       return;
     }
 
+    setIsSupported(true);
     setPermission(Notification.permission as PushPermission);
     if (Notification.permission === "granted") {
       setIsSubscribed(true);
@@ -279,7 +298,7 @@ export function usePushNotifications() {
     permission,
     isSubscribed,
     isBusy,
-    isSupported: typeof window !== "undefined" && "Notification" in window,
+    isSupported,
     isConfigured: true,
     subscribe,
     sendTestNotification,

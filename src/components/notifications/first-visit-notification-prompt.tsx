@@ -1,54 +1,73 @@
 "use client";
 
 import { Bell, X } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { usePushNotifications } from "@/hooks/use-push-notifications";
+import { hasAuthCookie } from "@/lib/auth-cookie";
 import { haptics } from "@/lib/haptics";
+import {
+  canAskForNotifications,
+  MEANINGFUL_ACTION_EVENT,
+  markAsked,
+  notePageView,
+} from "@/lib/notification-prompt";
 import { sounds } from "@/lib/sounds";
 
-const PROMPT_STORAGE_KEY = "campusloop_notif_prompted_v1";
+const SHOW_DELAY_MS = 2500;
 
-function markPrompted() {
-  try {
-    localStorage.setItem(PROMPT_STORAGE_KEY, "true");
-  } catch {
-    // storage blocked: we may ask again next visit, which is fine
-  }
-}
-
-/** Asks once, a moment after the first visit, whether to turn on phone notifications. */
+/**
+ * Asks whether to turn on phone notifications, politely: only for signed-in people on
+ * their second session or right after a post/comment/join, never on a session's first
+ * page load, and at most once per 14 days (see src/lib/notification-prompt.ts).
+ */
 export function FirstVisitNotificationPrompt() {
   const { permission, isSupported, isSubscribed, isBusy, subscribe } = usePushNotifications();
   const [showPrompt, setShowPrompt] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
-    if (!("Notification" in window)) return;
-    let prompted = false;
-    try {
-      prompted = Boolean(localStorage.getItem(PROMPT_STORAGE_KEY));
-    } catch {
-      prompted = true;
-    }
-    if (prompted || Notification.permission !== "default") return;
-    const timer = setTimeout(() => setShowPrompt(true), 1800);
+    if (!hasAuthCookie()) return;
+    const pageViews = notePageView();
+    if (!canAskForNotifications({ pageViews })) return;
+    const timer = setTimeout(() => setShowPrompt(true), SHOW_DELAY_MS);
     return () => clearTimeout(timer);
+  }, [pathname]);
+
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const onAction = () => {
+      if (!hasAuthCookie() || !canAskForNotifications({ pageViews: 0, afterAction: true })) return;
+      clearTimeout(timer);
+      timer = setTimeout(() => setShowPrompt(true), 1200);
+    };
+    window.addEventListener(MEANINGFUL_ACTION_EVENT, onAction);
+    return () => {
+      window.removeEventListener(MEANINGFUL_ACTION_EVENT, onAction);
+      clearTimeout(timer);
+    };
   }, []);
+
+  const visible = showPrompt && isSupported && !isSubscribed && permission === "default";
+
+  // Seen once starts the 14-day quiet period, even if it is ignored.
+  useEffect(() => {
+    if (visible) markAsked();
+  }, [visible]);
 
   async function enable() {
     sounds.tap();
     haptics.light();
-    markPrompted();
     await subscribe();
     setShowPrompt(false);
   }
 
   function dismiss() {
-    markPrompted();
     setShowPrompt(false);
   }
 
-  if (!showPrompt || !isSupported || isSubscribed || permission !== "default") return null;
+  if (!visible) return null;
 
   return (
     <div

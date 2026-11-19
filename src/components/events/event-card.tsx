@@ -2,7 +2,7 @@
 
 import { CalendarDays, Check, MapPin, Trophy } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { mutate } from "swr";
 import { Badge } from "@/components/ui/badge";
@@ -81,7 +81,9 @@ function safePosterUrl(value: string | null | undefined): string | null {
     const parsed = new URL(value);
     if (parsed.protocol !== "https:") return null;
     // The older catalog has generic Unsplash stock photos, not event posters.
-    if (parsed.hostname.toLowerCase() === "images.unsplash.com") return null;
+    // Dicebear shapes are generated placeholders, not posters either.
+    const host = parsed.hostname.toLowerCase();
+    if (host === "images.unsplash.com" || host === "api.dicebear.com") return null;
     return parsed.toString();
   } catch {
     return null;
@@ -148,81 +150,119 @@ function useQuickRegister(event: EventItem, closed: boolean) {
   return { isRegistered, attendeeCount, isMutating, register };
 }
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+/** Events that run longer than this are "open" windows (online challenges), not a thing happening right now. */
+const LIVE_MAX_SPAN_MS = 3 * DAY_MS;
+/** Countdowns only show when the moment is close enough to act on. */
+const COUNTDOWN_WINDOW_MS = 7 * DAY_MS;
+
+export type EventTiming =
+  | { kind: "closed" }
+  | { kind: "live" }
+  | { kind: "open"; until: string }
+  | { kind: "upcoming" };
+
+/**
+ * Where an event is in its lifecycle. "Live now" is reserved for short events that are
+ * actually running (a 36-hour hackathon, a fest weekend). A competition that started weeks
+ * ago and runs for months is "open" with the date it closes, never "live".
+ */
+export function eventTiming(event: EventItem, nowMs = Date.now()): EventTiming {
+  if (isEventClosed(event, nowMs)) return { kind: "closed" };
+  const startMs = new Date(event.startDate).getTime();
+  const endMs = new Date(event.endDate).getTime();
+  if (!Number.isFinite(startMs) || nowMs < startMs) return { kind: "upcoming" };
+  const span = Number.isFinite(endMs) ? endMs - startMs : 0;
+  if (span <= LIVE_MAX_SPAN_MS) return { kind: "live" };
+  const deadlineMs = event.registrationDeadline ? new Date(event.registrationDeadline).getTime() : Number.NaN;
+  const until = Number.isFinite(deadlineMs) && deadlineMs < endMs ? event.registrationDeadline : event.endDate;
+  return { kind: "open", until: until as string };
+}
+
+function shortDate(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Date TBA";
+  return date.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: date.getFullYear() === new Date().getFullYear() ? undefined : "numeric",
+  });
+}
+
+/** Compact date chip: "Sat, 28 Nov", "Live now" or "Open till 4 Dec". */
+function EventDateChip({ event, timing }: { event: EventItem; timing: EventTiming }) {
+  if (timing.kind === "live") {
+    return (
+      <Badge variant="danger" className="h-7 shrink-0">
+        Live now
+      </Badge>
+    );
+  }
+  const label = timing.kind === "open" ? `Open till ${shortDate(timing.until)}` : eventDate(event.startDate);
+  return (
+    <span className="inline-flex h-7 shrink-0 items-center gap-1.5 rounded-full bg-brand-subtle px-2.5 text-xs font-semibold text-brand-text">
+      <CalendarDays className="size-3.5" aria-hidden />
+      <time dateTime={timing.kind === "open" ? timing.until : event.startDate}>{label}</time>
+    </span>
+  );
+}
+
+/** The one countdown worth showing on a card, or null when nothing is close. */
+function cardCountdown(event: EventItem, timing: EventTiming, nowMs: number) {
+  if (timing.kind === "closed" || timing.kind === "live") return null;
+  const startMs = new Date(event.startDate).getTime();
+  const deadlineMs = event.registrationDeadline ? new Date(event.registrationDeadline).getTime() : Number.NaN;
+  const soon = (ms: number) => Number.isFinite(ms) && ms > nowMs && ms - nowMs <= COUNTDOWN_WINDOW_MS;
+  if (timing.kind === "open") {
+    const untilMs = new Date(timing.until).getTime();
+    return soon(untilMs) ? { label: "Closes in", target: timing.until } : null;
+  }
+  if (soon(deadlineMs) && deadlineMs < startMs) {
+    return { label: "Registration closes in", target: event.registrationDeadline as string };
+  }
+  return soon(startMs) ? { label: "Starts in", target: event.startDate } : null;
+}
+
 export function EventCard({ event, variant = "row" }: EventCardProps) {
   const href = `/events/${event.slug || event.id}`;
   const closed = isEventClosed(event);
   const { isRegistered, attendeeCount, isMutating, register } = useQuickRegister(event, closed);
-  const start = new Date(event.startDate);
-  const now = new Date();
-  const end = new Date(event.endDate);
-  const live = !closed && !Number.isNaN(start.getTime()) && start <= now && now <= end;
+  // Timing is computed on the client after mount so server and client markup agree.
+  const [nowMs, setNowMs] = useState<number | null>(null);
+  useEffect(() => setNowMs(Date.now()), []);
+  const timing: EventTiming = nowMs === null ? { kind: closed ? "closed" : "upcoming" } : eventTiming(event, nowMs);
+  const countdown = nowMs === null ? null : cardCountdown(event, timing, nowMs);
   const restricted =
     Array.isArray(event.eligibleInstitutionIds) && !event.eligibleInstitutionIds.includes("ALL");
   const place = event.mode === "ONLINE" ? "Online" : event.venue || eventModeLabel(event.mode);
   const hasPoster = Boolean(safePosterUrl(event.bannerUrl));
+  const prize = event.prizesDescription?.trim();
 
   const action = closed ? (
     <Badge variant="neutral">Closed</Badge>
   ) : isRegistered ? (
-    <Badge variant="verified">
+    <Badge variant="verified" className="h-8">
       <Check aria-hidden /> You're going
     </Badge>
   ) : event.participationType === "TEAM" ? (
-    <Button asChild size="sm" variant="outline">
+    <Button asChild variant="outline">
       <Link href={href}>See details</Link>
     </Button>
   ) : (
-    <Button size="sm" onClick={() => void register()} loading={isMutating}>
+    <Button onClick={() => void register()} loading={isMutating} className="px-5">
       Register
     </Button>
   );
 
-  const meta = (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-fg-muted">
-      <span className="inline-flex items-center gap-1.5">
-        <CalendarDays className="size-4" aria-hidden />
-        {eventDate(event.startDate)}
-      </span>
-      <span className="inline-flex min-w-0 items-center gap-1.5">
-        <MapPin className="size-4 shrink-0" aria-hidden />
-        <span className="truncate">{place}</span>
-      </span>
-    </div>
-  );
-
-  const footer = (
-    <div className="flex items-center justify-between gap-3">
-      <span className="inline-flex min-w-0 items-center gap-2 text-sm text-fg-muted">
-        <GoingSticker count={attendeeCount} />
-        <span className="truncate">{event.entryFee || "Free"}</span>
-      </span>
-      {action}
-    </div>
-  );
-
-  const badges = (
-    <div className="flex flex-wrap items-center gap-1.5">
-      {live && <Badge variant="danger">Live now</Badge>}
-      <Badge variant="neutral">{eventTypeLabel(event.eventType)}</Badge>
-      {restricted && <Badge variant="outline">Selected colleges</Badge>}
-      {event.loopPointsReward > 0 && (
-        <LoopPointsSticker points={event.loopPointsReward} label="points" size="sm" className="h-7 shadow-none" />
-      )}
-    </div>
-  );
-
-  const deadlineMs = event.registrationDeadline ? new Date(event.registrationDeadline).getTime() : Number.NaN;
-  const countdown =
-    closed || live ? null : Number.isFinite(deadlineMs) && deadlineMs < start.getTime() ? (
-      <EventCountdownTag label="Registration closes in" target={event.registrationDeadline} />
-    ) : (
-      <EventCountdownTag label="Starts in" target={event.startDate} />
-    );
-
-  if (variant === "grid") {
-    return (
-      <article className="overflow-hidden rounded-lg border border-border bg-surface">
-        <Link href={href} className="block aspect-[16/9] overflow-hidden bg-surface-muted">
+  return (
+    <article className="relative flex flex-col overflow-hidden rounded-lg border border-border bg-surface transition-ui hover:border-border-strong">
+      {(hasPoster || variant === "grid") && (
+        <div
+          className={cn(
+            "overflow-hidden bg-surface-muted",
+            variant === "grid" ? "aspect-[16/9]" : "aspect-[21/9] sm:aspect-[3/1]"
+          )}
+        >
           {hasPoster ? (
             <Poster event={event} />
           ) : (
@@ -230,57 +270,61 @@ export function EventCard({ event, variant = "row" }: EventCardProps) {
               <EventDateTile date={event.startDate} size="lg" />
             </div>
           )}
-        </Link>
-        <div className="space-y-3 p-4">
-          {badges}
-          <div>
-            <Link
-              href={href}
-              className="line-clamp-2 font-display text-lg font-bold leading-snug text-fg hover:text-brand-text"
-            >
-              {event.title}
-            </Link>
-            <p className="mt-0.5 truncate text-sm text-fg-muted">{event.clubName}</p>
-          </div>
-          {meta}
-          {countdown}
-          {footer}
         </div>
-      </article>
-    );
-  }
-
-  return (
-    <article className="flex gap-3 rounded-lg border border-border bg-surface p-3 sm:gap-4 sm:p-4">
-      <Link
-        href={href}
-        aria-hidden
-        tabIndex={-1}
-        className="relative h-20 w-16 shrink-0 overflow-hidden rounded-sm sm:h-24 sm:w-20"
-      >
-        {hasPoster ? (
-          <Poster event={event} />
-        ) : (
-          <EventDateTile date={event.startDate} className="h-full w-full" />
-        )}
-      </Link>
-      <div className="min-w-0 flex-1 space-y-2">
-        {badges}
-        <div>
-          <Link href={href} className="line-clamp-2 font-semibold leading-snug text-fg hover:text-brand-text">
+      )}
+      <div className="flex flex-1 flex-col gap-2 p-3.5 sm:p-4">
+        <div className="flex min-w-0 items-center gap-2">
+          <EventDateChip event={event} timing={timing} />
+          <span className="min-w-0 truncate text-xs font-medium text-fg-muted">
+            {eventTypeLabel(event.eventType)}
+          </span>
+          {event.loopPointsReward > 0 && (
+            <LoopPointsSticker
+              points={event.loopPointsReward}
+              label="pts"
+              size="sm"
+              className="relative z-10 ml-auto h-7 shrink-0 px-2.5 shadow-none"
+            />
+          )}
+        </div>
+        <h3 className="font-display text-lg leading-snug font-bold text-fg">
+          <Link
+            href={href}
+            className="line-clamp-2 break-words outline-none after:absolute after:inset-0 after:rounded-lg focus-visible:after:ring-2 focus-visible:after:ring-ring hover:text-brand-text"
+          >
             {event.title}
           </Link>
-          <p className="truncate text-sm text-fg-muted">{event.clubName}</p>
+        </h3>
+        <p className="flex min-w-0 items-center gap-1.5 text-sm text-fg-muted">
+          <MapPin className="size-4 shrink-0" aria-hidden />
+          <span className="max-w-[45%] shrink-0 truncate">{place}</span>
+          <span aria-hidden>·</span>
+          {prize ? (
+            <span className="inline-flex min-w-0 items-center gap-1 text-fg">
+              <Trophy className="size-3.5 shrink-0 text-fg-muted" aria-hidden />
+              <span className="truncate">{prize}</span>
+            </span>
+          ) : (
+            <span className="min-w-0 truncate">{event.entryFee || "Free"}</span>
+          )}
+          {restricted && (
+            <span className="hidden shrink-0 sm:inline">
+              <span aria-hidden>· </span>Selected colleges
+            </span>
+          )}
+        </p>
+        <div className="mt-auto flex items-center justify-between gap-3 pt-1">
+          <div className="flex min-w-0 items-center gap-2">
+            {countdown ? (
+              <EventCountdownTag label={countdown.label} target={countdown.target} />
+            ) : attendeeCount > 0 ? (
+              <GoingSticker count={attendeeCount} />
+            ) : (
+              <span className="truncate text-sm text-fg-subtle">{event.clubName}</span>
+            )}
+          </div>
+          <div className="relative z-10 shrink-0">{action}</div>
         </div>
-        {meta}
-        {countdown}
-        {event.prizesDescription && (
-          <p className="inline-flex max-w-full items-center gap-1.5 text-sm text-fg">
-            <Trophy className="size-4 shrink-0 text-fg-muted" aria-hidden />
-            <span className="truncate">{event.prizesDescription}</span>
-          </p>
-        )}
-        {footer}
       </div>
     </article>
   );
@@ -288,12 +332,17 @@ export function EventCard({ event, variant = "row" }: EventCardProps) {
 
 export function EventCardSkeleton() {
   return (
-    <div className="flex gap-3 rounded-lg border border-border bg-surface p-3 sm:gap-4 sm:p-4" aria-hidden>
-      <div className="h-20 w-16 shrink-0 animate-pulse rounded-sm bg-surface-muted sm:h-24 sm:w-20" />
-      <div className="flex-1 space-y-2.5">
-        <div className="h-5 w-24 animate-pulse rounded-full bg-surface-muted" />
-        <div className="h-4 w-3/4 animate-pulse rounded-sm bg-surface-muted" />
-        <div className="h-4 w-1/2 animate-pulse rounded-sm bg-surface-muted" />
+    <div className="space-y-2.5 rounded-lg border border-border bg-surface p-3.5 sm:p-4" aria-hidden>
+      <div className="flex items-center gap-2">
+        <div className="h-7 w-24 animate-pulse rounded-full bg-surface-muted" />
+        <div className="h-4 w-16 animate-pulse rounded-sm bg-surface-muted" />
+      </div>
+      <div className="h-5 w-11/12 animate-pulse rounded-sm bg-surface-muted" />
+      <div className="h-5 w-2/3 animate-pulse rounded-sm bg-surface-muted" />
+      <div className="h-4 w-1/2 animate-pulse rounded-sm bg-surface-muted" />
+      <div className="flex items-center justify-between pt-1">
+        <div className="h-7 w-28 animate-pulse rounded-full bg-surface-muted" />
+        <div className="h-11 w-28 animate-pulse rounded-full bg-surface-muted" />
       </div>
     </div>
   );

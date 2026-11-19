@@ -83,7 +83,7 @@ export function CheckInClient({ eventId, initialSlug, eventTitle }: CheckInClien
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-5 px-4 py-6">
+    <div className="mx-auto w-full max-w-2xl space-y-5 py-6">
       <ManageHeader
         slug={slug}
         title="Check-in"

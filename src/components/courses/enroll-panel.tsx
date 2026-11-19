@@ -3,7 +3,7 @@
 import { Award, Bookmark, BookmarkCheck, Clock, Pencil, PlayCircle, Share2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -13,11 +13,26 @@ import { formatDuration } from "@/lib/courses/format";
 import { lectureCount } from "./lecture-kind";
 import { ProgressBar } from "./progress-bar";
 
-/** Side panel on the course page: join or continue, save, share, what you get. */
-export function EnrollPanel({ slug }: { slug: string }) {
+/**
+ * Side panel on the course page: join or continue, save, share, what you get.
+ * With `stickyBar` (the phone copy of the panel), the main action follows the
+ * reader in a bar above the bottom nav once the panel's own button scrolls away.
+ */
+export function EnrollPanel({ slug, stickyBar = false }: { slug: string; stickyBar?: boolean }) {
   const router = useRouter();
   const { data, error, mutate } = useCourse(slug);
   const [busy, setBusy] = useState(false);
+  const ctaRef = useRef<HTMLDivElement>(null);
+  const [ctaVisible, setCtaVisible] = useState(true);
+  const ready = Boolean(data);
+
+  useEffect(() => {
+    const el = ctaRef.current;
+    if (!stickyBar || !ready || !el) return;
+    const io = new IntersectionObserver(([e]) => setCtaVisible(e.isIntersecting));
+    io.observe(el);
+    return () => io.disconnect();
+  }, [stickyBar, ready]);
 
   if (error && !data) {
     return (
@@ -80,24 +95,41 @@ export function EnrollPanel({ slug }: { slug: string }) {
   return (
     <div className="rounded-lg border border-border bg-surface p-5">
       <p className="font-display text-2xl font-extrabold text-fg">Free</p>
-      {viewer.enrolled ? (
-        <>
-          <div className="mt-3">
-            <ProgressBar value={progress} done={doneCount} total={lectures.length} label="Your progress" />
-            <p className="mt-1.5 text-sm tabular-nums text-fg-muted">
-              {doneCount} of {lectureCount(lectures.length)} done
-            </p>
-          </div>
-          <Button asChild size="lg" className="mt-4 w-full">
-            <Link href={resume ? `/learn/${slug}/${resume}` : `/learn/${slug}`}>
-              <PlayCircle className="size-5" aria-hidden /> {progress > 0 ? "Continue" : "Start course"}
-            </Link>
+      <div ref={ctaRef}>
+        {viewer.enrolled ? (
+          <>
+            <div className="mt-3">
+              <ProgressBar value={progress} done={doneCount} total={lectures.length} label="Your progress" />
+              <p className="mt-1.5 text-sm tabular-nums text-fg-muted">
+                {doneCount} of {lectureCount(lectures.length)} done
+              </p>
+            </div>
+            <Button asChild size="lg" className="mt-4 w-full">
+              <Link href={resume ? `/learn/${slug}/${resume}` : `/learn/${slug}`}>
+                <PlayCircle className="size-5" aria-hidden /> {progress > 0 ? "Continue" : "Start course"}
+              </Link>
+            </Button>
+          </>
+        ) : (
+          <Button size="lg" onClick={enroll} loading={busy} className="mt-3 w-full">
+            {!busy && <PlayCircle className="size-5" aria-hidden />} Join for free
           </Button>
-        </>
-      ) : (
-        <Button size="lg" onClick={enroll} loading={busy} className="mt-3 w-full">
-          {!busy && <PlayCircle className="size-5" aria-hidden />} Join for free
-        </Button>
+        )}
+      </div>
+      {stickyBar && !ctaVisible && (
+        <div className="fixed inset-x-0 bottom-[calc(var(--nav-mobile-h)+env(safe-area-inset-bottom))] z-30 border-t border-border bg-surface px-4 py-2 lg:hidden">
+          {viewer.enrolled ? (
+            <Button asChild className="h-11 w-full">
+              <Link href={resume ? `/learn/${slug}/${resume}` : `/learn/${slug}`}>
+                <PlayCircle className="size-5" aria-hidden /> {progress > 0 ? "Continue" : "Start course"}
+              </Link>
+            </Button>
+          ) : (
+            <Button onClick={enroll} loading={busy} className="h-11 w-full">
+              {!busy && <PlayCircle className="size-5" aria-hidden />} Join for free
+            </Button>
+          )}
+        </div>
       )}
       <div className="mt-2 grid grid-cols-2 gap-2">
         <Button variant="secondary" onClick={wishlist} aria-pressed={viewer.wishlisted}>

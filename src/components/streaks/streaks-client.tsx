@@ -3,6 +3,7 @@
 import { ArrowRight, Flame } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { StreakExtras } from "@/components/growth/streak-extras";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -126,6 +127,8 @@ export function StreaksClient({ profileId }: { profileId?: string }) {
           </div>
         </section>
       )}
+
+      {isOwn && <StreakExtras />}
 
       {nextMilestone && (
         <section className="space-y-2" aria-labelledby="next-title">

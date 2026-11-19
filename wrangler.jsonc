@@ -72,6 +72,10 @@
 	},
 	"upload_source_maps": false,
 	"minify": true,
+	// keep_names wraps functions in an esbuild `__name` helper. Hexclave inlines its theme
+	// script with fn.toString(), so the helper leaked into the HTML and threw
+	// "s is not defined" on /sign-in.
+	"keep_names": false,
 	/**
 	 * Smart Placement
 	 * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement

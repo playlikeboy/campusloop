@@ -158,6 +158,34 @@ async function fetchWikipediaForCollege(name: string): Promise<WikipediaSummary 
   }
 }
 
+const liveCache = new Map<string, Promise<boolean>>();
+
+/**
+ * Wikimedia renames and deletes files, and several curated URLs above now 404
+ * (e.g. AIIMS_Mangalagiri_Logo.png broke /explore). Only keep URLs that still load.
+ */
+function isLive(url: string | null | undefined): Promise<boolean> {
+  if (!url) return Promise.resolve(false);
+  let check = liveCache.get(url);
+  if (!check) {
+    check = fetch(url, {
+      method: "HEAD",
+      headers: { "User-Agent": "CampusLoopBot/1.0 (https://campusloop.space; contact@campusloop.space)" },
+    })
+      .then((res) => res.ok)
+      .catch(() => false);
+    liveCache.set(url, check);
+  }
+  return check;
+}
+
+async function firstLive(...urls: Array<string | null | undefined>): Promise<string | null> {
+  for (const url of urls) {
+    if (url && (await isLive(url))) return url;
+  }
+  return null;
+}
+
 async function main() {
   console.log("Fetching all institutions from Neon DB...");
   const colleges = (await sql`
@@ -188,8 +216,8 @@ async function main() {
         const index = i + chunkIdx;
         const manual = FAMOUS_COLLEGES_MANUAL_MEDIA[college.slug];
 
-        let logoUrl = manual?.logo || college.logo_url;
-        let bannerUrl = manual?.banner || college.banner_url;
+        let logoUrl = await firstLive(manual?.logo, college.logo_url);
+        let bannerUrl = await firstLive(manual?.banner, college.banner_url);
         let description = college.description;
         let wikiUrl: string | undefined = college.extra_data?.wikipediaUrl;
 

@@ -219,7 +219,7 @@ export default function CollegesClient({
   const searchTrimmed = search.trim();
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col gap-4 px-4 pt-4 pb-12 sm:px-6">
+    <main className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col gap-4 pt-4 pb-12">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div className="min-w-0">
           <h1 className="text-3xl font-bold text-fg">Colleges</h1>

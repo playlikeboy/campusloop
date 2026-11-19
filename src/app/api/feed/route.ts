@@ -257,6 +257,7 @@ export async function GET(req: Request) {
       }
     }
 
+    const variant = getRankingVariant(profileId);
     const pageOptions = {
       conditions,
       limit,
@@ -267,10 +268,12 @@ export async function GET(req: Request) {
       seed,
       // Control arm keeps safety filtering but ranks without learned preferences.
       affinity:
-        getRankingVariant(profileId) === "personalized"
-          ? affinity
-          : { ...EMPTY_AFFINITY, blockedUserIds: affinity.blockedUserIds },
+        variant === "control" ? { ...EMPTY_AFFINITY, blockedUserIds: affinity.blockedUserIds } : affinity,
+      // v3 falls back to v2 inside resolveFeedPage if the stats table is missing.
+      rankingVersion: variant === "ranking-v3" ? ("v3" as const) : ("v2" as const),
+      viewerCampusId: institutionId,
     };
+    if (variant === "ranking-v3") marks.push("ranker;desc=v3");
     // Ranking is an enhancement: if a scored sort fails, serve the
     // chronological feed rather than an empty timeline.
     const tRank = performance.now();

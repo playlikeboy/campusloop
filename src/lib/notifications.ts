@@ -28,10 +28,16 @@ export type NotificationType =
   | "MESSAGE"
   | "NEW_POST"
   | "EVENT_REGISTRATION"
+  | "EVENT_REMINDER"
+  | "EVENT_UPDATE"
+  | "COMMUNITY_JOIN_REQUEST"
+  | "COMMUNITY_JOIN_APPROVED"
   | "GAMING_LOBBY_JOIN"
   | "GAMING_LOBBY_FULL"
   | "GAMING_MATCH_READY"
-  | "TOURNAMENT_UPDATE";
+  | "TOURNAMENT_UPDATE"
+  /** Streak and campus reminders from the engagement cron (src/lib/engagement/run.ts). */
+  | "REMINDER";
 
 export interface CreateNotificationParams {
   userId: string;
@@ -54,10 +60,10 @@ export interface CreateNotificationParams {
  * milestones). The student is both recipient and actor, so these are exempt
  * from the self-notification guard.
  */
-const SELF_ADDRESSED_TYPES = new Set<NotificationType>(["MILESTONE"]);
+const SELF_ADDRESSED_TYPES = new Set<NotificationType>(["MILESTONE", "EVENT_REMINDER"]);
 
 /** Types that should buzz a phone immediately rather than ride the normal queue. */
-const HIGH_URGENCY_TYPES = new Set<NotificationType>(["MATCH", "MESSAGE"]);
+const HIGH_URGENCY_TYPES = new Set<NotificationType>(["MATCH", "MESSAGE", "EVENT_REMINDER"]);
 
 /**
  * Truncate and clean text snippet for notification previews
@@ -170,13 +176,17 @@ export async function createNotificationsForMany({
   maxRecipients?: number;
 }): Promise<number> {
   const channel = channelForType(type);
-  if (!channel) return 0;
 
-  const unique = Array.from(new Set(recipientIds)).filter((id) => id && id !== actorId);
+  const unique = Array.from(new Set(recipientIds)).filter(
+    (id) => id && (id !== actorId || SELF_ADDRESSED_TYPES.has(type))
+  );
   if (unique.length === 0) return 0;
 
   try {
-    const allowed = await filterAllowedRecipients({ recipientIds: unique, actorId, channel });
+    // Types without a channel (event reminders, community approvals) have no
+    // switch to turn off, so every recipient gets them — the same rule
+    // `createNotification` applies. Returning early here used to drop them all.
+    const allowed = channel ? await filterAllowedRecipients({ recipientIds: unique, actorId, channel }) : unique;
     // A viral account should not be able to turn one post into an unbounded
     // write amplification; the newest followers past the cap simply see the
     // post in their feed instead of on their lock screen.

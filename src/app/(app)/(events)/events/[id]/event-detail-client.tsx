@@ -20,7 +20,6 @@ import useSWR, { mutate } from "swr";
 import { BrandedQrModal } from "@/components/common/branded-qr-modal";
 import { eventModeLabel, eventTypeLabel } from "@/components/events/event-card";
 import { GoingSticker } from "@/components/events/event-countdown-tag";
-import { EventDateTile } from "@/components/events/event-date-tile";
 import {
   EventAbout,
   EventAttendees,
@@ -46,7 +45,7 @@ interface EventDetailClientProps {
 
 function DetailSkeleton() {
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-4 px-4 pt-4" role="status" aria-label="Loading event">
+    <div className="mx-auto w-full max-w-3xl space-y-4 pt-4" role="status" aria-label="Loading event">
       <Skeleton className="h-11 w-24 rounded-full" />
       <Skeleton className="aspect-[16/9] w-full rounded-lg" />
       <Skeleton className="h-8 w-3/4" />
@@ -80,7 +79,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
 
   if (!event) {
     return (
-      <div className="mx-auto w-full max-w-3xl px-4 pt-10">
+      <div className="mx-auto w-full max-w-3xl pt-10">
         <EmptyState
           icon={CalendarDays}
           title={error ? "This event didn't load" : "We couldn't find this event"}
@@ -146,8 +145,20 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
     }
   }
 
+  const longRunning = Number.isFinite(endMs - startMs) && endMs - startMs > 3 * 24 * 60 * 60 * 1000;
+  // "Live now" only for short events that are running. Month-long challenges are "open".
+  const isOpenWindow = isLive && longRunning;
+  const isHappening = isLive && !longRunning;
+  const startLabel = Number.isFinite(startMs)
+    ? new Date(startMs).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })
+    : "Date to be announced";
+  const closesLabel = (ms: number) =>
+    new Date(ms).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+  const regClosed = regClosesMs !== null && now !== null && now > regClosesMs;
+  const openUntilMs = regClosesMs !== null && regClosesMs < endMs ? regClosesMs : endMs;
+
   return (
-    <article className="mx-auto w-full max-w-3xl px-4 pt-3 pb-28 sm:pt-5">
+    <article className="mx-auto w-full max-w-3xl pt-2 pb-24 sm:pt-5 lg:pb-12">
       <div className="flex items-center justify-between gap-2">
         <Button variant="ghost" onClick={() => router.back()} className="-ml-3">
           <ArrowLeft aria-hidden /> Back
@@ -172,7 +183,7 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
       </div>
 
       {showPoster && (
-        <div className="mt-3 aspect-[16/9] overflow-hidden rounded-lg bg-surface-muted">
+        <div className="mt-2 aspect-[16/9] overflow-hidden rounded-lg bg-surface-muted">
           <img
             src={posterUrl as string}
             alt={`${event.title} poster`}
@@ -184,78 +195,118 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
         </div>
       )}
 
-      <header className="mt-5 flex items-start gap-4">
-        {!showPoster && <EventDateTile date={event.startDate} size="lg" />}
-        <div className="min-w-0 flex-1 space-y-2">
-          <div className="flex flex-wrap items-center gap-1.5">
-            {isLive && <Badge variant="danger">Happening now</Badge>}
-            {hasEnded && <Badge variant="neutral">Ended</Badge>}
-            <Badge variant="neutral">{eventTypeLabel(event.eventType)}</Badge>
-            <Badge variant="outline">{event.entryFee || "Free"}</Badge>
-            {Number.isFinite(goingCount) && goingCount > 0 && <GoingSticker count={goingCount} />}
-          </div>
-          <h1 className="font-display text-3xl font-extrabold text-balance text-fg sm:text-4xl">
-            {event.title}
-          </h1>
-          <p className="text-base text-fg-muted">
-            {event.tagline ? `${event.tagline} · ` : ""}
-            {event.clubName}
-          </p>
+      <header className="mt-4 space-y-2.5">
+        <div className="flex flex-wrap items-center gap-1.5">
+          {isHappening ? (
+            <Badge variant="danger" className="h-7">
+              Happening now
+            </Badge>
+          ) : hasEnded ? (
+            <Badge variant="neutral" className="h-7">
+              Ended
+            </Badge>
+          ) : (
+            <span className="inline-flex h-7 items-center gap-1.5 rounded-full bg-brand-subtle px-2.5 text-xs font-semibold text-brand-text">
+              <CalendarDays className="size-3.5" aria-hidden />
+              {isOpenWindow ? `Open till ${closesLabel(openUntilMs)}` : startLabel}
+            </span>
+          )}
+          <Badge variant="neutral" className="h-7">
+            {eventTypeLabel(event.eventType)}
+          </Badge>
+          <Badge variant="outline" className="h-7 max-w-full shrink" title={event.entryFee || "Free"}>
+            <span className="truncate">{event.entryFee || "Free"}</span>
+          </Badge>
+          {Number.isFinite(goingCount) && goingCount > 0 && <GoingSticker count={goingCount} />}
         </div>
+        <h1 className="font-display text-2xl leading-tight font-extrabold text-balance break-words text-fg sm:text-4xl">
+          {event.title}
+        </h1>
+        <p className="text-base text-fg-muted">
+          {event.tagline ? `${event.tagline} · ` : ""}
+          {event.clubName}
+        </p>
+        {points > 0 && !hasEnded && (
+          <div className="flex flex-wrap items-center gap-2 text-sm text-fg-muted">
+            {event.isRegistered ? "You earn" : "Register to earn"}{" "}
+            <LoopPointsSticker points={points} size="sm" />
+          </div>
+        )}
       </header>
 
-      <div className="mt-5 space-y-3">
-        {event.isRegistered ? (
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-verified-subtle p-4">
-            <p className="font-semibold text-verified-text">You're going</p>
-            <Button asChild variant="outline" size="sm">
-              <Link href="/events/my-tickets">
-                <Ticket aria-hidden /> See my ticket
-              </Link>
-            </Button>
-          </div>
-        ) : !hasEnded ? (
-          <div className="flex flex-wrap gap-2">
-            {externalUrl ? (
-              <Button asChild className="flex-1 sm:flex-none">
+      {!hasEnded && (
+        <div
+          className={
+            "fixed inset-x-0 bottom-[calc(var(--nav-mobile-h)+env(safe-area-inset-bottom))] z-30 border-t border-border bg-surface px-4 py-2.5 " +
+            "lg:static lg:z-auto lg:mt-5 lg:border-0 lg:bg-transparent lg:p-0"
+          }
+        >
+          <div className="mx-auto flex max-w-3xl items-center gap-2">
+            {event.isRegistered ? (
+              <>
+                <p className="min-w-0 flex-1 truncate font-semibold text-verified-text">You're going</p>
+                <Button asChild variant="outline">
+                  <Link href="/events/my-tickets">
+                    <Ticket aria-hidden /> My ticket
+                  </Link>
+                </Button>
+              </>
+            ) : regClosed ? (
+              <Button disabled variant="secondary" className="min-w-0 flex-1 lg:flex-none">
+                Registration closed
+              </Button>
+            ) : externalUrl ? (
+              <Button asChild className="min-w-0 flex-1 lg:flex-none">
                 <a href={externalUrl} target="_blank" rel="noopener noreferrer">
-                  Apply on the event site <ExternalLink aria-hidden />
+                  Apply on event site <ExternalLink aria-hidden />
                 </a>
               </Button>
-            ) : null}
+            ) : (
+              <Button
+                className="min-w-0 flex-1 lg:flex-none lg:px-8"
+                onClick={() => {
+                  haptics.medium();
+                  setShowRegModal(true);
+                }}
+              >
+                Register
+              </Button>
+            )}
             <Button
-              variant={externalUrl ? "outline" : "primary"}
-              className="flex-1 sm:flex-none"
+              variant="outline"
+              size="icon"
+              onClick={handleToggleReminder}
+              loading={isTogglingReminder}
+              selected={Boolean(event.reminderSet)}
+              aria-pressed={Boolean(event.reminderSet)}
+              aria-label={event.reminderSet ? "Reminder on" : "Remind me"}
+              title={event.reminderSet ? "Reminder on" : "Remind me"}
+            >
+              {event.reminderSet ? <BellRing /> : <Bell />}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {!hasEnded && (
+        <div className="mt-4 space-y-1">
+          {externalUrl && !event.isRegistered && !regClosed && (
+            <Button
+              variant="link"
+              className="min-h-11"
               onClick={() => {
                 haptics.medium();
                 setShowRegModal(true);
               }}
             >
-              {externalUrl ? "Register on CampusLoop" : "Register"}
+              Or register on CampusLoop
             </Button>
-            <Button
-              variant="outline"
-              onClick={handleToggleReminder}
-              loading={isTogglingReminder}
-              selected={Boolean(event.reminderSet)}
-              aria-pressed={Boolean(event.reminderSet)}
-            >
-              {event.reminderSet ? <BellRing aria-hidden /> : <Bell aria-hidden />}
-              {event.reminderSet ? "Reminder on" : "Remind me"}
-            </Button>
-          </div>
-        ) : null}
-
-        {!hasEnded && (
-          <div className="flex flex-wrap items-center gap-2 text-sm text-fg-muted">
-            <CalendarPlus className="size-4" aria-hidden />
-            <span>Add to calendar:</span>
-            <Button
-              variant="link"
-              size="sm"
-              onClick={() => openGoogleCalendar(calendarEvent)}
-              className="min-h-11"
-            >
+          )}
+          <div className="flex flex-wrap items-center gap-x-3 text-sm text-fg-muted">
+            <span className="inline-flex items-center gap-1.5">
+              <CalendarPlus className="size-4" aria-hidden /> Add to calendar:
+            </span>
+            <Button variant="link" size="sm" onClick={() => openGoogleCalendar(calendarEvent)} className="min-h-11">
               Google
             </Button>
             <Button
@@ -267,26 +318,23 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
               Apple (.ics)
             </Button>
           </div>
-        )}
+        </div>
+      )}
 
-        {points > 0 && !event.isRegistered && !hasEnded && (
-          <p className="flex flex-wrap items-center gap-2 text-sm text-fg-muted">
-            Register to earn <LoopPointsSticker points={points} size="sm" />
-          </p>
-        )}
-      </div>
-
-      {!isLive && !hasEnded && now !== null && (
-        <div className="mt-6 grid gap-3 sm:grid-cols-2">
-          <CountdownSticker title="Starts in" target={event.startDate} />
-          {regClosesMs !== null && regClosesMs > now && regClosesMs < startMs && !event.isRegistered && (
-            <CountdownSticker
-              title="Registration closes in"
-              target={event.registrationDeadline}
-              variant="flat"
-              doneLabel="Registration closed"
-            />
-          )}
+      {!hasEnded && now !== null && (
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          {!isLive && <CountdownSticker title="Starts in" target={event.startDate} />}
+          {regClosesMs !== null &&
+            regClosesMs > now &&
+            (isLive || regClosesMs < startMs) &&
+            !event.isRegistered && (
+              <CountdownSticker
+                title="Registration closes in"
+                target={event.registrationDeadline}
+                variant={isLive ? "sticker" : "flat"}
+                doneLabel="Registration closed"
+              />
+            )}
         </div>
       )}
 

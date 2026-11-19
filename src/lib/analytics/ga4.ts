@@ -10,6 +10,8 @@
  * - Community, events, courses and Android beta download pipelines
  */
 
+import { markMeaningfulAction } from "@/lib/notification-prompt";
+
 export const GA_MEASUREMENT_ID = "G-3546ZQ6HB1";
 
 declare global {
@@ -73,7 +75,7 @@ export interface GA4UserProperties {
   signup_week?: string;
 }
 
-export type GA4Platform = "web" | "pwa" | "android";
+export type GA4Platform = "web" | "pwa" | "android" | "android_web";
 
 export function setGA4UserProperties(props: GA4UserProperties) {
   if (typeof window === "undefined") return;
@@ -104,9 +106,13 @@ export function setGA4UserId(profileId: string | null) {
   gtag("set", { user_id: profileId ?? null });
 }
 
-/** web | pwa (installed, display-mode standalone) | android (the CampusLoop APK WebView). */
+/**
+ * web | pwa (installed, display-mode standalone) | android (the CampusLoop APK WebView, UA
+ * "CampusLoopApp") | android_web (the Capacitor "CampusLoop Web" beta, UA "CampusLoopWebApp/1.0").
+ */
 export function detectPlatform(): GA4Platform {
   if (typeof window === "undefined") return "web";
+  if (typeof navigator !== "undefined" && /CampusLoopWebApp/i.test(navigator.userAgent)) return "android_web";
   if (typeof navigator !== "undefined" && /CampusLoopApp/i.test(navigator.userAgent)) return "android";
   try {
     if (window.matchMedia("(display-mode: standalone)").matches) return "pwa";
@@ -394,6 +400,7 @@ export function trackPostCreate(params: { content_type: PostContentType; anonymo
     anonymous: Boolean(params.anonymous),
     feature: params.feature ?? "feed",
   });
+  markMeaningfulAction();
 }
 
 /** Custom: vote on a post / poll / comment / resource. */
@@ -404,6 +411,7 @@ export function trackVote(content_type: string, extra: { item_id?: string; direc
 /** Custom: comment_create. */
 export function trackCommentCreate(content_type = "post", extra: { item_id?: string; anonymous?: boolean } = {}) {
   gtagEvent("comment_create", { content_type, ...extra });
+  markMeaningfulAction();
 }
 
 /** GA4 recommended: share. */
@@ -425,11 +433,13 @@ export function trackSelectContent(content_type: string, item_id: string) {
 /** Custom: event_register (key event). */
 export function trackEventRegister(event_id: string) {
   gtagEvent("event_register", { event_id, content_type: "event" });
+  markMeaningfulAction();
 }
 
 /** Custom: course_enroll (key event). */
 export function trackCourseEnroll(course_id: string) {
   gtagEvent("course_enroll", { course_id, content_type: "course" });
+  markMeaningfulAction();
 }
 
 /** Custom: lecture_complete. */
@@ -440,11 +450,13 @@ export function trackLectureComplete(course_id: string, lecture_id: string) {
 /** Custom: chat_send. */
 export function trackChatSend(params: { scope?: "dm" | "group" | "community" | string; content_type?: string } = {}) {
   gtagEvent("chat_send", { scope: params.scope ?? "dm", content_type: params.content_type ?? "text" });
+  markMeaningfulAction();
 }
 
 /** GA4 recommended: join_group, sent as custom community_join. */
 export function trackCommunityJoin(community_id: string) {
   gtagEvent("community_join", { community_id, content_type: "community" });
+  markMeaningfulAction();
 }
 
 /** Custom: streak_qualify (first qualifying action of the day). */
@@ -458,8 +470,14 @@ export function trackFollow(target_id: string) {
 }
 
 /** Custom: apk_download (key event). placement = where the button lives. */
-export function trackApkDownload(placement: "download_page" | "landing" | "settings" | string) {
-  gtagEvent("apk_download", { placement, method: "github_release" });
+export type ApkVariant = "expo" | "capacitor" | "twa";
+
+/** `variant`: which Android beta (expo = native app, capacitor = CampusLoop Web, twa = Chrome app). */
+export function trackApkDownload(
+  placement: "download_page" | "landing" | "settings" | string,
+  variant: ApkVariant = "expo"
+) {
+  gtagEvent("apk_download", { placement, variant, method: "github_release" });
 }
 
 /** Custom: crush_send. */
@@ -475,4 +493,37 @@ export function trackNotificationOpen(content_type?: string) {
 /** Custom: board_view {tab}. */
 export function trackBoardView(tab: "rides" | "housing" | "lost-found" | "sell" | string) {
   gtagEvent("board_view", { tab, content_group: "board" });
+}
+
+/**
+ * Landing launch video. "play" sends video_start, "progress" with 25/50/75 sends
+ * video_progress, "complete" sends video_complete, "unmute" sends video_unmute.
+ */
+export function trackLaunchVideo(action: "play" | "progress" | "complete" | "unmute", percent?: number) {
+  const base = { video_title: "CampusLoop launch", video_provider: "self", content_group: "landing" };
+  if (action === "play") gtagEvent("video_start", { ...base, video_percent: 0 });
+  else if (action === "progress") gtagEvent("video_progress", { ...base, video_percent: percent });
+  else if (action === "complete") gtagEvent("video_complete", { ...base, video_percent: 100 });
+  else gtagEvent("video_unmute", { ...base, video_percent: percent });
+}
+
+/** Custom: onboarding_step {step}. Fired when a screen of the onboarding flow is finished. */
+export function trackOnboardingStep(step: "you" | "taste" | "follow" | "first_post", extra: Record<string, unknown> = {}) {
+  gtagEvent("onboarding_step", { step, feature: "onboarding", ...extra });
+}
+
+/** Custom: first_post (activation). Also counts as post_create. */
+export function trackFirstPost(params: { anonymous: boolean; source: "rating" | "text" }) {
+  gtagEvent("first_post", { feature: "onboarding", anonymous: params.anonymous, method: params.source });
+  gtagEvent("post_create", { content_type: "post", anonymous: params.anonymous, feature: "onboarding" });
+}
+
+/** Custom: signup_wall_cta {placement, method}. The sign-up card after the logged-out preview. */
+export function trackSignupWallCta(placement: "feeds" | "confessions", method: "google" | "email") {
+  gtagEvent("signup_wall_cta", { placement, method });
+}
+
+/** Custom: growth_unlock {item}. A Loop Points purchase: streak freeze or crush hints. */
+export function trackGrowthUnlock(item: "streak_freeze" | "crush_hints", via: "points" | "invites") {
+  gtagEvent("growth_unlock", { item, via });
 }

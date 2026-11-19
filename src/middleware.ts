@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { isRateLimitedPath, matchRateRule } from "@/lib/rate-limits";
+import { appOAuthReturnRedirect } from "@/lib/native-app/oauth-handoff";
 import { getRedis } from "@/lib/redis";
 
 const LEGACY_APP_PREFIX = "/app";
@@ -85,6 +86,10 @@ export async function middleware(req: NextRequest) {
     url.pathname = getLegacyAppDestination(pathname);
     return NextResponse.redirect(url, 308);
   }
+
+  // CampusLoop Web Android app: hand a Google sign-in finished in a Custom Tab back to the app.
+  const appReturn = appOAuthReturnRedirect(req);
+  if (appReturn) return appReturn;
 
   // No clean-route -> /app rewrites. The route tree itself owns canonical URLs.
   const limited = await enforceRateLimit(req);

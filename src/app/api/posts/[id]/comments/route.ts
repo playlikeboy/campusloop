@@ -19,6 +19,7 @@ import { cleanNotificationSnippet, createNotification, notifyMentions } from "@/
 import { recordStreakActivity } from "@/lib/streaks/streak-service";
 import { rejectViewerWrite } from "@/lib/viewer";
 import { getCachedAuthUser } from "@/lib/server-cache";
+import { bumpPostStat } from "@/lib/recommendations/engagement-stats";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -330,6 +331,7 @@ export async function POST(req: Request, { params }: RouteParams) {
         isPinned: false,
       })
       .returning();
+    bumpPostStat(id, "comments");
 
     // Increment repliesCount on parent comment
     if (parentId) {

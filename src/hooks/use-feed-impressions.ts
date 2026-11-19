@@ -22,6 +22,9 @@ const MAX_DWELL_MS = 120_000;
 export function useFeedImpressions(enabled: boolean, sort?: string) {
   const visibleSince = useRef(new Map<string, number>());
   const dwell = useRef(new Map<string, number>());
+  // Dwell already sent per post this session, so a view split across flushes
+  // is reported as one impression (later chunks carry `repeat: true`).
+  const reported = useRef(new Map<string, number>());
   const observer = useRef<IntersectionObserver | null>(null);
   // Refs attach before effects run, so nodes registered early are observed once the observer exists.
   const nodes = useRef(new Set<HTMLElement>());
@@ -46,10 +49,19 @@ export function useFeedImpressions(enabled: boolean, sort?: string) {
       }
 
       const items = [...dwell.current.entries()]
-        .filter(([, ms]) => ms >= MIN_IMPRESSION_MS)
+        .filter(([postId, ms]) => ms >= MIN_IMPRESSION_MS || reported.current.has(postId))
+        .filter(([, ms]) => ms > 0)
         .slice(0, MAX_BATCH)
-        .map(([postId, dwellMs]) => ({ postId, dwellMs: Math.round(dwellMs) }));
-      for (const { postId } of items) dwell.current.delete(postId);
+        .map(([postId, dwellMs]) => {
+          const before = reported.current.get(postId);
+          const chunk = Math.round(dwellMs);
+          const totalMs = Math.min(MAX_DWELL_MS, (before ?? 0) + chunk);
+          return { postId, dwellMs: chunk, totalMs, repeat: before !== undefined };
+        });
+      for (const { postId, totalMs } of items) {
+        dwell.current.delete(postId);
+        reported.current.set(postId, totalMs);
+      }
       if (items.length === 0) return;
 
       const body = JSON.stringify({ items, sort: sortRef.current });

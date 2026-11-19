@@ -42,6 +42,8 @@ export const LP_ACTION_REWARDS = {
   STREAK_7_DAY_BONUS: 25,
   STREAK_30_DAY_BONUS: 100,
   REFERRAL_SIGNUP: 50,
+  /** Paid to the friend who joined through an invite link, on top of the inviter's reward. */
+  REFERRAL_WELCOME: 50,
   CAMPUS_AMBASSADOR_MILESTONE: 100,
 } as const;
 

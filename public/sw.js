@@ -139,7 +139,21 @@ self.addEventListener("fetch", (event) => {
   }
 });
 
-// ─── Web Push: wake, fetch, notify ───
+// ─── Web Push: decrypt (done by the browser), notify, badge ───
+//
+// The server encrypts the notification into the push (RFC 8291), so
+// `event.data` normally holds { title, body, url, type, tag, icon, unreadCount, id }.
+// A payload-less push (tickle) falls back to fetching the newest unread
+// notification over the student's own session.
+
+async function setBadge(count) {
+  try {
+    if (typeof count !== "number") return;
+    if (count > 0 && "setAppBadge" in self.navigator) await self.navigator.setAppBadge(count);
+    else if (count <= 0 && "clearAppBadge" in self.navigator) await self.navigator.clearAppBadge();
+  } catch {}
+}
+
 self.addEventListener("push", (event) => {
   event.waitUntil(
     (async () => {
@@ -155,30 +169,34 @@ self.addEventListener("push", (event) => {
 
       if (!payload) {
         try {
-          const res = await fetch("/api/notifications/latest", { credentials: "include" });
+          const res = await fetch("/api/notifications/latest", { credentials: "include", cache: "no-store" });
           if (res.ok) {
             const data = await res.json();
             payload = data.notification;
-            if (typeof data.unreadCount === "number" && "setAppBadge" in self.navigator) {
-              self.navigator.setAppBadge(data.unreadCount).catch(() => {});
-            }
+            if (payload && typeof payload.unreadCount !== "number") payload.unreadCount = data.unreadCount;
           }
         } catch {
           payload = null;
         }
       }
 
-      const title = payload?.title || "CampusLoop";
-      const body = payload?.body || "You have a new campus notification";
-      const url = payload?.url || "/notifications";
+      await setBadge(payload?.unreadCount);
 
+      // Open tabs refresh their list and badge straight away instead of
+      // waiting for the next poll.
+      const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      for (const client of windows) client.postMessage({ type: "campusloop:push", payload });
+
+      const title = payload?.title || "CampusLoop";
+      // A browser push must always show a notification (userVisibleOnly).
       await self.registration.showNotification(title, {
-        body,
+        body: payload?.body || "You have a new campus notification",
         icon: payload?.icon || "/icons/icon-192x192.png",
         badge: "/icons/icon-192x192.png",
-        tag: payload?.type || "campusloop",
+        tag: payload?.tag || payload?.type || "campusloop",
         renotify: true,
-        data: { url },
+        timestamp: Date.now(),
+        data: { url: payload?.url || "/notifications", id: payload?.id || null },
       });
     })()
   );
@@ -186,25 +204,72 @@ self.addEventListener("push", (event) => {
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const targetUrl = event.notification.data?.url || "/notifications";
+  const data = event.notification.data || {};
+  const target = new URL(data.url || "/notifications", self.location.origin);
+  // Never navigate off-site from a notification.
+  const targetUrl = target.origin === self.location.origin ? target.href : `${self.location.origin}/notifications`;
 
   event.waitUntil(
     (async () => {
-      const allClients = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
-
-      for (const client of allClients) {
-        if (client.url.includes(self.location.origin)) {
-          await client.focus();
-          if ("navigate" in client) {
-            try {
-              await client.navigate(targetUrl);
-            } catch {}
-          }
-          return;
-        }
+      // Tapping counts as reading it, so the badge and the list stay in step.
+      if (data.id) {
+        fetch("/api/notifications", {
+          method: "PATCH",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: data.id }),
+        }).catch(() => {});
       }
 
+      const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      const sameOrigin = windows.filter((c) => c.url.startsWith(self.location.origin));
+
+      // 1. A tab already on that page: just bring it forward.
+      const exact = sameOrigin.find((c) => c.url === targetUrl);
+      if (exact) {
+        await exact.focus();
+        return;
+      }
+
+      // 2. Any CampusLoop tab: focus it and move it to the page.
+      const existing = sameOrigin.find((c) => c.focused) || sameOrigin[0];
+      if (existing) {
+        try {
+          const focused = await existing.focus();
+          const navigated = await (focused || existing).navigate(targetUrl);
+          if (navigated) return;
+        } catch {}
+      }
+
+      // 3. No usable tab (or it is not controlled by this worker): open one.
       await self.clients.openWindow(targetUrl);
+    })()
+  );
+});
+
+// The browser rotated the subscription (key change, expiry). Re-subscribe with
+// the same server key and tell the server, so pushes keep arriving.
+self.addEventListener("pushsubscriptionchange", (event) => {
+  event.waitUntil(
+    (async () => {
+      try {
+        const options = event.oldSubscription?.options;
+        const subscription =
+          event.newSubscription ||
+          (options?.applicationServerKey
+            ? await self.registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: options.applicationServerKey,
+              })
+            : null);
+        if (!subscription) return;
+        await fetch("/api/push/subscribe", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(subscription.toJSON()),
+        });
+      } catch {}
     })()
   );
 });

@@ -7,6 +7,9 @@ import { useEffect, useMemo, useState } from "react";
 import { ConfessionComposerInline } from "@/components/confessions/confession-composer-inline";
 import { ConfessionEmptyState } from "@/components/confessions/confession-empty-state";
 import { ConfessionSidebar } from "@/components/confessions/confession-sidebar";
+import { CampusUnlockMeter } from "@/components/growth/campus-unlock-meter";
+import { SignupWallCard } from "@/components/growth/signup-wall-card";
+import { useCampusStats } from "@/components/growth/use-campus-stats";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { FeedCard } from "@/components/ui/feed-card";
@@ -15,6 +18,7 @@ import { QuestionSticker } from "@/components/ui/stickers";
 import { ConfessionsFeedSkeleton } from "@/components/ui/skeleton-card";
 import { type FeedPost, useFeed } from "@/hooks/use-feed";
 import { useProfile } from "@/hooks/use-profile";
+import { PREVIEW_POST_COUNT } from "@/lib/growth/constants";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { HomeTabs } from "../feeds/home-tabs";
@@ -37,7 +41,9 @@ export function ConfessionsFeed() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { profile } = useProfile();
+  const { profile, isLoading: profileLoading, error: profileError } = useProfile();
+  const signedOut = !profileLoading && !profile && Boolean(profileError);
+  const { campus } = useCampusStats(!signedOut);
 
   // Default to all colleges so a new campus never opens on an empty page.
   const rawScope = searchParams.get("scope");
@@ -141,6 +147,9 @@ export function ConfessionsFeed() {
   }
 
   const campusShortName = profile?.institution?.name?.split(",")[0] || profile?.institution?.name || "Campus";
+  // A college under the student threshold shows the unlock meter instead of its own confessions.
+  const campusLocked = scope === "CAMPUS" && campus !== null && !campus.unlocked;
+  const visibleFeed = signedOut ? uniqueFeed.slice(0, PREVIEW_POST_COUNT) : uniqueFeed;
 
   return (
     <div className="w-full max-w-7xl mx-auto px-0 sm:px-4 lg:px-6 sm:pb-3">
@@ -231,31 +240,37 @@ export function ConfessionsFeed() {
           </div>
 
           <div className="flex flex-col">
-            {isLoading && uniqueFeed.length === 0 ? (
+            {campusLocked && campus ? (
+              <CampusUnlockMeter campus={campus} />
+            ) : isLoading && uniqueFeed.length === 0 ? (
               <ConfessionsFeedSkeleton />
             ) : uniqueFeed.length > 0 ? (
               <>
-                {uniqueFeed.map((post) => (
+                {visibleFeed.map((post) => (
                   <FeedCard key={post.id} post={post} />
                 ))}
 
-                <div
-                  ref={setLoadMoreNode}
-                  className="flex flex-col items-center justify-center gap-2 py-8 text-sm text-fg-muted select-none"
-                >
-                  {isLoadingMore ? (
-                    <span className="flex items-center gap-2" role="status">
-                      <Loader2 className="size-4 animate-spin" aria-hidden />
-                      Loading more…
-                    </span>
-                  ) : !isReachingEnd ? (
-                    <Button variant="secondary" size="sm" onClick={() => setSize((n) => n + 1)}>
-                      Load more
-                    </Button>
-                  ) : (
-                    <span>You&apos;re all caught up</span>
-                  )}
-                </div>
+                {signedOut ? (
+                  <SignupWallCard placement="confessions" returnTo="/confessions" />
+                ) : (
+                  <div
+                    ref={setLoadMoreNode}
+                    className="flex flex-col items-center justify-center gap-2 py-8 text-sm text-fg-muted select-none"
+                  >
+                    {isLoadingMore ? (
+                      <span className="flex items-center gap-2" role="status">
+                        <Loader2 className="size-4 animate-spin" aria-hidden />
+                        Loading more…
+                      </span>
+                    ) : !isReachingEnd ? (
+                      <Button variant="secondary" size="sm" onClick={() => setSize((n) => n + 1)}>
+                        Load more
+                      </Button>
+                    ) : (
+                      <span>You&apos;re all caught up</span>
+                    )}
+                  </div>
+                )}
               </>
             ) : (
               <ConfessionEmptyState

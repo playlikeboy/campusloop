@@ -100,7 +100,7 @@ export function ManageEventClient({ eventId, initialSlug }: ManageEventClientPro
 
   if (isLoading) {
     return (
-      <div className="mx-auto w-full max-w-3xl space-y-4 px-4 py-6" aria-busy="true">
+      <div className="mx-auto w-full max-w-3xl space-y-4 py-6" aria-busy="true">
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-36 w-full rounded-lg" />
         <Skeleton className="h-64 w-full rounded-lg" />
@@ -110,7 +110,7 @@ export function ManageEventClient({ eventId, initialSlug }: ManageEventClientPro
 
   if (error || !event) {
     return (
-      <div className="mx-auto w-full max-w-3xl px-4 py-12">
+      <div className="mx-auto w-full max-w-3xl py-12">
         <EmptyState
           title="This event didn't load"
           description="It may have been deleted, or your connection dropped."
@@ -135,7 +135,7 @@ export function ManageEventClient({ eventId, initialSlug }: ManageEventClientPro
   });
 
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-6 px-4 py-6">
+    <div className="mx-auto w-full max-w-3xl space-y-6 py-6">
       <header className="flex items-start gap-2">
         <Button asChild variant="ghost" size="icon" aria-label="Back to my events">
           <Link href="/events/dashboard">

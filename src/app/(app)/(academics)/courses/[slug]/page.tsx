@@ -165,7 +165,7 @@ export default async function CourseLandingPage({ params }: Props) {
               />
             )}
             <div className="mt-6 lg:hidden">
-              <EnrollPanel slug={c.slug} />
+              <EnrollPanel slug={c.slug} stickyBar />
             </div>
 
             {c.outcomes.length > 0 && (

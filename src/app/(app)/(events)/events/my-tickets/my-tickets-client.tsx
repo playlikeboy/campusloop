@@ -53,7 +53,7 @@ export function MyTicketsClient({
   }
 
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-5 px-4 pt-4 pb-12 sm:px-0 sm:pt-6">
+    <div className="mx-auto w-full max-w-3xl space-y-5 pt-4 pb-12 sm:pt-6">
       <header className="space-y-3">
         <div className="flex items-center justify-between gap-2">
           <Button asChild variant="ghost" className="-ml-3">

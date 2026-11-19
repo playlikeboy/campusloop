@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">CampusLoop Web</string>
+    <string name="title_activity_main">CampusLoop Web</string>
+    <string name="package_name">space.campusloop.web</string>
+    <string name="custom_url_scheme">space.campusloop.web</string>
+</resources>

@@ -59,7 +59,7 @@ export async function POST(req: Request, { params }: RouteParams) {
         createNotification({
           userId: r.profileId,
           actorId: profile.id,
-          type: "EVENT_REGISTRATION",
+          type: "EVENT_UPDATE",
           referenceId: event.id,
           previewText: preview,
         }).catch(() => {})

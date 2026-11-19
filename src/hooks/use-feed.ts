@@ -3,6 +3,7 @@ import useSWRInfinite from "swr/infinite";
 import type { Institution, Post, UserProfile } from "@/db/schema";
 import { feedPagesCache, feedSizeCache, getPendingFeedPosts } from "@/lib/feed-mutations";
 import { markPostsAsSeen } from "@/lib/seen-posts";
+import { scrolledPastFraction } from "./feed-prefetch";
 
 export type TopCommentPreview = {
   id: string;
@@ -278,6 +279,37 @@ export function useFeed(
   const isLoadingMore = Boolean(
     isLoading || (isValidating && size > 1) || (size > 0 && data && typeof data[size - 1] === "undefined")
   );
+
+  // Prefetch the next page once 60% of the list has been scrolled, ahead of the
+  // page's own bottom sentinel, so fast scrollers never hit a spinner. Listens
+  // in the capture phase so it works for window and inner scroll containers.
+  const prefetchState = useRef({ isReachingEnd, isLoadingMore, loaded: data?.length ?? 0, size });
+  prefetchState.current = { isReachingEnd, isLoadingMore, loaded: data?.length ?? 0, size };
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    let frame = 0;
+    const check = (target: EventTarget | null) => {
+      frame = 0;
+      const state = prefetchState.current;
+      if (state.isReachingEnd || state.isLoadingMore || state.loaded === 0 || state.loaded < state.size) return;
+      const el =
+        target instanceof HTMLElement ? target : (document.scrollingElement as HTMLElement | null);
+      if (!el || el.scrollHeight <= el.clientHeight) return;
+      if (scrolledPastFraction(el.scrollTop, el.clientHeight, el.scrollHeight)) {
+        handleSetSize((s) => (s === state.size ? s + 1 : s));
+      }
+    };
+    const onScroll = (event: Event) => {
+      if (frame) return;
+      const target = event.target;
+      frame = window.requestAnimationFrame(() => check(target));
+    };
+    document.addEventListener("scroll", onScroll, { capture: true, passive: true });
+    return () => {
+      document.removeEventListener("scroll", onScroll, { capture: true });
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, [handleSetSize]);
 
   return {
     feed,

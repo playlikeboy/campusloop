@@ -122,7 +122,7 @@ export function EventsClient({
       : "Events";
 
   return (
-    <section className="mx-auto w-full max-w-3xl space-y-4 px-4 pt-4 pb-12 sm:px-0 sm:pt-6">
+    <section className="mx-auto w-full max-w-3xl space-y-3 pt-3 pb-12 sm:space-y-4 sm:pt-6">
       <header>
         {isArchive && (
           <Link
@@ -133,7 +133,7 @@ export function EventsClient({
           </Link>
         )}
         <div className="flex items-center justify-between gap-3">
-          <h1 className="min-w-0 truncate font-display text-3xl font-extrabold text-fg">{pageTitle}</h1>
+          <h1 className="min-w-0 truncate font-display text-2xl font-extrabold text-fg sm:text-3xl">{pageTitle}</h1>
           <div className="flex shrink-0 items-center gap-2">
             <Button asChild variant="circleIcon" size="icon" aria-label="My tickets" title="My tickets">
               <Link href="/events/my-tickets">
@@ -151,7 +151,9 @@ export function EventsClient({
           </div>
         </div>
         {!isArchive && (
-          <p className="mt-1 text-sm text-fg-muted">Fests, hackathons and meetups. Tap one to register.</p>
+          <p className="mt-1 hidden text-sm text-fg-muted sm:block">
+            Fests, hackathons and meetups. Tap one to register.
+          </p>
         )}
       </header>
 
@@ -245,13 +247,13 @@ export function EventsClient({
           }
         />
       ) : isLoading && rawEvents.length === 0 ? (
-        <div className="space-y-3" role="status" aria-label="Loading events">
+        <div className="grid gap-3 sm:grid-cols-2" role="status" aria-label="Loading events">
           <EventCardSkeleton />
           <EventCardSkeleton />
           <EventCardSkeleton />
         </div>
       ) : visibleEvents.length > 0 ? (
-        <div className="space-y-3">
+        <div className="grid gap-3 sm:grid-cols-2">
           {visibleEvents.map((event) => (
             <EventCard key={event.id} event={event} variant="row" />
           ))}
