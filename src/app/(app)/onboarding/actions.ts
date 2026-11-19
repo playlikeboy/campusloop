@@ -1,6 +1,6 @@
 "use server";
 
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { getDb } from "@/db";
 import { institutionDomains, institutions, userProfiles } from "@/db/schema";
@@ -9,6 +9,8 @@ import { runInBackground } from "@/lib/background";
 import { sendEmail } from "@/lib/email";
 import { buildWelcomeEmail } from "@/lib/email-templates";
 import { findWhitelistedDomain } from "@/lib/institutions";
+import { creditInviter } from "@/lib/referrals/credit";
+import { canCreditInvite, INVITE_COOKIE, pickInviter, REF_COOKIE } from "@/lib/referrals/invite";
 import { invalidateProfileCache } from "@/lib/server-cache";
 import { getAvatarUrl } from "@/lib/utils";
 import { validateDisplayName, validateUsername } from "@/lib/validation";
@@ -115,20 +117,29 @@ export async function completeOnboarding(formData: FormData): Promise<Onboarding
     ? whitelistedDomain!.institutionId
     : await getViewerInstitutionId();
 
-  // Handle referral tracking
+  // Invite tracking. The inviter is remembered on the profile for everyone who
+  // joined through a link, and credited once the invited student is verified
+  // (here, or later in the campus upgrade flow).
   const cookieStore = await cookies();
-  const referredByUsername = cookieStore.get("cl_referred_by")?.value;
-  let referrerId: string | null = null;
-  let referrerProfile = null;
+  const inviterUsername = pickInviter(
+    cookieStore.get(INVITE_COOKIE)?.value,
+    cookieStore.get(REF_COOKIE)?.value
+  );
+  const existingProfile = await db.query.userProfiles.findFirst({
+    where: eq(userProfiles.userId, user.id),
+    columns: { id: true, onboardingCompleted: true },
+  });
+  const wasAlreadyOnboarded = Boolean(existingProfile?.onboardingCompleted);
 
-  if (referredByUsername) {
-    referrerProfile = await db.query.userProfiles.findFirst({
-      where: eq(userProfiles.username, referredByUsername),
+  let referrerProfile: { id: string; userId: string } | null = null;
+  if (inviterUsername && !wasAlreadyOnboarded) {
+    const found = await db.query.userProfiles.findFirst({
+      where: eq(userProfiles.username, inviterUsername),
+      columns: { id: true, userId: true },
     });
-    if (referrerProfile) {
-      referrerId = referrerProfile.id;
-    }
+    if (found && found.userId !== user.id) referrerProfile = found;
   }
+  const referrerId = referrerProfile?.id ?? null;
 
   const rawUsername = email.split("@")[0] || "student";
   const officialName = rawUsername
@@ -189,19 +200,32 @@ export async function completeOnboarding(formData: FormData): Promise<Onboarding
           institutionId,
           isCollegeVerified: isVerifiedCollegeEmail,
           onboardingCompleted: true,
+          // A profile row created before onboarding has no inviter yet.
+          ...(referrerId && !wasAlreadyOnboarded ? { referredById: referrerId } : {}),
         },
       });
     invalidateProfileCache(user.id);
 
-    if (referrerProfile) {
-      await db
-        .update(userProfiles)
-        .set({
-          referralCount: sql`${userProfiles.referralCount} + 1`,
-          points: sql`${userProfiles.points} + 20`,
-        })
-        .where(eq(userProfiles.id, referrerProfile.id));
-      invalidateProfileCache(referrerProfile.userId);
+    if (
+      referrerProfile &&
+      canCreditInvite({
+        inviterUserId: referrerProfile.userId,
+        invitedUserId: user.id,
+        isVerifiedStudent: isVerifiedCollegeEmail,
+        wasAlreadyOnboarded,
+      })
+    ) {
+      try {
+        await creditInviter(referrerProfile.id, existingProfile?.id);
+      } catch (error) {
+        console.error("[invite] Failed to credit inviter:", error);
+      }
+    }
+    try {
+      cookieStore.delete(INVITE_COOKIE);
+      cookieStore.delete(REF_COOKIE);
+    } catch {
+      // Cookies are best-effort here; the onboarded check above prevents a second credit.
     }
 
     // Dispatch welcome email asynchronously via mail.campusloop.space

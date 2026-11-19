@@ -8,6 +8,7 @@ import {
   QuestionSticker,
   Sticker,
 } from "@/components/ui/stickers";
+import { LP_ACTION_REWARDS } from "@/constants/gamification";
 import type { Course } from "@/db/schema";
 import { formatDuration } from "@/lib/courses/format";
 import type { PublicStats } from "@/lib/public-stats";
@@ -267,7 +268,7 @@ export function LandingFeatures({ courses, stats }: { courses: Course[]; stats: 
               tilt="rotate-2"
               stickerClassName="w-auto self-start"
               title="Bring your friends"
-              text="Invite a friend, get 20 Loop Points when they join."
+              text={`Invite a friend, get ${LP_ACTION_REWARDS.REFERRAL_SIGNUP} Loop Points when they join.`}
               href="/sign-up"
               sticker={
                 <LoopPointsSticker

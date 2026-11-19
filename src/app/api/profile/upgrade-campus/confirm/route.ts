@@ -7,6 +7,7 @@ import { runInBackground } from "@/lib/background";
 import { checkCampusUpgradeEligibility } from "@/lib/campus-upgrade";
 import { sendEmail } from "@/lib/email";
 import { buildWelcomeEmail } from "@/lib/email-templates";
+import { creditInviter } from "@/lib/referrals/credit";
 import { invalidateProfileCache } from "@/lib/server-cache";
 
 export const dynamic = "force-dynamic";
@@ -83,6 +84,16 @@ export async function POST(req: Request) {
       })
       .where(eq(userProfiles.id, profile.id));
     invalidateProfileCache(user.id);
+
+    // A student who joined in Campus Preview through an invite link counts for
+    // their inviter now, the first time they become verified.
+    if (!profile.isCollegeVerified && profile.referredById && profile.referredById !== profile.id) {
+      try {
+        await creditInviter(profile.referredById, profile.id);
+      } catch (error) {
+        console.error("[invite] Failed to credit inviter on upgrade:", error);
+      }
+    }
 
     // Dispatch welcome / verification email asynchronously via mail.campusloop.space
     try {
