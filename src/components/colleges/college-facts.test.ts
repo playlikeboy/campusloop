@@ -93,5 +93,7 @@ describe("college search metadata", () => {
     expect(isCollegeIndexable({ ...none, postCount: 3 })).toBe(true);
     expect(isCollegeIndexable({ ...none, noteCount: 3 })).toBe(true);
     expect(isCollegeIndexable({ ...none, nirfRank: 53 })).toBe(true);
+    expect(isCollegeIndexable({ ...none, description: "x".repeat(200) })).toBe(true);
+    expect(isCollegeIndexable({ ...none, description: "Short blurb." })).toBe(false);
   });
 });

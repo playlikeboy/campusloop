@@ -75,7 +75,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     image: ogImageUrl(college.name, "College"),
   });
   // Pages with nothing of their own yet stay out of the index, but their links are followed.
-  if (!isCollegeIndexable(facts)) {
+  if (!isCollegeIndexable({ ...facts, description: college.description })) {
     metadata.robots = { index: false, follow: true, googleBot: { index: false, follow: true } };
   }
   return metadata;

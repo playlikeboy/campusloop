@@ -80,19 +80,22 @@ export function collegeSummary(c: CollegeFactsInput): string {
 
 /**
  * A college page is offered to search engines only when it has something of its
- * own: students, posts, study material or a national rank. The other pages stay
+ * own: a written description, students, posts, study material or a national
+ * rank. The other pages stay
  * reachable and followable, but are not indexed and are left out of the sitemap.
  */
-export const COLLEGE_INDEX_RULE = { minStudents: 5, minPosts: 3, minNotes: 3 } as const;
+export const COLLEGE_INDEX_RULE = { minStudents: 5, minPosts: 3, minNotes: 3, minDescription: 200 } as const;
 
 export function isCollegeIndexable(c: {
   studentCount: number;
   postCount: number;
   noteCount: number;
   nirfRank?: number | null;
+  description?: string | null;
 }): boolean {
   return (
     Boolean(c.nirfRank) ||
+    (c.description?.trim().length ?? 0) >= COLLEGE_INDEX_RULE.minDescription ||
     c.studentCount >= COLLEGE_INDEX_RULE.minStudents ||
     c.postCount >= COLLEGE_INDEX_RULE.minPosts ||
     c.noteCount >= COLLEGE_INDEX_RULE.minNotes
