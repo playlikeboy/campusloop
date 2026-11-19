@@ -36,6 +36,7 @@ import {
   Terminal,
   TrendingUp,
   User,
+  UserPlus,
   Users,
   Zap,
 } from "lucide-react";
@@ -99,6 +100,7 @@ export const ROUTES = {
   articles: "/articles",
   developer: "/developer",
   streaks: "/streaks",
+  invites: "/invites",
   saved: "/saved",
   settings: "/settings",
   safety: "/safety",
@@ -160,6 +162,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { icon: Bell, href: ROUTES.notifications, label: "Notifications", desc: "Replies, likes and mentions" },
       { icon: Bookmark, href: ROUTES.saved, label: "Saved", desc: "Posts you saved" },
       { icon: Flame, href: ROUTES.streaks, label: "Streaks", desc: "Your daily streak and Loop Points" },
+      { icon: UserPlus, href: ROUTES.invites, label: "Invite friends", desc: "Your link and top inviters" },
       {
         icon: Lock,
         href: ROUTES.crush,
@@ -254,6 +257,7 @@ export const MOBILE_BOTTOM_ITEMS: NavItem[] = [
       ROUTES.notifications,
       ROUTES.saved,
       ROUTES.streaks,
+      ROUTES.invites,
       ROUTES.crush,
       ROUTES.settings,
       ROUTES.board,

@@ -1,5 +1,6 @@
 "use client";
 
+import { InviteCard } from "@/components/invite/invite-card";
 import { ProfileStreakCard } from "@/components/streaks/profile-streak-card";
 import { LoopPointsSticker } from "@/components/ui/stickers";
 import { LP_ACTION_REWARDS } from "@/constants/gamification";
@@ -66,6 +67,8 @@ export function PointsTab({ profileId, points, isOwnProfile }: PointsTabProps) {
       </section>
 
       <ProfileStreakCard profileId={profileId} />
+
+      {isOwnProfile && <InviteCard />}
 
       {isOwnProfile && (
         <section className="space-y-2" aria-labelledby="earn-title">

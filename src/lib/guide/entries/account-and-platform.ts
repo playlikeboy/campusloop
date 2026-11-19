@@ -39,19 +39,27 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
     summary: "Invite classmates with your link and earn Loop Points when they join.",
     category: "Account & safety",
     audiences: ["Students", "Investors"],
-    routes: [{ path: "/join", label: "Join via invite" }],
+    routes: [
+      { path: "/invites", label: "Your invite link and top inviters" },
+      { path: "/join", label: "Join via invite" },
+    ],
     purpose: "Campus networks grow person to person. Referrals reward students who bring their friends.",
     whyUse: ["Your friends make your feed better.", "Earn LP for every verified signup."],
     howToUse: [
-      "Copy your invite link from the menu or the referral card in the feed.",
-      "Share it in your class group.",
-      "Earn LP when friends verify.",
+      "Open Invite friends from the More menu, or the Points tab on your profile.",
+      "Copy your link, send it on WhatsApp, or show the QR code.",
+      "You earn 50 LP when a friend joins with a verified college email.",
+      "See who invited the most students in your college under Top inviters.",
     ],
     useCases: [{ who: "Class rep", scenario: "Invites the whole section in the first week." }],
     investorAngle:
       "Referral loops drive low-cost acquisition and campus-by-campus density, the key to network effects.",
     faq: [
       { q: "Do invites work for other colleges?", a: "Yes, friends verify with their own college email." },
+      {
+        q: "My friend joined with a personal email. Do I get points?",
+        a: "Yes, once they verify a college email. Until then they are in Campus Preview and do not count.",
+      },
     ],
     related: ["loop-points-and-streaks", "getting-started"],
     keywords: ["invite friends", "referral"],

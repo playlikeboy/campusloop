@@ -47,6 +47,7 @@ export const RATE_LIMITS: RateRule[] = [
   { prefix: "/api/college-index-requests", methods: "WRITE", max: 5, windowSec: 600, store: "redis" },
   { prefix: "/api/mcp", methods: "ALL", max: 120, windowSec: 60, store: "redis" },
   { prefix: "/api/search", methods: "READ", max: 120, windowSec: 60, store: "memory" },
+  { prefix: "/api/invites", methods: "READ", max: 60, windowSec: 60, store: "memory" },
   { prefix: "/api/gifs", methods: "READ", max: 60, windowSec: 60, store: "memory" },
   { prefix: "/api/unsplash", methods: "READ", max: 60, windowSec: 60, store: "memory" },
 
