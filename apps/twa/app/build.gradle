@@ -55,7 +55,7 @@ android {
     namespace "space.campusloop.twa"
     defaultConfig {
         applicationId "space.campusloop.twa"
-        minSdkVersion 21
+        minSdkVersion 24
         targetSdkVersion 36
         // CI passes the GitHub run number so every beta build installs over the previous one.
         versionCode(Integer.parseInt(System.getenv("ANDROID_VERSION_CODE") ?: "1"))
