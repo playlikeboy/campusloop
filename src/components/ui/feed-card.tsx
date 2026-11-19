@@ -281,27 +281,11 @@ export function FeedCard({ post, currentUserId, disableNavigation }: FeedCardPro
     setTimeout(() => setShowDoubleTapHeart(false), 900);
   }
 
-  async function handleSharePost() {
+  /** Opens the share sheet: story image for Instagram, WhatsApp, native share and copy link. */
+  function handleSharePost() {
     sounds.tap();
     haptics.success();
-    const postUrl =
-      typeof window !== "undefined"
-        ? `${window.location.origin}/post/${post.id}`
-        : `https://campusloop.space/post/${post.id}`;
-    if (typeof window !== "undefined" && navigator.share) {
-      try {
-        await navigator.share({
-          title: `Post by ${authorName} on CampusLoop`,
-          text: post.body?.slice(0, 100),
-          url: postUrl,
-        });
-        trackShare("native", "post", post.id);
-      } catch {}
-    } else {
-      await navigator.clipboard.writeText(postUrl);
-      trackShare("copy_link", "post", post.id);
-      toast.success("Link copied to clipboard");
-    }
+    setShowShareStoryModal(true);
   }
 
   async function handleExecuteRepost(isQuote: boolean) {

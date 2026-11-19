@@ -4,6 +4,7 @@ import { Check, Copy, Download, MessageCircle, Share2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { FeedPost } from "@/hooks/use-feed";
+import { useProfile } from "@/hooks/use-profile";
 import { trackShare } from "@/lib/analytics/ga4";
 import { cleanSnippet } from "@/lib/utils";
 
@@ -29,12 +30,14 @@ export function ShareStoryModal({ post, isOpen, onClose }: ShareStoryModalProps)
   const [copied, setCopied] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const postUrl =
-    typeof window !== "undefined"
-      ? `${window.location.origin}/post/${post.id}`
-      : `https://campusloop.space/post/${post.id}`;
+  const { profile } = useProfile();
+  // The sharer's username rides along, so a friend who joins from this link counts as their invite.
+  const refQuery = profile?.username ? `?ref=${encodeURIComponent(profile.username)}` : "";
+  const origin = typeof window !== "undefined" ? window.location.origin : "https://campusloop.space";
+  const postUrl = `${origin}/post/${post.id}${refQuery}`;
 
-  const authorHandle = post.isAnonymous ? post.pseudonym || "anonymous" : post.author?.username || "student";
+  // An anonymous post never carries a name or handle onto the exported image.
+  const authorLine = post.isAnonymous ? "Anonymous student" : `@${post.author?.username || "student"}`;
 
   function handleShareWhatsApp() {
     let text = "";
@@ -111,6 +114,8 @@ export function ShareStoryModal({ post, isOpen, onClose }: ShareStoryModalProps)
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+    // Draw with the app's own typeface instead of the browser default.
+    const family = getComputedStyle(document.body).fontFamily || "sans-serif";
 
     // 9:16 aspect ratio dimensions (1080 x 1920)
     canvas.width = 1080;
@@ -128,11 +133,11 @@ export function ShareStoryModal({ post, isOpen, onClose }: ShareStoryModalProps)
 
     // 2. Draw Top Branding
     ctx.fillStyle = onTheme;
-    ctx.font = "bold 52px sans-serif";
+    ctx.font = `bold 52px ${family}`;
     ctx.fillText("CampusLoop", 120, 160);
 
     ctx.globalAlpha = 0.7;
-    ctx.font = "34px sans-serif";
+    ctx.font = `34px ${family}`;
     ctx.fillText("VERIFIED STUDENT NETWORK", 120, 215);
     ctx.globalAlpha = 1;
 
@@ -157,7 +162,7 @@ export function ShareStoryModal({ post, isOpen, onClose }: ShareStoryModalProps)
 
     // 4. Draw Post Type Tag / Institution
     ctx.fillStyle = token("--brand-text");
-    ctx.font = "bold 32px sans-serif";
+    ctx.font = `bold 32px ${family}`;
     const postTypeBadge =
       post.type === "CONFESSION"
         ? "ANONYMOUS CONFESSION"
@@ -167,17 +172,17 @@ export function ShareStoryModal({ post, isOpen, onClose }: ShareStoryModalProps)
     ctx.fillText(postTypeBadge, 140, 420);
 
     ctx.fillStyle = token("--fg-muted");
-    ctx.font = "28px sans-serif";
+    ctx.font = `28px ${family}`;
     ctx.fillText(post.institution?.name || "Verified Campus", 140, 465);
 
     // 5. Draw Author Handle
     ctx.fillStyle = token("--fg");
-    ctx.font = "bold 42px sans-serif";
-    ctx.fillText(`@${authorHandle}`, 140, 560);
+    ctx.font = `bold 42px ${family}`;
+    ctx.fillText(authorLine, 140, 560);
 
     // 6. Draw Post Body Text (Wrapped lines)
     ctx.fillStyle = token("--fg");
-    ctx.font = "38px sans-serif";
+    ctx.font = `38px ${family}`;
     const words = post.body.split(" ");
     let line = "";
     let y = 650;
@@ -206,13 +211,13 @@ export function ShareStoryModal({ post, isOpen, onClose }: ShareStoryModalProps)
 
     // 7. Draw Footer Call to Action
     ctx.fillStyle = onTheme;
-    ctx.font = "bold 44px sans-serif";
+    ctx.font = `bold 44px ${family}`;
     ctx.fillText("Join the tea on CampusLoop", 120, 1680);
 
     ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
-    ctx.font = "34px sans-serif";
+    ctx.font = `34px ${family}`;
     ctx.fillText("campusloop.space", 120, 1735);
-  }, [isOpen, post, selectedTheme, authorHandle]);
+  }, [isOpen, post, selectedTheme, authorLine]);
 
   function handleDownloadStoryImage() {
     if (!canvasRef.current) return;

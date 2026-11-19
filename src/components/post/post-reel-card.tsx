@@ -371,24 +371,7 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
   function handleShare() {
     sounds.tap();
     haptics.light();
-    const shareUrl =
-      typeof window !== "undefined"
-        ? `${window.location.origin}/post/${post.id}`
-        : `https://campusloop.space/post/${post.id}`;
-    if (navigator.share) {
-      navigator
-        .share({
-          title: `Post by ${authorName} on CampusLoop`,
-          text: cleanSnippet(post.body, 100),
-          url: shareUrl,
-        })
-        .then(() => trackShare("native", "post", post.id))
-        .catch(() => {});
-    } else {
-      navigator.clipboard.writeText(shareUrl);
-      trackShare("copy_link", "post", post.id);
-      toast.success("Link copied");
-    }
+    setShowShareStoryModal(true);
   }
 
   // Bookmark handling
