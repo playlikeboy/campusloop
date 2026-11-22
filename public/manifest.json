@@ -1,7 +1,7 @@
 {
-  "name": "CampusLoop — Verified Campus Network",
+  "name": "CampusLoop: your campus, only your campus",
   "short_name": "CampusLoop",
-  "description": "Verified campus community for college students. Find campus conversations, communities, events, notes and PYQs.",
+  "description": "The social app for college students. Campus feed, confessions, events, free courses and PYQs, and chat. Verified students only.",
   "id": "/feeds",
   "start_url": "/feeds?source=pwa",
   "scope": "/",
@@ -17,8 +17,7 @@
   "categories": [
     "social",
     "education",
-    "lifestyle",
-    "shopping"
+    "lifestyle"
   ],
   "launch_handler": {
     "client_mode": [
@@ -75,13 +74,13 @@
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-192x192.png",
+      "src": "/icons/icon-maskable-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/icons/icon-512x512.png",
+      "src": "/icons/icon-maskable-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -89,52 +88,100 @@
   ],
   "shortcuts": [
     {
-      "name": "Campus Feed",
+      "name": "Campus feed",
       "short_name": "Feed",
-      "description": "View live campus discussions and confessions",
-      "url": "/feeds",
+      "description": "See what your campus is talking about",
+      "url": "/feeds?source=shortcut",
       "icons": [
         {
-          "src": "/icons/icon-192x192.png",
-          "sizes": "192x192"
+          "src": "/icons/shortcut-feed.png",
+          "sizes": "96x96",
+          "type": "image/png"
         }
       ]
     },
     {
-      "name": "Create Post",
+      "name": "New post",
       "short_name": "Post",
-      "description": "Drop a confession, poll or campus thread",
-      "url": "/post/new",
+      "description": "Post, confess or start a poll",
+      "url": "/post/new?source=shortcut",
       "icons": [
         {
-          "src": "/icons/icon-192x192.png",
-          "sizes": "192x192"
+          "src": "/icons/shortcut-post.png",
+          "sizes": "96x96",
+          "type": "image/png"
         }
       ]
     },
     {
-      "name": "Campus Match",
-      "short_name": "Match",
-      "description": "Connect with verified students in your campus radius",
-      "url": "/dating",
+      "name": "Events",
+      "short_name": "Events",
+      "description": "Fests, hackathons and workshops",
+      "url": "/events?source=shortcut",
       "icons": [
         {
-          "src": "/icons/icon-192x192.png",
-          "sizes": "192x192"
+          "src": "/icons/shortcut-events.png",
+          "sizes": "96x96",
+          "type": "image/png"
         }
       ]
     },
     {
-      "name": "Direct Messages",
+      "name": "Chat",
       "short_name": "Chat",
-      "description": "Private student chats and groups",
-      "url": "/chat",
+      "description": "Your messages and group chats",
+      "url": "/chat?source=shortcut",
       "icons": [
         {
-          "src": "/icons/icon-192x192.png",
-          "sizes": "192x192"
+          "src": "/icons/shortcut-chat.png",
+          "sizes": "96x96",
+          "type": "image/png"
         }
       ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/narrow-feeds.jpg",
+      "sizes": "780x1688",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Your campus feed"
+    },
+    {
+      "src": "/screenshots/narrow-events.jpg",
+      "sizes": "780x1688",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Fests and hackathons, one-tap register"
+    },
+    {
+      "src": "/screenshots/narrow-academics.jpg",
+      "sizes": "780x1688",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Notes and PYQs for your branch"
+    },
+    {
+      "src": "/screenshots/narrow-chat.jpg",
+      "sizes": "780x1688",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Chat with your batch"
+    },
+    {
+      "src": "/screenshots/wide-feeds.jpg",
+      "sizes": "1440x900",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "CampusLoop on desktop"
+    },
+    {
+      "src": "/screenshots/wide-events.jpg",
+      "sizes": "1440x900",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "Events on desktop"
     }
   ]
 }
