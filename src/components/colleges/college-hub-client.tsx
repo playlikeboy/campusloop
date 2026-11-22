@@ -160,7 +160,7 @@ export function CollegeHubClient({
       />
 
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabType)} className="min-w-0 gap-4">
-        <div className="sticky top-12 z-20 -mx-4 bg-bg px-4 lg:top-0">
+        <div className="sticky top-14 z-20 -mx-4 bg-bg px-4 lg:top-0">
           <TabsList
             variant="line"
             aria-label="College sections"

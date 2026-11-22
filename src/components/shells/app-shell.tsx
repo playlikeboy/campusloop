@@ -114,7 +114,8 @@ export function AppChrome({ topBar = "full", children, ...server }: AppChromePro
 
   const topBarNode =
     topBar === "none" ? null : (
-      <div className={cn(topBar === "mobile" && "lg:hidden")}>
+      // The wrapper is what sticks: a sticky child cannot leave a parent of its own height.
+      <div className={cn("sticky top-0 z-[var(--z-sticky-nav)]", topBar === "mobile" && "lg:hidden")}>
         <AppTopBar
           profile={profile}
           collegeName={collegeName}

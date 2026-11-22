@@ -84,6 +84,8 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
   const [votesCount, setVotesCount] = useState(post.votesCount);
   const [commentsCount, setCommentsCount] = useState(post.commentsCount);
   const [isSaved, setIsSaved] = useState(Boolean(post.isSaved));
+  // Landscape clips are letterboxed instead of cropped to fill the portrait frame.
+  const [isLandscape, setIsLandscape] = useState(false);
   const [isReposted, setIsReposted] = useState(false);
   const [repostSpin, setRepostSpin] = useState(false);
   const [showRepostBurst, setShowRepostBurst] = useState(false);
@@ -781,7 +783,11 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
             loop
             playsInline
             onTimeUpdate={handleTimeUpdate}
-            className="w-full h-full object-cover"
+            onLoadedMetadata={(e) => {
+              const v = e.currentTarget;
+              setIsLandscape(v.videoWidth > v.videoHeight);
+            }}
+            className={cn("w-full h-full", isLandscape ? "object-contain" : "object-cover")}
           />
           {isActive && streamInfo?.audioUrl && !usingHls && (
             // biome-ignore lint/a11y/useMediaCaption: separate audio track of the same captionless clip

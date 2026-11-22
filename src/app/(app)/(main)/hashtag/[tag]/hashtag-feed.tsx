@@ -150,7 +150,7 @@ export default function HashtagFeed() {
 
   return (
     <main className="min-h-dvh bg-bg text-fg pb-28 mx-auto max-w-2xl sm:border-x border-border">
-      <header className="sticky top-12 lg:top-0 z-30 bg-bg border-b border-border px-2 py-1.5 flex items-center justify-between gap-2">
+      <header className="sticky top-14 lg:top-0 z-30 bg-bg border-b border-border px-2 py-1.5 flex items-center justify-between gap-2">
         <Link
           href="/feeds"
           className="flex size-11 items-center justify-center rounded-full text-fg-muted hover:bg-surface-muted hover:text-fg transition-ui shrink-0"

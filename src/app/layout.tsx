@@ -263,7 +263,10 @@ export default function RootLayout({
             </Suspense>
             <RouteProgress />
             <OfflineIndicator />
-            {children}
+            {/* Clip sideways overflow here, not on html/body: Android Chrome ignores clip on
+                the root and zooms the whole page out when one element is too wide.
+                clip (not hidden) keeps position: sticky working. */}
+            <div className="overflow-x-clip">{children}</div>
             <PWAInstallBanner />
             <Toaster position="top-center" richColors />
           </SWRProvider>

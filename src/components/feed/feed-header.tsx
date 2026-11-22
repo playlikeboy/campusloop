@@ -70,7 +70,7 @@ export function FeedHeader({
   }
 
   return (
-    <div className="sticky top-12 lg:top-0 z-30 border-b border-border bg-bg">
+    <div className="sticky top-14 lg:top-0 z-30 border-b border-border bg-bg">
       <div className="flex items-stretch">
         <div className="flex flex-1 min-w-0" role="tablist" aria-label="Feed mode">
           {PRIMARY_TABS.map((tab) => {
@@ -83,7 +83,7 @@ export function FeedHeader({
                 aria-selected={active}
                 onClick={() => onSortChange(tab.id)}
                 className={cn(
-                  "relative flex h-12 flex-1 items-center justify-center px-2 text-[15px] transition-ui cursor-pointer select-none",
+                  "relative flex h-12 min-w-0 flex-1 items-center justify-center whitespace-nowrap px-1.5 text-[15px] transition-ui cursor-pointer select-none",
                   "hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
                   active ? "font-semibold text-fg" : "font-medium text-fg-muted"
                 )}
