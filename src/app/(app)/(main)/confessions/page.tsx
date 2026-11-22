@@ -8,7 +8,7 @@ export const metadata = buildMetadata({
   title: "Confessions",
   description: "Anonymous confessions from students on CampusLoop. Your name is never shown on a confession.",
   path: "/confessions",
-  image: { url: "/og-confessions.png", width: 1536, height: 1024, alt: "CampusLoop confessions" },
+  image: { url: "/og-confessions.png", width: 1200, height: 630, alt: "CampusLoop confessions" },
   noindex: true,
 });
 

@@ -15,7 +15,7 @@ export const metadata: Metadata = buildMetadata({
   description:
     "Read and write placement stories, interview experiences, study guides and campus stories from Indian colleges.",
   path: "/articles",
-  image: { url: "/og-articles.png", width: 1536, height: 1024, alt: "CampusLoop Articles" },
+  image: { url: "/og-articles.png", width: 1200, height: 630, alt: "CampusLoop Articles" },
   keywords: [
     "student articles",
     "placement experiences",

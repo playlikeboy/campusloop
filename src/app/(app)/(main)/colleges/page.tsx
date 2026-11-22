@@ -51,7 +51,7 @@ export async function generateMetadata({ searchParams }: { searchParams: SearchP
         : DESCRIPTION,
     path: collegesHref({ page, state }),
     keepQuery: true,
-    image: { url: "/og-colleges.png", width: 1536, height: 1024, alt: "Colleges on CampusLoop" },
+    image: { url: "/og-colleges.png", width: 1200, height: 630, alt: "Colleges on CampusLoop" },
     noindex: Boolean(q) || isEmpty,
   });
 }

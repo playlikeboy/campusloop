@@ -14,7 +14,7 @@ export const academicsHubMetadata = buildMetadata({
   description:
     "Free notes, past papers (PYQs), formula sheets and lab manuals shared by students. Filter by branch and semester.",
   path: "/academics",
-  image: { url: "/og-academics.png", width: 1536, height: 1024, alt: "CampusLoop study material" },
+  image: { url: "/og-academics.png", width: 1200, height: 630, alt: "CampusLoop study material" },
   keywords: [
     "college notes PDF",
     "B.Tech semester notes",

@@ -8,11 +8,11 @@ export const SITE_DESCRIPTION =
 export const TWITTER_HANDLE = "@mycampusloop";
 export const SITE_LOCALE = "en_IN";
 
-/** Static fallback share image (real pixel size, not the 1200x630 it used to claim). */
+/** Static fallback share image. Regenerate with scripts/brand-assets/render.mjs. */
 export const DEFAULT_OG_IMAGE = {
   url: `${SITE_URL}/og-image.png`,
-  width: 1536,
-  height: 1024,
+  width: 1200,
+  height: 630,
   alt: "CampusLoop, the social app for college students",
 } as const;
 

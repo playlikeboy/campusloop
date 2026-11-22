@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: AcademicSlugPageProps): Promi
     description,
     path: canonicalPath(resource.id),
     type: "article",
-    image: { url: "/og-academics.png", width: 1536, height: 1024, alt: resource.title },
+    image: { url: "/og-academics.png", width: 1200, height: 630, alt: resource.title },
     publishedTime: resource.createdAt ? new Date(resource.createdAt).toISOString() : undefined,
     modifiedTime: resource.updatedAt ? new Date(resource.updatedAt).toISOString() : undefined,
     authors: resource.uploader?.displayName ? [resource.uploader.displayName] : undefined,

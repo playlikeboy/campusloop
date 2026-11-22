@@ -24,7 +24,7 @@ export async function generateMetadata({
     description:
       "Find clubs, branch groups and interest communities from colleges across India, or start your own.",
     path: "/communities",
-    image: { url: "/og-communities.png", width: 1536, height: 1024, alt: "Communities on CampusLoop" },
+    image: { url: "/og-communities.png", width: 1200, height: 630, alt: "Communities on CampusLoop" },
     noindex: filtered,
   });
 }
