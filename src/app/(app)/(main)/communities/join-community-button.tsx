@@ -15,6 +15,8 @@ interface JoinButtonProps {
   communityId: string;
   initialIsMember?: boolean;
   className?: string;
+  /** `row` is the compact list-row action; a joined row reads as quiet state, not a call to action. */
+  size?: "sm" | "row";
   onMembershipChange?: (isMember: boolean) => void;
 }
 
@@ -22,6 +24,7 @@ export function JoinCommunityButton({
   communityId,
   initialIsMember = false,
   className,
+  size = "sm",
   onMembershipChange,
 }: JoinButtonProps) {
   const [isMember, setIsMember] = useState(initialIsMember);
@@ -62,8 +65,8 @@ export function JoinCommunityButton({
   return (
     <Button
       type="button"
-      size="sm"
-      variant={isMember ? (isHovering ? "danger" : "outline") : "primary"}
+      size={size}
+      variant={isMember ? (isHovering ? "danger" : size === "row" ? "ghost" : "outline") : "primary"}
       onClick={handleToggle}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
@@ -72,9 +75,9 @@ export function JoinCommunityButton({
       loading={isPending}
       aria-pressed={isMember}
       aria-label={isMember ? "Leave community" : "Join community"}
-      className={cn("shrink-0", className)}
+      className={cn("shrink-0", size === "row" && isMember && !isHovering && "text-fg-muted", className)}
     >
-      {!isPending && (isMember ? <Check /> : <Plus />)}
+      {!isPending && (isMember ? <Check /> : <Plus className={cn(size === "row" && "max-sm:hidden")} />)}
       {label}
     </Button>
   );

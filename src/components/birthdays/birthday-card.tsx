@@ -71,7 +71,7 @@ export function BirthdayCard({ student, isToday = false }: BirthdayCardProps) {
   return (
     <li
       className={cn(
-        "flex items-center gap-3 rounded-lg border border-border p-3",
+        "flex items-center gap-2 rounded-lg border border-border p-3 sm:gap-3",
         isToday ? "bg-surface-raised" : "bg-surface"
       )}
     >
@@ -93,7 +93,9 @@ export function BirthdayCard({ student, isToday = false }: BirthdayCardProps) {
           )}
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-semibold text-fg">{student.displayName}</span>
+          <span className="line-clamp-2 text-sm leading-snug font-semibold break-words text-fg">
+            {student.displayName}
+          </span>
           <span className="mt-0.5 flex min-w-0 items-center gap-1.5 text-xs text-fg-muted">
             <MentionTag username={student.username} size="sm" className="min-w-0 shrink" />
             {student.course && <span className="min-w-0 truncate">{student.course}</span>}
@@ -103,8 +105,13 @@ export function BirthdayCard({ student, isToday = false }: BirthdayCardProps) {
       </Link>
 
       {isToday ? (
-        <Button size="sm" variant={wished ? "outline" : "primary"} onClick={wish}>
-          <PartyPopper aria-hidden="true" />
+        <Button
+          size="row"
+          variant={wished ? "ghost" : "primary"}
+          onClick={wish}
+          className={cn("shrink-0", wished && "text-fg-muted")}
+        >
+          <PartyPopper aria-hidden="true" className="max-sm:hidden" />
           {wished ? "Wished" : "Wish"}
         </Button>
       ) : (
@@ -118,7 +125,7 @@ export function BirthdayCard({ student, isToday = false }: BirthdayCardProps) {
         </span>
       )}
 
-      <Button asChild variant="ghost" size="icon" className="shrink-0">
+      <Button asChild variant="ghost" size="icon-row" className="shrink-0">
         <Link href={`/chat?recipientId=${student.id}`} aria-label={`Message ${student.displayName}`}>
           <MessageCircle aria-hidden="true" />
         </Link>

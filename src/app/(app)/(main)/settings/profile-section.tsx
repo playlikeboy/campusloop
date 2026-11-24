@@ -79,20 +79,23 @@ export function ProfileSection({ profile }: ProfileSectionProps) {
       </h2>
       <form onSubmit={save} className="space-y-4 rounded-lg border border-border bg-surface p-4">
         <div className="flex items-center gap-3">
-          <Avatar className="size-14">
+          <Avatar className="size-14 shrink-0">
             <AvatarImage src={getAvatarUrl(profile.avatarUrl, profile.username, displayName)} alt="" />
             <AvatarFallback className="bg-surface-muted font-semibold text-fg">
               {initialOf(displayName)}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">
-            <p className="truncate font-semibold text-fg">@{profile.username}</p>
+            <p className="line-clamp-2 font-semibold break-words text-fg">@{profile.username}</p>
             {profile.institutionName && (
-              <p className="truncate text-sm text-fg-muted">{profile.institutionName}</p>
+              <p className="line-clamp-2 text-sm text-fg-muted">{profile.institutionName}</p>
             )}
           </div>
-          <Button asChild variant="outline" className="shrink-0">
-            <Link href="/profile/edit">Edit profile</Link>
+          <Button asChild variant="outline" size="row" className="shrink-0">
+            <Link href="/profile/edit" aria-label="Edit profile">
+              <span className="sm:hidden">Edit</span>
+              <span className="hidden sm:inline">Edit profile</span>
+            </Link>
           </Button>
         </div>
 

@@ -48,6 +48,14 @@ const buttonVariants = cva(
         "icon-sm": "size-9 min-h-9 min-w-9 pointer-coarse:size-11 pointer-coarse:min-h-11 pointer-coarse:min-w-11",
         "icon-xs": "size-7 min-h-7 min-w-7",
         "icon-lg": "size-13 min-h-13 min-w-13",
+        /** Compact trailing action in a list row: 36px to the eye, 44px to the thumb. */
+        row: "relative h-9 min-h-9 gap-1.5 px-3 text-sm after:absolute after:inset-x-0 after:-inset-y-1 after:content-[''] [&_svg:not([class*='size-'])]:size-4",
+        /** Compact header action: 40px tall, 44px hit area, so the page title stays the loudest thing. */
+        header:
+          "relative h-10 min-h-10 gap-1.5 px-4 text-sm after:absolute after:inset-x-0 after:-inset-y-0.5 after:content-[''] sm:h-11 sm:min-h-11",
+        /** Icon-only version of `row`. */
+        "icon-row":
+          "relative size-9 min-h-9 min-w-9 after:absolute after:-inset-1 after:content-['']",
       },
     },
     defaultVariants: {

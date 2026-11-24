@@ -80,7 +80,8 @@ export function McpKeyList({
                     <span className="truncate text-sm font-semibold text-fg">{k.name}</span>
                     <Badge variant={k.isActive ? "success" : "neutral"}>{k.isActive ? "On" : "Paused"}</Badge>
                   </span>
-                  <span className="block text-xs text-fg-muted tabular-nums">
+                  {/* "last used x ago" depends on the clock, so server and client can differ by a minute. */}
+                  <span className="block text-xs text-fg-muted tabular-nums" suppressHydrationWarning>
                     {k.requestsCount} calls ·{" "}
                     {k.lastUsedAt ? `last used ${formatTimeAgo(k.lastUsedAt)}` : "never used"}
                   </span>

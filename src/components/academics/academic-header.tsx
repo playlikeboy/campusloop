@@ -19,30 +19,30 @@ export function AcademicHeader({ scope, onScopeChange, campusName, totalCount }:
 
   return (
     <header className="space-y-4 pt-2 pb-3">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 space-y-1">
-          <h1 className="text-3xl text-fg sm:text-4xl">Study material</h1>
-          <p className="text-sm text-fg-muted">
-            Notes and past papers (PYQs) for your branch and semester.
-            {typeof totalCount === "number" && totalCount > 0 && (
-              <span className="tabular-nums"> {totalCount.toLocaleString("en-IN")} files.</span>
-            )}
-          </p>
-        </div>
+      <div className="space-y-1">
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="min-w-0 text-3xl text-fg sm:text-4xl">Study material</h1>
 
-        <Button asChild size="md" className="shrink-0">
-          <Link
-            href="/academics/study-material/upload"
-            onClick={() => {
-              sounds.tap();
-              haptics.success();
-            }}
-          >
-            <Upload />
-            <span className="hidden sm:inline">Upload notes</span>
-            <span className="sm:hidden">Upload</span>
-          </Link>
-        </Button>
+          <Button asChild size="header" className="shrink-0">
+            <Link
+              href="/academics/study-material/upload"
+              onClick={() => {
+                sounds.tap();
+                haptics.success();
+              }}
+            >
+              <Upload />
+              <span className="hidden sm:inline">Upload notes</span>
+              <span className="sm:hidden">Upload</span>
+            </Link>
+          </Button>
+        </div>
+        <p className="text-sm text-fg-muted">
+          Notes and past papers (PYQs) for your branch and semester.
+          {typeof totalCount === "number" && totalCount > 0 && (
+            <span className="tabular-nums"> {totalCount.toLocaleString("en-IN")} files.</span>
+          )}
+        </p>
       </div>
 
       <SegmentedControl

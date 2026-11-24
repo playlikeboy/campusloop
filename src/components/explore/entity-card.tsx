@@ -13,7 +13,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
 import { MentionTag } from "@/components/ui/stickers";
 import { trackFollow } from "@/lib/analytics/ga4";
 import { haptics } from "@/lib/haptics";
@@ -47,21 +47,15 @@ export function CommunityPreviewCard({
       </Avatar>
 
       <div className="space-y-1 min-w-0 flex-1">
-        <div className="flex items-center justify-between gap-1.5">
-          <h3 className="text-sm font-semibold text-fg group-hover:text-brand-text transition-ui truncate">
-            {community.name}
-          </h3>
-          {community.category && (
-            <Badge variant="secondary" className="text-xs px-1.5 py-0 h-4 shrink-0 font-normal">
-              {community.category}
-            </Badge>
-          )}
-        </div>
+        <h3 className="text-sm font-semibold leading-snug text-fg group-hover:text-brand-text transition-ui line-clamp-2">
+          {community.name}
+        </h3>
         {community.description && (
           <p className="text-xs text-muted-foreground line-clamp-1 leading-relaxed">
             {community.description}
           </p>
         )}
+        {community.category && <p className="truncate text-xs text-fg-subtle">{community.category}</p>}
       </div>
     </Link>
   );
@@ -146,7 +140,7 @@ export function AcademicPreviewCard({
             </span>
           )}
         </div>
-        <h3 className="text-sm font-semibold text-fg group-hover:text-brand-text transition-ui line-clamp-1">
+        <h3 className="text-sm font-semibold leading-snug text-fg group-hover:text-brand-text transition-ui line-clamp-2">
           {resource.title}
         </h3>
         <p className="text-xs text-muted-foreground truncate">{resource.subjectName}</p>
@@ -224,20 +218,17 @@ export function CollegePreviewCard({
       </Avatar>
 
       <div className="space-y-1 min-w-0 flex-1">
-        <div className="flex items-center justify-between gap-1.5">
-          <h3 className="text-sm font-semibold text-fg group-hover:text-brand-text transition-ui truncate">
-            {college.name}
-          </h3>
-          {college.nirfRank && (
-            <Badge variant="outline" className="text-xs px-1.5 py-0 h-4 shrink-0 font-normal">
-              NIRF #{college.nirfRank}
-            </Badge>
-          )}
-        </div>
-        {location && (
+        <h3 className="text-sm font-semibold leading-snug text-fg group-hover:text-brand-text transition-ui line-clamp-2">
+          {college.name}
+        </h3>
+        {(location || college.nirfRank) && (
           <p className="text-xs text-muted-foreground flex items-center gap-1 truncate">
-            <MapPin className="size-3 shrink-0 text-muted-foreground/70" />
-            <span className="truncate">{location}</span>
+            {location && <MapPin className="size-3 shrink-0 text-muted-foreground/70" />}
+            <span className="truncate">
+              {location}
+              {location && college.nirfRank ? " · " : ""}
+              {college.nirfRank ? `NIRF #${college.nirfRank}` : ""}
+            </span>
           </p>
         )}
       </div>
@@ -296,7 +287,7 @@ export function PersonPreviewCard({
   return (
     <Link
       href={`/${person.username}`}
-      className="group flex items-center justify-between gap-3 p-3 rounded-lg border border-border bg-surface hover:bg-surface-muted transition-ui"
+      className="group flex items-center justify-between gap-2 p-3 rounded-lg border border-border bg-surface hover:bg-surface-muted transition-ui"
     >
       <div className="flex items-center gap-3 min-w-0 flex-1">
         <Avatar className="size-10 rounded-full shrink-0 border border-border">
@@ -307,7 +298,7 @@ export function PersonPreviewCard({
         </Avatar>
 
         <div className="space-y-0.5 min-w-0">
-          <p className="text-sm font-semibold text-fg group-hover:text-brand-text transition-ui truncate">
+          <p className="text-sm font-semibold leading-snug text-fg group-hover:text-brand-text transition-ui line-clamp-2 break-words">
             {person.displayName}
           </p>
           <p className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
@@ -323,22 +314,20 @@ export function PersonPreviewCard({
         type="button"
         onClick={handleFollowToggle}
         disabled={isPending}
+        aria-pressed={isFollowing}
         className={cn(
-          "inline-flex min-h-9 items-center gap-1 px-3 rounded-full text-xs font-semibold transition-colors shrink-0 cursor-pointer pointer-coarse:min-h-11",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-          isFollowing
-            ? "border border-border bg-muted text-foreground hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
-            : "bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs"
+          buttonVariants({ variant: isFollowing ? "ghost" : "primary", size: "row" }),
+          isFollowing && "text-fg-muted"
         )}
       >
         {isFollowing ? (
           <>
-            <UserCheck className="size-3" />
+            <UserCheck aria-hidden="true" />
             <span>Following</span>
           </>
         ) : (
           <>
-            <UserPlus className="size-3" />
+            <UserPlus aria-hidden="true" className="max-sm:hidden" />
             <span>Follow</span>
           </>
         )}

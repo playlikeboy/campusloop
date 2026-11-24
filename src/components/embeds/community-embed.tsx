@@ -161,7 +161,7 @@ export function CommunityEmbed({ slugOrId }: CommunityEmbedProps) {
             </button>
           </div>
 
-          <h3 className="font-bold text-base sm:text-lg text-foreground tracking-tight leading-snug truncate group-hover/comm:text-primary transition-colors">
+          <h3 className="font-bold text-base sm:text-lg text-foreground tracking-tight leading-snug line-clamp-2 group-hover/comm:text-primary transition-colors">
             {community.name}
           </h3>
 

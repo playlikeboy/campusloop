@@ -1,8 +1,7 @@
 "use client";
 
-import { MapPin, Trophy } from "lucide-react";
+import { BadgeCheck, MapPin, Trophy } from "lucide-react";
 import Link from "next/link";
-import { VerifiedSticker } from "@/components/ui/stickers";
 import { cn } from "@/lib/utils";
 import { CollegeCrest } from "./college-crest";
 
@@ -30,11 +29,14 @@ export function CollegeHubRow({
   college,
   rank,
   trailing,
+  mobileMeta,
 }: {
   college: CollegeItem;
   /** Optional standings position. */
   rank?: number;
   trailing?: React.ReactNode;
+  /** Shown under the location on phones instead of `trailing`, so the name keeps the full width. */
+  mobileMeta?: React.ReactNode;
 }) {
   const location = [college.district, college.state].filter(Boolean).join(", ") || "India";
 
@@ -57,31 +59,35 @@ export function CollegeHubRow({
       <CollegeCrest name={college.name} logoUrl={college.logoUrl} size="md" />
 
       <div className="min-w-0 flex-1">
-        <div className="flex min-w-0 items-center gap-1.5">
-          <h3 className="min-w-0 truncate font-semibold leading-tight text-fg group-hover:text-brand-text">
-            {college.name}
-          </h3>
+        <h3 className="line-clamp-2 font-semibold leading-snug text-fg group-hover:text-brand-text">
+          {college.name}
           {college.verified ? (
-            <VerifiedSticker size="sm" label="Verified" className="shrink-0 shadow-none" />
+            <BadgeCheck
+              className="ml-1 inline size-4 align-[-3px] text-verified-text"
+              aria-label="Verified college"
+            />
           ) : null}
-          {college.nirfRank ? (
-            <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-surface-muted px-2 py-0.5 text-xs font-semibold text-fg-muted">
-              <Trophy className="size-3" aria-hidden="true" />
-              NIRF {college.nirfRank}
-            </span>
-          ) : null}
-        </div>
+        </h3>
 
         <p className="mt-0.5 flex items-center gap-1.5 truncate text-sm text-fg-muted">
           <MapPin className="size-3.5 shrink-0" aria-hidden="true" />
           <span className="truncate">{location}</span>
+          {college.nirfRank ? (
+            <span className="inline-flex shrink-0 items-center gap-0.5 text-xs font-semibold">
+              <Trophy className="size-3" aria-hidden="true" />
+              NIRF {college.nirfRank}
+            </span>
+          ) : null}
           {college.websiteDomain ? (
             <span className="hidden shrink-0 font-mono text-xs sm:inline">@{college.websiteDomain}</span>
           ) : null}
         </p>
+        {mobileMeta && <p className="mt-0.5 truncate text-xs text-fg-subtle sm:hidden">{mobileMeta}</p>}
       </div>
 
-      {trailing && <div className="shrink-0 pl-2 text-right">{trailing}</div>}
+      {trailing && (
+        <div className={cn("shrink-0 pl-2 text-right", mobileMeta ? "hidden sm:block" : undefined)}>{trailing}</div>
+      )}
     </Link>
   );
 }

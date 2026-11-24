@@ -92,20 +92,18 @@ export function UserProfileEmbed({ username }: UserProfileEmbedProps) {
       onClick={(e) => e.stopPropagation()}
       className="mt-3 block rounded-2xl border border-border bg-card hover:bg-muted/20 transition-ui p-3.5 shadow-xs group"
     >
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3 min-w-0">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
           <Avatar className="size-11 shrink-0 border border-border">
             <AvatarImage src={avatar} alt={profile.displayName} />
             <AvatarFallback className="font-bold text-xs">{profile.displayName[0]}</AvatarFallback>
           </Avatar>
 
           <div className="min-w-0">
-            <div className="flex items-center gap-1.5">
-              <h4 className="font-bold text-xs text-foreground truncate group-hover:underline">
-                {profile.displayName}
-              </h4>
-              <span className="text-xs font-bold text-muted-foreground truncate">@{profile.username}</span>
-            </div>
+            <h4 className="line-clamp-2 break-words text-sm leading-snug font-bold text-foreground group-hover:underline">
+              {profile.displayName}
+            </h4>
+            <p className="truncate text-xs text-muted-foreground">@{profile.username}</p>
 
             {profile.institution?.name ? (
               <p className="text-xs text-muted-foreground flex items-center gap-1 truncate mt-0.5 font-medium">
@@ -120,23 +118,21 @@ export function UserProfileEmbed({ username }: UserProfileEmbedProps) {
         </div>
 
         <Button
-          size="sm"
+          size="row"
+          variant={isFollowing ? "ghost" : "primary"}
           onClick={handleToggleFollow}
           disabled={isMutating}
-          className={`h-8 px-3.5 text-xs font-bold rounded-full shrink-0 transition-ui cursor-pointer ${
-            isFollowing
-              ? "bg-muted hover:bg-destructive/10 hover:text-destructive text-foreground border border-border"
-              : "bg-foreground text-background hover:opacity-90 shadow-2xs"
-          }`}
+          aria-pressed={isFollowing}
+          className={isFollowing ? "text-fg-muted" : undefined}
         >
           {isFollowing ? (
             <>
-              <Check className="size-3 mr-1" />
+              <Check aria-hidden="true" />
               <span>Following</span>
             </>
           ) : (
             <>
-              <UserPlus className="size-3 mr-1" />
+              <UserPlus aria-hidden="true" className="max-sm:hidden" />
               <span>Follow</span>
             </>
           )}

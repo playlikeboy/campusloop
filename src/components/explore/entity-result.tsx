@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import type { SearchEntityType, SearchResult } from "@/lib/search/types";
 import { cn } from "@/lib/utils";
 
@@ -89,24 +88,15 @@ export function EntityResult({ result }: { result: SearchResult }) {
 
       {/* Main Content */}
       <div className="space-y-1 min-w-0 flex-1">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-1.5 min-w-0">
-            <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors truncate">
-              {result.title}
-            </h3>
-            <Badge variant="secondary" className="text-xs px-1.5 py-0 h-4 font-normal shrink-0">
-              {typeLabel}
-            </Badge>
-          </div>
+        <h3 className="text-sm font-semibold leading-snug text-foreground group-hover:text-primary transition-colors line-clamp-2 break-words">
+          {result.title}
+        </h3>
 
-          {result.metadata?.nirfRank && (
-            <Badge variant="outline" className="text-xs px-1.5 py-0 h-4 font-normal shrink-0">
-              {result.metadata.nirfRank}
-            </Badge>
-          )}
-        </div>
-
-        {result.subtitle && <p className="text-xs text-muted-foreground truncate">{result.subtitle}</p>}
+        <p className="text-xs text-muted-foreground truncate">
+          <span className="font-semibold">{typeLabel}</span>
+          {result.metadata?.nirfRank ? ` · ${result.metadata.nirfRank}` : ""}
+          {result.subtitle ? ` · ${result.subtitle}` : ""}
+        </p>
 
         {result.description && (
           <p className="text-xs text-muted-foreground/80 line-clamp-2 leading-relaxed">

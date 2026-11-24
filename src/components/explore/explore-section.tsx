@@ -33,7 +33,7 @@ export function ExploreSection({
             {Icon && <Icon className="size-5 text-fg-muted shrink-0" aria-hidden />}
             {title}
           </h2>
-          {subtitle && <p className="mt-0.5 text-sm text-fg-muted truncate">{subtitle}</p>}
+          {subtitle && <p className="mt-0.5 text-sm text-fg-muted">{subtitle}</p>}
         </div>
 
         {viewAllHref && (

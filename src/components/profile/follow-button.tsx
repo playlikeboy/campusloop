@@ -13,6 +13,7 @@ interface FollowButtonProps {
   username: string;
   displayName?: string;
   initialIsFollowing: boolean;
+  /** `sm` is the compact list-row action: quiet once following, short pill to follow. */
   size?: "sm" | "md";
   className?: string;
   onChange?: (isFollowing: boolean, counts?: { followersCount: number; followingCount: number }) => void;
@@ -76,11 +77,15 @@ export function FollowButton({
       onClick={toggleFollow}
       aria-pressed={isFollowing}
       aria-busy={isPending || undefined}
-      variant={isFollowing ? "outline" : "primary"}
-      size={size === "sm" ? "sm" : "md"}
-      className={cn("group/follow", className)}
+      variant={isFollowing ? (size === "sm" ? "ghost" : "outline") : "primary"}
+      size={size === "sm" ? "row" : "md"}
+      className={cn("group/follow", size === "sm" && isFollowing && "text-fg-muted", className)}
     >
-      {isFollowing ? <UserCheck aria-hidden="true" /> : <UserPlus aria-hidden="true" />}
+      {isFollowing ? (
+        <UserCheck aria-hidden="true" />
+      ) : (
+        <UserPlus aria-hidden="true" className={cn(size === "sm" && "max-sm:hidden")} />
+      )}
       {isFollowing ? (
         <>
           <span className="group-hover/follow:hidden">Following</span>

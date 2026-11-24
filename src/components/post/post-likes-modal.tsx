@@ -278,11 +278,11 @@ export function PostLikesModal({ postId, isOpen, onClose, currentUserId }: PostL
                       </Avatar>
 
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-bold text-foreground truncate group-hover:text-primary transition-colors flex items-center gap-1">
-                          <span>{user.displayName}</span>
+                        <p className="text-sm font-bold text-foreground group-hover:text-primary transition-colors flex items-start gap-1">
+                          <span className="line-clamp-2 min-w-0 break-words">{user.displayName}</span>
                           {user.isVerified && (
                             <BadgeCheck
-                              className="size-3.5 text-verified-text shrink-0"
+                              className="mt-0.5 size-3.5 text-verified-text shrink-0"
                               aria-label="Verified"
                             />
                           )}

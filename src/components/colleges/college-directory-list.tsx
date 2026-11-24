@@ -72,6 +72,7 @@ export function CollegeStandingsList({ leaderboard }: { leaderboard: Leaderboard
             college={item}
             rank={index + 1}
             trailing={<span className="text-sm text-fg-muted tabular-nums">{activityLine(item)}</span>}
+            mobileMeta={<span className="tabular-nums">{activityLine(item)}</span>}
           />
         </li>
       ))}

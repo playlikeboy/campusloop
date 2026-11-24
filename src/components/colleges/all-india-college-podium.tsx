@@ -90,7 +90,7 @@ export function AllIndiaCollegePodium({
               </span>
               <CollegeCrest name={item.name} logoUrl={item.logoUrl} />
               <div className="min-w-0 flex-1">
-                <p className="truncate font-semibold text-fg group-hover:text-brand-text">
+                <p className="line-clamp-2 leading-snug font-semibold text-fg group-hover:text-brand-text">
                   {shortCollegeName(item.name)}
                 </p>
                 <p className="truncate text-sm text-fg-muted">{activityLine(item)}</p>

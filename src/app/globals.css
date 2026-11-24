@@ -656,3 +656,15 @@
     font-size: 0.875rem !important;
   }
 }
+
+/* One side gutter on phones. The app shell already pads content by --gutter, but
+   most pages also wrap themselves in "mx-auto max-w-* px-4", which doubled the
+   gutter to 32px+. Below sm, page-level wrappers (the first two levels inside the
+   padded <main>) drop their own inline padding. Full-bleed wrappers that use
+   negative margins keep theirs. Unlayered on purpose so it beats utilities. */
+@media (max-width: 639.98px) {
+  .app-surface #main.min-w-0 > [class*="mx-auto"]:not([class*="-mx-"]),
+  .app-surface #main.min-w-0 > * > [class*="mx-auto"][class*="max-w-"]:not([class*="-mx-"]) {
+    padding-inline: 0;
+  }
+}

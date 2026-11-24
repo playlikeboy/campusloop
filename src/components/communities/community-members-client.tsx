@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, Clock, Crown, Search, Users } from "lucide-react";
+import { BadgeCheck, CheckCircle2, Clock, Crown, Search, ShieldCheck, Users } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -8,9 +8,7 @@ import { approveJoinRequest, rejectJoinRequest } from "@/app/(app)/(main)/commun
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { VerifiedSticker } from "@/components/ui/stickers";
 import { initialOf } from "@/lib/utils";
-import { CommunityRoleBadge } from "./community-role-badge";
 
 interface MemberItem {
   id: string;
@@ -178,28 +176,16 @@ export function CommunityMembersClient({
         <div className="grid gap-2.5 sm:grid-cols-2">
           {admins.map((m) => (
             <Link key={m.id} href={`/@${m.user.username}`} className="min-w-0">
-              <div className="flex min-h-16 cursor-pointer items-center justify-between gap-3 rounded-lg border border-border bg-surface p-3.5 transition-ui hover:border-border-strong">
-                <div className="flex items-center gap-3 min-w-0">
+              <div className="flex min-h-16 cursor-pointer items-center gap-3 rounded-lg border border-border bg-surface p-3.5 transition-ui hover:border-border-strong">
+                <div className="flex min-w-0 flex-1 items-center gap-3">
                   <Avatar className="size-10 shrink-0">
                     <AvatarImage src={m.user.avatarUrl || ""} alt="" />
                     <AvatarFallback className="text-xs font-semibold">{initialOf(m.user.displayName)}</AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 space-y-0.5">
-                    <p className="flex min-w-0 items-center gap-1 text-sm font-semibold text-fg">
-                      <span className="truncate">{m.user.displayName}</span>
-                      <Crown className="size-3 shrink-0 text-warning" aria-label="Admin" />
-                    </p>
-                    <p className="truncate text-xs text-fg-muted">
-                      @{m.user.username} {m.user.branch ? `• ${m.user.branch}` : ""}
-                    </p>
+                    <MemberName name={m.user.displayName} verified={m.user.isCollegeVerified} />
+                    <MemberMeta username={m.user.username} branch={m.user.branch} role={m.role} />
                   </div>
-                </div>
-
-                <div className="flex shrink-0 items-center gap-1.5">
-                  {m.user.isCollegeVerified && (
-                    <VerifiedSticker label="Verified" size="sm" className="h-6 shadow-none" />
-                  )}
-                  <CommunityRoleBadge role={m.role} />
                 </div>
               </div>
             </Link>
@@ -216,25 +202,16 @@ export function CommunityMembersClient({
         <div className="grid gap-2.5 sm:grid-cols-2">
           {regularMembers.map((m) => (
             <Link key={m.id} href={`/@${m.user.username}`} className="min-w-0">
-              <div className="flex min-h-16 cursor-pointer items-center justify-between gap-3 rounded-lg border border-border bg-surface p-3.5 transition-ui hover:border-border-strong">
-                <div className="flex items-center gap-3 min-w-0">
+              <div className="flex min-h-16 cursor-pointer items-center gap-3 rounded-lg border border-border bg-surface p-3.5 transition-ui hover:border-border-strong">
+                <div className="flex min-w-0 flex-1 items-center gap-3">
                   <Avatar className="size-10 shrink-0">
                     <AvatarImage src={m.user.avatarUrl || ""} alt="" />
                     <AvatarFallback className="text-xs font-semibold">{initialOf(m.user.displayName)}</AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 space-y-0.5">
-                    <p className="truncate text-sm font-semibold text-fg">{m.user.displayName}</p>
-                    <p className="truncate text-xs text-fg-muted">
-                      @{m.user.username} {m.user.branch ? `• ${m.user.branch}` : ""}
-                    </p>
+                    <MemberName name={m.user.displayName} verified={m.user.isCollegeVerified} />
+                    <MemberMeta username={m.user.username} branch={m.user.branch} role={m.role} />
                   </div>
-                </div>
-
-                <div className="flex shrink-0 items-center gap-1.5">
-                  {m.user.isCollegeVerified && (
-                    <VerifiedSticker label="Verified" size="sm" className="h-6 shadow-none" />
-                  )}
-                  <CommunityRoleBadge role={m.role} />
                 </div>
               </div>
             </Link>
@@ -248,5 +225,43 @@ export function CommunityMembersClient({
         </div>
       </div>
     </div>
+  );
+}
+
+/** Member name gets the row's full width; the verified mark rides inline at the end. */
+function MemberName({ name, verified }: { name: string; verified?: boolean | null }) {
+  return (
+    <p className="line-clamp-2 text-sm leading-snug font-semibold break-words text-fg">
+      {name}
+      {verified && (
+        <BadgeCheck
+          className="ml-1 inline size-3.5 align-[-2px] text-verified-text"
+          aria-label="Verified student"
+        />
+      )}
+    </p>
+  );
+}
+
+/** Username, branch and (for admins and mods) the role, as one quiet meta line. */
+function MemberMeta({ username, branch, role }: { username: string; branch?: string | null; role?: string | null }) {
+  const normalized = (role || "MEMBER").toUpperCase();
+  return (
+    <p className="flex min-w-0 items-center gap-1 text-xs text-fg-muted">
+      {normalized === "ADMIN" && (
+        <span className="inline-flex shrink-0 items-center gap-0.5 font-semibold text-fg">
+          <Crown className="size-3" aria-hidden="true" /> Admin ·
+        </span>
+      )}
+      {normalized === "MODERATOR" && (
+        <span className="inline-flex shrink-0 items-center gap-0.5 font-semibold text-fg">
+          <ShieldCheck className="size-3" aria-hidden="true" /> Mod ·
+        </span>
+      )}
+      <span className="truncate">
+        @{username}
+        {branch ? ` · ${branch}` : ""}
+      </span>
+    </p>
   );
 }

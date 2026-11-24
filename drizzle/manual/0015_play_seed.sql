@@ -1,0 +1,146 @@
+-- 0015 seed: content for the Play section (trivia bank, This or That prompts, Meme War themes).
+-- Idempotent: every insert is ON CONFLICT DO NOTHING, so re-running adds only new rows.
+-- Apply after 0015_play.sql with:
+--   bun run scripts/db/apply-manual.ts drizzle/manual/0015_play_seed.sql
+-- Content only. No users, votes, scores or activity are created.
+-- Note: scripts/db/apply-manual.ts splits on semicolons, so no text below may contain one.
+
+INSERT INTO play_trivia_questions (id, category, question, options, answer_index, explanation) VALUES
+  (gen_random_uuid()::text, 'TECH', 'What is the time complexity of binary search on a sorted array?', '["O(n)", "O(log n)", "O(n log n)", "O(1)"]'::jsonb, 1, 'Each step halves the part of the array left to search.'),
+  (gen_random_uuid()::text, 'TECH', 'Which data structure follows Last In, First Out (LIFO)?', '["Queue", "Stack", "Heap", "Linked list"]'::jsonb, 1, 'The last item pushed on a stack is the first one popped.'),
+  (gen_random_uuid()::text, 'TECH', 'What does the HTTP status code 404 mean?', '["Server error", "Not found", "Unauthorized", "Moved permanently"]'::jsonb, 1, '404 means the server could not find the page you asked for.'),
+  (gen_random_uuid()::text, 'TECH', 'Which of these is not a programming language?', '["Python", "Rust", "HTML", "Go"]'::jsonb, 2, 'HTML is a markup language. It describes a page but has no logic of its own.'),
+  (gen_random_uuid()::text, 'TECH', 'Who created the Linux kernel?', '["Linus Torvalds", "Dennis Ritchie", "Bjarne Stroustrup", "Guido van Rossum"]'::jsonb, 0, 'Linus Torvalds released the first Linux kernel in 1991 as a student.'),
+  (gen_random_uuid()::text, 'TECH', 'What does SQL stand for?', '["Structured Query Language", "Simple Question Language", "Sequential Query Logic", "Standard Queue Language"]'::jsonb, 0, 'SQL is the Structured Query Language used to talk to relational databases.'),
+  (gen_random_uuid()::text, 'TECH', 'Which git command creates a new branch and switches to it?', '["git branch -d", "git checkout -b", "git merge", "git push -f"]'::jsonb, 1, 'git checkout -b name (or git switch -c name) creates the branch and moves you onto it.'),
+  (gen_random_uuid()::text, 'TECH', 'What is the worst-case time complexity of quicksort?', '["O(n log n)", "O(n^2)", "O(n)", "O(log n)"]'::jsonb, 1, 'With bad pivots every time, quicksort does O(n^2) comparisons. On average it is O(n log n).'),
+  (gen_random_uuid()::text, 'TECH', 'Which protocol does HTTPS use to encrypt traffic?', '["FTP", "TLS", "SMTP", "UDP"]'::jsonb, 1, 'HTTPS is HTTP sent over a TLS encrypted connection.'),
+  (gen_random_uuid()::text, 'TECH', 'How many bits make one byte?', '["4", "8", "16", "32"]'::jsonb, 1, 'One byte is 8 bits.'),
+  (gen_random_uuid()::text, 'TECH', 'In Python, what does len([1, 2, 3]) return?', '["2", "3", "4", "An error"]'::jsonb, 1, 'len counts the items in the list, and there are three.'),
+  (gen_random_uuid()::text, 'TECH', 'Which company first developed Java?', '["Microsoft", "Sun Microsystems", "Apple", "IBM"]'::jsonb, 1, 'James Gosling and his team at Sun Microsystems released Java in 1995.'),
+  (gen_random_uuid()::text, 'TECH', 'Which traversal of a binary search tree visits the values in sorted order?', '["Preorder", "Inorder", "Postorder", "Level order"]'::jsonb, 1, 'Inorder visits left subtree, then the node, then right subtree, which is ascending order in a BST.'),
+  (gen_random_uuid()::text, 'TECH', 'What does RAM stand for?', '["Random Access Memory", "Read Access Memory", "Rapid Action Memory", "Run All Memory"]'::jsonb, 0, 'RAM is Random Access Memory, the fast working memory of a computer.'),
+  (gen_random_uuid()::text, 'TECH', 'What is the default port for plain HTTP?', '["21", "80", "443", "8080"]'::jsonb, 1, 'HTTP uses port 80. HTTPS uses 443.'),
+  (gen_random_uuid()::text, 'TECH', 'Which of these is a NoSQL database?', '["MySQL", "PostgreSQL", "MongoDB", "Oracle"]'::jsonb, 2, 'MongoDB stores JSON-like documents instead of tables.'),
+  (gen_random_uuid()::text, 'TECH', 'Which algorithm finds the shortest path in a graph with non-negative edge weights?', '["Dijkstra", "Kruskal", "Depth-first search", "Bubble sort"]'::jsonb, 0, 'Dijkstra''s algorithm works when no edge has a negative weight. Kruskal builds a minimum spanning tree.'),
+  (gen_random_uuid()::text, 'TECH', 'What does CSS stand for?', '["Cascading Style Sheets", "Computer Style System", "Creative Styling Syntax", "Colour Sheet Standard"]'::jsonb, 0, 'CSS is Cascading Style Sheets, the language that styles web pages.'),
+  (gen_random_uuid()::text, 'TECH', 'Which logic gate outputs 1 only when both inputs are 1?', '["OR", "AND", "XOR", "NOR"]'::jsonb, 1, 'An AND gate is high only when every input is high.'),
+  (gen_random_uuid()::text, 'TECH', 'What is decimal 10 in binary?', '["1010", "1100", "1001", "0110"]'::jsonb, 0, '10 = 8 + 2, so the bits are 1010.'),
+  (gen_random_uuid()::text, 'TECH', 'What does API stand for?', '["Application Programming Interface", "Advanced Program Integration", "Applied Protocol Index", "App Process Interface"]'::jsonb, 0, 'An API is an Application Programming Interface that lets programs talk to each other.'),
+  (gen_random_uuid()::text, 'TECH', 'Which tool installs Python packages?', '["npm", "pip", "cargo", "gem"]'::jsonb, 1, 'pip installs Python packages. npm is for JavaScript, cargo for Rust and gem for Ruby.'),
+
+  (gen_random_uuid()::text, 'GK', 'Chandrayaan-3 landed near which part of the Moon in August 2023?', '["North pole", "South pole", "Equator", "Centre of the far side"]'::jsonb, 1, 'India became the first country to land near the lunar south pole on 23 August 2023.'),
+  (gen_random_uuid()::text, 'GK', 'Who is known as the Missile Man of India?', '["C. V. Raman", "A. P. J. Abdul Kalam", "Homi Bhabha", "Vikram Sarabhai"]'::jsonb, 1, 'Dr A. P. J. Abdul Kalam led India''s missile programme before becoming President.'),
+  (gen_random_uuid()::text, 'GK', 'On which date is National Science Day celebrated in India?', '["28 February", "15 August", "5 September", "14 November"]'::jsonb, 0, 'It marks the day in 1928 when C. V. Raman announced the Raman effect.'),
+  (gen_random_uuid()::text, 'GK', 'On which date is Teachers'' Day celebrated in India?', '["5 September", "2 October", "14 November", "26 January"]'::jsonb, 0, 'It is the birthday of Dr Sarvepalli Radhakrishnan.'),
+  (gen_random_uuid()::text, 'GK', 'What was the name of India''s first satellite?', '["Aryabhata", "Bhaskara", "Rohini", "INSAT-1A"]'::jsonb, 0, 'Aryabhata was launched in 1975.'),
+  (gen_random_uuid()::text, 'GK', 'Which Indian city is often called the Silicon Valley of India?', '["Hyderabad", "Pune", "Bengaluru", "Chennai"]'::jsonb, 2, 'Bengaluru is home to a large share of India''s tech companies and startups.'),
+  (gen_random_uuid()::text, 'GK', 'Who wrote Jana Gana Mana, India''s national anthem?', '["Bankim Chandra Chatterjee", "Rabindranath Tagore", "Sarojini Naidu", "Muhammad Iqbal"]'::jsonb, 1, 'Rabindranath Tagore wrote it. Bankim Chandra wrote Vande Mataram.'),
+  (gen_random_uuid()::text, 'GK', 'Which organisation built and runs UPI?', '["RBI", "NPCI", "SBI", "SEBI"]'::jsonb, 1, 'The National Payments Corporation of India launched UPI in 2016.'),
+  (gen_random_uuid()::text, 'GK', 'Which is the longest river in India?', '["Godavari", "Ganga", "Yamuna", "Narmada"]'::jsonb, 1, 'The Ganga runs about 2,500 km. The Godavari is the longest in peninsular India.'),
+  (gen_random_uuid()::text, 'GK', 'When did the Constitution of India come into effect?', '["15 August 1947", "26 January 1950", "26 November 1949", "2 October 1950"]'::jsonb, 1, 'It was adopted on 26 November 1949 and came into effect on 26 January 1950, now Republic Day.'),
+  (gen_random_uuid()::text, 'GK', 'Which planet is called the Red Planet?', '["Venus", "Mars", "Jupiter", "Mercury"]'::jsonb, 1, 'Iron oxide (rust) on its surface makes Mars look red.'),
+  (gen_random_uuid()::text, 'GK', 'Who was the first Indian to win a Nobel Prize?', '["C. V. Raman", "Rabindranath Tagore", "Mother Teresa", "Amartya Sen"]'::jsonb, 1, 'Tagore won the Nobel Prize in Literature in 1913.'),
+  (gen_random_uuid()::text, 'GK', 'In which year was Mangalyaan, India''s Mars Orbiter Mission, launched?', '["2010", "2013", "2016", "2019"]'::jsonb, 1, 'It launched in November 2013 and reached Mars orbit in September 2014 on the first try.'),
+  (gen_random_uuid()::text, 'GK', 'What is the chemical symbol for gold?', '["Go", "Gd", "Au", "Ag"]'::jsonb, 2, 'Au comes from the Latin word aurum. Ag is silver.'),
+  (gen_random_uuid()::text, 'GK', 'Roughly how fast does light travel in a vacuum?', '["3 x 10^5 m/s", "3 x 10^8 m/s", "3 x 10^10 m/s", "3 x 10^6 m/s"]'::jsonb, 1, 'About 300,000 km every second, or 3 x 10^8 metres per second.'),
+  (gen_random_uuid()::text, 'GK', 'Which Indian state has the longest coastline?', '["Gujarat", "Tamil Nadu", "Andhra Pradesh", "Maharashtra"]'::jsonb, 0, 'Gujarat''s coastline is about 1,600 km long.'),
+  (gen_random_uuid()::text, 'GK', 'Who wrote the autobiography Wings of Fire?', '["A. P. J. Abdul Kalam", "R. K. Narayan", "Chetan Bhagat", "Ruskin Bond"]'::jsonb, 0, 'Dr Kalam wrote it with Arun Tiwari in 1999.'),
+  (gen_random_uuid()::text, 'GK', 'In which city is the Indian Institute of Science (IISc)?', '["Chennai", "Bengaluru", "Delhi", "Kolkata"]'::jsonb, 1, 'IISc was founded in Bengaluru in 1909.'),
+
+  (gen_random_uuid()::text, 'CAMPUS', 'What does CGPA stand for?', '["Cumulative Grade Point Average", "Combined Grade Percentage Average", "Course Grade Point Aggregate", "Credit Grade Point Average"]'::jsonb, 0, 'CGPA is your average grade point across all semesters so far.'),
+  (gen_random_uuid()::text, 'CAMPUS', 'What does SGPA measure?', '["Your grade point average for one semester", "Your grade across all years", "Your sports grade", "Your attendance score"]'::jsonb, 0, 'SGPA is for a single semester. CGPA combines all of them.'),
+  (gen_random_uuid()::text, 'CAMPUS', 'In college talk, what is a backlog?', '["An extra holiday", "A subject you still need to clear", "A hostel fine", "A sports quota seat"]'::jsonb, 1, 'A backlog is a failed or pending subject you have to pass in a later exam.'),
+  (gen_random_uuid()::text, 'CAMPUS', 'What minimum attendance do many Indian universities ask for before you can sit exams?', '["50 percent", "60 percent", "75 percent", "90 percent"]'::jsonb, 2, '75 percent is the most common rule, though some colleges differ.'),
+  (gen_random_uuid()::text, 'CAMPUS', 'In college slang, who is a fresher?', '["A final year student", "A first year student", "A new professor", "A canteen special"]'::jsonb, 1, 'Freshers are new first year students, welcomed at the freshers party.'),
+  (gen_random_uuid()::text, 'CAMPUS', 'What does NSS stand for in colleges?', '["National Service Scheme", "National Student Society", "New Skills Scheme", "National Sports Squad"]'::jsonb, 0, 'NSS runs community service work by students.'),
+  (gen_random_uuid()::text, 'CAMPUS', 'What does NCC stand for?', '["National Cadet Corps", "National College Council", "New Cadet Club", "National Campus Committee"]'::jsonb, 0, 'NCC is the youth wing linked to the armed forces, open to school and college students.'),
+  (gen_random_uuid()::text, 'CAMPUS', 'What is a viva?', '["A spoken exam where you answer questions in person", "A college fest", "A type of assignment format", "A hostel night event"]'::jsonb, 0, 'Viva voce means by live voice. Examiners ask you questions face to face.'),
+  (gen_random_uuid()::text, 'CAMPUS', 'Which number is India''s national anti-ragging helpline?', '["1800-180-5522", "100", "1098", "112"]'::jsonb, 0, 'The UGC anti-ragging helpline 1800-180-5522 is free and open all day. 112 is the general emergency number.'),
+  (gen_random_uuid()::text, 'CAMPUS', 'About how long does one college semester usually last?', '["About 2 months", "About 6 months", "About 9 months", "About 1 year"]'::jsonb, 1, 'An academic year is usually split into two semesters of about six months each, exams included.'),
+  (gen_random_uuid()::text, 'CAMPUS', 'In engineering colleges, what is a lab record?', '["A notebook of the experiments you did in a lab", "A list of lab assistants", "The lab attendance sheet", "Your highest lab score"]'::jsonb, 0, 'You write up each experiment and get it signed. It is often checked in the practical exam.'),
+  (gen_random_uuid()::text, 'CAMPUS', 'What is a TA in college?', '["Teaching Assistant", "Time Allotment", "Technical Auditor", "Topic Assessment"]'::jsonb, 0, 'A Teaching Assistant, often a senior or research student, helps run tutorials and labs.'),
+  (gen_random_uuid()::text, 'CAMPUS', 'In a four-year B.Tech, the major final project is usually done in which year?', '["First", "Second", "Third", "Fourth"]'::jsonb, 3, 'The capstone project usually runs through the final year.'),
+  (gen_random_uuid()::text, 'CAMPUS', 'What is the full form of AICTE?', '["All India Council for Technical Education", "All India Committee of Technical Engineers", "Academic Institute of Computer and Technical Education", "All India Centre for Teaching Excellence"]'::jsonb, 0, 'AICTE approves technical and management colleges in India.'),
+  (gen_random_uuid()::text, 'CAMPUS', 'What does UGC stand for?', '["University Grants Commission", "Union Graduate Council", "University Governing Committee", "United Grades Commission"]'::jsonb, 0, 'The University Grants Commission sets standards for universities in India.'),
+
+  (gen_random_uuid()::text, 'PLACEMENTS', 'What does CTC stand for in a job offer?', '["Cost to Company", "Cash to Candidate", "Current Total Compensation", "Company Tax Credit"]'::jsonb, 0, 'CTC is everything the company spends on you in a year. Your in-hand pay is lower.'),
+  (gen_random_uuid()::text, 'PLACEMENTS', 'What does LPA mean in placement talk?', '["Lakhs Per Annum", "Leave Per Annum", "Lowest Package Available", "Learning Plan Approved"]'::jsonb, 0, '12 LPA means a CTC of 12 lakh rupees a year.'),
+  (gen_random_uuid()::text, 'PLACEMENTS', 'What is a PPO?', '["Pre-Placement Offer", "Post-Placement Orientation", "Paid Project Opportunity", "Primary Placement Officer"]'::jsonb, 0, 'A Pre-Placement Offer is a full-time offer you get after an internship, before placements start.'),
+  (gen_random_uuid()::text, 'PLACEMENTS', 'In the STAR method for interview answers, what does R stand for?', '["Result", "Reason", "Role", "Review"]'::jsonb, 0, 'Situation, Task, Action, Result. End with what changed because of you.'),
+  (gen_random_uuid()::text, 'PLACEMENTS', 'What is an ATS when you apply for jobs?', '["Software that scans and filters resumes", "A type of aptitude test", "A salary slab", "The placement cell office"]'::jsonb, 0, 'An Applicant Tracking System reads your resume first, so plain, clear formatting helps.'),
+  (gen_random_uuid()::text, 'PLACEMENTS', 'How long should a fresher resume usually be?', '["One page", "Three pages", "Five pages", "As long as possible"]'::jsonb, 0, 'Recruiters skim. One clear page is the norm for freshers.'),
+  (gen_random_uuid()::text, 'PLACEMENTS', 'What does a group discussion (GD) round mostly test?', '["Communication and teamwork", "Typing speed", "Only coding", "Handwriting"]'::jsonb, 0, 'GDs check how you speak, listen and build on others'' points.'),
+  (gen_random_uuid()::text, 'PLACEMENTS', 'A train covers 60 km in 1 hour. How far does it go in 45 minutes at the same speed?', '["40 km", "45 km", "50 km", "30 km"]'::jsonb, 1, '45 minutes is three quarters of an hour, and three quarters of 60 is 45.'),
+  (gen_random_uuid()::text, 'PLACEMENTS', 'What is 20 percent of 250?', '["25", "50", "45", "75"]'::jsonb, 1, '10 percent of 250 is 25, so 20 percent is 50.'),
+  (gen_random_uuid()::text, 'PLACEMENTS', 'What comes next: 2, 6, 12, 20, 30, ?', '["36", "40", "42", "44"]'::jsonb, 2, 'The gaps grow by 2 each time (4, 6, 8, 10), so the next gap is 12.'),
+  (gen_random_uuid()::text, 'PLACEMENTS', 'A shirt costs 800 rupees after a 20 percent discount. What was its marked price?', '["960", "1000", "1200", "900"]'::jsonb, 1, '800 is 80 percent of the marked price, and 800 / 0.8 = 1000.'),
+  (gen_random_uuid()::text, 'PLACEMENTS', 'If 5 pens cost 60 rupees, how much do 8 pens cost?', '["80", "96", "100", "90"]'::jsonb, 1, 'One pen costs 12 rupees, and 8 x 12 = 96.'),
+  (gen_random_uuid()::text, 'PLACEMENTS', 'What is a notice period in a job?', '["The time you keep working after you resign", "Your probation", "Your joining bonus period", "Your interview schedule"]'::jsonb, 0, 'Many Indian companies ask for 30 to 90 days after you resign.'),
+  (gen_random_uuid()::text, 'PLACEMENTS', 'What is the two-pointer technique often used for in coding interviews?', '["Scanning a sorted array from both ends", "Allocating memory", "Compiling code faster", "Setting up a network"]'::jsonb, 0, 'Two indexes moving toward each other solve many array problems in O(n).'),
+  (gen_random_uuid()::text, 'PLACEMENTS', 'Which of these is a behavioural interview question?', '["Tell me about a time you handled a conflict", "Reverse a linked list", "What is 15 x 15", "Explain TCP vs UDP"]'::jsonb, 0, 'Behavioural questions ask about past situations to see how you work with people.'),
+  (gen_random_uuid()::text, 'PLACEMENTS', 'What does a service bond in a fresher offer usually mean?', '["You agree to stay a set time or pay a penalty", "A stock bonus", "A free laptop", "A training certificate"]'::jsonb, 0, 'Read the bond terms before you sign. Leaving early can mean paying an amount back.'),
+  (gen_random_uuid()::text, 'PLACEMENTS', 'What is a stipend?', '["Monthly pay during an internship", "An annual bonus", "Tax on salary", "A joining fee"]'::jsonb, 0, 'Interns usually get a fixed monthly stipend instead of a salary.')
+ON CONFLICT (question) DO NOTHING;
+
+INSERT INTO play_tot_prompts (id, option_a, option_b, category) VALUES
+  (gen_random_uuid()::text, 'Maggi at 2 AM', 'Chai at 6 AM', 'FOOD'),
+  (gen_random_uuid()::text, 'Front bench', 'Last bench', 'CAMPUS'),
+  (gen_random_uuid()::text, 'Hostel mess', 'Canteen', 'FOOD'),
+  (gen_random_uuid()::text, 'Study the night before', 'Study all semester', 'STUDY'),
+  (gen_random_uuid()::text, 'Group study', 'Solo study', 'STUDY'),
+  (gen_random_uuid()::text, 'Notes on paper', 'Notes on laptop', 'STUDY'),
+  (gen_random_uuid()::text, 'Internship', 'Hackathon', 'CAREER'),
+  (gen_random_uuid()::text, 'Startup job', 'Big company job', 'CAREER'),
+  (gen_random_uuid()::text, 'MS abroad', 'MBA in India', 'CAREER'),
+  (gen_random_uuid()::text, 'Tech fest', 'Cultural fest', 'CAMPUS'),
+  (gen_random_uuid()::text, 'Auto', 'Metro', 'CAMPUS'),
+  (gen_random_uuid()::text, 'Instagram', 'LinkedIn', 'FUN'),
+  (gen_random_uuid()::text, 'Online class', 'Offline class', 'STUDY'),
+  (gen_random_uuid()::text, 'Lab', 'Lecture', 'STUDY'),
+  (gen_random_uuid()::text, 'DSA', 'Development', 'CAREER'),
+  (gen_random_uuid()::text, 'Python', 'C++', 'CAREER'),
+  (gen_random_uuid()::text, 'Dark mode', 'Light mode', 'FUN'),
+  (gen_random_uuid()::text, 'Chai', 'Coffee', 'FOOD'),
+  (gen_random_uuid()::text, 'Samosa', 'Vada pav', 'FOOD'),
+  (gen_random_uuid()::text, 'Library', 'Hostel room', 'STUDY'),
+  (gen_random_uuid()::text, '8 AM class', '5 PM class', 'CAMPUS'),
+  (gen_random_uuid()::text, 'Cricket', 'Football', 'FUN'),
+  (gen_random_uuid()::text, 'Bollywood movie', 'Web series', 'FUN'),
+  (gen_random_uuid()::text, 'Viva', 'Written exam', 'STUDY'),
+  (gen_random_uuid()::text, 'Weekend trip', 'Sleep all weekend', 'FUN'),
+  (gen_random_uuid()::text, 'Submit assignment early', 'Submit at 11:59 PM', 'STUDY'),
+  (gen_random_uuid()::text, 'Hindi songs', 'English songs', 'FUN'),
+  (gen_random_uuid()::text, 'Ghar ka khana', 'Outside food', 'FOOD'),
+  (gen_random_uuid()::text, 'Placement prep', 'Higher studies prep', 'CAREER'),
+  (gen_random_uuid()::text, 'Bike', 'Cycle', 'CAMPUS'),
+  (gen_random_uuid()::text, 'Movie in a theatre', 'Movie on a laptop', 'FUN'),
+  (gen_random_uuid()::text, 'Windows', 'Mac', 'FUN'),
+  (gen_random_uuid()::text, 'GATE', 'CAT', 'CAREER'),
+  (gen_random_uuid()::text, 'Gym', 'Morning walk', 'FUN'),
+  (gen_random_uuid()::text, 'Day scholar', 'Hosteller', 'CAMPUS'),
+  (gen_random_uuid()::text, 'Sunday mess food', 'Order in', 'FOOD'),
+  (gen_random_uuid()::text, 'Ask doubts in class', 'Ask doubts after class', 'STUDY'),
+  (gen_random_uuid()::text, 'Open book exam', 'Closed book exam', 'STUDY')
+ON CONFLICT (option_a, option_b) DO NOTHING;
+
+-- Meme War themes for this IST week and the next seven. Week keys match
+-- weekKey() in src/lib/play/week.ts (ISO week in Asia/Kolkata).
+-- If a week has no row, the app picks one from MEME_THEME_FALLBACKS.
+INSERT INTO play_meme_themes (id, week_key, title, description)
+SELECT
+  gen_random_uuid()::text,
+  to_char(((now() AT TIME ZONE 'Asia/Kolkata')::date + t.n * 7), 'IYYY"-W"IW'),
+  t.title,
+  t.description
+FROM (VALUES
+  (0, 'When the professor says this won''t come in the exam', 'The meme every student feels when the syllabus quietly grows.'),
+  (1, 'Hostel mess on a Sunday', 'What really lands on your plate.'),
+  (2, 'Me at attendance vs me in the lecture', 'Present sir. Mentally absent.'),
+  (3, 'The group project experience', 'One person works, four people add their names.'),
+  (4, 'The night before the exam', 'Five units, one night, zero regrets.'),
+  (5, 'Placement season be like', 'Resume edits at 3 AM and LinkedIn humble brags.'),
+  (6, 'When the hostel WiFi goes down', 'The whole floor in the corridor holding phones up.'),
+  (7, 'Canteen queue at 1 PM', 'Everyone has a class in 10 minutes.')
+) AS t(n, title, description)
+ON CONFLICT (week_key) DO NOTHING;

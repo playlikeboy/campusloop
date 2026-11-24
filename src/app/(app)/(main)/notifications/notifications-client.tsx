@@ -84,8 +84,9 @@ export function NotificationsClient({ initialNotifications, initialUnreadCount }
     }
   }
 
+  // Edge-to-edge list on phones: cancels the shell gutter so rows own their 16px.
   return (
-    <div className="mx-auto w-full max-w-2xl pb-28">
+    <div className="mx-auto w-full max-w-2xl pb-28 max-sm:-mx-4 max-sm:w-auto">
       <header className="sticky top-14 z-20 border-b border-border bg-bg lg:top-0">
         <div className="flex items-center justify-between gap-2 px-4 pt-3 pb-2">
           <div className="flex items-center gap-2">

@@ -91,13 +91,13 @@ export function CommunityHeader({
           <AvatarFallback className="rounded-sm">{community.name.slice(0, 2).toUpperCase()}</AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
-          <h1 className="flex items-center gap-1.5 truncate text-xl font-bold text-fg">
+          <h1 className="line-clamp-2 text-xl leading-tight font-bold text-fg">
             c/{community.name}
             {community.privacy === "PRIVATE" && (
-              <Lock className="size-4 shrink-0 text-fg-subtle" aria-label="Private" />
+              <Lock className="ml-1.5 inline size-4 align-[-2px] text-fg-subtle" aria-label="Private" />
             )}
             {community.privacy === "UNLISTED" && (
-              <EyeOff className="size-4 shrink-0 text-fg-subtle" aria-label="Hidden" />
+              <EyeOff className="ml-1.5 inline size-4 align-[-2px] text-fg-subtle" aria-label="Hidden" />
             )}
           </h1>
           <p className="text-sm text-fg-muted tabular-nums">
@@ -105,7 +105,7 @@ export function CommunityHeader({
             {postsCount === 1 ? "post" : "posts"}
           </p>
         </div>
-        <JoinCommunityButton communityId={community.id} initialIsMember={isMember} />
+        <JoinCommunityButton communityId={community.id} initialIsMember={isMember} size="row" />
       </div>
 
       <nav aria-label="Community sections" className="-mx-4 flex gap-4 border-b border-border px-4">

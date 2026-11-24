@@ -4,6 +4,65 @@ const U = "2026-10-16";
 
 export const CONNECT_AND_CAMPUS: GuideEntry[] = [
   {
+    slug: "play",
+    title: "Play: campus games and badges",
+    summary:
+      "Weekly games with students at your college: DP Battle, Meme War, a daily quiz, This or That and Branch Wars, with shareable badges.",
+    category: "Campus life",
+    audiences: ["Students", "Investors"],
+    routes: [
+      { path: "/play", label: "Play" },
+      { path: "/play/dp-battle", label: "DP Battle" },
+      { path: "/play/meme-war", label: "Meme War" },
+      { path: "/play/trivia", label: "Campus Trivia" },
+      { path: "/play/this-or-that", label: "This or That" },
+      { path: "/play/branch-wars", label: "Branch Wars" },
+      { path: "/play/achievements", label: "Badges" },
+    ],
+    purpose:
+      "Students already run DP battles, meme wars and branch rivalries in WhatsApp groups and on Instagram. Play gives them a safe, campus-only home with fair scoring.",
+    whyUse: [
+      "A 2-minute daily quiz on tech, GK, campus life and placements.",
+      "Enter your DP or a meme and let your college vote.",
+      "Every point you score counts for your branch in Branch Wars.",
+      "Badges pay Loop Points and can be shared to your story as an image.",
+    ],
+    howToUse: [
+      "Open Home and tap the Play chip, or find Play in the menu.",
+      "Take the daily quiz: 5 questions, 20 seconds each. Faster right answers score more.",
+      "In DP Battle, tick the box and enter your current profile photo, then tap the better DP in each pair.",
+      "In Meme War, post one meme a week on the theme. Upvote the ones you like.",
+      "Answer This or That polls to see how your college voted.",
+      "Open Badges to see what you have won and tap Share to post the image.",
+    ],
+    useCases: [
+      { who: "First-year student", scenario: "Plays the daily quiz between lectures and keeps a 10-day streak." },
+      { who: "CSE batch", scenario: "Pushes the branch to the top of Branch Wars before Sunday night." },
+      { who: "Meme page admin", scenario: "Wins Meme War and shares the badge to their story." },
+    ],
+    tips: [
+      "Weeks run Monday to Sunday in India time. DP Battle and Meme War start fresh every Monday.",
+      "A DP is ranked after 5 battles, so early entries settle quickly.",
+    ],
+    privacy: [
+      "DP Battle only ever shows students who entered that week. You can withdraw at any time and it stops showing at once.",
+      "Nobody can see who voted for what in any game. Only totals are shown.",
+      "Everything is limited to students at your college. Blocked students never see each other's entries.",
+      "Any entry or meme can be reported. Three reports hide it.",
+    ],
+    investorAngle:
+      "Daily quiz streaks and weekly campus rounds give students a reason to open the app every day, and shared badge images bring new students in from Instagram.",
+    faq: [
+      { q: "Is DP Battle about looks?", a: "No. The question is Better DP?, about the photo. Only people who opt in are shown, and voting is anonymous." },
+      { q: "Can I play the quiz twice?", a: "No. One quiz a day keeps the campus leaderboard fair. A new one opens at midnight." },
+      { q: "How do I get Loop Points from Play?", a: "Each badge pays Loop Points once, such as 75 LP for winning Meme War." },
+      { q: "Why is my branch not on the table?", a: "Add your branch on your profile. Points only count once it is set." },
+    ],
+    related: ["loop-points-and-streaks", "share-to-stories", "privacy-and-anonymity"],
+    keywords: ["dp battle", "meme war", "campus quiz", "this or that", "branch wars", "college games", "badges"],
+    updated: "2026-11-22",
+  },
+  {
     slug: "chat-and-calls",
     title: "Chat and calls",
     summary: "Private messages, plus voice and video calls, with verified students.",

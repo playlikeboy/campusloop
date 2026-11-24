@@ -108,7 +108,7 @@ export function ProfileIdentity({
         )}
       </div>
 
-      <div className="px-4 sm:px-6">
+      <div className="sm:px-6">
         <div className="relative z-10 -mt-12 mb-3 flex flex-wrap items-end justify-between gap-3 sm:-mt-16">
           {avatarSlot ?? <ProfileAvatar displayName={displayName} avatarUrl={avatarUrl} />}
           {actions && <div className="flex shrink-0 items-center gap-2 pb-1">{actions}</div>}

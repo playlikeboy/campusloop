@@ -205,7 +205,7 @@ export function CommunitiesIndexClient({
       <header>
         <div className="flex items-center justify-between gap-3">
           <h1 className="min-w-0 truncate font-display text-3xl font-extrabold text-fg">Communities</h1>
-          <Button asChild className="shrink-0">
+          <Button asChild size="header" className="shrink-0">
             <Link href="/communities/new">
               <Plus aria-hidden="true" />
               <span className="hidden sm:inline">Start a community</span>

@@ -68,6 +68,13 @@ export const RATE_LIMITS: RateRule[] = [
   { prefix: "/api/communities", methods: "WRITE", max: 60, windowSec: 60, store: "redis" },
   { prefix: "/api/profile", methods: "WRITE", max: 60, windowSec: 60, store: "redis" },
 
+  // Play: votes are the farmable writes, so they get the tightest budgets.
+  { prefix: "/api/play/report", methods: "WRITE", max: 10, windowSec: 60, store: "redis" },
+  { prefix: "/api/play/dp/vote", methods: "WRITE", max: 40, windowSec: 60, store: "redis" },
+  { prefix: "/api/play/memes", methods: "WRITE", max: 30, windowSec: 60, store: "redis" },
+  { prefix: "/api/play/this-or-that", methods: "WRITE", max: 40, windowSec: 60, store: "redis" },
+  { prefix: "/api/play/", methods: "WRITE", max: 60, windowSec: 60, store: "redis" },
+
   // Defaults for every other API route
   { prefix: "/api/", methods: "WRITE", max: 120, windowSec: 60, store: "redis" },
   { prefix: "/api/", methods: "READ", max: 600, windowSec: 60, store: "memory" },

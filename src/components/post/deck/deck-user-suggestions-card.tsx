@@ -4,8 +4,9 @@ import { BadgeCheck, ChevronDown, Users } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { buttonVariants } from "@/components/ui/button";
 import { trackFollow } from "@/lib/analytics/ga4";
-import { getAvatarUrl } from "@/lib/utils";
+import { cn, getAvatarUrl } from "@/lib/utils";
 import type { DeckUserSuggestion } from "./deck-types";
 
 interface DeckUserSuggestionsCardProps {
@@ -74,7 +75,7 @@ export function DeckUserSuggestionsCard({ users, institutionName }: DeckUserSugg
             return (
               <div
                 key={user.id}
-                className="flex items-center justify-between gap-3 p-3 rounded-2xl border border-border bg-muted/20 hover:bg-muted/40 transition-colors"
+                className="flex items-center justify-between gap-2 p-3 rounded-2xl border border-border bg-muted/20 hover:bg-muted/40 transition-colors"
               >
                 <Link href={`/@${user.username}`} className="flex items-center gap-3 min-w-0 flex-1 group">
                   <Avatar className="size-11 border border-border shrink-0">
@@ -85,15 +86,13 @@ export function DeckUserSuggestionsCard({ users, institutionName }: DeckUserSugg
                   </Avatar>
 
                   <div className="min-w-0 flex-1 leading-tight">
-                    <div className="flex items-center gap-1">
-                      <span className="font-bold text-sm text-foreground group-hover:text-primary transition-colors truncate">
-                        {user.displayName}
-                      </span>
+                    <p className="line-clamp-2 break-words font-bold text-sm leading-snug text-foreground group-hover:text-primary transition-colors">
+                      {user.displayName}
                       <BadgeCheck
-                        className="size-3.5 text-verified-text shrink-0"
+                        className="ml-1 inline size-3.5 align-[-2px] text-verified-text"
                         aria-label="Verified student"
                       />
-                    </div>
+                    </p>
                     <p className="text-xs text-muted-foreground truncate">@{user.username}</p>
                     {(user.branch || user.year) && (
                       <p className="text-xs text-muted-foreground/80 mt-0.5 truncate">
@@ -107,13 +106,13 @@ export function DeckUserSuggestionsCard({ users, institutionName }: DeckUserSugg
                   type="button"
                   onClick={() => handleToggleFollow(user.username, user.id)}
                   disabled={isLoading}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer select-none shrink-0 ${
-                    isFollowing
-                      ? "bg-muted text-foreground border border-border hover:bg-muted/80"
-                      : "bg-primary text-primary-foreground hover:opacity-90 active:scale-95 shadow-xs"
-                  }`}
+                  aria-pressed={isFollowing}
+                  className={cn(
+                    buttonVariants({ variant: isFollowing ? "ghost" : "primary", size: "row" }),
+                    isFollowing && "text-fg-muted"
+                  )}
                 >
-                  {isLoading ? "..." : isFollowing ? "Following" : "+ Follow"}
+                  {isLoading ? "..." : isFollowing ? "Following" : "Follow"}
                 </button>
               </div>
             );

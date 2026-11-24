@@ -32,14 +32,14 @@ export function BirthdayPrivacyCard({ dob, isPrivate, isSaving, onToggle }: Birt
         </p>
       </div>
       {dob ? (
-        <Button variant="outline" size="sm" loading={isSaving} onClick={onToggle}>
+        <Button variant="outline" size="row" loading={isSaving} onClick={onToggle} className="shrink-0">
           {isPrivate ? "Show it" : "Hide it"}
         </Button>
       ) : (
-        <Button asChild size="sm">
-          <Link href="/profile/edit">
-            <Plus aria-hidden="true" />
-            Add birthday
+        <Button asChild size="row" className="shrink-0">
+          <Link href="/profile/edit" aria-label="Add your birthday">
+            <Plus aria-hidden="true" className="max-sm:hidden" />
+            Add<span className="hidden sm:inline"> birthday</span>
           </Link>
         </Button>
       )}

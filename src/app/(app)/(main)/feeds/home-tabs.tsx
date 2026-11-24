@@ -1,6 +1,6 @@
 "use client";
 
-import { Ghost, Home, Users } from "lucide-react";
+import { Gamepad2, Ghost, Home, Users } from "lucide-react";
 import Link from "next/link";
 import { navPress } from "@/components/shells/nav-utils";
 import { cn } from "@/lib/utils";
@@ -9,11 +9,12 @@ const HOME_TABS = [
   { id: "feed", href: "/feeds", label: "Feed", icon: Home },
   { id: "confessions", href: "/confessions", label: "Confessions", icon: Ghost },
   { id: "communities", href: "/communities", label: "Communities", icon: Users },
+  { id: "play", href: "/play", label: "Play", icon: Gamepad2 },
 ] as const;
 
 export type HomeTabId = (typeof HOME_TABS)[number]["id"];
 
-/** Chip row at the top of Home: the feed, confessions and communities live side by side. */
+/** Chip row at the top of Home: the feed, confessions, communities and Play live side by side. */
 export function HomeTabs({ active, className }: { active: HomeTabId; className?: string }) {
   return (
     <nav aria-label="Home" className={cn("no-scrollbar flex gap-2 overflow-x-auto px-4 py-2", className)}>

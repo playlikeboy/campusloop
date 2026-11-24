@@ -31,7 +31,7 @@ const ROW_HREF: Record<string, string> = {
 export function CatalogBrowse({ params, rows, categories, all }: Props) {
   return (
     <div className="pb-20">
-      <header className="px-4 pt-2 sm:px-0 sm:pt-4">
+      <header className="pt-2 sm:pt-4">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h1 className="text-3xl text-fg sm:text-4xl">Free courses</h1>
