@@ -35,6 +35,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CountdownSticker, LoopPointsSticker } from "@/components/ui/stickers";
 import { useProfile } from "@/hooks/use-profile";
+import { hasAuthCookie } from "@/lib/auth-cookie";
 import { fetcher } from "@/lib/api";
 import { type CalendarEvent, downloadAppleCalendarIcs, openGoogleCalendar } from "@/lib/calendar";
 import { haptics } from "@/lib/haptics";
@@ -64,7 +65,10 @@ function DetailSkeleton() {
 
 export function EventDetailClient({ eventId, initialEvent, initialRelated }: EventDetailClientProps) {
   const router = useRouter();
-  const { profile } = useProfile();
+  // Public page: only ask for the profile when a session cookie exists (no 401 for signed-out visitors).
+  const [hasSession, setHasSession] = useState(false);
+  useEffect(() => setHasSession(hasAuthCookie()), []);
+  const { profile } = useProfile({ enabled: hasSession });
   const swrKey = `/api/events/${eventId}`;
   const { data, isLoading, error } = useSWR<{ event: any }>(swrKey, fetcher, {
     fallbackData: initialEvent ? { event: initialEvent } : undefined,
