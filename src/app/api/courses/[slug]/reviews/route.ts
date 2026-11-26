@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { courseEnrollments, courseReviews, userProfiles } from "@/db/schema";
 import { findPublishedCourse, refreshCourseStats, requireProfile } from "@/lib/courses/server";
+import { requireCapability } from "@/lib/trust-server";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +32,8 @@ export async function GET(_req: Request, { params }: Ctx) {
 export async function POST(req: Request, { params }: Ctx) {
   const auth = await requireProfile();
   if (auth.error) return auth.error;
+  const capabilityBlocked = await requireCapability(auth.profile, "comment");
+  if (capabilityBlocked) return capabilityBlocked;
   const course = await findPublishedCourse((await params).slug);
   if (!course) return NextResponse.json({ error: "Course not found" }, { status: 404 });
   const db = getDb();

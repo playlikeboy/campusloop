@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { AcademicDetailClient } from "@/components/academics/academic-detail-client";
 import { resolveAcademicResource } from "@/lib/academics/slug";
 import { breadcrumbJsonLd, buildMetadata } from "@/lib/seo";
+import { fitDescription, fitTitle, TITLE_MAX } from "@/lib/seo/describe";
 import { absoluteUrl } from "@/lib/seo/constants";
 import { JsonLd } from "@/lib/seo/json-ld-script";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
@@ -33,12 +34,16 @@ export async function generateMetadata({ params }: AcademicSlugPageProps): Promi
 
   const typeLabel = TYPE_LABELS[resource.resourceType] ?? "study material";
   const college = resource.institution?.name ? ` at ${resource.institution.name}` : "";
-  const description =
-    resource.description?.slice(0, 160) ||
-    `${resource.subjectName} (${resource.subjectCode}) ${typeLabel} for ${resource.branch}, semester ${resource.semester}${college}. Free to read on CampusLoop.`;
+  const facts = `${resource.subjectName} (${resource.subjectCode}) ${typeLabel} for ${resource.branch}, semester ${resource.semester}${college}`;
+  const description = fitDescription(resource.description || facts, [
+    resource.description ? facts : null,
+    "Free to read and download on CampusLoop",
+  ]);
+  const code = resource.subjectCode?.trim();
+  const withCode = code && !resource.title.includes(code) ? `${resource.title} (${code})` : resource.title;
 
   return buildMetadata({
-    title: `${resource.title} (${resource.subjectCode})`,
+    title: fitTitle(withCode.length <= TITLE_MAX ? withCode : resource.title),
     description,
     path: canonicalPath(resource.id),
     type: "article",
@@ -84,7 +89,13 @@ export default async function AcademicResourceSlugPage({ params }: AcademicSlugP
     teaches: resource.subjectName,
     about: { "@type": "Course", name: resource.subjectName, courseCode: resource.subjectCode },
     ...(resource.institution?.name
-      ? { sourceOrganization: { "@type": "CollegeOrUniversity", name: resource.institution.name } }
+      ? {
+          sourceOrganization: {
+            "@type": "CollegeOrUniversity",
+            name: resource.institution.name,
+            ...(resource.institution.slug ? { url: absoluteUrl(`/college/${resource.institution.slug}`) } : {}),
+          },
+        }
       : {}),
     ...(resource.uploader?.displayName
       ? { author: { "@type": "Person", name: resource.uploader.displayName } }
@@ -100,6 +111,9 @@ export default async function AcademicResourceSlugPage({ params }: AcademicSlugP
           learningResource,
           breadcrumbJsonLd([
             { name: "Study material", path: "/academics" },
+            ...(resource.institution?.slug && resource.institution.name
+              ? [{ name: resource.institution.name.split(",")[0], path: `/college/${resource.institution.slug}` }]
+              : []),
             { name: resource.title, path },
           ]),
         ]}

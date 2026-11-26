@@ -12,7 +12,7 @@ import {
 } from "@/lib/recommendations/academic-recommendations";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 import { recordStreakActivity } from "@/lib/streaks/streak-service";
-import { rejectViewerWrite } from "@/lib/viewer";
+import { requireCapability } from "@/lib/trust-server";
 
 export const dynamic = "force-dynamic";
 
@@ -290,8 +290,8 @@ export async function POST(req: Request) {
 
     const db = getDb();
 
-    const viewerBlocked = await rejectViewerWrite(profile);
-    if (viewerBlocked) return viewerBlocked;
+    const capabilityBlocked = await requireCapability(profile, "post");
+    if (capabilityBlocked) return capabilityBlocked;
 
     const body = (await req.json()) as Record<string, any>;
     const {

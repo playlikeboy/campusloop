@@ -1,3 +1,4 @@
+import { communityPostVisibleSql } from "@/lib/post-visibility";
 import { eq, inArray, lt, or, type SQL, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
@@ -136,7 +137,8 @@ export async function GET(req: Request) {
       getViewerAffinity(profileId),
     ]);
     mark("context", tCtx);
-    const conditions: SQL[] = [eq(posts.status, "PUBLISHED")];
+    // Private and unlisted community posts only reach members (anonymous viewers get public ones only).
+    const conditions: SQL[] = [eq(posts.status, "PUBLISHED"), communityPostVisibleSql(profileId)];
 
     // Blocks are a visibility rule, not a ranking signal: either direction removes the author.
     if (affinity.blockedUserIds.length > 0) {
@@ -218,6 +220,12 @@ export async function GET(req: Request) {
 
       if (effectiveVisibility === "anonymous") {
         conditions.push(eq(posts.isAnonymous, true));
+      } else if (effectiveVisibility === "verified") {
+        // Verified only: named posts by verified students (see src/lib/trust.ts).
+        conditions.push(eq(posts.isAnonymous, false));
+        conditions.push(
+          sql`${posts.authorId} IN (SELECT ${userProfiles.id} FROM ${userProfiles} WHERE ${userProfiles.isCollegeVerified} = true OR ${userProfiles.role} = 'ADMIN')`
+        );
       } else if (
         effectiveVisibility === "public" ||
         effectiveVisibility === "non_anonymous" ||

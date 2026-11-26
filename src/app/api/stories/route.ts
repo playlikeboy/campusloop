@@ -6,7 +6,7 @@ import { requireProfile } from "@/lib/require-profile";
 import { getRankingVariant } from "@/lib/recommendations/experiments";
 import { getViewerAffinity } from "@/lib/recommendations/viewer-affinity";
 import { rankAndFilterStories, STORY_AUTHOR_COLUMNS } from "@/lib/stories-ranker";
-import { rejectViewerWrite } from "@/lib/viewer";
+import { requireCapability } from "@/lib/trust-server";
 
 export const dynamic = "force-dynamic";
 
@@ -67,8 +67,8 @@ export async function POST(req: Request) {
 
     const db = getDb();
 
-    const viewerBlocked = await rejectViewerWrite(profile);
-    if (viewerBlocked) return viewerBlocked;
+    const capabilityBlocked = await requireCapability(profile, "stories");
+    if (capabilityBlocked) return capabilityBlocked;
 
     const data = await req.json();
     const { text, backgroundColor, mediaUrl } = data as {

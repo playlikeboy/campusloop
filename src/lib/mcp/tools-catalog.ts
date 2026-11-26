@@ -121,7 +121,7 @@ export const CAMPUSLOOP_MCP_TOOLS: McpToolDefinition[] = [
         pseudonym: {
           type: "string",
           description:
-            "Optional custom anonymous alias handle (e.g. 'midnight_coder', 'hostel_philosopher').",
+            "Ignored. Confessions are posted under the student's own anonymous handle so they cannot mimic another student's alias.",
         },
       },
       required: ["body"],

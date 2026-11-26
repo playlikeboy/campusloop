@@ -40,17 +40,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     });
 
     if (!reg) {
-      // If not registered yet, create a registration with reminder
-      await db.insert(eventRegistrations).values({
-        id: `ereg_${nanoid(12)}`,
-        eventId: event.id,
-        profileId: profile.id,
-        registrationType: "SOLO",
-        reminderSet: true,
-        status: "CONFIRMED",
-      });
-
-      return NextResponse.json({ reminderSet: true, registered: true });
+      // Reminders ride on a registration. Creating one here would skip every check in
+      // /register (capacity, deadline, event status, campus-only events), so register first.
+      return NextResponse.json({ error: "Register for this event first to set a reminder." }, { status: 409 });
     }
 
     const nextState = !reg.reminderSet;

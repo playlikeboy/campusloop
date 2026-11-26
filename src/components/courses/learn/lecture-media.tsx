@@ -162,6 +162,9 @@ export function LectureMedia({
             }
             title={lecture.title}
             allow="autoplay; fullscreen"
+            // videoRef can be any user-supplied URL: no top-level navigation, so the frame can't redirect the page.
+            sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-forms"
+            referrerPolicy="strict-origin-when-cross-origin"
             allowFullScreen
             className="absolute inset-0 h-full w-full border-0"
           />

@@ -1,3 +1,4 @@
+import { PUBLIC_PROFILE_COLUMNS } from "@/lib/profile-columns";
 import { asc, eq, ilike, or } from "drizzle-orm";
 import { cookies, headers } from "next/headers";
 import { cache } from "react";
@@ -313,12 +314,14 @@ export const getCachedPostDetail = cache(async (id: string) => {
   return await db.query.posts.findFirst({
     where: eq(posts.id, id),
     with: {
-      author: true,
+      author: { columns: PUBLIC_PROFILE_COLUMNS },
       institution: true,
       votes: true,
+      // Held, hidden and deleted comments never render on the public post page.
       comments: {
+        where: eq(comments.status, "PUBLISHED"),
         with: {
-          author: true,
+          author: { columns: PUBLIC_PROFILE_COLUMNS },
         },
       },
       pollOptions: {
@@ -341,13 +344,14 @@ export const getCachedCommentDetail = cache(async (commentId: string) => {
     where: eq(comments.id, commentId),
     with: {
       author: {
+        columns: PUBLIC_PROFILE_COLUMNS,
         with: {
           institution: true,
         },
       },
       post: {
         with: {
-          author: true,
+          author: { columns: PUBLIC_PROFILE_COLUMNS },
           institution: true,
           comments: {
             columns: {
@@ -361,6 +365,7 @@ export const getCachedCommentDetail = cache(async (commentId: string) => {
         orderBy: [asc(comments.createdAt)],
         with: {
           author: {
+            columns: PUBLIC_PROFILE_COLUMNS,
             with: {
               institution: true,
             },

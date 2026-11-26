@@ -214,15 +214,15 @@ export function CollegeHubClient({
           <div>
             <h2 className="text-lg font-bold text-fg">Study at {shortName}?</h2>
             <p className="text-sm text-fg-muted">
-              Join with your college email
-              {allowedDomains[0] ? ` (@${allowedDomains[0].domain})` : ""} to post, vote and chat.
+              Join free to post, vote and chat. Verify with your college email
+              {allowedDomains[0] ? ` (@${allowedDomains[0].domain})` : ""} to get the verified badge.
             </p>
           </div>
           <Button asChild className="shrink-0">
             <Link
               href={`/sign-up?college=${college.slug}${allowedDomains[0] ? `&domain=${allowedDomains[0].domain}` : ""}`}
             >
-              Join with college email
+              Join free
             </Link>
           </Button>
         </section>

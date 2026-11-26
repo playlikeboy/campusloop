@@ -13,24 +13,24 @@ interface PreviewLockedModalProps {
 }
 
 const FEATURE_COPY: Partial<Record<UserCapability, { title: string; desc: string }>> = {
-  LIKE_POST: { title: "Verify to upvote", desc: "Add your college email to upvote posts." },
-  COMMENT_POST: { title: "Verify to comment", desc: "Add your college email to reply to posts." },
-  CREATE_POST: { title: "Verify to post", desc: "Add your college email to post on your campus feed." },
+  LIKE_POST: { title: "Join to upvote", desc: "Join free with any email and pick your college to upvote posts." },
+  COMMENT_POST: { title: "Join to comment", desc: "Join free with any email and pick your college to reply." },
+  CREATE_POST: { title: "Join to post", desc: "Join free with any email and pick your college to post." },
   SEND_MESSAGE: {
-    title: "Verify to send messages",
-    desc: "Add your college email to chat with other students.",
+    title: "Join to send messages",
+    desc: "Join free with any email and pick your college to chat with other students.",
   },
   CAMPUS_MATCH: {
     title: "Verify to use Campus Match",
-    desc: "Campus Match is only for students with a verified college email.",
+    desc: "Campus Match is only for verified students. Verify with your college email or GitHub Student Pack.",
   },
   SECRET_CRUSH: {
     title: "Verify to send a Secret Crush",
-    desc: "Secret Crush is only for students with a verified college email.",
+    desc: "Secret Crush is only for verified students. Verify with your college email or GitHub Student Pack.",
   },
   JOIN_COMMUNITY: {
-    title: "Verify to join communities",
-    desc: "Add your college email to join clubs and groups.",
+    title: "Join to see communities",
+    desc: "Join free with any email and pick your college to join clubs and groups.",
   },
 };
 
@@ -41,8 +41,8 @@ export function PreviewLockedModal({
   capability = "LIKE_POST",
 }: PreviewLockedModalProps) {
   const content = FEATURE_COPY[capability] || {
-    title: "Verify your college email",
-    desc: "Add your college email to do this.",
+    title: "Join CampusLoop",
+    desc: "Join free with any email and pick your college to do this.",
   };
 
   return (
@@ -62,7 +62,7 @@ export function PreviewLockedModal({
               onOpenUpgrade?.();
             }}
           >
-            Add college email
+            Sign in or join
           </Button>
           <Button variant="ghost" onClick={onClose}>
             Not now

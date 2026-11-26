@@ -26,7 +26,7 @@ export function BrandedQrModal({
   onClose,
   title,
   subtitle,
-  badgeText = "Verified students only",
+  badgeText = "Your campus app",
   shortUrl,
   avatarUrl,
 }: BrandedQrModalProps) {

@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { hexclaveServerApp } from "@/hexclave/server";
-import { isAllowedAdminEmail } from "../admin/_lib/session";
+import { isVerifiedAdminUser } from "../admin/_lib/session";
 
 /** Redirects when access is decided; returns an error message otherwise (thrown messages are hidden in production). */
 export async function checkAdminAccess(): Promise<{ error: string }> {
@@ -11,7 +11,7 @@ export async function checkAdminAccess(): Promise<{ error: string }> {
     redirect("/sign-in?returnTo=/admin");
   }
 
-  if (isAllowedAdminEmail(user.primaryEmail)) {
+  if (isVerifiedAdminUser(user)) {
     redirect("/admin");
   }
 

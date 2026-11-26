@@ -8,7 +8,6 @@ import {
   AnimatedIcon,
   AnimateHeart,
   AnimateMessageCircle,
-  AnimateShieldCheck,
   useIconHandle,
 } from "@/components/ui/animated-icon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -24,11 +23,13 @@ import {
   type TriggerContext,
 } from "@/components/ui/mention-autocomplete";
 import { RichText } from "@/components/ui/rich-text";
+import { VerifiedBadge } from "@/components/ui/verified-badge";
 import type { Comment } from "@/db/schema";
 import { trackVote } from "@/lib/analytics/ga4";
 import { pinComment, voteComment } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
+import { isCollegeVerifiedUser } from "@/lib/user-verification";
 import { cn, formatTimeAgo, getAvatarUrl, initialOf } from "@/lib/utils";
 
 export type CommentWithAuthor = Omit<Comment, "createdAt" | "updatedAt"> & {
@@ -52,6 +53,8 @@ export type CommentWithAuthor = Omit<Comment, "createdAt" | "updatedAt"> & {
     avatarUrl?: string | null;
     points?: number | null;
     institutionId?: string | null;
+    role?: string | null;
+    isCollegeVerified?: boolean | null;
   } | null;
 };
 
@@ -119,7 +122,7 @@ export function CommentItem({
   const avatarUrl = isAnon
     ? ""
     : getAvatarUrl(comment.author?.avatarUrl, comment.author?.username ?? "student");
-  const isVerified = Boolean(!isAnon && (comment.author?.points || 0) >= 150);
+  const isVerified = !isAnon && isCollegeVerifiedUser(comment.author);
 
   const isReplying = replyingToId === comment.id;
 
@@ -291,14 +294,7 @@ export function CommentItem({
                 <span className="font-bold text-foreground truncate">{displayName}</span>
               )}
 
-              {isVerified && (
-                <AnimatedIcon
-                  icon={AnimateShieldCheck}
-                  animation="pop"
-                  size={14}
-                  className="text-brand shrink-0"
-                />
-              )}
+              {isVerified && <VerifiedBadge size="xs" />}
 
               {/* OP / Author Badge */}
               {isPostAuthor && (

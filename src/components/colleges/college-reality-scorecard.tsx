@@ -42,7 +42,7 @@ function useCopy() {
   return { copied, copy };
 }
 
-/** "About" tab: real facts about the college and how to join with a college email. */
+/** "About" tab: real facts about the college and how to join. */
 export function CollegeRealityScorecard({
   collegeName,
   collegeSlug,
@@ -97,8 +97,8 @@ export function CollegeRealityScorecard({
       <section className="space-y-3 rounded-lg border border-border bg-surface p-4 sm:p-5">
         <h2 className="text-lg font-bold text-fg">How to join</h2>
         <p className="text-sm text-fg-muted">
-          Sign up with your {shortName} email. Only students with a college email can post, vote and chat
-          here.
+          Sign up with any email and pick {shortName} to post, vote and chat here. Verify with your{" "}
+          {shortName} email to get the verified badge.
         </p>
 
         {emailFormat && (
@@ -153,7 +153,7 @@ export function CollegeRealityScorecard({
 
         <div className="flex flex-col gap-2 pt-1 sm:flex-row">
           <Button asChild>
-            <Link href={`/sign-up?college=${collegeSlug ?? ""}`}>Join with college email</Link>
+            <Link href={`/sign-up?college=${collegeSlug ?? ""}`}>Join free</Link>
           </Button>
           <Button asChild variant="ghost">
             <Link href={`/college-request?suggestedInstitutionName=${encodeURIComponent(collegeName)}`}>

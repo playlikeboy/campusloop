@@ -5,8 +5,8 @@ import { lostAndFoundItems, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { requireProfile } from "@/lib/require-profile";
 import { runInBackground } from "@/lib/background";
-import { rejectIfLacksCapability } from "@/lib/capabilities";
 import { recordStreakActivity } from "@/lib/streaks/streak-service";
+import { requireCapability } from "@/lib/trust-server";
 
 export const dynamic = "force-dynamic";
 
@@ -135,8 +135,8 @@ export async function POST(req: NextRequest) {
 
     const db = getDb();
 
-    const guardResponse = await rejectIfLacksCapability(profile, "CREATE_POST");
-    if (guardResponse) return guardResponse;
+    const capabilityBlocked = await requireCapability(profile, "post");
+    if (capabilityBlocked) return capabilityBlocked;
 
     const body = (await req.json().catch(() => ({}))) as Record<string, any>;
     const {

@@ -4,6 +4,8 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { communities, communityMembers, userProfiles } from "@/db/schema";
 import { getCachedAuthUser } from "@/lib/server-cache";
+import { requireCapability } from "@/lib/trust-server";
+import { pingIndexNow } from "@/lib/seo/indexnow";
 
 export const dynamic = "force-dynamic";
 
@@ -127,6 +129,8 @@ export async function POST(request: Request) {
     if (!profile) {
       return NextResponse.json({ error: "Profile not found", message: "Student profile is required" }, { status: 404 });
     }
+    const capabilityBlocked = await requireCapability(profile, "create_community");
+    if (capabilityBlocked) return capabilityBlocked;
 
     const body = (await request.json().catch(() => ({}))) as Record<string, any>;
     const {
@@ -193,6 +197,9 @@ export async function POST(request: Request) {
 
     revalidatePath("/communities");
     revalidatePath(`/communities/${newCommunity.slug || newCommunity.id}`);
+    if (newCommunity.privacy === "PUBLIC") {
+      pingIndexNow([`/communities/${newCommunity.slug || newCommunity.id}`, "/communities"]);
+    }
 
     return NextResponse.json(
       {

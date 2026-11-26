@@ -27,6 +27,7 @@ const SECTIONS: DocSectionRef[] = [
   { id: "doxxing", label: "Personal details" },
   { id: "moderation", label: "Reporting" },
   { id: "match", label: "Campus Match safety" },
+  { id: "play", label: "DP Battle and Play" },
 ];
 
 export default function SafetyPage() {
@@ -39,7 +40,7 @@ export default function SafetyPage() {
             name: "CampusLoop Safety",
             url: `${SITE_URL}/safety`,
             inLanguage: "en-IN",
-            dateModified: "2026-11-02",
+            dateModified: "2026-11-26",
             publisher: { "@id": `${SITE_URL}/#organization` },
           },
           breadcrumbJsonLd([{ name: "Safety", path: "/safety" }]),
@@ -51,7 +52,7 @@ export default function SafetyPage() {
           <LegalDocHeader
             title="Safety"
             summary="How we keep CampusLoop safe, and who to call if you or a friend need help right now."
-            meta={["Updated 2 November 2026", "Follows the UGC Anti-Ragging Regulations, 2009"]}
+            meta={["Updated 26 November 2026", "Follows the UGC Anti-Ragging Regulations, 2009"]}
           />
         }
       >
@@ -68,14 +69,17 @@ export default function SafetyPage() {
             "Ragging, threats and harassment get you banned for good.",
             "Phone numbers, room numbers and roll numbers are filtered out of posts.",
             "Three reports hide a post until a person reviews it.",
+            "Look for the verified badge. It means the person proved they study at that college.",
             "Campus Match is only for verified students aged 18 and above.",
           ]}
         />
 
         <DocSection id="standards" title="Community rules">
           <p>
-            Every verified profile is tied to a college email, so what you do here counts. Treat it like your
-            hostel common room.
+            Anyone can join CampusLoop as a member of their college. Verified students have a badge next to
+            their name: they proved they study there with a college email or the GitHub Student Developer
+            Pack. If you don&apos;t know someone, check for the badge. Treat this place like your hostel
+            common room.
           </p>
           <DocList
             items={[
@@ -138,7 +142,10 @@ export default function SafetyPage() {
         </DocSection>
 
         <DocSection id="match" title="Campus Match and Secret Crush">
-          <p>Only for verified students aged 18 and above. Nobody learns about one-sided interest.</p>
+          <p>
+            Only for verified students aged 18 and above. Members can&apos;t use them unless they verify.
+            Nobody learns about one-sided interest, and a crush notification only says &quot;Someone&quot;.
+          </p>
           <DocList
             items={[
               <>
@@ -153,6 +160,21 @@ export default function SafetyPage() {
                 <strong className="font-semibold text-fg">Meet safely.</strong> Meet in a public place on
                 campus and tell a friend.
               </>,
+            ]}
+          />
+        </DocSection>
+
+        <DocSection id="play" title="DP Battle and Play">
+          <p>
+            DP Battle is opt-in. Your photo is only shown if you enter. Then students at your college see
+            your current profile photo next to another one and vote.
+          </p>
+          <DocList
+            items={[
+              "You can leave DP Battle any time, and your photo stops showing.",
+              "Only use a photo of yourself. Entries with someone else's photo are removed.",
+              "Report any photo or meme that's mean, sexual or not the person's own. Three reports hide it.",
+              "People you block are left out of your DP Battle.",
             ]}
           />
         </DocSection>

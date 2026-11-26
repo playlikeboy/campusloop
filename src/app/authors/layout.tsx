@@ -1,0 +1,35 @@
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { AppShell } from "@/components/shells/app-shell";
+import { getCachedAuthUser, getCachedUserProfile, toShellProfile } from "@/lib/server-cache";
+import { isViewerProfile } from "@/lib/viewer";
+import { getClientTrust } from "@/lib/trust-server";
+
+// Only the title template lives here. Each author page sets its own canonical and robots.
+export const metadata: Metadata = {
+  title: { default: "Authors", template: "%s · CampusLoop" },
+};
+
+/** Author pages are public: signed-out readers get the shell with a Sign in action. */
+export default async function AuthorsLayout({ children }: { children: React.ReactNode }) {
+  const user = await getCachedAuthUser();
+  const profile = user ? await getCachedUserProfile(user.id) : null;
+
+  if (user && profile && !profile.onboardingCompleted) {
+    redirect("/onboarding");
+  }
+
+  const viewerMode = profile ? await isViewerProfile(profile) : false;
+
+  return (
+    <AppShell
+      trust={await getClientTrust(profile)}
+      profile={toShellProfile(profile)}
+      collegeName={viewerMode ? "Viewer Mode" : (profile?.institution?.name ?? undefined)}
+      isAdmin={profile?.role === "ADMIN"}
+      isViewer={viewerMode}
+    >
+      {children}
+    </AppShell>
+  );
+}

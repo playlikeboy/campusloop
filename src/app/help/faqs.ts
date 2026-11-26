@@ -16,14 +16,21 @@ export const FAQS: FAQItem[] = [
     category: "Joining",
     question: "How do I get verified?",
     answer:
-      "Sign up with your college email, for example name@college.ac.in. We send a code to that address. Enter it and you get the verified tick.",
+      "Go to Settings, then Verify. Add your college email, for example name@college.ac.in, and we email a link to it. Open the link and you get the verified badge. No college email? If GitHub Education has approved you as a student, you can verify with the GitHub Student Developer Pack instead.",
+  },
+  {
+    id: "verify-3",
+    category: "Joining",
+    question: "Can I join without a college email?",
+    answer:
+      "Yes. Sign up with any email, like Gmail, and pick your college. You join as a member and can post, comment, vote, chat and join communities. Some things, like anonymous posts and Campus Match, are for verified students only.",
   },
   {
     id: "verify-2",
     category: "Joining",
     question: "My college isn't listed. What now?",
     answer:
-      "Send us your college name and its email domain from the Request your college page. We usually add it within a day. Until then, sign up with any email and use Campus Preview.",
+      "Send us your college name and its email domain from the Request your college page. We usually add it within a day. Until then, you can still sign up with any email and look around.",
   },
   {
     id: "academics-1",
@@ -36,7 +43,7 @@ export const FAQS: FAQItem[] = [
     id: "academics-2",
     category: "Study material",
     question: "Can I upload my notes?",
-    answer: "Yes. Verified students can upload to their college or branch. Useful uploads earn Loop Points.",
+    answer: "Yes. You can upload notes to your college or branch. Useful uploads earn Loop Points.",
   },
   {
     id: "safety-1",
@@ -57,7 +64,7 @@ export const FAQS: FAQItem[] = [
     category: "Clubs and feed",
     question: "How do I start a club or community?",
     answer:
-      "Verified students can create a community from the Communities page. Use it for announcements, event sign-ups and discussions.",
+      "Verified students can create a community from the Communities page. Use it for announcements, event sign-ups and discussions. Members need to verify first, unless our team has opened this to members.",
   },
   {
     id: "communities-2",
@@ -72,6 +79,13 @@ export const FAQS: FAQItem[] = [
     question: "Is CampusLoop free?",
     answer:
       "Yes. Joining and using CampusLoop is free. Things you buy, like marketplace orders, are paid separately.",
+  },
+  {
+    id: "account-3",
+    category: "Account",
+    question: "How do I stop marketing emails?",
+    answer:
+      "Tap Unsubscribe at the bottom of any product email, like feature news or event digests. That stops them in one click. You still get account and security emails, like sign-in links.",
   },
   {
     id: "account-2",

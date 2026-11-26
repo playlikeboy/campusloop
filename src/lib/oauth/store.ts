@@ -87,11 +87,19 @@ export async function exchangeCode(input: { client: OauthClient; code: string; r
   const [row] = await db
     .update(oauthCodes)
     .set({ usedAt: new Date() })
-    .where(and(eq(oauthCodes.codeHash, codeHash), isNull(oauthCodes.usedAt), gt(oauthCodes.expiresAt, new Date())))
+    .where(
+      and(
+        eq(oauthCodes.codeHash, codeHash),
+        // Bound to the client in the claim itself, so another client presenting a leaked code cannot burn it.
+        eq(oauthCodes.clientId, input.client.id),
+        isNull(oauthCodes.usedAt),
+        gt(oauthCodes.expiresAt, new Date())
+      )
+    )
     .returning();
   if (!row) {
     const used = await db.query.oauthCodes.findFirst({ where: eq(oauthCodes.codeHash, codeHash) });
-    if (used?.usedAt) await revokeGrantTokens(used.clientId, used.profileId);
+    if (used?.usedAt && used.clientId === input.client.id) await revokeGrantTokens(used.clientId, used.profileId);
     throw new OAuthError("invalid_grant", "Authorization code is invalid, expired or already used");
   }
   if (row.clientId !== input.client.id) throw new OAuthError("invalid_grant", "Code was issued to another client");
@@ -221,7 +229,16 @@ export async function refreshTokens(input: { client: OauthClient; refreshToken: 
   const asked = input.scope?.split(/\s+/).filter(Boolean);
   if (asked?.some((s) => !row.scopes.includes(s))) throw new OAuthError("invalid_scope", "Cannot widen scopes on refresh");
   const scopes = asked?.length ? asked : row.scopes;
-  await db.update(oauthRefreshTokens).set({ rotatedAt: new Date() }).where(eq(oauthRefreshTokens.tokenHash, row.tokenHash));
+  // Atomic claim: two parallel refreshes with the same token must not both win. The loser is a reuse.
+  const claimed = await db
+    .update(oauthRefreshTokens)
+    .set({ rotatedAt: new Date() })
+    .where(and(eq(oauthRefreshTokens.tokenHash, row.tokenHash), isNull(oauthRefreshTokens.rotatedAt), isNull(oauthRefreshTokens.revokedAt)))
+    .returning({ tokenHash: oauthRefreshTokens.tokenHash });
+  if (claimed.length === 0) {
+    await db.update(oauthRefreshTokens).set({ revokedAt: new Date() }).where(eq(oauthRefreshTokens.familyId, row.familyId));
+    throw new OAuthError("invalid_grant", "Refresh token was already used; all sessions for it were revoked");
+  }
   return issueTokens({ client: input.client, grant, scopes: scopes.includes("offline_access") ? scopes : [...scopes, "offline_access"], familyId: row.familyId });
 }
 

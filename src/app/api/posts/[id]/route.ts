@@ -1,3 +1,5 @@
+import { viewerCanReadPost } from "@/lib/post-visibility";
+import { PUBLIC_PROFILE_COLUMNS } from "@/lib/profile-columns";
 import { and, asc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { MAX_POST_CHARS } from "@/constants/feed";
@@ -7,7 +9,6 @@ import { requireProfile } from "@/lib/require-profile";
 import { deriveAnonHandle, openSealedIdentity } from "@/lib/anonymity";
 import { runSafetyCheck } from "@/lib/moderation/rules";
 import { indexPostVector } from "@/lib/qdrant/indexer";
-import { rejectViewerWrite } from "@/lib/viewer";
 import { getCachedAuthUser } from "@/lib/server-cache";
 
 export const dynamic = "force-dynamic";
@@ -75,7 +76,7 @@ export async function GET(req: Request, { params }: RouteParams) {
     const post = await db.query.posts.findFirst({
       where: eq(posts.id, id),
       with: {
-        author: true,
+        author: { columns: PUBLIC_PROFILE_COLUMNS },
         institution: true,
         community: true,
       },
@@ -98,6 +99,11 @@ export async function GET(req: Request, { params }: RouteParams) {
       if (!isAuthor && !isStaff) {
         return NextResponse.json({ error: "Post not found" }, { status: 404 });
       }
+    }
+
+    const isStaffViewer = viewerProfile?.role === "MODERATOR" || viewerProfile?.role === "ADMIN";
+    if (!isStaffViewer && !(await viewerCanReadPost(db, post, viewerProfile?.id))) {
+      return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
     // Calculated vote aggregates (NEVER return raw votes rows)
@@ -272,8 +278,6 @@ export async function PATCH(req: Request, { params }: RouteParams) {
     const { id } = await params;
     const db = getDb();
 
-    const viewerBlocked = await rejectViewerWrite(profile);
-    if (viewerBlocked) return viewerBlocked;
 
     const targetPost = await db.query.posts.findFirst({
       where: eq(posts.id, id),
@@ -368,8 +372,6 @@ export async function DELETE(req: Request, { params }: RouteParams) {
     const { id } = await params;
     const db = getDb();
 
-    const viewerBlocked = await rejectViewerWrite(profile);
-    if (viewerBlocked) return viewerBlocked;
 
     const targetPost = await db.query.posts.findFirst({
       where: eq(posts.id, id),

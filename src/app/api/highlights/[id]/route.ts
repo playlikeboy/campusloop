@@ -1,3 +1,4 @@
+import { PUBLIC_PROFILE_COLUMNS } from "@/lib/profile-columns";
 import { eq, inArray } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
@@ -18,7 +19,7 @@ export async function GET(req: Request, { params }: RouteParams) {
     const highlight = await db.query.storyHighlights.findFirst({
       where: eq(storyHighlights.id, id),
       with: {
-        user: true,
+        user: { columns: PUBLIC_PROFILE_COLUMNS },
       },
     });
 
@@ -33,7 +34,7 @@ export async function GET(req: Request, { params }: RouteParams) {
       const rawStories = await db.query.stories.findMany({
         where: inArray(stories.id, storyIds),
         with: {
-          user: true,
+          user: { columns: PUBLIC_PROFILE_COLUMNS },
           likes: true,
         },
       });

@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { getAvatarUrl } from "@/lib/utils";
 import { eventModeLabel } from "./event-card";
+import { istDate, istTime } from "@/lib/ist-date";
 
 function Section({ title, action, children }: { title: string; action?: ReactNode; children: ReactNode }) {
   return (
@@ -45,15 +46,12 @@ function Fact({
 export function EventFacts({ event }: { event: any }) {
   const start = new Date(event.startDate);
   const end = new Date(event.endDate);
-  const date = start.toLocaleDateString("en-IN", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+  // India time, formatted the same on the server and in the browser.
+  const longDate = { weekday: "long", month: "long", year: true } as const;
+  const date = istDate(start, longDate) ?? "Date to be announced";
   const multiDay = end.getTime() - start.getTime() > 24 * 60 * 60 * 1000;
-  const endDate = end.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
-  const time = `${start.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" })} – ${end.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" })}`;
+  const endDate = istDate(end, longDate) ?? "";
+  const time = `${istTime(start) ?? ""} – ${istTime(end) ?? ""}`;
   const restricted =
     Array.isArray(event.eligibleInstitutionIds) && !event.eligibleInstitutionIds.includes("ALL");
   const meetingUrl =
@@ -220,7 +218,7 @@ export function EventRelated({ related }: { related: any[] }) {
                 </span>
               </span>
               <span className="shrink-0 rounded-full bg-brand-subtle px-2.5 py-1 text-xs font-semibold tabular-nums text-brand-text">
-                {new Date(rel.startDate).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                {istDate(rel.startDate)}
               </span>
             </Link>
           </li>

@@ -1,3 +1,6 @@
+import { sanitizeAnonRow } from "@/lib/anonymity";
+import { communityPostVisibleSql } from "@/lib/post-visibility";
+import { PUBLIC_PROFILE_COLUMNS } from "@/lib/profile-columns";
 import { and, count, desc, eq, gte, ilike, isNotNull, lt, lte, or } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
@@ -50,6 +53,7 @@ export async function GET(req: NextRequest) {
         const conditions: any[] = [
           isNotNull(posts.communityId),
           eq(posts.status, "PUBLISHED"),
+          communityPostVisibleSql(profile.id),
           ...(showSeeded ? [] : [eq(posts.isSeeded, false)]),
         ];
         if (q) conditions.push(or(ilike(posts.title, q), ilike(posts.body, q)));
@@ -63,7 +67,7 @@ export async function GET(req: NextRequest) {
           limit,
           offset,
           with: {
-            author: true,
+            author: { columns: PUBLIC_PROFILE_COLUMNS },
             institution: true,
             community: true,
             votes: true,
@@ -87,7 +91,7 @@ export async function GET(req: NextRequest) {
             createdAt: post.createdAt,
             id: "post_" + post.id,
             data: {
-              ...post,
+              ...sanitizeAnonRow(post),
               votesCount,
               commentsCount,
               userVote,
@@ -412,7 +416,7 @@ export async function GET(req: NextRequest) {
         createdAt: post.createdAt,
         id: "post_" + post.id,
         data: {
-          ...post,
+          ...sanitizeAnonRow(post),
           votesCount,
           commentsCount,
           userVote,
@@ -430,6 +434,7 @@ export async function GET(req: NextRequest) {
       const postConditions = [
         isNotNull(posts.communityId),
         eq(posts.status, "PUBLISHED"),
+        communityPostVisibleSql(profile.id),
         ...(showSeeded ? [] : [eq(posts.isSeeded, false)]),
       ];
       if (cursorDate) postConditions.push(lt(posts.createdAt, cursorDate));
@@ -438,7 +443,7 @@ export async function GET(req: NextRequest) {
         orderBy: [desc(posts.createdAt)],
         limit,
         with: {
-          author: true,
+          author: { columns: PUBLIC_PROFILE_COLUMNS },
           institution: true,
           community: true,
           votes: true,

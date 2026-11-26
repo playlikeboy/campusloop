@@ -23,11 +23,14 @@ export function BrandLogoIcon({
     lg: "size-10",
     xl: "size-12",
   };
+  const pxMap = { sm: 24, md: 32, lg: 40, xl: 48 };
 
   return (
     <img
       src="/logo.png"
       alt="CampusLoop"
+      width={pxMap[size]}
+      height={pxMap[size]}
       className={cn(
         sizeMap[size],
         "shrink-0 select-none object-contain",

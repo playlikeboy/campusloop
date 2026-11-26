@@ -1,7 +1,8 @@
-import { desc, eq, inArray } from "drizzle-orm";
+import { PUBLIC_PROFILE_COLUMNS } from "@/lib/profile-columns";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { posts, savedPosts, userProfiles } from "@/db/schema";
+import { comments, posts, savedPosts, userProfiles } from "@/db/schema";
 import { sanitizeAnonRow } from "@/lib/anonymity";
 import { getCachedAuthUser } from "@/lib/server-cache";
 
@@ -49,15 +50,17 @@ export async function GET(req: Request) {
     const postIds = savedRecords.map((r) => r.postId);
 
     const postRows = await db.query.posts.findMany({
-      where: inArray(posts.id, postIds),
+      // A saved post that was later deleted, hidden or held drops out of the list.
+      where: and(inArray(posts.id, postIds), eq(posts.status, "PUBLISHED")),
       with: {
-        author: true,
+        author: { columns: PUBLIC_PROFILE_COLUMNS },
         institution: true,
         community: true,
         votes: true,
         comments: {
+          where: eq(comments.status, "PUBLISHED"),
           with: {
-            author: true,
+            author: { columns: PUBLIC_PROFILE_COLUMNS },
           },
         },
         pollOptions: {
@@ -75,8 +78,22 @@ export async function GET(req: Request) {
       .filter((p): p is NonNullable<typeof p> => Boolean(p))
       .map((post) => {
         const sanitized = sanitizeAnonRow(post);
+        // Aggregates only: raw vote rows would tell the client who voted and how.
+        const pollOptions = post.pollOptions?.map((opt) => ({
+          id: opt.id,
+          text: opt.text,
+          votesCount: opt.votes.length,
+          userVoted: opt.votes.some((v) => v.userId === profile.id),
+        }));
         return {
           ...sanitized,
+          votesCount: post.votes.reduce((acc, v) => acc + v.value, 0),
+          commentsCount: post.comments.length,
+          userVote: post.votes.find((v) => v.userId === profile.id)?.value || 0,
+          pollOptions,
+          hasVotedPoll: pollOptions?.some((opt) => opt.userVoted) || false,
+          totalPollVotes: pollOptions?.reduce((acc, opt) => acc + opt.votesCount, 0) || 0,
+          votes: undefined,
           isSaved: true,
         };
       });

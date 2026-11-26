@@ -1,3 +1,4 @@
+import { isAnonHandleSealedToSomeoneElse } from "@/lib/anon-handle";
 import { and, eq, ne, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
@@ -85,7 +86,7 @@ export async function PATCH(req: Request) {
           ),
         });
 
-        if (taken) {
+        if (taken || (await isAnonHandleSealedToSomeoneElse(db, trimmed, existingProfile.id))) {
           return NextResponse.json(
             { error: "This anonymous username is already claimed by another student" },
             { status: 400 }

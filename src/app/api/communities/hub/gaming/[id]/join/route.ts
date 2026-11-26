@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { gamingLobbies, userProfiles } from "@/db/schema";
 import { getCachedAuthUser } from "@/lib/server-cache";
+import { requireCapability } from "@/lib/trust-server";
 
 export const dynamic = "force-dynamic";
 
@@ -39,6 +40,8 @@ export async function POST(_request: Request, context: RouteContext) {
     const current = await getCurrentProfile();
     if ("error" in current) return current.error;
     const { db, profile, institutionId } = current;
+    const capabilityBlocked = await requireCapability(profile, "join_community");
+    if (capabilityBlocked) return capabilityBlocked;
     const { id } = await context.params;
 
     const [item] = await db

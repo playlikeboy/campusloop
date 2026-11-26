@@ -1,10 +1,11 @@
-import { and, desc, eq, or } from "drizzle-orm";
+import { and, desc, eq, inArray, or } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { blocks, callSessions, conversationParticipants } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { getRedis } from "@/lib/redis";
 import { trackUserBehavior } from "@/lib/user-behavior";
+import { requireCapability } from "@/lib/trust-server";
 
 export const dynamic = "force-dynamic";
 
@@ -33,12 +34,14 @@ export async function POST(req: Request) {
     const db = getDb();
     const profile = await db.query.userProfiles.findFirst({
       where: (up, { eq }) => eq(up.userId, user.id),
-      columns: { id: true, displayName: true, avatarUrl: true, username: true },
+      columns: { id: true, displayName: true, avatarUrl: true, username: true, role: true, isCollegeVerified: true },
     });
 
     if (!profile) {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 });
     }
+    const capabilityBlocked = await requireCapability(profile, "chat_dm");
+    if (capabilityBlocked) return capabilityBlocked;
 
     // 1. Verify block relationship
     const isBlocked = await db.query.blocks.findFirst({
@@ -52,20 +55,29 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Cannot connect call due to block restrictions." }, { status: 403 });
     }
 
-    // 2. If in chat context, verify conversation membership
-    if (context === "chat" && conversationId) {
-      const isParticipant = await db.query.conversationParticipants.findFirst({
+    // 2. In chat context both caller and receiver must be participants of the conversation,
+    //    so a call can't be aimed at an arbitrary profile through someone else's (or no) chat.
+    if (context === "chat") {
+      if (!conversationId) {
+        return NextResponse.json({ error: "conversationId is required" }, { status: 400 });
+      }
+      const participants = await db.query.conversationParticipants.findMany({
         where: and(
           eq(conversationParticipants.conversationId, conversationId),
-          eq(conversationParticipants.userId, profile.id)
+          inArray(conversationParticipants.userId, [profile.id, receiverId])
         ),
+        columns: { userId: true },
       });
+      const ids = new Set(participants.map((p) => p.userId));
 
-      if (!isParticipant) {
+      if (!ids.has(profile.id)) {
         return NextResponse.json(
           { error: "You are not a participant in this conversation." },
           { status: 403 }
         );
+      }
+      if (!ids.has(receiverId)) {
+        return NextResponse.json({ error: "That person is not in this conversation." }, { status: 403 });
       }
     }
 
@@ -161,7 +173,7 @@ export async function GET(req: Request) {
         where: and(eq(callSessions.receiverId, profile.id), eq(callSessions.status, "CALLING")),
         with: {
           caller: {
-            columns: { id: true, displayName: true, avatarUrl: true, username: true },
+            columns: { id: true, displayName: true, avatarUrl: true, username: true, role: true, isCollegeVerified: true },
           },
         },
         orderBy: [desc(callSessions.createdAt)],

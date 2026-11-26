@@ -12,6 +12,7 @@ import { trackEventRegister } from "@/lib/analytics/ga4";
 import { cn } from "@/lib/utils";
 import { EventCountdownTag, GoingSticker } from "./event-countdown-tag";
 import { EventDateTile } from "./event-date-tile";
+import { istDate, istYear } from "@/lib/ist-date";
 
 export interface EventItem {
   id: string;
@@ -93,12 +94,8 @@ function safePosterUrl(value: string | null | undefined): string | null {
 function eventDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "Date to be announced";
-  return date.toLocaleDateString("en-IN", {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-    year: date.getFullYear() === new Date().getFullYear() ? undefined : "numeric",
-  });
+  // India time, so the server and the browser render the same label.
+  return istDate(date, { weekday: "short", year: istYear(date) !== istYear(new Date()) }) ?? "Date to be announced";
 }
 
 function Poster({ event, className }: { event: EventItem; className?: string }) {
@@ -182,11 +179,7 @@ export function eventTiming(event: EventItem, nowMs = Date.now()): EventTiming {
 function shortDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "Date TBA";
-  return date.toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "short",
-    year: date.getFullYear() === new Date().getFullYear() ? undefined : "numeric",
-  });
+  return istDate(date, { year: istYear(date) !== istYear(new Date()) }) ?? "Date TBA";
 }
 
 /** Compact date chip: "Sat, 28 Nov", "Live now" or "Open till 4 Dec". */

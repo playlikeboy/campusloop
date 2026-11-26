@@ -11,7 +11,7 @@ import { JsonLd } from "@/lib/seo/json-ld-script";
 export const metadata = buildMetadata({
   title: "About",
   description:
-    "CampusLoop is a student-only app for Indian colleges, started at BIT Mesra. Notes, a campus feed, clubs, events and campus services in one place.",
+    "CampusLoop is a free app for Indian colleges, started at BIT Mesra. A campus feed, notes, clubs, events and games in one place, with a badge for verified students.",
   path: "/about",
 });
 
@@ -39,12 +39,12 @@ export default async function AboutPage() {
       />
 
       <StoryHero
-        title="Your campus, only for students."
-        lede="CampusLoop puts your college's posts, notes, clubs, events and everyday services in one app. Only students from your college can see your campus."
+        title="Your campus, in one app."
+        lede="CampusLoop puts your college's posts, notes, clubs, events and everyday services in one app. Anyone can join. Verified students get a badge, so you know who really studies there."
         actions={
           <>
             <Link href="/sign-up" className={buttonVariants({ variant: "secondary", size: "lg" })}>
-              Join with college email
+              Join free
             </Link>
             <Link
               href="/colleges"
@@ -71,8 +71,9 @@ export default async function AboutPage() {
             <div>
               <dt className="font-semibold text-fg">Who it's for</dt>
               <dd className="mt-1 text-fg-muted">
-                Students at Indian colleges, who join with their college email. Anyone else can look around
-                with Campus Preview, without the verified tick.
+                Students at Indian colleges. Anyone can join with any email and pick their college as a
+                member. Verify with a college email or the GitHub Student Developer Pack to get the verified
+                badge. Some things, like Campus Match and anonymous posts, are for verified students.
               </dd>
             </div>
             <div>
@@ -90,10 +91,37 @@ export default async function AboutPage() {
               </dd>
             </div>
             <div>
+              <dt className="font-semibold text-fg">Play</dt>
+              <dd className="mt-1 text-fg-muted">
+                Quick games with your campus: DP Battle (only if you opt in), Meme War, trivia, This or That
+                and Branch Wars. Win badges and Loop Points.
+              </dd>
+            </div>
+            <div>
+              <dt className="font-semibold text-fg">On your phone</dt>
+              <dd className="mt-1 text-fg-muted">
+                Use it in any browser, or try one of our free Android beta apps from the{" "}
+                <Link href="/download" className="font-medium text-brand-text underline underline-offset-4 hover:no-underline">
+                  download page
+                </Link>
+                . Turn on notifications to hear about replies and events.
+              </dd>
+            </div>
+            <div>
               <dt className="font-semibold text-fg">Why we built it</dt>
               <dd className="mt-1 text-fg-muted">
                 College life was spread across WhatsApp groups, random Telegram channels and old college
-                portals. We wanted one place per campus that only students can get into.
+                portals. We wanted one place per campus, where you can tell who is a real student.
+              </dd>
+            </div>
+            <div>
+              <dt className="font-semibold text-fg">More from the team</dt>
+              <dd className="mt-1 text-fg-muted">
+                We also make other apps, like CampusLoop Atlas, DSALoop and CampusLoop Opportunities.{" "}
+                <Link href="/products" className="font-medium text-brand-text underline underline-offset-4 hover:no-underline">
+                  See all our apps
+                </Link>
+                .
               </dd>
             </div>
           </dl>

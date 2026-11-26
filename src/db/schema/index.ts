@@ -38,3 +38,4 @@ export * from "./platform-settings";
 export * from "./play";
 export * from "./outreach";
 export * from "./engagement";
+export * from "./email-campaigns";

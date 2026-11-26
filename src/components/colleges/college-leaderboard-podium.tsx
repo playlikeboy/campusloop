@@ -69,7 +69,7 @@ export function CollegeLeaderboardPodium({ students, collegeName }: CollegeLeade
         icon={Users}
         bordered
         title={`No one from ${shortName} has joined yet`}
-        description="Join with your college email and invite your friends."
+        description="Join free and invite your friends."
       />
     );
   }

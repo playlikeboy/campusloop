@@ -252,3 +252,104 @@ export function buildWelcomeEmail({
 
   return { subject, html, text };
 }
+
+/** Inline styles for the markdown body of a campaign email (see src/lib/email-campaigns/render.ts). */
+export const CAMPAIGN_BODY_STYLES = {
+  p: "margin:0 0 16px 0;font-size:16px;line-height:1.6;color:#15131d;",
+  h2: "margin:24px 0 12px 0;font-size:18px;line-height:1.3;font-weight:800;color:#15131d;",
+  ul: "margin:0 0 16px 0;padding:0 0 0 22px;",
+  li: "margin:0 0 6px 0;font-size:16px;line-height:1.6;color:#15131d;",
+  a: "color:#5a2be0;text-decoration:underline;",
+} as const;
+
+/**
+ * Admin campaign email (Admin -> Emails). Email-client safe: nested tables,
+ * inline styles only, no <style> block, no web fonts, max 600px wide.
+ *
+ * Every string argument except `bodyHtml` is plain text and is escaped here.
+ * `bodyHtml` must already be safe HTML (render it with
+ * src/lib/email-campaigns/render.ts, which escapes every variable value).
+ * `buttonUrl` and `unsubscribeUrl` must already be validated http(s) URLs.
+ */
+export function buildCampaignEmailHtml({
+  subject,
+  preheader,
+  heading,
+  bodyHtml,
+  buttonLabel,
+  buttonUrl,
+  unsubscribeUrl,
+}: {
+  subject: string;
+  preheader: string;
+  heading: string;
+  bodyHtml: string;
+  buttonLabel?: string | null;
+  buttonUrl?: string | null;
+  unsubscribeUrl?: string | null;
+}): string {
+  const esc = (value: string) =>
+    value
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  const year = new Date().getFullYear();
+  const font = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
+
+  const button =
+    buttonLabel && buttonUrl
+      ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:28px 0 8px 0;">
+              <tr>
+                <td align="center" bgcolor="#6b3df5" style="border-radius:999px;background-color:#6b3df5;">
+                  <a href="${esc(buttonUrl)}" target="_blank" style="display:inline-block;padding:14px 28px;font-family:${font};font-size:15px;font-weight:700;line-height:1;color:#ffffff;text-decoration:none;border-radius:999px;">${esc(buttonLabel)}</a>
+                </td>
+              </tr>
+            </table>`
+      : "";
+
+  const unsubscribe = unsubscribeUrl
+    ? `You are getting this because you have a CampusLoop account. Not into these emails? <a href="${esc(unsubscribeUrl)}" style="color:#5a2be0;text-decoration:underline;">Unsubscribe</a>. Account and security emails will still reach you.`
+    : "You are getting this because you have a CampusLoop account.";
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<meta name="supported-color-schemes" content="light">
+<title>${esc(subject)}</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f5f3fa;">
+<div style="display:none;font-size:1px;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all;color:#f5f3fa;">${esc(preheader)}&#8203;&nbsp;&#8203;&nbsp;&#8203;&nbsp;&#8203;&nbsp;&#8203;&nbsp;</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f5f3fa" style="background-color:#f5f3fa;">
+  <tr>
+    <td align="center" style="padding:24px 12px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
+        <tr>
+          <td bgcolor="#6b3df5" style="background-color:#6b3df5;border-radius:20px 20px 0 0;padding:20px 28px;">
+            <a href="https://campusloop.space" target="_blank" style="font-family:${font};font-size:20px;font-weight:800;letter-spacing:-0.4px;color:#ffffff;text-decoration:none;">CampusLoop</a>
+          </td>
+        </tr>
+        <tr>
+          <td bgcolor="#ffffff" style="background-color:#ffffff;border:1px solid #e2deec;border-top:0;border-radius:0 0 20px 20px;padding:32px 28px 28px 28px;font-family:${font};font-size:16px;line-height:1.6;color:#15131d;">
+            ${heading ? `<h1 style="margin:0 0 16px 0;font-family:${font};font-size:24px;line-height:1.25;font-weight:800;letter-spacing:-0.4px;color:#15131d;">${esc(heading)}</h1>` : ""}
+            ${bodyHtml}
+            ${button}
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:20px 28px 8px 28px;font-family:${font};font-size:12px;line-height:1.6;color:#57526a;">
+            <p style="margin:0 0 8px 0;">${unsubscribe}</p>
+            <p style="margin:0;">&copy; ${year} CampusLoop, the student network for Indian colleges. <a href="https://campusloop.space/privacy" style="color:#5a2be0;text-decoration:none;">Privacy</a> &middot; <a href="https://campusloop.space/contact" style="color:#5a2be0;text-decoration:none;">Contact</a></p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>`;
+}

@@ -3,7 +3,6 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { posts } from "@/db/schema";
 import { requireProfile } from "@/lib/require-profile";
-import { rejectViewerWrite } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
 
@@ -20,8 +19,6 @@ export async function POST(req: Request, { params }: RouteParams) {
     const { id } = await params;
     const db = getDb();
 
-    const viewerBlocked = await rejectViewerWrite(profile);
-    if (viewerBlocked) return viewerBlocked;
 
     const targetPost = await db.query.posts.findFirst({
       where: eq(posts.id, id),

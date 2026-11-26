@@ -8,6 +8,8 @@ import { trackSearch } from "@/lib/analytics/ga4";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn, getAvatarUrl } from "@/lib/utils";
+import { VerifiedBadge } from "@/components/ui/verified-badge";
+import { isCollegeVerifiedUser } from "@/lib/user-verification";
 
 interface GlobalSearchModalProps {
   isOpen: boolean;
@@ -223,7 +225,10 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
                         </AvatarFallback>
                       </Avatar>
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs font-bold text-foreground truncate">{u.displayName}</p>
+                        <p className="flex min-w-0 items-center gap-1 text-xs font-bold text-foreground">
+                          <span className="truncate">{u.displayName}</span>
+                          {isCollegeVerifiedUser(u) && <VerifiedBadge size="xs" />}
+                        </p>
                         <p className="text-xs text-muted-foreground truncate">@{u.username}</p>
                       </div>
                     </button>

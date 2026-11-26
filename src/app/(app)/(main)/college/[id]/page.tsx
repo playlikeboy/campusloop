@@ -1,3 +1,4 @@
+import { PUBLIC_PROFILE_COLUMNS } from "@/lib/profile-columns";
 import { and, count, desc, eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
@@ -11,7 +12,7 @@ import {
 } from "@/components/colleges/college-facts";
 import { CollegeHubClient } from "@/components/colleges/college-hub-client";
 import { getDb } from "@/db";
-import { academicResources, institutions, posts } from "@/db/schema";
+import { academicResources, events, institutions, posts } from "@/db/schema";
 import type { FeedPost } from "@/hooks/use-feed";
 import { sanitizeAnonRow } from "@/lib/anonymity";
 import { getShowSeededPosts } from "@/lib/platform-config";
@@ -121,7 +122,7 @@ export default async function MainCollegePage({ params }: PageProps) {
     eq(posts.status, "PUBLISHED"),
     showSeeded ? undefined : eq(posts.isSeeded, false)
   );
-  const [collegePosts, rawRelatedColleges, collegeAcademics, [postTotal], [noteTotal]] = await Promise.all([
+  const [collegePosts, rawRelatedColleges, collegeAcademics, [postTotal], [noteTotal], collegeEvents] = await Promise.all([
     db.query.posts.findMany({
       where: and(
         eq(posts.institutionId, college.id),
@@ -131,7 +132,7 @@ export default async function MainCollegePage({ params }: PageProps) {
       orderBy: [desc(posts.createdAt)],
       limit: 30,
       with: {
-        author: true,
+        author: { columns: PUBLIC_PROFILE_COLUMNS },
         institution: true,
         community: true,
         votes: true,
@@ -170,6 +171,19 @@ export default async function MainCollegePage({ params }: PageProps) {
       .select({ value: count() })
       .from(academicResources)
       .where(eq(academicResources.institutionId, college.id)),
+    // Public events hosted here, for crawlable links from the college page.
+    db.query.events
+      .findMany({
+        columns: { id: true, slug: true, title: true, startDate: true },
+        where: and(
+          eq(events.institutionId, college.id),
+          eq(events.status, "PUBLISHED"),
+          eq(events.visibility, "PUBLIC")
+        ),
+        orderBy: [desc(events.startDate)],
+        limit: 6,
+      })
+      .catch(() => []),
   ]);
 
   const formattedPosts: FeedPost[] = collegePosts.map((post) => {
@@ -345,6 +359,8 @@ export default async function MainCollegePage({ params }: PageProps) {
             city: college.district,
             state: college.state,
             logo: college.logoUrl,
+            sameAs: [college.extraData?.wikipediaUrl],
+            foundingYear: college.yearOfEstablishment,
           }),
           breadcrumbJsonLd([
             { name: "Colleges", path: "/colleges" },
@@ -396,6 +412,8 @@ export default async function MainCollegePage({ params }: PageProps) {
           description={college.description}
           state={college.state}
           nearby={relatedColleges.slice(0, 5)}
+          events={collegeEvents}
+          notes={formattedAcademics.slice(0, 6).map((n) => ({ id: n.id, title: n.title, subjectName: n.subjectName }))}
         />
       </CollegeHubClient>
     </>

@@ -12,6 +12,7 @@ import {
 } from "@/lib/growth/engagement-prefs";
 import { formatBranchShort } from "@/lib/recommendations/recommended-users";
 import { requireProfile } from "@/lib/require-profile";
+import { requireCapability } from "@/lib/trust-server";
 
 export const dynamic = "force-dynamic";
 
@@ -77,6 +78,8 @@ export async function GET() {
 export async function POST() {
   const auth = await requireProfile();
   if (!auth.ok) return auth.response;
+  const capabilityBlocked = await requireCapability(auth.profile, "secret_crush");
+  if (capabilityBlocked) return capabilityBlocked;
   const profileId = auth.profile.id;
 
   const state = await loadState(profileId);

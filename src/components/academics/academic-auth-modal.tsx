@@ -45,7 +45,7 @@ const REASONS = {
   DOWNLOAD_LIMIT: {
     icon: Download,
     title: "You've used your free downloads",
-    body: `Guests get ${GUEST_DOWNLOAD_LIMIT} downloads. Sign in with your college email to download as much as you want.`,
+    body: `Guests get ${GUEST_DOWNLOAD_LIMIT} downloads. Sign in to download as much as you want.`,
   },
 } as const;
 
@@ -84,7 +84,7 @@ export function AcademicAuthModal({
                 onClose();
               }}
             >
-              Sign in with college email
+              Sign in or join
             </Link>
           </Button>
           <Button

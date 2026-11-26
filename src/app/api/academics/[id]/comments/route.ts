@@ -4,7 +4,7 @@ import { getDb } from "@/db";
 import { academicResourceComments } from "@/db/schema";
 import { pageOf, parseBefore, parseLimit } from "@/lib/pagination";
 import { requireProfile } from "@/lib/require-profile";
-import { rejectViewerWrite } from "@/lib/viewer";
+import { requireCapability } from "@/lib/trust-server";
 
 export const dynamic = "force-dynamic";
 
@@ -58,8 +58,8 @@ export async function POST(req: Request, { params }: RouteParams) {
 
     const db = getDb();
 
-    const viewerBlocked = await rejectViewerWrite(profile);
-    if (viewerBlocked) return viewerBlocked;
+    const capabilityBlocked = await requireCapability(profile, "comment");
+    if (capabilityBlocked) return capabilityBlocked;
 
     const body = (await req.json()) as Record<string, any>;
     const commentBody = body.body?.trim();

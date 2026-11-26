@@ -70,10 +70,13 @@ describe("college facts", () => {
 });
 
 describe("college search metadata", () => {
-  it("keeps titles within 58 characters", () => {
-    expect(collegeMetaTitle(base)).toBe("Birla Institute of Technology: notes, PYQs and students");
+  it("keeps titles within 47 characters (60 with the site name)", () => {
+    expect(collegeMetaTitle(base)).toBe("Birla Institute of Technology: notes and PYQs");
     const long = collegeMetaTitle({ name: "Shri Mata Vaishno Devi University of Advanced Research", state: "J&K" });
-    expect(long.length).toBeLessThanOrEqual(58);
+    expect(long.length).toBeLessThanOrEqual(47);
+    expect(collegeMetaTitle({ name: "IIT Delhi", district: "New Delhi" })).toBe(
+      "IIT Delhi (New Delhi): notes, PYQs and students"
+    );
   });
 
   it("describes only what exists, within 155 characters", () => {

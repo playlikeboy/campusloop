@@ -5,7 +5,7 @@ import { anonIdentityVault, comments, commentVotes, userProfiles } from "@/db/sc
 import { requireProfile } from "@/lib/require-profile";
 import { openSealedIdentity } from "@/lib/anonymity";
 import { cleanNotificationSnippet, createNotification } from "@/lib/notifications";
-import { rejectViewerWrite } from "@/lib/viewer";
+import { requireCapability } from "@/lib/trust-server";
 
 interface RouteParams {
   params: Promise<{ id: string; commentId: string }>;
@@ -21,8 +21,8 @@ export async function POST(req: Request, { params }: RouteParams) {
     const db = getDb();
 
 
-    const viewerBlocked = await rejectViewerWrite(profile);
-    if (viewerBlocked) return viewerBlocked;
+    const capabilityBlocked = await requireCapability(profile, "vote");
+    if (capabilityBlocked) return capabilityBlocked;
 
     const targetComment = await db.query.comments.findFirst({
       where: and(eq(comments.id, commentId), eq(comments.postId, postId)),

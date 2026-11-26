@@ -5,7 +5,7 @@ import { academicPlaylistStars, academicPlaylists } from "@/db/schema";
 import { requireProfile } from "@/lib/require-profile";
 import { runInBackground } from "@/lib/background";
 import { awardPoints } from "@/lib/gamification-server";
-import { rejectViewerWrite } from "@/lib/viewer";
+import { requireCapability } from "@/lib/trust-server";
 
 export const dynamic = "force-dynamic";
 
@@ -17,8 +17,8 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
 
     const db = getDb();
 
-    const viewerBlocked = await rejectViewerWrite(profile);
-    if (viewerBlocked) return viewerBlocked;
+    const capabilityBlocked = await requireCapability(profile, "vote");
+    if (capabilityBlocked) return capabilityBlocked;
 
     const { id: identifier } = await params;
     const playlist = await db.query.academicPlaylists.findFirst({

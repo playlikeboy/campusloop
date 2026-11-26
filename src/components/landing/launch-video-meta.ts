@@ -6,7 +6,7 @@ export const LAUNCH_VIDEO = {
   title: "CampusLoop launch",
   heading: "See CampusLoop in 60 seconds",
   description:
-    "A one-minute tour of CampusLoop: confessions, polls, events, notes and clubs from your own college, for verified students only.",
+    "A one-minute tour of CampusLoop: confessions, polls, events, notes and clubs from your own college, free for every student.",
   src: "/launch/campusloop-launch.mp4",
   verticalSrc: "/launch/campusloop-launch-vertical.mp4",
   poster: "/launch/poster.jpg",

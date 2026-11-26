@@ -7,10 +7,10 @@ const nanoid = (len = 12) => randomUUID().replace(/-/g, "").slice(0, len);
 import { getDb } from "@/db";
 import { eventRegistrations, events, userProfiles } from "@/db/schema";
 import { runInBackground } from "@/lib/background";
-import { rejectIfLacksCapability } from "@/lib/capabilities";
 import { createNotification } from "@/lib/notifications";
 import { recordStreakActivity } from "@/lib/streaks/streak-service";
 import { getCachedAuthUser } from "@/lib/server-cache";
+import { requireCapability } from "@/lib/trust-server";
 
 export const dynamic = "force-dynamic";
 
@@ -35,8 +35,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     }
 
     // Capability check: Must be able to participate
-    const guardResponse = await rejectIfLacksCapability(profile, "CREATE_POST");
-    if (guardResponse) return guardResponse;
+    const capabilityBlocked = await requireCapability(profile, "events_register");
+    if (capabilityBlocked) return capabilityBlocked;
 
     const event = await db.query.events.findFirst({
       where: or(eq(events.id, id), eq(events.slug, id)),

@@ -12,7 +12,7 @@ import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
 export const academicsHubMetadata = buildMetadata({
   title: "College notes and PYQs",
   description:
-    "Free notes, past papers (PYQs), formula sheets and lab manuals shared by students. Filter by branch and semester.",
+    "Free college notes, previous year papers (PYQs), formula sheets and lab manuals shared by students across India. Filter by college, branch and semester.",
   path: "/academics",
   image: { url: "/og-academics.png", width: 1200, height: 630, alt: "CampusLoop study material" },
   keywords: [

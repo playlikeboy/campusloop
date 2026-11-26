@@ -64,7 +64,7 @@ export function AcademicAuthBenefitsCard({
       <div className={cn("min-w-0 space-y-0.5", dismissible && "pr-10 sm:pr-0")}>
         <p className="font-semibold text-fg">Sign in to save notes and download more</p>
         <p className="text-sm text-fg-muted">
-          Guests get {GUEST_DOWNLOAD_LIMIT} free downloads. Use your college email to sign in.
+          Guests get {GUEST_DOWNLOAD_LIMIT} free downloads. Sign in with any email for more.
         </p>
       </div>
       <div className="flex shrink-0 items-center gap-1">

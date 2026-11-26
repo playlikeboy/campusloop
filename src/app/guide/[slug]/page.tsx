@@ -5,6 +5,7 @@ import { CTABand } from "@/components/marketing/system";
 import { MarketingShell } from "@/components/shells/marketing-shell";
 import { GUIDES, getGuide, getGuideSlugs } from "@/lib/guide";
 import { breadcrumbJsonLd, buildMetadata, SITE_URL } from "@/lib/seo";
+import { fitDescription, fitTitle } from "@/lib/seo/describe";
 import { JsonLd } from "@/lib/seo/json-ld-script";
 
 export const dynamicParams = false;
@@ -17,10 +18,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const g = getGuide(slug);
   if (!g) notFound();
-  const description = g.summary.length >= 70 ? g.summary : `${g.summary} ${g.purpose}`;
   return buildMetadata({
-    title: `${g.title} guide`,
-    description: description.length > 160 ? `${description.slice(0, 157).trimEnd()}…` : description,
+    title: fitTitle(`${g.title} guide`),
+    description: fitDescription(g.summary, [g.purpose, `Step-by-step CampusLoop guide to ${g.title.toLowerCase()}`]),
     path: `/guide/${g.slug}`,
     type: "article",
     modifiedTime: g.updated,

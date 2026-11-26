@@ -1,8 +1,9 @@
 import { randomUUID } from "node:crypto";
-import { and, count, desc, eq, ilike, ne, or, sql } from "drizzle-orm";
+import { and, count, desc, eq, ilike, inArray, ne, or, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import {
   academicResources,
+  anonIdentityVault,
   articles,
   comments,
   communities,
@@ -12,6 +13,7 @@ import {
   courses,
   eventRegistrations,
   events,
+  follows,
   institutions,
   messages,
   pollOptions,
@@ -20,9 +22,26 @@ import {
   userProfiles,
   votes,
 } from "@/db/schema";
+import { deriveAnonHandle, sealIdentity } from "@/lib/anonymity";
 import { runSafetyCheck } from "@/lib/moderation/rules";
+import { communityPostVisibleSql } from "@/lib/post-visibility";
 import { getUserStreakState, recordStreakActivity } from "@/lib/streaks/streak-service";
+import { pingArticleIndexNow } from "@/lib/articles/indexnow";
 import type { McpContext } from "./types";
+
+/**
+ * Same identity handling as the REST API for anonymous posts and comments: the row
+ * carries no author id, only the student's public handle, and the real profile id
+ * is sealed into the identity vault (readable only through the audited admin reveal).
+ */
+async function sealAnonymousAuthor(db: ReturnType<typeof getDb>, context: McpContext): Promise<string> {
+  const handle = context.user.anonymousUsername || deriveAnonHandle(context.userId);
+  await db
+    .insert(anonIdentityVault)
+    .values({ handle, sealedIdentity: sealIdentity(context.userId) })
+    .onConflictDoNothing({ target: anonIdentityVault.handle });
+  return handle;
+}
 
 export type McpToolHandler = (context: McpContext, args: Record<string, any>) => Promise<any>;
 
@@ -351,19 +370,18 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
     if (!body) throw new Error("Confession body is required");
 
     const title = args.title ? String(args.title).trim().slice(0, 200) : null;
-    const pseudonym = args.pseudonym
-      ? String(args.pseudonym).trim().replace(/^[#@]/, "").slice(0, 50)
-      : `anon_${randomUUID().slice(0, 8)}`;
-
     const safety = runSafetyCheck({ title, body });
     if (safety.blocked) {
       throw new Error(`Confession Blocked: ${safety.messages.join(" ")}`);
     }
 
+    // A caller-chosen pseudonym is not honoured: it could mimic another student's handle.
+    const pseudonym = await sealAnonymousAuthor(db, context);
+
     const [newPost] = await db
       .insert(posts)
       .values({
-        authorId: context.userId,
+        authorId: null,
         institutionId: context.institutionId,
         title,
         body,
@@ -538,18 +556,19 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
     }
 
     const isAnonymous = Boolean(args.isAnonymous);
-    const pseudonym = isAnonymous ? `anon_${randomUUID().slice(0, 8)}` : null;
 
     const safety = runSafetyCheck({ body });
     if (safety.blocked) {
       throw new Error(`Comment Blocked: ${safety.messages.join(" ")}`);
     }
 
+    const pseudonym = isAnonymous ? await sealAnonymousAuthor(db, context) : null;
+
     const [comment] = await db
       .insert(comments)
       .values({
         postId,
-        authorId: context.userId,
+        authorId: isAnonymous ? null : context.userId,
         parentId: args.parentId || null,
         body,
         isAnonymous,
@@ -850,7 +869,8 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
     const [newPost] = await db
       .insert(posts)
       .values({
-        authorId: context.userId,
+        // Bot posts are shown under the bot name, so they carry no author id (the MCP audit log keeps the caller).
+        authorId: null,
         communityId: comm.id,
         institutionId: context.institutionId,
         title,
@@ -1085,7 +1105,7 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
     if (!college) throw new Error("College not found");
 
     const topPosts = await db.query.posts.findMany({
-      where: and(eq(posts.institutionId, college.id), eq(posts.status, "PUBLISHED")),
+      where: and(eq(posts.institutionId, college.id), eq(posts.status, "PUBLISHED"), communityPostVisibleSql(context.userId)),
       orderBy: [desc(posts.createdAt)],
       limit: 5,
     });
@@ -1185,12 +1205,19 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
   },
 
   // ─── 7. STORIES & VIBES ─────────────────────────────────────────────────────
-  campusloop_get_campus_stories: async (_context) => {
+  campusloop_get_campus_stories: async (context) => {
     const db = getDb();
     const now = new Date();
 
+    // Same audience as /api/stories: the caller's own stories plus people they follow, never platform-wide.
+    const following = await db.query.follows.findMany({
+      where: eq(follows.followerId, context.userId),
+      columns: { followingId: true },
+    });
+    const authorIds = [context.userId, ...following.map((f) => f.followingId)];
+
     const activeStories = await db.query.stories.findMany({
-      where: sql`${stories.expiresAt} > ${now}`,
+      where: and(sql`${stories.expiresAt} > ${now}`, inArray(stories.userId, authorIds)),
       orderBy: [desc(stories.createdAt)],
       limit: 20,
       with: {
@@ -1407,7 +1434,8 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
       where: and(
         eq(communityMembers.communityId, comm.id),
         eq(communityMembers.userId, context.userId),
-        eq(communityMembers.role, "ADMIN")
+        eq(communityMembers.role, "ADMIN"),
+        eq(communityMembers.status, "ACTIVE")
       ),
     });
 
@@ -1415,10 +1443,16 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
       throw new Error("Only community admins can trigger webhooks for this community");
     }
 
+    const safety = runSafetyCheck({ title, body });
+    if (safety.blocked) {
+      throw new Error(`Content Blocked: ${safety.messages.join(" ")}`);
+    }
+
     const [newPost] = await db
       .insert(posts)
       .values({
-        authorId: context.userId,
+        // Bot posts are shown under the bot name, so they carry no author id (the MCP audit log keeps the caller).
+        authorId: null,
         communityId: comm.id,
         institutionId: context.institutionId,
         title,
@@ -1427,7 +1461,8 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
         scope: "CAMPUS",
         isAnonymous: true,
         pseudonym: `🤖 ${botName}`,
-        status: "PUBLISHED",
+        status: safety.status,
+        riskScore: safety.riskScore,
       })
       .returning();
 
@@ -1795,6 +1830,7 @@ export const MCP_TOOL_EXECUTORS: Record<string, McpToolHandler> = {
       status: "PUBLISHED",
       publishedAt: new Date(),
     });
+    pingArticleIndexNow({ slug, status: "PUBLISHED", seoStatus: "index", category });
 
     return {
       success: true,

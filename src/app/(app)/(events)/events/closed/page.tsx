@@ -1,10 +1,12 @@
 import { breadcrumbJsonLd, buildMetadata } from "@/lib/seo";
 import { JsonLd } from "@/lib/seo/json-ld-script";
+import { InitialEvents } from "../initial-events";
 import { ClosedEventsClient } from "./closed-events-client";
 
 export const metadata = buildMetadata({
   title: "Past events",
-  description: "Hackathons, fests and workshops that have already happened at colleges on CampusLoop.",
+  description:
+    "Hackathons, fests, workshops and talks that have already happened at colleges on CampusLoop. See who hosted them, when, and what the prizes were.",
   path: "/events/closed",
 });
 
@@ -17,7 +19,9 @@ export default function ClosedEventsPage() {
           { name: "Past events", path: "/events/closed" },
         ])}
       />
-      <ClosedEventsClient />
+      <InitialEvents query="status=CLOSED">
+        <ClosedEventsClient />
+      </InitialEvents>
     </>
   );
 }

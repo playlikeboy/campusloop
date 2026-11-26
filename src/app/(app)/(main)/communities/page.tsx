@@ -1,3 +1,4 @@
+import { PUBLIC_PROFILE_COLUMNS } from "@/lib/profile-columns";
 import { and, count, desc, eq, exists, ilike, isNotNull, ne, or } from "drizzle-orm";
 import type { Metadata } from "next";
 import {
@@ -22,7 +23,7 @@ export async function generateMetadata({
   return buildMetadata({
     title: "Communities",
     description:
-      "Find clubs, branch groups and interest communities from colleges across India, or start your own.",
+      "Find clubs, branch groups and interest communities from colleges across India. Read their posts, join the group chat, or start your own for free.",
     path: "/communities",
     image: { url: "/og-communities.png", width: 1200, height: 630, alt: "Communities on CampusLoop" },
     noindex: filtered,
@@ -234,7 +235,7 @@ export default async function CommunitiesPage({
       limit: FEED_PAGE_SIZE,
       offset: (feedPage - 1) * FEED_PAGE_SIZE,
       with: {
-        author: true,
+        author: { columns: PUBLIC_PROFILE_COLUMNS },
         institution: true,
         community: true,
         votes: true,

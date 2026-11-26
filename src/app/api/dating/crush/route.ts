@@ -11,6 +11,7 @@ import {
 } from "@/db/schema";
 import { requireProfile } from "@/lib/require-profile";
 import { createNotification } from "@/lib/notifications";
+import { requireCapability } from "@/lib/trust-server";
 
 const MAX_ACTIVE_SLOTS = 5;
 const MAX_ATTEMPTS_7_DAYS = 5;
@@ -92,6 +93,8 @@ export async function POST(req: NextRequest) {
     const auth = await requireProfile();
     if (!auth.ok) return auth.response;
     const { profile } = auth;
+    const capabilityBlocked = await requireCapability(profile, "secret_crush");
+    if (capabilityBlocked) return capabilityBlocked;
 
     const db = getDb();
 

@@ -73,6 +73,10 @@ export default function ContactPage() {
       >
         <DocSection id="desks" title="Who to email">
           <ContactDesks />
+          <p>
+            To stop product emails, tap Unsubscribe at the bottom of any of them. Account and security emails
+            still come.
+          </p>
         </DocSection>
 
         <DocSection id="urgent" title="Urgent help">
@@ -95,8 +99,8 @@ export default function ContactPage() {
 
         <DocSection id="college" title="Add your college">
           <p>
-            Can&apos;t sign up because your college isn&apos;t listed? Send us its email domain. We usually
-            add it within a day.
+            Your college isn&apos;t listed? You can still sign up and look around. Send us its name and email
+            domain, and we usually add it within a day.
           </p>
           <Link href="/college-request" className={buttonVariants({ variant: "primary" })}>
             Request your college

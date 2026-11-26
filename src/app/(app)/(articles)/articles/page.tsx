@@ -1,10 +1,15 @@
+import { PUBLIC_PROFILE_COLUMNS } from "@/lib/profile-columns";
 import { desc, eq, sql } from "drizzle-orm";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getDb } from "@/db";
 import { articles, userProfiles } from "@/db/schema";
+import { getCategoryMeta } from "@/constants/articles";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { categoryCounts, indexableArticleWhere } from "@/lib/articles/hub-queries";
+import { categoryPagePath } from "@/lib/articles/seo";
 import { absoluteUrl, breadcrumbJsonLd, buildMetadata, SITE_URL } from "@/lib/seo";
 import { JsonLd } from "@/lib/seo/json-ld-script";
 import { getViewerInstitutionId, VIEWER_INSTITUTION_SLUG } from "@/lib/viewer";
@@ -38,6 +43,7 @@ export default async function ArticlesPage() {
   }
 
   let initialArticles: any[] = [];
+  const topics = await categoryCounts(indexableArticleWhere()).catch(() => []);
 
   try {
     const viewerId = await getViewerInstitutionId().catch(() => VIEWER_INSTITUTION_SLUG);
@@ -56,6 +62,7 @@ export default async function ArticlesPage() {
       columns: { content: false },
       with: {
         author: {
+          columns: PUBLIC_PROFILE_COLUMNS,
           with: { institution: true },
         },
         institution: true,
@@ -102,6 +109,29 @@ export default async function ArticlesPage() {
       >
         <ArticlesHubClient initialArticles={initialArticles} initialProfile={currentProfile} />
       </Suspense>
+      {topics.length > 0 && (
+        <nav aria-labelledby="browse-topics" className="mx-auto max-w-7xl space-y-3 px-4 pb-32 pt-4 sm:px-6">
+          <h2 id="browse-topics" className="text-xl text-fg">
+            Browse articles by topic
+          </h2>
+          <ul className="flex flex-wrap gap-2">
+            {topics.map((t) => {
+              const meta = getCategoryMeta(t.category);
+              return (
+                <li key={t.category}>
+                  <Link
+                    href={categoryPagePath(meta.slug)}
+                    className="inline-flex h-11 items-center gap-2 rounded-full bg-surface-muted px-4 text-sm font-medium text-fg-muted transition-ui hover:bg-surface-sunken hover:text-fg"
+                  >
+                    {meta.label}
+                    <span className="text-xs tabular-nums">{t.n}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+      )}
     </>
   );
 }

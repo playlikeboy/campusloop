@@ -7,6 +7,7 @@ import { runInBackground } from "@/lib/background";
 import { notifyCommunityJoinRequest } from "@/lib/community-notifications";
 import { recordStreakActivity } from "@/lib/streaks/streak-service";
 import { getCachedAuthUser } from "@/lib/server-cache";
+import { requireCapability } from "@/lib/trust-server";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +34,8 @@ export async function POST(request: Request, { params }: RouteProps) {
     if (!profile) {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 });
     }
+    const capabilityBlocked = await requireCapability(profile, "join_community");
+    if (capabilityBlocked) return capabilityBlocked;
 
     const comm = await db.query.communities.findFirst({
       where: or(eq(communities.id, paramId), eq(communities.slug, paramId)),

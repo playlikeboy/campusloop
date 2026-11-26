@@ -1,3 +1,4 @@
+import { PUBLIC_PROFILE_COLUMNS } from "@/lib/profile-columns";
 import { asc, eq, or, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
@@ -22,7 +23,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     const playlist = await db.query.academicPlaylists.findFirst({
       where: or(eq(academicPlaylists.id, identifier), eq(academicPlaylists.slug, identifier)),
       with: {
-        creator: true,
+        creator: { columns: PUBLIC_PROFILE_COLUMNS },
         institution: true,
       },
     });

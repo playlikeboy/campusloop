@@ -1,3 +1,4 @@
+import { isAllowedPushEndpoint } from "@/lib/web-push";
 import { and, eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
@@ -34,6 +35,9 @@ export async function POST(req: NextRequest) {
 
     if (!endpoint || !keys?.p256dh || !keys?.auth) {
       return NextResponse.json({ error: "Invalid subscription" }, { status: 400 });
+    }
+    if (!isAllowedPushEndpoint(endpoint)) {
+      return NextResponse.json({ error: "Unsupported push service" }, { status: 400 });
     }
 
     const db = getDb();

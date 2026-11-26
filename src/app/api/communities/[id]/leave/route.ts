@@ -1,4 +1,4 @@
-import { and, eq, or } from "drizzle-orm";
+import { and, eq, ne, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
@@ -45,7 +45,14 @@ export async function POST(request: Request, { params }: RouteProps) {
 
     await db
       .delete(communityMembers)
-      .where(and(eq(communityMembers.communityId, comm.id), eq(communityMembers.userId, profile.id)));
+      // A ban row survives "leaving": deleting it would let a banned member rejoin a public community.
+      .where(
+        and(
+          eq(communityMembers.communityId, comm.id),
+          eq(communityMembers.userId, profile.id),
+          ne(communityMembers.status, "BANNED")
+        )
+      );
 
     revalidatePath(`/communities/${comm.slug || comm.id}`);
     revalidatePath("/communities");

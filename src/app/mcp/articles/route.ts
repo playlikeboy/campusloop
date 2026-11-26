@@ -1,3 +1,5 @@
+import { PUBLIC_PROFILE_COLUMNS } from "@/lib/profile-columns";
+import { timingSafeCompare } from "@/lib/security/timing";
 import { MCP_DOCS_TAILWIND } from "../docs-theme";
 import { randomUUID } from "node:crypto";
 import { and, desc, eq, ilike, isNull, or, sql } from "drizzle-orm";
@@ -17,6 +19,7 @@ import {
 } from "@/db/schema";
 import { ARTICLE_CATEGORIES, ARTICLE_CATEGORY_LIST, getCategoryMeta } from "@/constants/articles";
 import { calculateReadingTime, createExcerpt } from "@/lib/articles/text";
+import { pingArticleIndexNow } from "@/lib/articles/indexnow";
 import { SMART_BLOCKS_SPEC, smartifyMarkdown, validateSmartBlocks } from "@/lib/articles/smart-blocks";
 import { SMART_BLOCK_TEMPLATES } from "@/lib/articles/smart-block-templates";
 
@@ -77,7 +80,7 @@ function verifyApiKey(req: Request): boolean {
     : null;
 
   const expectedKey = configuredKey.trim();
-  return [queryKey, headerKey, bearerKey].some((candidateKey) => candidateKey?.trim() === expectedKey);
+  return [queryKey, headerKey, bearerKey].some((candidateKey) => timingSafeCompare(candidateKey?.trim(), expectedKey));
 }
 
 /**
@@ -1005,7 +1008,7 @@ export async function GET(req: Request) {
     limit,
     offset,
     with: {
-      author: true,
+      author: { columns: PUBLIC_PROFILE_COLUMNS },
       institution: true,
       links: true,
     },
@@ -1113,9 +1116,10 @@ export async function POST(req: Request) {
 
     const full = await db.query.articles.findFirst({
       where: eq(articles.id, created.id),
-      with: { author: true, institution: true, links: true },
+      with: { author: { columns: PUBLIC_PROFILE_COLUMNS }, institution: true, links: true },
     });
 
+    pingArticleIndexNow(created);
     return NextResponse.json({ success: true, article: formatArticle(full || created) }, { status: 201, headers: CORS_HEADERS });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || "Failed to create article" }, { status: 500, headers: CORS_HEADERS });
@@ -1216,7 +1220,7 @@ async function handleJsonRpcRequest(req: Request, body: any, isAuth: boolean) {
           orderBy: [desc(articles.publishedAt), desc(articles.createdAt)],
           limit,
           offset,
-          with: { author: true, institution: true, links: true },
+          with: { author: { columns: PUBLIC_PROFILE_COLUMNS }, institution: true, links: true },
         });
 
         return NextResponse.json({
@@ -1232,7 +1236,7 @@ async function handleJsonRpcRequest(req: Request, body: any, isAuth: boolean) {
         const target = String(args.idOrSlug || "").trim();
         const art = await db.query.articles.findFirst({
           where: or(eq(articles.id, target), eq(articles.slug, target)),
-          with: { author: true, institution: true, links: true, comments: true },
+          with: { author: { columns: PUBLIC_PROFILE_COLUMNS }, institution: true, links: true, comments: true },
         });
 
         if (!art) throw new Error(`Article not found: ${target}`);
@@ -1260,7 +1264,7 @@ async function handleJsonRpcRequest(req: Request, body: any, isAuth: boolean) {
           where: and(...conditions),
           orderBy: [desc(articles.viewsCount), desc(articles.publishedAt)],
           limit: Math.min(Number(args.limit || 20), 50),
-          with: { author: true, links: true },
+          with: { author: { columns: PUBLIC_PROFILE_COLUMNS }, links: true },
         });
 
         return NextResponse.json({
@@ -1349,14 +1353,14 @@ async function handleJsonRpcRequest(req: Request, body: any, isAuth: boolean) {
         const target = String(args.articleIdOrSlug || "").trim();
         const art = await db.query.articles.findFirst({
           where: or(eq(articles.id, target), eq(articles.slug, target)),
-          with: { author: true },
+          with: { author: { columns: PUBLIC_PROFILE_COLUMNS } },
         });
         if (!art) throw new Error(`Article not found: ${target}`);
 
         const comments = await db.query.articleComments.findMany({
           where: eq(articleComments.articleId, art.id),
           orderBy: [desc(articleComments.createdAt)],
-          with: { author: true },
+          with: { author: { columns: PUBLIC_PROFILE_COLUMNS } },
           limit: Math.min(Number(args.limit || 50), 100),
         });
 
@@ -1371,7 +1375,7 @@ async function handleJsonRpcRequest(req: Request, body: any, isAuth: boolean) {
         const commentId = String(args.commentId || "").trim();
         const comment = await db.query.articleComments.findFirst({
           where: eq(articleComments.id, commentId),
-          with: { author: true },
+          with: { author: { columns: PUBLIC_PROFILE_COLUMNS } },
         });
         if (!comment) throw new Error(`Comment not found: ${commentId}`);
 
@@ -1584,9 +1588,10 @@ async function handleJsonRpcRequest(req: Request, body: any, isAuth: boolean) {
 
         const full = await db.query.articles.findFirst({
           where: eq(articles.id, created.id),
-          with: { author: true, institution: true, links: true },
+          with: { author: { columns: PUBLIC_PROFILE_COLUMNS }, institution: true, links: true },
         });
 
+        pingArticleIndexNow(created);
         return NextResponse.json({
           jsonrpc: "2.0",
           id,
@@ -1623,9 +1628,10 @@ async function handleJsonRpcRequest(req: Request, body: any, isAuth: boolean) {
         if (typeof args.isDemo === "boolean") updates.isDemo = args.isDemo;
 
         const [updated] = await db.update(articles).set(updates).where(eq(articles.id, existing.id)).returning();
+        pingArticleIndexNow(updated);
         const full = await db.query.articles.findFirst({
           where: eq(articles.id, updated.id),
-          with: { author: true, links: true },
+          with: { author: { columns: PUBLIC_PROFILE_COLUMNS }, links: true },
         });
 
         return NextResponse.json({
@@ -1671,6 +1677,7 @@ async function handleJsonRpcRequest(req: Request, body: any, isAuth: boolean) {
           .set({ status: "PUBLISHED", publishedAt: existing.publishedAt || new Date(), updatedAt: new Date() })
           .where(eq(articles.id, existing.id))
           .returning();
+        pingArticleIndexNow(updated);
 
         return NextResponse.json({
           jsonrpc: "2.0",

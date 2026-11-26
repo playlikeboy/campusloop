@@ -4,10 +4,12 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { MobileDrawer } from "@/components/navigation/mobile-drawer";
 import { PreviewModeBanner } from "@/components/preview/preview-mode-banner";
+import { TrustProvider } from "@/components/trust/trust-provider";
 import { GlobalSearchModal } from "@/components/search/global-search-modal";
 import { ROUTES } from "@/constants/navigation";
 import { useClientShellProfile } from "@/hooks/use-client-shell-profile";
 import type { ShellProfile } from "@/lib/server-cache";
+import type { ClientTrust } from "@/lib/trust";
 import { useUnreadNotificationsCount } from "@/hooks/use-notifications";
 import { cn } from "@/lib/utils";
 import { AppBottomNav } from "./app-bottom-nav";
@@ -21,7 +23,10 @@ export interface AppChromeProps {
   profile?: ShellProfile;
   collegeName?: string;
   isAdmin?: boolean;
+  /** Still in the legacy Campus Preview hub: the banner asks them to pick a college. */
   isViewer?: boolean;
+  /** Trust tier and unlocked capabilities, from getClientTrust (src/lib/trust-server.ts). */
+  trust?: ClientTrust;
   /**
    * "full": top bar at every width (AppShell default).
    * "mobile": top bar below lg only, for legacy pages that lay out their own desktop column.
@@ -44,9 +49,11 @@ export interface AppShellProps extends Omit<AppChromeProps, "topBar" | "children
  * Chrome: desktop sidebar, top bar, mobile drawer, bottom tab bar and the search palette.
  * Renders as `sidebar + [column: top bar + children]` inside the parent's flex row.
  */
-export function AppChrome({ topBar = "full", children, ...server }: AppChromeProps) {
+export function AppChrome({ topBar = "full", children, trust, ...server }: AppChromeProps) {
   // Static signed-out snapshots (/courses) render with no profile; fill it in the browser.
-  const { profile, collegeName, isAdmin, isViewer } = useClientShellProfile(server);
+  // Members get the normal app: navigation is never trimmed. Locked actions
+  // open the "Verify to unlock" sheet instead (see TrustProvider).
+  const { profile, collegeName, isAdmin } = useClientShellProfile(server);
   const pathname = usePathname() || ROUTES.home;
   const unreadCount = useUnreadNotificationsCount();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -120,7 +127,7 @@ export function AppChrome({ topBar = "full", children, ...server }: AppChromePro
           profile={profile}
           collegeName={collegeName}
           isAdmin={isAdmin}
-          canPost={Boolean(profile) && !isViewer}
+          canPost={Boolean(profile)}
           onOpenDrawer={() => setDrawerOpen(true)}
           onOpenSearch={openSearch}
         />
@@ -128,8 +135,8 @@ export function AppChrome({ topBar = "full", children, ...server }: AppChromePro
     );
 
   return (
-    <>
-      <AppSidebar profile={profile} isAdmin={isAdmin} isViewer={isViewer} />
+    <TrustProvider trust={trust}>
+      <AppSidebar profile={profile} isAdmin={isAdmin} />
       {children === undefined ? (
         topBarNode
       ) : (
@@ -145,15 +152,14 @@ export function AppChrome({ topBar = "full", children, ...server }: AppChromePro
         profile={profile}
         collegeName={collegeName}
         isAdmin={isAdmin}
-        isViewer={isViewer}
         unreadCount={unreadCount}
         anonMode={anonMode}
         onAnonModeChange={changeAnonMode}
         onOpenSearch={openSearch}
       />
-      <AppBottomNav restricted={isViewer || !profile} username={profile?.username} />
+      <AppBottomNav restricted={!profile} username={profile?.username} />
       <GlobalSearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
-    </>
+    </TrustProvider>
   );
 }
 
@@ -163,6 +169,7 @@ export function AppShell({
   collegeName,
   isAdmin,
   isViewer,
+  trust,
   contextRail,
   fullBleed,
 }: AppShellProps) {
@@ -179,6 +186,7 @@ export function AppShell({
         collegeName={collegeName}
         isAdmin={isAdmin}
         isViewer={isViewer}
+        trust={trust}
         topBar={fullBleed ? "none" : "full"}
       >
         {fullBleed ? (
@@ -188,7 +196,9 @@ export function AppShell({
         ) : (
           <div className="mx-auto flex w-full max-w-[var(--container)] flex-1 gap-8 px-[var(--gutter)] pb-[calc(var(--nav-mobile-h)+env(safe-area-inset-bottom))] lg:pb-8">
             <main id="main" className="min-w-0 flex-1">
-              {isViewer && profile && <PreviewModeBanner />}
+              {profile && trust?.tier === "member" && (
+                <PreviewModeBanner pickCollege={trust.inViewerHub || Boolean(isViewer)} />
+              )}
               {children}
             </main>
             {contextRail && (

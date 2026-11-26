@@ -4,7 +4,6 @@ import { getDb } from "@/db";
 import { anonIdentityVault, comments, posts } from "@/db/schema";
 import { requireProfile } from "@/lib/require-profile";
 import { openSealedIdentity } from "@/lib/anonymity";
-import { rejectViewerWrite } from "@/lib/viewer";
 
 interface RouteParams {
   params: Promise<{ id: string; commentId: string }>;
@@ -20,8 +19,6 @@ export async function POST(req: Request, { params }: RouteParams) {
     const db = getDb();
 
 
-    const viewerBlocked = await rejectViewerWrite(profile);
-    if (viewerBlocked) return viewerBlocked;
 
     const post = await db.query.posts.findFirst({
       where: eq(posts.id, postId),

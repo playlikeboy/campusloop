@@ -38,9 +38,17 @@ import { useProfile } from "@/hooks/use-profile";
 import { fetcher } from "@/lib/api";
 import { type CalendarEvent, downloadAppleCalendarIcs, openGoogleCalendar } from "@/lib/calendar";
 import { haptics } from "@/lib/haptics";
+import { istDate } from "@/lib/ist-date";
 
 interface EventDetailClientProps {
   eventId: string;
+  /**
+   * Server-loaded payload for public events, in the shape of GET /api/events/[id]
+   * for a signed-out viewer. Renders the page in the first HTML (for search
+   * engines and slow phones); SWR still refetches it on mount for the viewer.
+   */
+  initialEvent?: unknown;
+  initialRelated?: unknown[];
 }
 
 function DetailSkeleton() {
@@ -54,11 +62,13 @@ function DetailSkeleton() {
   );
 }
 
-export function EventDetailClient({ eventId }: EventDetailClientProps) {
+export function EventDetailClient({ eventId, initialEvent, initialRelated }: EventDetailClientProps) {
   const router = useRouter();
   const { profile } = useProfile();
   const swrKey = `/api/events/${eventId}`;
-  const { data, isLoading, error } = useSWR<{ event: any }>(swrKey, fetcher);
+  const { data, isLoading, error } = useSWR<{ event: any }>(swrKey, fetcher, {
+    fallbackData: initialEvent ? { event: initialEvent } : undefined,
+  });
   const event = data?.event;
 
   const [bannerFailed, setBannerFailed] = useState(false);
@@ -71,11 +81,12 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
 
   const { data: relatedData } = useSWR<{ related: any[] }>(
     event ? `/api/events/${eventId}/related` : null,
-    fetcher
+    fetcher,
+    { fallbackData: initialRelated ? { related: initialRelated as any[] } : undefined }
   );
   const relatedEvents = relatedData?.related || [];
 
-  if (isLoading) return <DetailSkeleton />;
+  if (isLoading && !event) return <DetailSkeleton />;
 
   if (!event) {
     return (
@@ -150,10 +161,9 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
   const isOpenWindow = isLive && longRunning;
   const isHappening = isLive && !longRunning;
   const startLabel = Number.isFinite(startMs)
-    ? new Date(startMs).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })
+    ? (istDate(startMs, { weekday: "short" }) ?? "Date to be announced")
     : "Date to be announced";
-  const closesLabel = (ms: number) =>
-    new Date(ms).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+  const closesLabel = (ms: number) => istDate(ms) ?? "";
   const regClosed = regClosesMs !== null && now !== null && now > regClosesMs;
   const openUntilMs = regClosesMs !== null && regClosesMs < endMs ? regClosesMs : endMs;
 
@@ -187,6 +197,8 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
           <img
             src={posterUrl as string}
             alt={`${event.title} poster`}
+            width={1600}
+            height={900}
             className="size-full object-cover"
             decoding="async"
             referrerPolicy="no-referrer"
@@ -225,6 +237,17 @@ export function EventDetailClient({ eventId }: EventDetailClientProps) {
         <p className="text-base text-fg-muted">
           {event.tagline ? `${event.tagline} · ` : ""}
           {event.clubName}
+          {event.institution?.slug && event.institution?.name && (
+            <>
+              {" · "}
+              <Link
+                href={`/college/${event.institution.slug}`}
+                className="font-medium text-fg underline-offset-4 hover:underline"
+              >
+                {String(event.institution.name).split(",")[0]}
+              </Link>
+            </>
+          )}
         </p>
         {points > 0 && !hasEnded && (
           <div className="flex flex-wrap items-center gap-2 text-sm text-fg-muted">

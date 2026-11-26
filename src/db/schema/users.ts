@@ -76,6 +76,17 @@ export const userProfiles = pgTable(
     lastSeenAt: timestamp("last_seen_at", { withTimezone: true }),
     isSeeded: boolean("is_seeded").default(false).notNull(),
     isCollegeVerified: boolean("is_college_verified").default(false).notNull(),
+    /**
+     * How the verified badge was earned: 'college_email' | 'github_student' | 'admin'.
+     * Null for unverified members. `isCollegeVerified` stays the single
+     * "verified student" flag that every badge and filter reads; this column
+     * only records the route (see src/lib/trust.ts).
+     */
+    verificationMethod: text("verification_method"),
+    verifiedAt: timestamp("verified_at", { withTimezone: true }),
+    /** GitHub Student Developer Pack verification. The access token is never stored. */
+    githubUserId: text("github_user_id"),
+    githubLogin: text("github_login"),
     createdAt,
     updatedAt,
   },
@@ -89,6 +100,8 @@ export const userProfiles = pgTable(
     index("user_profiles_last_seen_idx").on(table.lastSeenAt),
     index("user_profiles_is_seeded_idx").on(table.isSeeded),
     index("user_profiles_college_verified_idx").on(table.isCollegeVerified),
+    // One GitHub account can verify only one CampusLoop profile.
+    uniqueIndex("user_profiles_github_user_id_idx").on(table.githubUserId),
   ]
 );
 

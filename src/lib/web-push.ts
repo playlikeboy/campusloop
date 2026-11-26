@@ -92,6 +92,32 @@ export async function createVapidHeader(endpoint: string, keys: VapidKeys): Prom
 
 export type PushResult = "sent" | "expired" | "failed" | "not-configured";
 
+/** Push services real browsers hand out. Exact host or a subdomain of one of these. */
+const PUSH_SERVICE_HOSTS = [
+  "fcm.googleapis.com", // Chrome, Edge (Chromium), Samsung Internet, Opera, Brave
+  "push.services.mozilla.com", // Firefox (updates.push.services.mozilla.com)
+  "notify.windows.com", // legacy Edge / WNS
+  "push.apple.com", // Safari (web.push.apple.com)
+];
+
+/**
+ * The endpoint comes from the client and the server later POSTs to it with a
+ * VAPID Authorization header, so anything other than a known push service over
+ * https would be a blind SSRF. Unknown hosts are refused at subscribe and send.
+ */
+export function isAllowedPushEndpoint(endpoint: string): boolean {
+  let url: URL;
+  try {
+    url = new URL(endpoint);
+  } catch {
+    return false;
+  }
+  if (url.protocol !== "https:" || url.username || url.password) return false;
+  if (url.port !== "" && url.port !== "443") return false;
+  const host = url.hostname.toLowerCase();
+  return PUSH_SERVICE_HOSTS.some((h) => host === h || host.endsWith(`.${h}`));
+}
+
 function concatBytes(...parts: Uint8Array[]): Uint8Array {
   const out = new Uint8Array(parts.reduce((n, p) => n + p.length, 0));
   let offset = 0;
@@ -284,6 +310,8 @@ export async function sendWebPush(
   const keys = getVapidKeys();
   if (!keys) return { result: "not-configured", detail: "VAPID keys are not set on the server" };
 
+  if (!isAllowedPushEndpoint(target.endpoint)) return { result: "failed", detail: "Unknown push service" };
+
   try {
     const { url, init } = await buildWebPushRequest(target, payload, keys, options);
     const res = await fetchImpl(url, init);
@@ -310,6 +338,7 @@ export async function sendPushTickle(
 ): Promise<PushResult> {
   const keys = getVapidKeys();
   if (!keys) return "not-configured";
+  if (!isAllowedPushEndpoint(endpoint)) return "failed";
 
   try {
     const authorization = await createVapidHeader(endpoint, keys);

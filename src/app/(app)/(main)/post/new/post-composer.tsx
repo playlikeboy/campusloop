@@ -53,6 +53,7 @@ import {
 } from "@/components/ui/mention-autocomplete";
 import { StickerPickerModal } from "@/components/ui/sticker-picker-modal";
 import { QuestionSticker } from "@/components/ui/stickers";
+import { useTrust } from "@/components/trust/trust-provider";
 import { useCommunities } from "@/hooks/use-communities";
 import type { FeedPost } from "@/hooks/use-feed";
 import { useProfile } from "@/hooks/use-profile";
@@ -119,6 +120,7 @@ export function PostComposer({
   onCancel,
 }: PostComposerProps) {
   const router = useRouter();
+  const { gate } = useTrust();
   const isModal = variant === "modal";
 
   const [isLoading, setIsLoading] = useState(false);
@@ -494,11 +496,14 @@ export function PostComposer({
     if (e) e.preventDefault();
     if (isLoading || overLimit) return;
 
+    // Unverified members: locked actions open "Verify to unlock" instead of failing later.
+    const anon = allowAnonymous ? isAnonymous || postType === "CONFESSION" : false;
+    if (!gate("post") || (anon && !gate("anonymous_post"))) return;
+
     setIsLoading(true);
     setError(null);
 
     let body = editor?.getText() || "";
-    const anon = allowAnonymous ? isAnonymous || postType === "CONFESSION" : false;
 
     // Legacy attachment markers are retained only for database backwards compatibility;
     // renderers must strip them and display real media components.
@@ -622,7 +627,18 @@ export function PostComposer({
           const errData = (await res.json().catch(() => ({}))) as { error?: string };
           throw new Error(errData?.error || "Couldn't post. Try again.");
         }
-        const serverPost = (await res.json()) as { id: string; createdAt?: string | Date };
+        const serverPost = (await res.json()) as { id: string; createdAt?: string | Date; status?: string };
+
+        if (serverPost.status === "PENDING_REVIEW") {
+          // Held for review (a member's first posts, or the safety filter): not in the feed yet.
+          revertOptimisticPost(tempId);
+          onPublishConfirmed?.(tempId, null);
+          toast.success("Sent for review", {
+            id: toastId,
+            description: "A moderator checks it first. It goes live once approved.",
+          });
+          return;
+        }
 
         const confirmed = {
           ...optimisticPost,

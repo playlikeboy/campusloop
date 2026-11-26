@@ -1,3 +1,4 @@
+import { PUBLIC_PROFILE_COLUMNS } from "@/lib/profile-columns";
 import { and, desc, eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
@@ -34,6 +35,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       columns: { content: false },
       with: {
         author: {
+          columns: PUBLIC_PROFILE_COLUMNS,
           with: { institution: true },
         },
         institution: true,

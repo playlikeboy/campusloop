@@ -4,6 +4,7 @@ import { FirstVisitNotificationPrompt } from "@/components/notifications/first-v
 import { AppShell } from "@/components/shells/app-shell";
 import { getCachedAuthUser, getCachedUserProfile, toShellProfile } from "@/lib/server-cache";
 import { isViewerProfile } from "@/lib/viewer";
+import { getClientTrust } from "@/lib/trust-server";
 
 export const metadata: Metadata = {
   // A plain string here would drop the root "%s · CampusLoop" template for every child page.
@@ -35,6 +36,7 @@ export default async function MainLayout({ children }: { children: React.ReactNo
 
   return (
     <AppShell
+      trust={await getClientTrust(profile)}
       profile={toShellProfile(profile)}
       collegeName={viewerMode ? "Viewer Mode" : (college?.name ?? "Campus")}
       isAdmin={profile?.role === "ADMIN"}

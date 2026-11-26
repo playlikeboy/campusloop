@@ -15,6 +15,8 @@ export const communities = pgTable(
     category: text("category").default("General").notNull(), // 'Tech & Coding' | 'Music & Arts' | 'Gaming & Anime' | etc.
     rules: text("rules"), // JSON stringified array of rules [{ title, description }]
     allowAnonymousPosts: boolean("allow_anonymous_posts").default(true).notNull(),
+    /** Community admins can limit posting to verified students (see src/lib/trust.ts). */
+    verifiedOnlyPosting: boolean("verified_only_posting").default(false).notNull(),
     points: integer("points").default(0).notNull(),
     inviteCode: text("invite_code"),
     creatorId: text("creator_id")

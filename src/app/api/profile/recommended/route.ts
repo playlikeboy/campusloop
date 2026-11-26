@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireProfile } from "@/lib/require-profile";
 import { getRecommendedUsers } from "@/lib/recommendations/recommended-users";
-import { rejectViewerWrite } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
 
@@ -11,8 +10,6 @@ export async function GET(req: Request) {
     if (!auth.ok) return auth.response;
     const { profile } = auth;
 
-    const viewerBlocked = await rejectViewerWrite(profile);
-    if (viewerBlocked) return viewerBlocked;
 
     const { searchParams } = new URL(req.url);
     const scope = (searchParams.get("scope") as "CAMPUS" | "GLOBAL") || "GLOBAL";

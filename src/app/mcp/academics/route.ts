@@ -1,3 +1,4 @@
+import { timingSafeCompare } from "@/lib/security/timing";
 import { MCP_DOCS_STYLE } from "../docs-theme";
 import { randomUUID } from "node:crypto";
 import { and, desc, eq, ilike, isNull, or, sql } from "drizzle-orm";
@@ -66,7 +67,7 @@ function verifyApiKey(req: Request): boolean {
     : null;
 
   const expectedKey = configuredKey.trim();
-  return [queryKey, headerKey, bearerKey].some((candidateKey) => candidateKey?.trim() === expectedKey);
+  return [queryKey, headerKey, bearerKey].some((candidateKey) => timingSafeCompare(candidateKey?.trim(), expectedKey));
 }
 
 /**

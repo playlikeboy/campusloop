@@ -1,3 +1,4 @@
+import { baseNotificationType } from "@/lib/notification-anonymity";
 import {
   AtSign,
   Bell,
@@ -31,7 +32,7 @@ const ref = (n: NotificationItem, prefix: string, fallback: string) =>
   n.referenceId ? `${prefix}${n.referenceId}` : fallback;
 
 export function getNotificationMeta(n: NotificationItem): NotificationMeta {
-  switch (n.type) {
+  switch (baseNotificationType(n.type)) {
     case "LIKE":
       return { Icon: Heart, tone: "brand", text: "liked your post", href: ref(n, "/post/", "/feeds") };
     case "STORY_LIKE":

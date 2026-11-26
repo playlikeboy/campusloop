@@ -14,6 +14,8 @@ interface ArticleAuthor {
   avatarUrl?: string | null;
   bio?: string | null;
   college?: string | null;
+  /** Public author page. Defaults to the member profile `/@handle`. */
+  href?: string;
 }
 
 /** Byline under the headline: author, follow, college, read time, date, and quick save/share. */
@@ -32,7 +34,7 @@ export function ArticleByline({
   canFollow: boolean;
   engagement: ArticleEngagement;
 }) {
-  const profileHref = `/@${author.handle}`;
+  const profileHref = author.href ?? `/@${author.handle}`;
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 border-y border-border py-4">
       <div className="flex min-w-0 items-center gap-3">
@@ -138,14 +140,15 @@ export function ArticleEngagementBar({ engagement }: { engagement: ArticleEngage
   );
 }
 
-/** "Written by" block at the end of the article. */
+/** "About the author" block at the end of the article. */
 export function ArticleAuthorCard({ author }: { author: ArticleAuthor }) {
-  const profileHref = `/@${author.handle}`;
+  const profileHref = author.href ?? `/@${author.handle}`;
   return (
     <section
-      aria-label="About the writer"
+      aria-labelledby="about-the-author"
       className="flex flex-col items-start justify-between gap-4 rounded-lg border border-border bg-surface p-5 sm:flex-row sm:items-center"
     >
+
       <div className="flex min-w-0 items-center gap-4">
         <Avatar className="size-14 shrink-0">
           <AvatarImage src={author.avatarUrl || ""} alt="" />
@@ -154,6 +157,9 @@ export function ArticleAuthorCard({ author }: { author: ArticleAuthor }) {
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0 space-y-0.5">
+          <h2 id="about-the-author" className="text-xs font-semibold text-fg-muted">
+            About the author
+          </h2>
           <p className="truncate text-base font-semibold text-fg">{author.name}</p>
           <p className="flex min-w-0 items-center gap-2 text-sm text-fg-muted">
             {author.handle && (
@@ -161,11 +167,11 @@ export function ArticleAuthorCard({ author }: { author: ArticleAuthor }) {
             )}
             {author.college && <span className="truncate">{author.college}</span>}
           </p>
-          {author.bio && <p className="line-clamp-2 pt-1 text-sm text-fg-muted">{author.bio}</p>}
+          {author.bio && <p className="line-clamp-3 pt-1 text-sm text-fg-muted">{author.bio}</p>}
         </div>
       </div>
       <Button variant="outline" size="sm" asChild className="shrink-0">
-        <Link href={profileHref}>See profile</Link>
+        <Link href={profileHref}>{author.href?.startsWith("/authors/") ? "More articles" : "See profile"}</Link>
       </Button>
     </section>
   );

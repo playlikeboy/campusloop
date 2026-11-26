@@ -1,4 +1,4 @@
-import { eq, or } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { eventRegistrations, events, userProfiles } from "@/db/schema";
@@ -50,7 +50,8 @@ export async function PATCH(req: Request, { params }: RouteParams) {
     const [updated] = await db
       .update(eventRegistrations)
       .set({ status })
-      .where(eq(eventRegistrations.id, regId))
+      // Scoped to this event: organizer rights on :id must not reach registrations of other events.
+      .where(and(eq(eventRegistrations.id, regId), eq(eventRegistrations.eventId, event.id)))
       .returning();
 
     if (!updated) {

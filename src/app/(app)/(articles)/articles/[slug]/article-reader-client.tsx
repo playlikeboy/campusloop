@@ -7,6 +7,12 @@ import { ArticleCard } from "@/components/articles/article-card";
 import { ArticleCommentsSection } from "@/components/articles/article-comments-section";
 import { ArticleListenButton } from "@/components/articles/article-listen-button";
 import {
+  type ArticleSource,
+  ArticleRelatedBox,
+  ArticleSources,
+  type InBodyLink,
+} from "@/components/articles/article-seo-parts";
+import {
   ArticleAuthorCard,
   ArticleByline,
   ArticleEngagementBar,
@@ -18,6 +24,10 @@ import { MarkdownContent } from "@/components/common/markdown-content";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getCategoryMeta } from "@/constants/articles";
+import { type Byline, EDITORIAL_BIO } from "@/lib/articles/byline";
+import { splitAfterSecondSection } from "@/lib/articles/seo";
+
+export type { InBodyLink };
 
 interface ArticleReaderClientProps {
   article: {
@@ -68,6 +78,12 @@ interface ArticleReaderClientProps {
   initialIsSaved?: boolean;
   initialIsFollowingAuthor?: boolean;
   relatedArticles?: any[];
+  /** Who the article is credited to (real author or CampusLoop Editorial). */
+  byline?: Byline;
+  /** Three links shown in the "Related on CampusLoop" box inside the body. */
+  inBodyLinks?: InBodyLink[];
+  sources?: ArticleSource[];
+  categoryHref?: string;
 }
 
 export function ArticleReaderClient({
@@ -77,6 +93,10 @@ export function ArticleReaderClient({
   initialIsSaved = false,
   initialIsFollowingAuthor = false,
   relatedArticles = [],
+  byline,
+  inBodyLinks = [],
+  sources = [],
+  categoryHref,
 }: ArticleReaderClientProps) {
   const hasSentViewRef = useRef(false);
   const handle = (article.author?.username || "").replace(/^@/, "");
@@ -103,13 +123,18 @@ export function ArticleReaderClient({
   const college = isViewerHub
     ? null
     : article.institution?.name?.split(",")[0] || article.author?.institution?.name?.split(",")[0] || null;
-  const author = {
-    name: article.author?.displayName || "Student writer",
-    handle,
-    avatarUrl: article.author?.avatarUrl,
-    bio: article.author?.bio,
-    college,
-  };
+  const isEditorial = byline?.kind === "organization";
+  const author = isEditorial
+    ? { name: byline.name, handle: "", avatarUrl: "/logo.png", bio: EDITORIAL_BIO, college: null, href: byline.path }
+    : {
+        name: article.author?.displayName || "Student writer",
+        handle,
+        avatarUrl: article.author?.avatarUrl,
+        bio: article.author?.bio,
+        college,
+        href: byline?.path ?? (handle ? `/@${handle}` : undefined),
+      };
+  const bodyParts = inBodyLinks.length > 0 ? splitAfterSecondSection(article.content) : null;
 
   const date = new Date(article.publishedAt || article.createdAt);
   const dateLabel = date.toLocaleDateString("en-IN", { month: "long", day: "numeric", year: "numeric" });
@@ -137,7 +162,13 @@ export function ArticleReaderClient({
             </Link>
           </Button>
           <div className="flex items-center gap-2">
-            <Badge variant="neutral">{catMeta.label}</Badge>
+            {categoryHref ? (
+              <Link href={categoryHref} className="rounded-full">
+                <Badge variant="neutral">{catMeta.label}</Badge>
+              </Link>
+            ) : (
+              <Badge variant="neutral">{catMeta.label}</Badge>
+            )}
             {article.status && article.status !== "PUBLISHED" && (
               <Badge variant="warning">{article.status === "DRAFT" ? "Draft" : "Archived"}</Badge>
             )}
@@ -162,7 +193,7 @@ export function ArticleReaderClient({
             readingMinutes={article.readingTimeMinutes || 3}
             dateLabel={dateLabel}
             dateIso={date.toISOString()}
-            canFollow={Boolean(handle) && currentProfile?.id !== article.authorId}
+            canFollow={!isEditorial && Boolean(handle) && currentProfile?.id !== article.authorId}
             engagement={engagement}
           />
         </header>
@@ -181,7 +212,15 @@ export function ArticleReaderClient({
         </div>
 
         <div className="max-w-[68ch] text-fg">
-          <MarkdownContent content={article.content} autoEmbed className="text-lg leading-[1.7]" />
+          {bodyParts ? (
+            <>
+              <MarkdownContent content={bodyParts[0]} autoEmbed className="text-lg leading-[1.7]" />
+              <ArticleRelatedBox links={inBodyLinks} />
+              <MarkdownContent content={bodyParts[1]} autoEmbed className="text-lg leading-[1.7]" />
+            </>
+          ) : (
+            <MarkdownContent content={article.content} autoEmbed className="text-lg leading-[1.7]" />
+          )}
         </div>
 
         {article.tags && article.tags.length > 0 && (
@@ -202,6 +241,7 @@ export function ArticleReaderClient({
           </ul>
         )}
 
+        <ArticleSources sources={sources} />
         <ArticleEngagementBar engagement={engagement} />
         <ArticleAuthorCard author={author} />
         <ArticleCommentsSection articleSlug={article.slug} currentProfile={currentProfile} />

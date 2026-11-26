@@ -19,7 +19,7 @@ const DESKS: SupportDesk[] = [
     id: "general",
     name: "Help with the app",
     email: "support@campusloop.space",
-    forWhat: "Login problems, college email verification, bugs and feedback.",
+    forWhat: "Login problems, getting verified, unsubscribing, bugs and feedback.",
     reply: "Reply within 24 hours",
   },
   {

@@ -6,8 +6,9 @@ const nanoid = (len = 12) => randomUUID().replace(/-/g, "").slice(0, len);
 
 import { getDb } from "@/db";
 import { eventRegistrations, events, userProfiles } from "@/db/schema";
-import { rejectIfLacksCapability } from "@/lib/capabilities";
 import { getCachedAuthUser } from "@/lib/server-cache";
+import { requireCapability } from "@/lib/trust-server";
+import { pingIndexNow } from "@/lib/seo/indexnow";
 
 export const dynamic = "force-dynamic";
 
@@ -449,8 +450,8 @@ export async function POST(req: Request) {
     }
 
     // Check capability: Aspirants / Viewers cannot create events without connecting college email
-    const guardResponse = await rejectIfLacksCapability(profile, "CREATE_POST");
-    if (guardResponse) return guardResponse;
+    const capabilityBlocked = await requireCapability(profile, "events_create");
+    if (capabilityBlocked) return capabilityBlocked;
 
     const body = (await req.json()) as Record<string, any>;
     const {
@@ -548,6 +549,10 @@ export async function POST(req: Request) {
     };
 
     await db.insert(events).values(newEvent);
+
+    if (newEvent.status === "PUBLISHED" && newEvent.visibility === "PUBLIC") {
+      pingIndexNow([`/e/${newEvent.slug || newEvent.id}`, "/events"]);
+    }
 
     return NextResponse.json({ event: newEvent }, { status: 201 });
   } catch (error) {

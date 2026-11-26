@@ -3,7 +3,6 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { marketplaceItems } from "@/db/schema";
 import { requireProfile } from "@/lib/require-profile";
-import { rejectViewerWrite } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
 
@@ -20,8 +19,6 @@ export async function PATCH(req: Request, { params }: RouteParams) {
 
     const db = getDb();
 
-    const viewerBlocked = await rejectViewerWrite(profile);
-    if (viewerBlocked) return viewerBlocked;
 
     const item = await db.query.marketplaceItems.findFirst({
       where: eq(marketplaceItems.id, id),
@@ -61,8 +58,6 @@ export async function DELETE(req: Request, { params }: RouteParams) {
 
     const db = getDb();
 
-    const viewerBlocked = await rejectViewerWrite(profile);
-    if (viewerBlocked) return viewerBlocked;
 
     const item = await db.query.marketplaceItems.findFirst({
       where: eq(marketplaceItems.id, id),

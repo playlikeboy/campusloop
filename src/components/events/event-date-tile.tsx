@@ -1,3 +1,4 @@
+import { istDate } from "@/lib/ist-date";
 import { cn } from "@/lib/utils";
 
 /** Calendar-page date tile: violet month strip over a big day number. */
@@ -12,8 +13,8 @@ export function EventDateTile({
 }) {
   const d = new Date(date);
   const valid = !Number.isNaN(d.getTime());
-  const month = valid ? d.toLocaleDateString("en-IN", { month: "short" }) : "TBA";
-  const day = valid ? String(d.getDate()) : "--";
+  // India time, so the server (UTC) and the browser show the same day.
+  const [day, month] = valid ? (istDate(d) ?? "-- TBA").split(" ") : ["--", "TBA"];
 
   return (
     <div

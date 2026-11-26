@@ -4,7 +4,7 @@ import { getDb } from "@/db";
 import { academicPlaylistItems, academicPlaylists, institutions, userProfiles } from "@/db/schema";
 import { requireProfile } from "@/lib/require-profile";
 import { getCachedAuthUser, getCachedUserProfile } from "@/lib/server-cache";
-import { rejectViewerWrite } from "@/lib/viewer";
+import { requireCapability } from "@/lib/trust-server";
 
 export const dynamic = "force-dynamic";
 
@@ -152,8 +152,8 @@ export async function POST(req: Request) {
 
     const db = getDb();
 
-    const viewerBlocked = await rejectViewerWrite(profile);
-    if (viewerBlocked) return viewerBlocked;
+    const capabilityBlocked = await requireCapability(profile, "post");
+    if (capabilityBlocked) return capabilityBlocked;
 
     const body = (await req.json()) as Record<string, any>;
     const {

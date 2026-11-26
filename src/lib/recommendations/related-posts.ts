@@ -1,3 +1,5 @@
+import { communityPostVisibleSql } from "@/lib/post-visibility";
+import { PUBLIC_PROFILE_COLUMNS } from "@/lib/profile-columns";
 import { and, desc, eq, inArray, ne, notInArray, or, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import { posts } from "@/db/schema";
@@ -70,17 +72,18 @@ export async function getRelatedPosts(
         where: and(
           inArray(posts.id, pointIds),
           eq(posts.status, "PUBLISHED"),
+          communityPostVisibleSql(options.currentUserId),
           showSeeded ? undefined : eq(posts.isSeeded, false),
           basePost.authorId ? ne(posts.authorId, basePost.authorId) : undefined
         ),
         with: {
-          author: true,
+          author: { columns: PUBLIC_PROFILE_COLUMNS },
           institution: true,
           community: true,
           votes: true,
           comments: {
             with: {
-              author: true,
+              author: { columns: PUBLIC_PROFILE_COLUMNS },
             },
           },
           pollOptions: { with: { votes: true } },
@@ -139,6 +142,7 @@ export async function getRelatedPosts(
     const baseConditions = [
       ne(posts.id, targetPostId),
       eq(posts.status, "PUBLISHED"),
+      communityPostVisibleSql(options.currentUserId),
       showSeeded ? undefined : eq(posts.isSeeded, false),
       basePost.authorId ? ne(posts.authorId, basePost.authorId) : undefined,
     ].filter(Boolean);
@@ -150,13 +154,13 @@ export async function getRelatedPosts(
         orderBy: [desc(posts.createdAt)],
         limit,
         with: {
-          author: true,
+          author: { columns: PUBLIC_PROFILE_COLUMNS },
           institution: true,
           community: true,
           votes: true,
           comments: {
             with: {
-              author: true,
+              author: { columns: PUBLIC_PROFILE_COLUMNS },
             },
           },
           pollOptions: { with: { votes: true } },
@@ -179,13 +183,13 @@ export async function getRelatedPosts(
         orderBy: [desc(posts.createdAt)],
         limit: remainingLimit,
         with: {
-          author: true,
+          author: { columns: PUBLIC_PROFILE_COLUMNS },
           institution: true,
           community: true,
           votes: true,
           comments: {
             with: {
-              author: true,
+              author: { columns: PUBLIC_PROFILE_COLUMNS },
             },
           },
           pollOptions: { with: { votes: true } },
@@ -206,13 +210,13 @@ export async function getRelatedPosts(
         orderBy: [desc(posts.createdAt)],
         limit: remainingLimit,
         with: {
-          author: true,
+          author: { columns: PUBLIC_PROFILE_COLUMNS },
           institution: true,
           community: true,
           votes: true,
           comments: {
             with: {
-              author: true,
+              author: { columns: PUBLIC_PROFILE_COLUMNS },
             },
           },
           pollOptions: { with: { votes: true } },

@@ -4,7 +4,7 @@ import { getDb } from "@/db";
 import { userProfiles } from "@/db/schema";
 import { requireProfile } from "@/lib/require-profile";
 import { resolveGenderPreference } from "@/lib/dating";
-import { rejectViewerWrite } from "@/lib/viewer";
+import { requireCapability } from "@/lib/trust-server";
 
 export const dynamic = "force-dynamic";
 
@@ -51,8 +51,8 @@ export async function PATCH(req: Request) {
 
     const db = getDb();
 
-    const viewerBlocked = await rejectViewerWrite(profile);
-    if (viewerBlocked) return viewerBlocked;
+    const capabilityBlocked = await requireCapability(profile, "campus_match", { countUsage: false });
+    if (capabilityBlocked) return capabilityBlocked;
 
     const body = (await req.json()) as Partial<DatingPreferences>;
     const current = { ...DEFAULTS, ...(profile.datingPreferences ?? {}) };

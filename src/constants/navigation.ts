@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import { OTHER_PRODUCTS, productBadge } from "@/constants/products";
 import {
   Activity,
   Bell,
@@ -30,6 +31,7 @@ import {
   PlayCircle,
   School,
   ScrollText,
+  Send,
   Server,
   Settings,
   ShieldAlert,
@@ -209,23 +211,16 @@ export const MORE_GROUP: NavGroup = {
   ],
 };
 
-/** Other apps by the CampusLoop team. Shown on the More page, not in the drawer. */
-export const EXTERNAL_PRODUCTS: NavItem[] = [
-  {
-    icon: Terminal,
-    href: "https://dsaloop.campusloop.space",
-    label: "DSALoop",
-    desc: "Practice coding interview questions",
-    external: true,
-  },
-  {
-    icon: Heart,
-    href: "https://baby.campusloop.space",
-    label: "baby",
-    desc: "A private journal",
-    external: true,
-  },
-];
+/** Other apps by the CampusLoop team, from the shared list in constants/products. Shown on the More page, not in the drawer. */
+export const EXTERNAL_PRODUCTS: NavItem[] = OTHER_PRODUCTS.map((p) => ({
+  icon: p.icon,
+  href: p.href,
+  label: p.name,
+  desc: p.tagline,
+  external: true,
+  badge: productBadge(p),
+  badgeTone: "neutral",
+}));
 
 const ALL_ITEMS = [...NAV_GROUPS, MORE_GROUP].flatMap((g) => g.items);
 
@@ -352,6 +347,13 @@ export const ADMIN_NAV_SECTIONS: { title: string; items: AdminNavItem[] }[] = [
         keywords: ["students", "ban"],
       },
       {
+        href: "/admin/access",
+        label: "Member access",
+        icon: ShieldCheck,
+        desc: "What unverified members can do, and verified counts",
+        keywords: ["verify", "verified", "gmail", "trust", "github", "permissions"],
+      },
+      {
         href: "/admin/colleges",
         label: "Colleges",
         icon: School,
@@ -364,6 +366,13 @@ export const ADMIN_NAV_SECTIONS: { title: string; items: AdminNavItem[] }[] = [
         icon: Mail,
         desc: "College contacts and campaigns",
         keywords: ["email", "campaign"],
+      },
+      {
+        href: "/admin/emails",
+        label: "Emails",
+        icon: Send,
+        desc: "Email templates to groups of students",
+        keywords: ["email", "campaign", "newsletter", "segment", "unsubscribe"],
       },
       {
         href: "/admin/broadcasts",

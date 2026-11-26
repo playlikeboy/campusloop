@@ -28,7 +28,7 @@ const FOOTER_MORE_LINKS = [
   { href: "/articles", label: "Articles" },
   { href: "/matching", label: "Campus Match" },
   { href: "/aspirants", label: "For aspirants" },
-  { href: "/products", label: "Products" },
+  { href: "/products", label: "Apps" },
   { href: "/join", label: "Work with us" },
   { href: "/sitemap", label: "Sitemap" },
 ];
@@ -113,7 +113,7 @@ export function MarketingFooter() {
           <div className="max-w-xs">
             <BrandLogo href="/" size="md" />
             <p className="mt-3 text-sm text-fg-muted">
-              The app for students at Indian colleges. Join with your college email.
+              The app for students at Indian colleges. Join free, verify to get the badge.
             </p>
           </div>
           <ul className="flex items-center gap-1">

@@ -28,6 +28,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { VerifiedSticker } from "@/components/ui/stickers";
+import { UnverifiedLabel } from "@/components/ui/unverified-label";
 import type { FeedPost } from "@/hooks/use-feed";
 import { trackFollow } from "@/lib/analytics/ga4";
 import { isCollegeVerifiedUser } from "@/lib/user-verification";
@@ -153,6 +154,13 @@ export function FeedCardHeader({
   );
 
   const institutionDisplayName = getCollegeShortName(post.institution) || null;
+  // Quiet "Not verified" in the meta line, only when we know the author's status.
+  const showUnverified =
+    !isVerified &&
+    !isBotPost &&
+    !post.isAnonymous &&
+    !isExternalReddit &&
+    typeof post.author?.isCollegeVerified === "boolean";
 
   return (
     <div className="w-full min-w-0 pb-0.5 select-none">
@@ -253,6 +261,12 @@ export function FeedCardHeader({
                 <span className="font-medium text-fg-muted truncate max-w-[130px] sm:max-w-[180px]">
                   {institutionDisplayName}
                 </span>
+                <span aria-hidden>·</span>
+              </>
+            )}
+            {showUnverified && (
+              <>
+                <UnverifiedLabel />
                 <span aria-hidden>·</span>
               </>
             )}

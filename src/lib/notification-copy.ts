@@ -1,3 +1,5 @@
+import { baseNotificationType, hidesNotificationActor } from "@/lib/notification-anonymity";
+
 /**
  * Text and deep link for a notification, shared by the web service worker
  * (/api/notifications/latest) and Expo pushes to the Android app.
@@ -5,7 +7,9 @@
  * text) never travels through a push service.
  */
 
-export function buildTitle(type: string, actorName: string): string {
+export function buildTitle(rawType: string, rawActorName: string): string {
+  const type = baseNotificationType(rawType);
+  const actorName = hidesNotificationActor(rawType) ? "Someone" : rawActorName;
   switch (type) {
     case "MATCH":
       return "It's a match";
@@ -30,7 +34,9 @@ export function buildTitle(type: string, actorName: string): string {
   }
 }
 
-export function defaultBody(type: string, actorName: string): string {
+export function defaultBody(rawType: string, rawActorName: string): string {
+  const type = baseNotificationType(rawType);
+  const actorName = hidesNotificationActor(rawType) ? "Someone" : rawActorName;
   switch (type) {
     case "LIKE":
       return `${actorName} liked your post`;
@@ -76,7 +82,8 @@ export function defaultBody(type: string, actorName: string): string {
   }
 }
 
-export function buildUrl(type: string, referenceId: string | null): string {
+export function buildUrl(rawType: string, referenceId: string | null): string {
+  const type = baseNotificationType(rawType);
   // Resolved before the null guard: CRUSH_ALERT deliberately stores no
   // reference id (naming the crush would defeat the point), but it still has a
   // fixed destination.
@@ -153,7 +160,7 @@ export function buildPushPayload({
   unreadCount?: number;
   id?: string;
 }): PushNotificationPayload {
-  const anonymous = type === "CRUSH_ALERT";
+  const anonymous = hidesNotificationActor(type);
   const name = anonymous ? "Someone" : actorName || "A student";
   const ref = referenceId ?? null;
   return {

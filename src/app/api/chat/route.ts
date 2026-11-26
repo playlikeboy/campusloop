@@ -1,3 +1,4 @@
+import { PUBLIC_PROFILE_COLUMNS } from "@/lib/profile-columns";
 import { and, desc, eq, gt, inArray, isNull, ne, or, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
@@ -6,7 +7,7 @@ import { isBlockedEitherWay } from "@/lib/blocks";
 import { requireProfile } from "@/lib/require-profile";
 import { runInBackground } from "@/lib/background";
 import { notifyNewMessage } from "@/lib/chat-notifications";
-import { rejectViewerWrite } from "@/lib/viewer";
+import { requireCapability } from "@/lib/trust-server";
 
 export const dynamic = "force-dynamic";
 
@@ -220,8 +221,8 @@ export async function POST(req: Request) {
 
     const db = getDb();
 
-    const viewerBlocked = await rejectViewerWrite(profile);
-    if (viewerBlocked) return viewerBlocked;
+    const capabilityBlocked = await requireCapability(profile, "chat_dm");
+    if (capabilityBlocked) return capabilityBlocked;
 
     const bodyData = (await req.json()) as {
       participantId?: string;
@@ -241,7 +242,11 @@ export async function POST(req: Request) {
     if (bodyData.type === "GROUP" || (bodyData.participantIds && bodyData.participantIds.length > 0)) {
       const title = bodyData.title?.trim() || "Campus Study Pod";
       const avatarUrl = bodyData.avatarUrl || null;
-      const groupType = bodyData.category || bodyData.type || "GROUP";
+      // Group kinds come from a fixed list: a client-chosen "DIRECT" or "COMMUNITY" type would
+      // borrow the rules (block checks, community membership) of a different conversation kind.
+      const GROUP_KINDS = new Set(["GROUP", "STUDY_POD", "PROJECT_TEAM", "CAMPUS_CLUB", "HOSTEL_FLAT", "GENERAL_HANG"]);
+      const requestedKind = bodyData.category || bodyData.type || "GROUP";
+      const groupType = GROUP_KINDS.has(requestedKind) ? requestedKind : "GROUP";
       const participantIds = Array.isArray(bodyData.participantIds) ? bodyData.participantIds : [];
 
       const allParticipantIds = Array.from(new Set([profile.id, ...participantIds]));
@@ -253,10 +258,18 @@ export async function POST(req: Request) {
       // Verify all participants exist
       const validUsers = await db.query.userProfiles.findMany({
         where: inArray(userProfiles.id, allParticipantIds),
+        columns: PUBLIC_PROFILE_COLUMNS,
       });
 
       if (validUsers.length < 2) {
         return NextResponse.json({ error: "Selected members could not be found" }, { status: 400 });
+      }
+
+      // Blocks hold in groups too: nobody can pull someone who blocked them (or whom they blocked) into a chat.
+      for (const u of validUsers) {
+        if (u.id !== profile.id && (await isBlockedEitherWay(profile.id, u.id))) {
+          return NextResponse.json({ error: "You can't add one of the selected members" }, { status: 403 });
+        }
       }
 
       // Create group conversation

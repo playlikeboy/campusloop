@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { breadcrumbJsonLd, buildMetadata } from "@/lib/seo";
 import { JsonLd } from "@/lib/seo/json-ld-script";
+import { InitialEvents } from "../../initial-events";
 import { CategoryEventsClient } from "./category-events-client";
 
 interface CategoryPageProps {
@@ -19,43 +20,43 @@ const CATEGORY_MAP: Record<string, CategoryConfig> = {
     title: "College hackathons",
     headline: "Hackathons",
     description:
-      "Hackathons and coding contests at colleges across India. See dates, team size and how to register.",
+      "Hackathons and coding contests at colleges across India. See dates, team size, prizes and whether it is online or on campus, then register in a tap.",
   },
   workshops: {
     title: "College workshops",
     headline: "Workshops",
     description:
-      "Hands-on workshops run by college clubs, from coding and design to robotics. Find one near you.",
+      "Hands-on workshops run by college clubs, from coding and design to robotics and finance. See the date, venue and fee, and book a seat on CampusLoop.",
   },
   fests: {
     title: "College fests",
     headline: "Fests",
     description:
-      "Cultural, tech and sports fests at colleges across India. See what is coming up and get your pass.",
+      "Cultural, tech and sports fests at colleges across India. See what is coming up, the dates and venue, and get your pass on CampusLoop before it fills.",
   },
   competitions: {
     title: "Student competitions",
     headline: "Competitions",
     description:
-      "Case studies, quizzes and debates run by college societies. Find one and sign up solo or as a team.",
+      "Case studies, quizzes, debates and business plan contests run by college societies. Check the prizes and deadline, then sign up solo or as a team.",
   },
   seminars: {
     title: "Talks and seminars",
     headline: "Talks and seminars",
     description:
-      "Guest lectures, alumni talks and seminars at colleges on CampusLoop. Check the date and save a seat.",
+      "Guest lectures, alumni talks and seminars at colleges on CampusLoop. See who is speaking, the date and venue, and save a seat before it fills up.",
   },
   gaming: {
     title: "College gaming tournaments",
     headline: "Gaming tournaments",
     description:
-      "Campus esports and LAN tournaments for games like Valorant, BGMI and chess. Find one and join.",
+      "Campus esports and LAN tournaments for games like Valorant, BGMI, chess and FIFA. See the format, entry fee and prizes, and register your squad.",
   },
   meetups: {
     title: "Campus meetups",
     headline: "Meetups",
     description:
-      "Club meetups, build nights and open-source sessions at colleges. Drop in, meet people, build stuff.",
+      "Club meetups, build nights and open-source sessions at colleges near you. See when and where they happen, drop in, meet people and build something.",
   },
 };
 
@@ -86,7 +87,9 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           { name: config.headline, path: `/events/category/${key}` },
         ])}
       />
-      <CategoryEventsClient category={key} config={config} />
+      <InitialEvents query={`category=${encodeURIComponent(key)}`}>
+        <CategoryEventsClient category={key} config={config} />
+      </InitialEvents>
     </>
   );
 }

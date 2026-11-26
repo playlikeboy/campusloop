@@ -59,24 +59,29 @@ export function openSealedIdentity(sealed: string): string {
   return decrypted.toString("utf8");
 }
 
-type AuthorCarrier = { isAnonymous: boolean; author?: unknown };
+type AuthorCarrier = { isAnonymous: boolean; author?: unknown; authorId?: string | null };
 type CommentCarrier = { comments?: Array<AuthorCarrier> };
+
+/** Drops both the author relation and the raw author id from an anonymous row. */
+function stripAnonAuthor<T extends AuthorCarrier>(row: T): T {
+  if (!row.isAnonymous) return row;
+  const safe: T = { ...row, author: null };
+  if ("authorId" in safe) safe.authorId = null;
+  return safe;
+}
 
 /**
  * Removes author identity from anonymous posts/comments before rows cross
  * into client components or JSON responses. Non-anonymous rows pass through.
+ * Both `author` and `authorId` are cleared: older rows and pre-fix MCP writes
+ * can still hold the real author id on an anonymous row.
  */
 export function sanitizeAnonRow<T extends AuthorCarrier & Partial<CommentCarrier>>(row: T): T {
-  const safe: T = {
-    ...row,
-    author: row.isAnonymous ? null : row.author,
-  };
+  const safe: T = stripAnonAuthor(row);
 
   if (Array.isArray(safe.comments)) {
     safe.comments = safe.comments.map((comment) =>
-      comment && typeof comment === "object"
-        ? { ...comment, author: comment.isAnonymous ? null : comment.author }
-        : comment
+      comment && typeof comment === "object" ? stripAnonAuthor(comment) : comment
     );
   }
 

@@ -80,6 +80,8 @@ export async function POST(req: Request) {
         role: "STUDENT",
         email,
         isCollegeVerified: true,
+        verificationMethod: "college_email",
+        verifiedAt: new Date(),
         status: "ACTIVE",
       })
       .where(eq(userProfiles.id, profile.id));

@@ -42,12 +42,12 @@ export function collegeFaqs(c: CollegeFactsInput): { q: string; a: string }[] {
     {
       q: `How do I join the ${short} community on CampusLoop?`,
       a: domain
-        ? `Sign up with your ${short} email address ending in @${domain}. Once you confirm the email, you can post, vote in polls, comment and chat with other ${short} students. Joining is free.`
-        : `Sign up with your ${short} college email address. Once you confirm the email, you can post, vote in polls, comment and chat with other ${short} students. Joining is free.`,
+        ? `Sign up with any email and pick ${short} as your college. You can post, vote in polls, comment and chat with other ${short} students. Verify with your ${short} email ending in @${domain}, or the GitHub Student Developer Pack, to get the verified badge. Joining is free.`
+        : `Sign up with any email and pick ${short} as your college. You can post, vote in polls, comment and chat with other ${short} students. Verify with your college email or the GitHub Student Developer Pack to get the verified badge. Joining is free.`,
     },
     {
       q: `Who can see posts from ${short}?`,
-      a: `Anyone can read public posts. Only students who verified a ${short} college email can post, vote and comment here. Anonymous posts never show the author's name.`,
+      a: `Anyone can read public posts. Members who joined ${short} can post, vote and comment, and verified students have a badge next to their name. Posts in private communities are only for their members. Anonymous posts never show the author's name.`,
     },
     {
       q: `Are there notes and previous year papers for ${short}?`,
@@ -58,7 +58,7 @@ export function collegeFaqs(c: CollegeFactsInput): { q: string; a: string }[] {
     },
     {
       q: `I am not a ${short} student yet. Can I look around?`,
-      a: `Yes. Sign up with a personal email to browse in Campus Preview. You can read posts and study material, and unlock posting when you get your college email.`,
+      a: `Yes. Sign up with a personal email and look around. You can read posts and study material. When you join, pick ${short} as your college, and verify when you get your college email.`,
     },
   ];
   return faqs;
@@ -74,7 +74,7 @@ export function collegeSummary(c: CollegeFactsInput): string {
   text +=
     c.studentCount > 0
       ? ` ${c.studentCount} of its students are on CampusLoop, where they share posts, polls, notes and events.`
-      : ` Its students can join CampusLoop with a college email to share posts, polls, notes and events.`;
+      : ` Its students can join CampusLoop for free to share posts, polls, notes and events.`;
   return text;
 }
 
@@ -108,10 +108,15 @@ const cap = (text: string, max: number) => (text.length <= max ? text : `${text.
 export function collegeMetaTitle(c: Pick<CollegeFactsInput, "name" | "district" | "state">): string {
   const short = collegeShortName(c.name);
   const place = c.district || c.state;
-  const full = `${short}${place ? ` (${place})` : ""}: notes, PYQs and students`;
-  if (full.length <= 58) return full;
-  const noPlace = `${short}: notes, PYQs and students`;
-  return noPlace.length <= 58 ? noPlace : cap(c.name, 58);
+  // 47 characters, so the full title stays within 60 once " · CampusLoop" is added.
+  const options = [
+    `${short}${place ? ` (${place})` : ""}: notes, PYQs and students`,
+    `${short}: notes, PYQs and students`,
+    `${short}: notes and PYQs`,
+    place ? `${short} (${place})` : short,
+    short,
+  ];
+  return options.find((t) => t.length <= 47) ?? cap(short, 47);
 }
 
 /** Search description built from real numbers; never claims content the page does not have. */

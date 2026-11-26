@@ -1,4 +1,5 @@
-import { desc, eq, ne } from "drizzle-orm";
+import { PUBLIC_PROFILE_COLUMNS } from "@/lib/profile-columns";
+import { and, desc, eq, ne, sql } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { CommunityDetailClient } from "@/components/communities/community-detail-client";
@@ -7,6 +8,7 @@ import { communities, communityMembers, posts } from "@/db/schema";
 import type { FeedPost } from "@/hooks/use-feed";
 import { sanitizeAnonRow } from "@/lib/anonymity";
 import { absoluteUrl, breadcrumbJsonLd, buildMetadata } from "@/lib/seo";
+import { fitDescription, fitTitle } from "@/lib/seo/describe";
 import { JsonLd } from "@/lib/seo/json-ld-script";
 import { getCachedAuthUser, getCachedCommunity, getCachedUserProfile } from "@/lib/server-cache";
 
@@ -22,11 +24,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!comm) notFound();
 
   const path = `/communities/${comm.slug || comm.id}`;
+  const members = comm.members.filter((m) => m.status === "ACTIVE").length;
   return buildMetadata({
-    title: `c/${comm.name}`,
-    description:
-      comm.description?.slice(0, 160) ||
-      `Posts, questions and events from the c/${comm.name} community on CampusLoop.`,
+    title: fitTitle(`c/${comm.name}`),
+    description: fitDescription(comm.description || `Posts, questions and polls from the c/${comm.name} community`, [
+      members > 0 && `${members} ${members === 1 ? "member" : "members"}${comm.category ? ` in ${comm.category}` : ""}`,
+      `Read the latest posts from c/${comm.name} and join the chat on CampusLoop`,
+      "Join free with your college email",
+    ]),
     path,
     image: comm.bannerUrl || undefined,
     noindex: comm.privacy !== "PUBLIC",
@@ -56,13 +61,15 @@ export default async function CommunityDetailPage({ params }: PageProps) {
   const db = getDb();
 
   // Parallelize community posts, full members list, and related communities
+  // A private community's posts only ship to members (and its creator / admins).
+  const canReadPosts = comm.privacy !== "PRIVATE" || isMember || isAdmin;
   const [communityPosts, allMembers, otherCommunities] = await Promise.all([
     db.query.posts.findMany({
-      where: eq(posts.communityId, comm.id),
+      where: canReadPosts ? and(eq(posts.communityId, comm.id), eq(posts.status, "PUBLISHED")) : sql`false`,
       orderBy: [desc(posts.createdAt)],
       limit: 50,
       with: {
-        author: true,
+        author: { columns: PUBLIC_PROFILE_COLUMNS },
         institution: true,
         community: true,
         votes: true,
@@ -76,7 +83,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
       where: eq(communityMembers.communityId, comm.id),
       limit: 30,
       with: {
-        user: true,
+        user: { columns: PUBLIC_PROFILE_COLUMNS },
       },
     }),
     db.query.communities.findMany({
@@ -155,6 +162,12 @@ export default async function CommunityDetailPage({ params }: PageProps) {
               description: comm.description || undefined,
               url: absoluteUrl(communityPath),
               image: comm.bannerUrl || comm.avatarUrl || undefined,
+              dateCreated: comm.createdAt ? new Date(comm.createdAt).toISOString() : undefined,
+              interactionStatistic: {
+                "@type": "InteractionCounter",
+                interactionType: "https://schema.org/JoinAction",
+                userInteractionCount: activeMembersCount,
+              },
             },
             breadcrumbJsonLd([
               { name: "Communities", path: "/communities" },

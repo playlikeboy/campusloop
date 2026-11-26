@@ -204,8 +204,22 @@ export async function searchUnsplashPhotos({
  * Triggers the download endpoint as required by Unsplash API guidelines
  * when a user selects a photo.
  */
+/**
+ * Only Unsplash's own download endpoint may receive the access key. The location comes from the
+ * client, so anything else would leak the key to an arbitrary host and let callers make the
+ * server fetch any URL (SSRF).
+ */
+export function isUnsplashDownloadUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && url.hostname === "api.unsplash.com" && (url.port === "" || url.port === "443") && !url.username && !url.password;
+  } catch {
+    return false;
+  }
+}
+
 export async function trackUnsplashDownload(downloadLocation: string): Promise<void> {
-  if (!downloadLocation) return;
+  if (!downloadLocation || !isUnsplashDownloadUrl(downloadLocation)) return;
   const accessKey = process.env.UNSPLASH_ACCESS_KEY || process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY || "";
 
   if (!accessKey) return;
@@ -217,6 +231,8 @@ export async function trackUnsplashDownload(downloadLocation: string): Promise<v
       headers: {
         Authorization: `Client-ID ${accessKey}`,
       },
+      // A redirect off api.unsplash.com would carry the key in the query string elsewhere.
+      redirect: "manual",
     });
   } catch (err) {
     // Non-blocking telemetry error

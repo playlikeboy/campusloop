@@ -56,9 +56,12 @@ export function isCollegeEmail(email?: string | null): boolean {
 }
 
 /**
- * Determines if a user profile should receive the verified student blue tick badge.
- * Verified student blue tick is granted EXCLUSIVELY to users who signed up with
- * an authentic college email. Users signed up via Gmail or personal emails will NEVER receive it.
+ * Whether a profile shows the verified student badge. Mirrors
+ * `resolveTrustTier` in src/lib/trust.ts (kept inline to avoid an import
+ * cycle): ADMINs, and profiles whose student status was proved by a confirmed
+ * college email, the GitHub Student Developer Pack or an admin, all of which
+ * set `isCollegeVerified`. An email address that merely looks academic is not
+ * proof: the inbox has to be confirmed first.
  */
 export function isCollegeVerifiedUser(profile?: {
   isCollegeVerified?: boolean | null;
@@ -68,7 +71,5 @@ export function isCollegeVerifiedUser(profile?: {
 } | null): boolean {
   if (!profile) return false;
   if (profile.role === "ADMIN") return true;
-  if (profile.isCollegeVerified === true) return true;
-  if (isCollegeEmail(profile.email)) return true;
-  return false;
+  return profile.isCollegeVerified === true;
 }

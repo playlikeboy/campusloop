@@ -1,3 +1,4 @@
+import { HIDDEN_ACTOR, maskNotificationActor } from "@/lib/notification-anonymity";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { getDb } from "@/db";
@@ -54,25 +55,8 @@ export default async function NotificationsPage() {
       limit: 50,
     });
 
-    // Anonymize actors for non-mutual CRUSH_ALERT
-    sanitized = rawList.map((n) => {
-      if (n.type === "CRUSH_ALERT") {
-        return {
-          ...n,
-          actor: {
-            id: "hidden",
-            username: "secret_crush",
-            displayName: "Someone",
-            avatarUrl: null,
-            points: 0,
-            institutionId: null,
-            role: "STUDENT",
-            institution: null,
-          },
-        };
-      }
-      return n;
-    });
+    // Hide the actor (object and raw actorId) for secret crushes and anonymous comments, replies and mentions.
+    sanitized = rawList.map((n) => maskNotificationActor(n, { ...HIDDEN_ACTOR, username: "secret_crush" }));
 
     // Calculate unread count
     const [unreadRow] = await db

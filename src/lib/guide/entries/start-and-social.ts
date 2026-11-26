@@ -57,17 +57,17 @@ export const START_AND_SOCIAL: GuideEntry[] = [
     faq: [
       {
         q: "Do I need a college email?",
-        a: "Yes, for the verified tick and full access. Any other email opens Campus Preview, which has near-full access but no verified tick.",
+        a: "No. With any other email you pick your college in onboarding and join it as an unverified member. Verify later with your college email or the GitHub Student Developer Pack for the verified badge and full access.",
       },
       {
         q: "Is it free?",
         a: "Yes. CampusLoop is free for students.",
       },
     ],
-    related: ["aspirant-viewer-mode", "campus-feed", "colleges-directory", "verification-and-safety"],
+    related: ["aspirant-viewer-mode", "campus-feed", "colleges-directory", "verification-and-safety", "verify-student-status"],
     keywords: ["sign up", "college email verification", "onboarding", "student network India"],
     essaySlug: "verification-safety",
-    updated: "2026-11-05",
+    updated: "2026-11-26",
   },
   {
     slug: "aspirant-viewer-mode",

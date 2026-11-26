@@ -1,18 +1,18 @@
 import { eq } from "drizzle-orm";
-import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { institutions } from "@/db/schema";
 
 /**
  * Viewer-Only Mode
  * ----------------
- * Users who sign in with a non-college email (gmail, outlook, ...) are
- * onboarded into a reserved "Viewer Hub" institution instead of being
- * rejected. They can browse and participate in open feeds without
- * diluting the verified-student guarantee of the verified-only timeline.
+ * Legacy. Users who signed in with a non-college email used to be onboarded
+ * into a reserved "Viewer Hub" institution. New members now pick their real
+ * college in onboarding (see src/lib/trust.ts); profiles still in the hub get
+ * a "Pick your college" prompt and are never moved automatically.
  *
- * The hub is a normal `institutions` row (no schema migration): a
- * profile is a viewer iff its institutionId is the hub's id.
+ * What a member may do is decided by `requireCapability` in
+ * src/lib/trust-server.ts, not by this module. The hub is a normal
+ * `institutions` row: a profile is in it iff its institutionId is the hub's id.
  */
 export const VIEWER_INSTITUTION_SLUG = "viewer-hub";
 export const VIEWER_INSTITUTION_AISHE = "SYSTEM-VIEWER-HUB";
@@ -74,25 +74,4 @@ export async function isViewerProfile(profile: {
   } catch {
     return profile.institutionId === VIEWER_INSTITUTION_SLUG || profile.role === "VIEWER";
   }
-}
-
-/**
- * Write-API guard.
- * Users registered with Gmail or personal emails are allowed to participate as community members.
- * Only explicit VIEWER role accounts are restricted.
- */
-export async function rejectViewerWrite(profile: {
-  institutionId: string | null;
-  role?: string | null;
-}): Promise<NextResponse | null> {
-  if (profile.role === "VIEWER") {
-    return NextResponse.json(
-      {
-        error: "Viewer account is read-only. Please create a student account to post.",
-        viewerMode: true,
-      },
-      { status: 403 }
-    );
-  }
-  return null;
 }

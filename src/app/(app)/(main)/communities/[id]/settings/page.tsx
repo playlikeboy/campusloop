@@ -71,6 +71,7 @@ export default async function CommunitySettingsPage({ params }: PageProps) {
             category: comm.category,
             privacy: comm.privacy,
             allowAnonymousPosts: comm.allowAnonymousPosts,
+            verifiedOnlyPosting: comm.verifiedOnlyPosting,
             rules: comm.rules,
             avatarUrl: comm.avatarUrl,
             bannerUrl: comm.bannerUrl,

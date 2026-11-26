@@ -691,9 +691,18 @@ export function AcademicDetailClient({
               </div>
               <div className="py-2 flex items-center justify-between">
                 <span className="text-muted-foreground">College</span>
-                <span className="font-semibold text-foreground truncate max-w-[180px]">
-                  {resource.institution?.name?.split(",")[0] || "All India"}
-                </span>
+                {resource.institution?.slug && resource.institution?.name ? (
+                  <Link
+                    href={`/college/${resource.institution.slug}`}
+                    className="font-semibold text-foreground truncate max-w-[180px] underline-offset-4 hover:underline"
+                  >
+                    {resource.institution.name.split(",")[0]}
+                  </Link>
+                ) : (
+                  <span className="font-semibold text-foreground truncate max-w-[180px]">
+                    {resource.institution?.name?.split(",")[0] || "All India"}
+                  </span>
+                )}
               </div>
             </div>
           </section>

@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { Lock } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { BrandLogo } from "@/components/ui/brand-logo";
@@ -10,6 +10,7 @@ import { hexclaveServerApp } from "@/hexclave/server";
 import { getTasteQuizPosts } from "@/lib/growth/taste-quiz";
 import { findWhitelistedDomain } from "@/lib/institutions";
 import { privateMetadata } from "@/lib/seo";
+import { classifyEmailDomain } from "@/lib/trust";
 import { OnboardingForm } from "./onboarding-form";
 
 export const metadata: Metadata = privateMetadata("Set up your profile");
@@ -39,10 +40,9 @@ export default async function OnboardingPage() {
         where: eq(institutionDomains.domain, emailDomain),
       }))
     : null;
-  // Mirrors the server action: an unverified college address is treated as
-  // Campus Preview, so the form asks aspirant questions rather than pretending
-  // the student is already verified.
-  const viewerMode = !whitelistedDomain || !user.primaryEmailVerified;
+  // Mirrors the server action: without a confirmed college address the student
+  // joins as an unverified member and picks their college in the form.
+  const memberMode = !whitelistedDomain || !user.primaryEmailVerified;
 
   // Name from the email: e.g. "shaswat.raj" -> "Shaswat Raj", "aarav_sharma" -> "Aarav Sharma"
   function parseNameFromEmail(raw: string): string {
@@ -70,7 +70,7 @@ export default async function OnboardingPage() {
   const initialAvatarUrl = profile?.avatarUrl || (user as { picture?: string }).picture || "";
 
   // The college comes from the email domain, so the student never has to pick it.
-  const campusId = !viewerMode && whitelistedDomain ? whitelistedDomain.institutionId : null;
+  const campusId = !memberMode && whitelistedDomain ? whitelistedDomain.institutionId : null;
   const campus = campusId
     ? await db.query.institutions.findFirst({
         where: eq(institutions.id, campusId),
@@ -95,18 +95,21 @@ export default async function OnboardingPage() {
           </div>
         </header>
 
-        {viewerMode && (
+        {memberMode && (
           <p className="mt-6 flex gap-3 rounded-lg bg-surface-muted p-4 text-sm text-fg-muted">
-            <Lock className="mt-0.5 size-4 shrink-0 text-fg" aria-hidden="true" />
+            <ShieldCheck className="mt-0.5 size-4 shrink-0 text-fg" aria-hidden="true" />
             <span>
-              You signed up with a personal email, so you can look around but not post, vote, chat or use
-              Campus Match. Used the wrong email? Sign out above and join again with your college email.
+              {classifyEmailDomain(email) === "college"
+                ? "Your college email isn't confirmed yet, so you'll join as an unverified member."
+                : "You signed up without a college email, so you'll join your college as an unverified member."}{" "}
+              Verify later with your college email or the GitHub Student Developer Pack to get the verified badge and
+              unlock everything.
             </span>
           </p>
         )}
 
         <OnboardingForm
-          variant={viewerMode ? "viewer" : "student"}
+          variant={memberMode ? "member" : "student"}
           initialDisplayName={initialDisplayName}
           initialUsername={initialUsername}
           initialAvatarUrl={initialAvatarUrl}

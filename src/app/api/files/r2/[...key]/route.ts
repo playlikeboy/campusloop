@@ -40,6 +40,8 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
 
     if (isPrivateDoc) {
       let currentUserId: string | null = null;
+      // Every id this caller is known by: uploads record the Hexclave user id, older rows the profile id.
+      const callerIds: string[] = [];
       let isAdmin = false;
 
       // 1. Check API token / Admin passkey
@@ -65,6 +67,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
           const hexUser = await hexclaveServerApp.getUser();
           if (hexUser?.id) {
             currentUserId = hexUser.id;
+            callerIds.push(hexUser.id);
             const db = getDb();
             const profile = await db.query.userProfiles.findFirst({
               where: eq(userProfiles.userId, hexUser.id),
@@ -73,7 +76,10 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
             if (profile) {
               if (profile.role === "ADMIN") isAdmin = true;
               // Allow either Hexclave userId or student profile id
-              if (profile.id) currentUserId = profile.id;
+              if (profile.id) {
+                currentUserId = profile.id;
+                callerIds.push(profile.id);
+              }
             }
           }
         } catch {
@@ -95,9 +101,10 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       const uploaderId =
         obj.customMetadata?.uploadedBy || (keyParts[0] === "private" ? keyParts[1] : null);
       const isOwner =
-        uploaderId &&
-        (currentUserId === uploaderId ||
-          currentUserId.replace(/[^a-zA-Z0-9_-]/g, "") === uploaderId);
+        Boolean(uploaderId) &&
+        [currentUserId, ...callerIds].some(
+          (candidate) => candidate === uploaderId || candidate.replace(/[^a-zA-Z0-9_-]/g, "") === uploaderId
+        );
 
       if (!isOwner && !isAdmin) {
         return new NextResponse("Forbidden: You do not have permission to access this student document", {

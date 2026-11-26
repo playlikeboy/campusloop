@@ -12,6 +12,9 @@ import { RatingStars } from "@/components/courses/rating-stars";
 import { categorySlug } from "@/lib/courses/catalog-params";
 import { attributionNote, formatDuration, LEVEL_LABEL } from "@/lib/courses/format";
 import { canEditCourse, currentProfile, getCourseDetail, getViewerState } from "@/lib/courses/server";
+import { breadcrumbJsonLd, buildMetadata } from "@/lib/seo";
+import { fitDescription, fitTitle, TITLE_MAX } from "@/lib/seo/describe";
+import { serializeJsonLd } from "@/lib/seo/json-ld";
 
 export const dynamic = "force-dynamic";
 
@@ -28,28 +31,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       robots: { index: false, follow: false },
     };
   }
-  const url = `https://campusloop.space/courses/${c.slug}`;
-  return {
-    title: `${c.title} — Free Course`,
-    description: (c.subtitle ? `${c.subtitle}. ` : "") + c.description.slice(0, 220),
+  const provider = c.source === "CS50" ? "Harvard CS50" : c.provider;
+  return buildMetadata({
+    title: `${c.title}: free course`.length <= TITLE_MAX ? `${c.title}: free course` : fitTitle(c.title),
+    description: fitDescription(c.subtitle || c.description, [
+      provider && `Free video course by ${provider}`,
+      c.durationSec > 3600 && `About ${Math.round(c.durationSec / 3600)} hours of lectures`,
+      "Track lectures and take notes on CampusLoop",
+    ]),
+    path: `/courses/${c.slug}`,
+    image: c.thumbnailUrl?.startsWith("https://") ? c.thumbnailUrl : undefined,
     keywords: [...c.tags, c.category, "free course", "certificate"],
-    alternates: { canonical: url },
     // Unlisted community courses are shareable by link but stay out of search until promoted.
     robots: c.listed ? { index: true, follow: true } : { index: false, follow: true },
-    openGraph: {
-      title: c.title,
-      description: c.subtitle ?? c.description.slice(0, 200),
-      url,
-      siteName: "CampusLoop",
-      type: "website",
-      images: c.thumbnailUrl ? [{ url: c.thumbnailUrl }] : undefined,
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: c.title,
-      images: c.thumbnailUrl ? [c.thumbnailUrl] : undefined,
-    },
-  };
+  });
 }
 
 export default async function CourseLandingPage({ params }: Props) {
@@ -59,6 +54,7 @@ export default async function CourseLandingPage({ params }: Props) {
   if (!d || (d.course.status !== "PUBLISHED" && !canEditCourse(d.course, profile))) notFound();
   const { course: c, sections } = d;
   const viewer = await getViewerState(c.id, profile?.id);
+  const provider = c.source === "CS50" ? "Harvard CS50" : c.provider;
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -86,17 +82,31 @@ export default async function CourseLandingPage({ params }: Props) {
           },
         }
       : {}),
+    ...(c.thumbnailUrl?.startsWith("https://") ? { image: c.thumbnailUrl } : {}),
     hasCourseInstance: {
       "@type": "CourseInstance",
       courseMode: "online",
-      courseWorkload: `PT${Math.round(c.durationSec / 3600)}H`,
+      courseWorkload: `PT${Math.max(1, Math.round(c.durationSec / 3600))}H`,
     },
     offers: { "@type": "Offer", price: 0, priceCurrency: "INR", category: "Free" },
   };
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: serializeJsonLd({
+            "@context": "https://schema.org",
+            ...breadcrumbJsonLd([
+              { name: "Courses", path: "/courses" },
+              { name: c.category, path: `/courses/category/${categorySlug(c.category)}` },
+              { name: c.title, path: `/courses/${c.slug}` },
+            ]),
+          }),
+        }}
+      />
       {c.status === "PUBLISHED" && <CourseViewBeacon slug={c.slug} />}
       <div className="px-4 pb-20 sm:px-0">
         <nav

@@ -8,7 +8,7 @@ import { JsonLd } from "@/lib/seo/json-ld-script";
 export const metadata = buildMetadata({
   title: "Websites for notes and PYQs",
   description:
-    "A list of working university and student websites with free engineering notes, past papers and lab manuals.",
+    "A list of working university and student websites with free engineering notes, previous year papers (PYQs) and lab manuals. All free to open.",
   path: "/academics/study-material/sources",
   keywords: [
     "websites for engineering notes",

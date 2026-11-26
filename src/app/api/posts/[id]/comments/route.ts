@@ -17,9 +17,10 @@ import { runInBackground } from "@/lib/background";
 import { runSafetyCheck } from "@/lib/moderation/rules";
 import { cleanNotificationSnippet, createNotification, notifyMentions } from "@/lib/notifications";
 import { recordStreakActivity } from "@/lib/streaks/streak-service";
-import { rejectViewerWrite } from "@/lib/viewer";
 import { getCachedAuthUser } from "@/lib/server-cache";
 import { bumpPostStat } from "@/lib/recommendations/engagement-stats";
+import { viewerCanReadPost } from "@/lib/post-visibility";
+import { requireCapability } from "@/lib/trust-server";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -51,6 +52,12 @@ export async function GET(req: Request, { params }: RouteParams) {
       // Unauthenticated viewers are supported
     }
 
+    // Comments of a private-community post are members-only, like the post itself.
+    const parentPost = await db.query.posts.findFirst({ where: eq(posts.id, id), columns: { communityId: true } });
+    if (parentPost && !(await viewerCanReadPost(db, parentPost, currentProfileId))) {
+      return NextResponse.json({ error: "Post not found" }, { status: 404 });
+    }
+
     const commentConditions = [eq(comments.postId, id), eq(comments.status, "PUBLISHED")];
     if (before) {
       const beforeDate = new Date(before);
@@ -72,6 +79,8 @@ export async function GET(req: Request, { params }: RouteParams) {
             avatarUrl: true,
             points: true,
             institutionId: true,
+            role: true,
+            isCollegeVerified: true,
           },
         },
         replyToUser: {
@@ -101,6 +110,8 @@ export async function GET(req: Request, { params }: RouteParams) {
               displayName: userProfiles.displayName,
               avatarUrl: userProfiles.avatarUrl,
               points: userProfiles.points,
+              role: userProfiles.role,
+              isCollegeVerified: userProfiles.isCollegeVerified,
             },
           })
           .from(reelComments)
@@ -127,6 +138,8 @@ export async function GET(req: Request, { params }: RouteParams) {
                   displayName: c.author.displayName,
                   avatarUrl: c.author.avatarUrl,
                   points: c.author.points,
+                  role: c.author.role,
+                  isCollegeVerified: c.author.isCollegeVerified,
                 }
               : null,
           }))
@@ -182,8 +195,8 @@ export async function POST(req: Request, { params }: RouteParams) {
     const { id } = await params;
     const db = getDb();
 
-    const viewerBlocked = await rejectViewerWrite(profile);
-    if (viewerBlocked) return viewerBlocked;
+    const capabilityBlocked = await requireCapability(profile, "comment");
+    if (capabilityBlocked) return capabilityBlocked;
 
     const { body, isAnonymous, parentId, replyToUserId, imageUrl } = (await req.json()) as {
       body: string;
@@ -216,8 +229,9 @@ export async function POST(req: Request, { params }: RouteParams) {
         try {
           anonHandle = deriveAnonHandle(profile.id);
         } catch (err) {
-          console.warn("Anonymity hashing fallback:", err);
-          anonHandle = `anon_${profile.id.slice(0, 8)}`;
+          // Fail closed: a fallback handle built from the profile id would leak a prefix of it.
+          console.warn("Anonymity hashing failed:", err);
+          return NextResponse.json({ error: "Anonymous commenting is unavailable right now." }, { status: 503 });
         }
       }
     }
@@ -405,6 +419,7 @@ export async function POST(req: Request, { params }: RouteParams) {
             actorId: profile.id,
             referenceId: id,
             previewText: snippet,
+            anonymous,
           });
         }
       } else {
@@ -429,6 +444,7 @@ export async function POST(req: Request, { params }: RouteParams) {
             actorId: profile.id,
             referenceId: id,
             previewText: snippet,
+            anonymous,
           });
         }
       }
@@ -439,6 +455,7 @@ export async function POST(req: Request, { params }: RouteParams) {
           text: body,
           actorId: profile.id,
           referenceId: id,
+          anonymous,
         }),
         "comment mention notifications"
       );

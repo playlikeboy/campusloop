@@ -1,3 +1,4 @@
+import { HIDDEN_ACTOR, maskNotificationActor } from "@/lib/notification-anonymity";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
@@ -64,25 +65,10 @@ export async function GET(req: NextRequest) {
       limit: 60,
     });
 
-    // Anonymize actors for non-mutual CRUSH_ALERT to protect intent-hidden design
-    let sanitized = rawNotifications.map((n) => {
-      if (n.type === "CRUSH_ALERT") {
-        return {
-          ...n,
-          actor: {
-            id: "hidden",
-            username: "secret_crush",
-            displayName: "Anonymous Student",
-            avatarUrl: null,
-            points: 0,
-            institutionId: null,
-            role: "STUDENT",
-            institution: null,
-          },
-        };
-      }
-      return n;
-    });
+    // Hide the actor (object and raw actorId) for secret crushes and anonymous comments, replies and mentions.
+    let sanitized = rawNotifications.map((n) =>
+      maskNotificationActor(n, { ...HIDDEN_ACTOR, username: "secret_crush", displayName: "Anonymous Student" })
+    );
 
     // If verified tab is chosen, filter where actor is verified (points >= 150 or admin)
     if (tab === "verified") {

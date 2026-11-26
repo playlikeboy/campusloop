@@ -3,14 +3,14 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { privateMetadata } from "@/lib/seo";
-import { isAllowedAdminEmail } from "../admin/_lib/session";
+import { isVerifiedAdminUser } from "../admin/_lib/session";
 import { AdminLoginForm } from "./login-form";
 
 export const metadata: Metadata = privateMetadata("Admin sign in");
 
 export default async function AdminLoginPage() {
   const user = await hexclaveServerApp.getUser();
-  if (user && isAllowedAdminEmail(user.primaryEmail)) {
+  if (user && isVerifiedAdminUser(user)) {
     redirect("/admin");
   }
 

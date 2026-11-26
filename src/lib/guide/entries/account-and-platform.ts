@@ -209,10 +209,75 @@ export const ACCOUNT_AND_PLATFORM: GuideEntry[] = [
         a: "Automated filters act first; a moderator reviews and can remove content or restrict accounts.",
       },
     ],
-    related: ["privacy-and-anonymity", "admin-console"],
+    related: ["privacy-and-anonymity", "admin-console", "verify-student-status"],
     keywords: ["safety", "report", "moderation"],
     essaySlug: "verification-safety",
     updated: U,
+  },
+  {
+    slug: "verify-student-status",
+    title: "Verified students and members",
+    summary:
+      "Anyone can join their college on CampusLoop. Verify with your college email or the GitHub Student Developer Pack to get the verified badge and unlock everything.",
+    category: "Account & safety",
+    audiences: ["Students", "Investors", "Admins"],
+    routes: [
+      { path: "/settings/verify", label: "Verify your student status" },
+      { path: "/onboarding", label: "Onboarding" },
+    ],
+    purpose:
+      "Many students don't trust a new app with their college email on day one. Members can join their real campus with any email, while the verified badge, Verified only feeds and admin controls keep the community trustworthy.",
+    whyUse: [
+      "Join your college with a personal email and use the normal app straight away.",
+      "Verify later in one step: a link to your college inbox, or your GitHub Student Developer Pack status.",
+      "Verified students get a highlighted badge next to their name everywhere, and the Verified only feed filter shows only them.",
+    ],
+    howToUse: [
+      "Sign up with any email. In onboarding, search for your college and pick it. You join as an unverified member.",
+      "Open Settings, then Verify your student status (/settings/verify).",
+      "Choose Verify college email and open the link we send to your college inbox, or choose Verify with GitHub Student Pack and sign in with GitHub.",
+      "Once verified, the badge appears next to your name and locked actions open up.",
+      "If you tap something that needs verification, a Verify to unlock sheet shows both ways to verify.",
+    ],
+    useCases: [
+      {
+        who: "Student wary of sharing a college email",
+        scenario: "Joins with gmail, posts and chats as a member, then verifies with the GitHub Student Pack a week later.",
+      },
+      {
+        who: "Campus admin",
+        scenario: "Sets a community to Only verified students can post, so announcements come from verified people.",
+      },
+    ],
+    tips: [
+      "Members still in Campus Preview see a Pick your college prompt. Nobody is moved to a college automatically.",
+      "Community admins can turn on Only verified students can post in community settings.",
+    ],
+    privacy: [
+      "GitHub verification reads only your GitHub username, id and student status. CampusLoop never stores your GitHub access token and revokes it after the check.",
+      "One GitHub account can verify only one CampusLoop profile.",
+      "Members show a small Not verified label on their profile and post author line. It is neutral, never a warning.",
+    ],
+    investorAngle:
+      "Open membership grows the network while trust tiers keep verification valuable: admins tune what unverified members can do from one page, and verified status stays the signal that makes matching, anonymity and marketplaces safe.",
+    faq: [
+      {
+        q: "What can members do without verifying?",
+        a: "By default they can post, comment, vote, message, join communities, register for events, upload media, post stories and play. Anonymous posts, Campus Match, Secret Crush, creating communities and creating events need verification. Admins can change this.",
+      },
+      {
+        q: "Are there other limits on members?",
+        a: "Yes. Members have hourly limits on posts, comments, messages and votes, and their first posts may wait in the moderation queue before going live.",
+      },
+      {
+        q: "How does GitHub Student Pack verification work?",
+        a: "You sign in with GitHub on /settings/verify. GitHub Education tells us whether your account has student status. If it does, your profile is verified.",
+      },
+    ],
+    related: ["verification-and-safety", "settings", "admin-console"],
+    keywords: ["verified badge", "verify student", "github student developer pack", "gmail", "unverified member"],
+    essaySlug: "verification-safety",
+    updated: "2026-11-26",
   },
   {
     slug: "settings",

@@ -63,7 +63,11 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
         })
         .where(eq(messages.id, messageId));
     } else {
-      // Delete for self
+      // "Delete for me" rewrites the shared row (there is no per-viewer hidden flag yet), so it
+      // would erase the message for everyone. Only the sender may do that to their own message.
+      if (message.senderId !== profile.id) {
+        return NextResponse.json({ error: "You can only delete your own messages" }, { status: 403 });
+      }
       await db
         .update(messages)
         .set({

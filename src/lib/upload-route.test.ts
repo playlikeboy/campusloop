@@ -9,6 +9,13 @@ vi.mock("@/hexclave/server", () => ({
   },
 }));
 
+// The route looks up the uploader's profile for the member upload capability;
+// no profile (still onboarding) means no extra check, and no database here.
+vi.mock("@/lib/server-cache", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/server-cache")>()),
+  getCachedBareProfile: vi.fn(async () => null),
+}));
+
 import { hexclaveServerApp } from "@/hexclave/server";
 
 describe("Upload Route API Security & Handling", () => {

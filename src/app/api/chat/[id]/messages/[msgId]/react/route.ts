@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { conversationParticipants, messages } from "@/db/schema";
 import { requireProfile } from "@/lib/require-profile";
-import { rejectViewerWrite } from "@/lib/viewer";
+import { requireCapability } from "@/lib/trust-server";
 
 export const dynamic = "force-dynamic";
 
@@ -30,8 +30,8 @@ export async function POST(req: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "Conversation not found" }, { status: 404 });
     }
 
-    const viewerBlocked = await rejectViewerWrite(profile);
-    if (viewerBlocked) return viewerBlocked;
+    const capabilityBlocked = await requireCapability(profile, "vote");
+    if (capabilityBlocked) return capabilityBlocked;
 
     const { emoji } = (await req.json()) as { emoji: string };
     if (!emoji || emoji.length > 32) {

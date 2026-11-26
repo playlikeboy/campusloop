@@ -1,11 +1,17 @@
 /**
  * CampusLoop Articles MCP Publishing Engine
  *
- * Uses the live MCP endpoint: https://campusloop.space/mcp/articles?apikey=HBEifejbwhfbiaqDQHW
+ * Uses the live MCP endpoint https://campusloop.space/mcp/articles.
+ * Set CAMPUSLOOP_MCP_API_KEY in the environment; the key is sent as a header, never in the URL.
  * to publish researched, high-quality, authentic student articles across all 38 categories.
  */
 
-const MCP_ENDPOINT = "https://campusloop.space/mcp/articles?apikey=HBEifejbwhfbiaqDQHW";
+const MCP_ENDPOINT = "https://campusloop.space/mcp/articles";
+const MCP_API_KEY = process.env.CAMPUSLOOP_MCP_API_KEY;
+if (!MCP_API_KEY) {
+  console.error("Set CAMPUSLOOP_MCP_API_KEY before running this script.");
+  process.exit(1);
+}
 
 const ARTICLES = [
   // 1. Technology & Programming
@@ -1078,7 +1084,7 @@ async function main() {
 
       const res = await fetch(MCP_ENDPOINT, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-api-key": MCP_API_KEY },
         body: JSON.stringify(payload)
       });
 

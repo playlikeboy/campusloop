@@ -83,6 +83,8 @@ export async function toggleGlobalShowSeededPosts(enabled: boolean) {
 }
 
 export async function getGlobalShowSeededPosts() {
+  // Server actions are reachable without the admin layout, so each one guards itself.
+  await getAdminDb();
   return await getShowSeededPosts();
 }
 

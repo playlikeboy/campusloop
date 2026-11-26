@@ -1,4 +1,4 @@
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { events } from "@/db/schema";
 import { type SitemapEntry, sitemapFromQuery } from "@/lib/seo/sitemap";
@@ -13,7 +13,8 @@ export async function GET() {
     await sitemapFromQuery("events", STATIC, async () => {
       const list = await getDb().query.events.findMany({
         columns: { id: true, slug: true, updatedAt: true },
-        where: eq(events.status, "PUBLISHED"),
+        // Unlisted and college-only events are noindex on the page, so keep them out here too.
+        where: and(eq(events.status, "PUBLISHED"), eq(events.visibility, "PUBLIC")),
         orderBy: [desc(events.startDate)],
         limit: 2000,
       });

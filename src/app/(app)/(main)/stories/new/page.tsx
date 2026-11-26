@@ -4,7 +4,7 @@ import { getDb } from "@/db";
 import { userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { privateMetadata } from "@/lib/seo";
-import { isViewerProfile } from "@/lib/viewer";
+import { checkCapability } from "@/lib/trust-server";
 import { StoryCreator } from "./story-creator";
 
 export const metadata = privateMetadata("New story");
@@ -42,8 +42,9 @@ export default async function CreateStoryPage({ searchParams }: CreateStoryPageP
     redirect("/onboarding");
   }
 
-  if (await isViewerProfile(profile)) {
-    redirect("/feeds");
+  // Unverified members post stories only while /admin/access allows it.
+  if (!(await checkCapability(profile, "stories", { countUsage: false })).ok) {
+    redirect("/settings/verify");
   }
 
   return (

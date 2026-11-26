@@ -2,6 +2,7 @@
 
 import { format } from "date-fns";
 import {
+  BadgeCheck,
   Calendar,
   ChevronLeft,
   ChevronRight,
@@ -29,7 +30,7 @@ import { fieldClassName } from "@/components/ui/input";
 import { isOnline, presenceLabel } from "@/lib/presence";
 import { cn, formatTimeAgo } from "@/lib/utils";
 import { AdminStatStrip } from "../_components/admin-stat-strip";
-import { createUserProfile, deleteUserProfile, updateUserRole, updateUserStatus } from "./actions";
+import { createUserProfile, deleteUserProfile, setUserVerified, updateUserRole, updateUserStatus } from "./actions";
 
 export interface UserAnalyticsStats {
   total: number;
@@ -61,6 +62,8 @@ export interface UserRow {
   points?: number | null;
   createdAt: Date | string;
   lastSeenAt?: Date | string | null;
+  isCollegeVerified?: boolean | null;
+  verificationMethod?: string | null;
 }
 
 type RoleFilter = "ALL" | "STUDENT" | "MODERATOR" | "ADMIN";
@@ -165,6 +168,19 @@ export function UsersTable({
       router.refresh();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to update role");
+    } finally {
+      setIsLoading(null);
+    }
+  }
+
+  async function handleVerifiedChange(profileId: string, verified: boolean) {
+    setIsLoading(profileId);
+    try {
+      await setUserVerified(profileId, verified);
+      toast.success(verified ? "Marked as a verified student" : "Verification removed");
+      router.refresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to update verification");
     } finally {
       setIsLoading(null);
     }
@@ -655,6 +671,23 @@ export function UsersTable({
                           >
                             <ExternalLink aria-hidden />
                           </Link>
+
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            disabled={isLoading === p.id}
+                            onClick={() => handleVerifiedChange(p.id, !p.isCollegeVerified)}
+                            title={
+                              p.isCollegeVerified
+                                ? `Verified${p.verificationMethod ? ` (${p.verificationMethod.replace("_", " ")})` : ""}. Click to remove.`
+                                : "Mark as a verified student"
+                            }
+                            aria-label={p.isCollegeVerified ? "Remove verification" : "Mark as a verified student"}
+                            aria-pressed={Boolean(p.isCollegeVerified)}
+                            className={cn(p.isCollegeVerified && "text-verified-text")}
+                          >
+                            <BadgeCheck aria-hidden />
+                          </Button>
 
                           <Button
                             variant="ghost"

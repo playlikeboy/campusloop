@@ -115,13 +115,32 @@ export async function completeOnboarding(formData: FormData): Promise<Onboarding
   // college address and never verifying it must not hand over their campus.
   const isVerifiedCollegeEmail = Boolean(whitelistedDomain) && user.primaryEmailVerified;
 
-  // Everyone else joins in Campus Preview: a profile in the reserved Viewer Hub
-  // that can browse everything, while write APIs refuse them. An unverified
-  // college address lands here too, and can unlock later through the verified
-  // upgrade flow without losing anything.
-  const institutionId = isVerifiedCollegeEmail
-    ? whitelistedDomain!.institutionId
-    : await getViewerInstitutionId();
+  // Everyone else joins the college they picked as an unverified member (what
+  // they can do is set on /admin/access, see src/lib/trust.ts). An aspirant
+  // who isn't in college yet picks none and lands in the Campus Preview hub.
+  // Either way they can verify later without losing anything.
+  let institutionId: string;
+  if (isVerifiedCollegeEmail) {
+    institutionId = whitelistedDomain!.institutionId;
+  } else {
+    const viewerHubId = await getViewerInstitutionId();
+    const picked = ((formData.get("institutionId") as string) || "").trim();
+    if (picked && picked !== viewerHubId) {
+      const college = await db.query.institutions.findFirst({
+        where: eq(institutions.id, picked),
+        columns: { id: true, source: true },
+      });
+      if (!college || college.source === "system") {
+        return { success: false, error: "We couldn't find that college. Search for it again.", step: 0 };
+      }
+      institutionId = college.id;
+    } else {
+      institutionId = viewerHubId;
+    }
+  }
+  const verifiedFields = isVerifiedCollegeEmail
+    ? { verificationMethod: "college_email" as const, verifiedAt: new Date() }
+    : {};
 
   // Invite tracking. The inviter is remembered on the profile for everyone who
   // joined through a link, and credited once the invited student is verified
@@ -184,6 +203,7 @@ export async function completeOnboarding(formData: FormData): Promise<Onboarding
         referredById: referrerId,
         onboardingCompleted: true,
         isCollegeVerified: isVerifiedCollegeEmail,
+        ...verifiedFields,
         role: "STUDENT",
         status: "ACTIVE",
       })
@@ -205,6 +225,7 @@ export async function completeOnboarding(formData: FormData): Promise<Onboarding
           targetInstitutionIds,
           institutionId,
           isCollegeVerified: isVerifiedCollegeEmail,
+          ...verifiedFields,
           onboardingCompleted: true,
           // Never overwrite a gender chosen earlier with "not given".
           ...(gender ? { gender } : {}),

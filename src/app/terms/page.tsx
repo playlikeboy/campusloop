@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   DocLayout,
   DocList,
@@ -16,11 +17,11 @@ import { JsonLd } from "@/lib/seo/json-ld-script";
 export const metadata = buildMetadata({
   title: "Terms of Service",
   description:
-    "Who can join CampusLoop, what you can't post, how reports and bans work, and how to reach our Grievance Officer under the IT Rules, 2021.",
+    "Who can join CampusLoop, what members and verified students can do, what you can't post, how reports and bans work, and how to reach our Grievance Officer.",
   path: "/terms",
 });
 
-const UPDATED = "2 November 2026";
+const UPDATED = "26 November 2026";
 
 const SECTIONS: DocSectionRef[] = [
   { id: "eligibility", label: "Who can join" },
@@ -28,6 +29,9 @@ const SECTIONS: DocSectionRef[] = [
   { id: "prohibited", label: "What you can't post" },
   { id: "anonymity", label: "Anonymous posts" },
   { id: "moderation", label: "Reports and removal" },
+  { id: "play", label: "Play and DP Battle" },
+  { id: "emails", label: "Emails we send" },
+  { id: "apps", label: "Connected apps" },
   { id: "termination", label: "Suspension" },
   { id: "grievance", label: "Grievance Officer" },
 ];
@@ -42,7 +46,7 @@ export default function TermsPage() {
             name: "CampusLoop Terms of Service",
             url: `${SITE_URL}/terms`,
             inLanguage: "en-IN",
-            dateModified: "2026-11-02",
+            dateModified: "2026-11-26",
             publisher: { "@id": `${SITE_URL}/#organization` },
           },
           breadcrumbJsonLd([{ name: "Terms of Service", path: "/terms" }]),
@@ -60,7 +64,9 @@ export default function TermsPage() {
       >
         <DocSummary
           items={[
-            "Students join with a college email. Anyone else can use Campus Preview.",
+            "Anyone can join. You pick your college and join it as a member.",
+            "Verify with a college email or the GitHub Student Developer Pack to get the verified badge.",
+            "Our admins decide what members can do. Some features are for verified students only.",
             "One person, one account. No bots, no fake profiles.",
             "No ragging, harassment, doxxing, adult content or exam leaks.",
             "Posts with three reports are hidden until a person reviews them, within 24 hours.",
@@ -70,25 +76,26 @@ export default function TermsPage() {
 
         <DocSection id="eligibility" title="Who can join">
           <p>
-            Students at Indian colleges join with their college email and get a verified tick. Anyone else can
-            sign up with another email and use Campus Preview.
+            Anyone can make an account, with a college email or a personal one like Gmail. You pick your
+            college and join its campus as a member. Students who prove they study there get a verified
+            badge next to their name.
           </p>
           <DocTable
             rows={[
               {
                 label: "Verified student",
-                value: "Full access",
-                note: "Post, share notes, comment, vote, chat and, if 18 or older, use Campus Match.",
+                value: "Everything, with the verified badge",
+                note: "Verify with your college email, or with the GitHub Student Developer Pack if you have no college email. Our team can also verify you by hand.",
+              },
+              {
+                label: "Member",
+                value: "Most features, no badge",
+                note: "Members can post, comment, vote, chat, join communities, register for events, upload, post stories and play games. By default they can't post anonymously, use Campus Match or Secret Crush, or create communities or events.",
               },
               {
                 label: "Campus Preview",
-                value: "Most features, no verified tick",
-                note: "Browse college pages, feeds and study material, and join open spaces. Verified-only spaces open once you verify a college email.",
-              },
-              {
-                label: "Faculty and alumni",
-                value: "No separate role",
-                note: "CampusLoop is for current students. Without a current college email, use Campus Preview.",
+                value: "Look around",
+                note: "If you haven't picked a college yet, you can browse public pages, feeds and study material.",
               },
               {
                 label: "Campus Match and Secret Crush",
@@ -97,14 +104,20 @@ export default function TermsPage() {
               },
             ]}
           />
+          <p>
+            Our admins can change what members are allowed to do at any time. A member&apos;s first few posts
+            may wait for a quick review before they show up, and members have tighter limits on how much they
+            can post or message in an hour. This keeps spam and fake accounts out.
+          </p>
         </DocSection>
 
         <DocSection id="account" title="Your account">
-          <p>One student, one account. You are responsible for what happens on your account.</p>
+          <p>One person, one account. You are responsible for what happens on your account.</p>
           <DocList
             items={[
               "Don't run bot accounts, scrape student lists or fake verification links.",
               "Don't pretend to be another student, teacher, college staff member or club.",
+              "Don't verify with an email or GitHub account that isn't yours. One GitHub account can verify only one profile.",
               "Don't try to get into other people's accounts or other college spaces.",
             ]}
           />
@@ -148,6 +161,51 @@ export default function TermsPage() {
             within 24 hours.
           </p>
           <p>If we remove your post, we tell you which rule it broke. You can appeal to the safety desk.</p>
+        </DocSection>
+
+        <DocSection id="play" title="Play and DP Battle">
+          <p>
+            Play has games like DP Battle, Meme War, trivia, This or That and Branch Wars. You earn badges and
+            Loop Points. Points have no money value and can&apos;t be sold or swapped for cash.
+          </p>
+          <DocList
+            items={[
+              "DP Battle is opt-in. If you enter, your current profile photo is shown to students at your college, who vote between two photos. You can leave any time.",
+              "Only enter with a photo of yourself. Don't use someone else's photo.",
+              "Memes and photos follow the same rules as posts. Reported entries can be hidden.",
+              "Don't use extra accounts or scripts to win votes. We can remove points, badges and entries that were gamed.",
+            ]}
+          />
+        </DocSection>
+
+        <DocSection id="emails" title="Emails we send">
+          <p>
+            We send emails you need for your account, like sign-in and verification links and security
+            notices. You can&apos;t turn these off while you have an account.
+          </p>
+          <p>
+            We also send some product emails, like a welcome note, verification reminders, new feature news,
+            event digests and news about our Android app. Every one of these has an unsubscribe link. One tap
+            stops them. It doesn&apos;t stop account or security emails.
+          </p>
+        </DocSection>
+
+        <DocSection id="apps" title="Connected apps">
+          <p>
+            Developers can build apps that connect to CampusLoop through our{" "}
+            <Link
+              href="/developers"
+              className="font-medium text-brand-text underline underline-offset-4 hover:no-underline"
+            >
+              developer platform
+            </Link>
+            . An app only gets the access you approve on the sign-in screen. You can remove an app any time in
+            Settings, under Connected apps.
+          </p>
+          <p>
+            Apps are run by their own developers, not by us. Developers must follow these terms and must not
+            misuse student data. We can turn off any app that breaks them.
+          </p>
         </DocSection>
 
         <DocSection id="termination" title="Suspension">

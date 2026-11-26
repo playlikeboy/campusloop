@@ -25,7 +25,7 @@ const COPY = {
   },
   "sign-up": {
     title: "Join your campus",
-    lead: "Use your college email so we know you're a student there.",
+    lead: "Any email works. Use your college email and you get the verified badge too.",
     switchText: "Already have an account?",
     switchLabel: "Sign in",
   },

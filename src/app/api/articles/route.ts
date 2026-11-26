@@ -1,3 +1,4 @@
+import { PUBLIC_PROFILE_COLUMNS } from "@/lib/profile-columns";
 import { and, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
@@ -8,6 +9,8 @@ import { awardPoints } from "@/lib/gamification-server";
 import { getViewerInstitutionId, VIEWER_INSTITUTION_SLUG } from "@/lib/viewer";
 import { smartifyMarkdown } from "@/lib/articles/smart-blocks";
 import { calculateReadingTime, createExcerpt } from "@/lib/articles/text";
+import { requireCapability } from "@/lib/trust-server";
+import { pingIndexNow } from "@/lib/seo/indexnow";
 
 export const dynamic = "force-dynamic";
 
@@ -179,6 +182,7 @@ export async function GET(req: NextRequest) {
       columns: { content: false },
       with: {
         author: {
+          columns: PUBLIC_PROFILE_COLUMNS,
           with: { institution: true },
         },
         institution: true,
@@ -248,6 +252,8 @@ export async function POST(req: NextRequest) {
     if (!profile) {
       return NextResponse.json({ error: "Profile required" }, { status: 404 });
     }
+    const capabilityBlocked = await requireCapability(profile, "post");
+    if (capabilityBlocked) return capabilityBlocked;
 
     const body = (await req.json()) as Record<string, any>;
     const {
@@ -324,6 +330,8 @@ export async function POST(req: NextRequest) {
         console.warn("Failed to award LP for article:", e);
       }
     }
+
+    if (newArticle.status === "PUBLISHED") pingIndexNow([`/articles/${finalSlug}`, "/articles"]);
 
     return NextResponse.json({
       article: newArticle,

@@ -8,7 +8,7 @@ import { getDb } from "@/db";
 import { type UserProfile, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { timingSafeCompare } from "@/lib/security/timing";
-import { isAllowedAdminEmail } from "./session";
+import { isVerifiedAdminUser } from "./session";
 
 type Db = ReturnType<typeof getDb>;
 
@@ -37,7 +37,7 @@ export async function requireAdminProfile(): Promise<{ db: Db; profile: UserProf
   const email = user.primaryEmail?.toLowerCase();
 
   // If user matches designated admin emails, ensure they have the ADMIN role
-  if (isAllowedAdminEmail(email)) {
+  if (isVerifiedAdminUser(user)) {
     if (!profile) {
       const fallbackInst = await db.query.institutions.findFirst();
       if (fallbackInst) {
@@ -88,7 +88,7 @@ export async function resolveAdminSession(): Promise<AdminSessionContext> {
   const db = getDb();
 
   // If user is logged in with one of the authorized admin emails
-  if (isAllowedAdminEmail(email)) {
+  if (isVerifiedAdminUser(user)) {
     let profile = await db.query.userProfiles.findFirst({
       where: eq(userProfiles.userId, user.id),
     });
@@ -152,12 +152,10 @@ export async function requireAdminApi(): Promise<AdminApiResult> {
 
     if (isTokenAuthorized) {
       const db = getDb();
-      let profile = await db.query.userProfiles.findFirst({
+      // Acts as an ADMIN profile only; never as an arbitrary first user.
+      const profile = await db.query.userProfiles.findFirst({
         where: eq(userProfiles.role, "ADMIN"),
       });
-      if (!profile) {
-        profile = await db.query.userProfiles.findFirst();
-      }
       if (profile) {
         return { authorized: true, db, profile, errorResponse: null };
       }
@@ -186,7 +184,7 @@ export async function requireAdminApi(): Promise<AdminApiResult> {
   const email = user.primaryEmail?.toLowerCase();
 
   // If user matches designated admin emails, ensure they have the ADMIN role
-  if (isAllowedAdminEmail(email)) {
+  if (isVerifiedAdminUser(user)) {
     let profile = await db.query.userProfiles.findFirst({
       where: eq(userProfiles.userId, user.id),
     });

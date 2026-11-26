@@ -58,6 +58,7 @@ interface CommunitySettingsClientProps {
     category?: string;
     privacy?: Privacy | string;
     allowAnonymousPosts?: boolean;
+    verifiedOnlyPosting?: boolean;
     rules?: string | null;
     avatarUrl?: string | null;
     bannerUrl?: string | null;
@@ -82,6 +83,7 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
   const [category, setCategory] = useState(community.category || "General");
   const [privacy, setPrivacy] = useState<Privacy>((community.privacy as Privacy) || "PUBLIC");
   const [allowAnonymousPosts, setAllowAnonymousPosts] = useState(community.allowAnonymousPosts ?? true);
+  const [verifiedOnlyPosting, setVerifiedOnlyPosting] = useState(community.verifiedOnlyPosting ?? false);
   const [avatarUrl, setAvatarUrl] = useState(community.avatarUrl || "");
   const [bannerUrl, setBannerUrl] = useState(community.bannerUrl || "");
   const [rules, setRules] = useState<CommunityRule[]>(() => {
@@ -98,6 +100,7 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
       category,
       privacy,
       allowAnonymousPosts,
+      verifiedOnlyPosting,
       rules,
       avatarUrl,
       bannerUrl,
@@ -135,6 +138,7 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
         category,
         privacy,
         allowAnonymousPosts,
+        verifiedOnlyPosting,
         rules: validRules.length > 0 ? JSON.stringify(validRules) : undefined,
         avatarUrl: avatarUrl.trim() || undefined,
         bannerUrl: bannerUrl.trim() || undefined,
@@ -246,6 +250,21 @@ export function CommunitySettingsClient({ community }: CommunitySettingsClientPr
                   aria-label="Allow anonymous posts"
                   checked={allowAnonymousPosts}
                   onCheckedChange={(checked) => setAllowAnonymousPosts(checked)}
+                />
+              </div>
+
+              <div className="flex items-center justify-between gap-4 border-t border-border pt-4">
+                <div className="space-y-0.5">
+                  <Label htmlFor="verified-only">Only verified students can post</Label>
+                  <p className="text-sm text-fg-muted">
+                    Members without a verified college email or GitHub Student Pack can read and comment, but not post.
+                  </p>
+                </div>
+                <Switch
+                  id="verified-only"
+                  aria-label="Only verified students can post"
+                  checked={verifiedOnlyPosting}
+                  onCheckedChange={(checked) => setVerifiedOnlyPosting(checked)}
                 />
               </div>
             </CardContent>

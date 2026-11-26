@@ -10,6 +10,7 @@ import {
   ridesharePools,
 } from "@/db/schema";
 import { requireProfile } from "@/lib/require-profile";
+import { requireCapability } from "@/lib/trust-server";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,8 @@ export async function POST(req: NextRequest) {
     const auth = await requireProfile();
     if (!auth.ok) return auth.response;
     const { profile } = auth;
+    const capabilityBlocked = await requireCapability(profile, "create_community");
+    if (capabilityBlocked) return capabilityBlocked;
 
     const db = getDb();
 

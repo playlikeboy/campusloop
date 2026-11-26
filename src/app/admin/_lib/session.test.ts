@@ -2,7 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
-const { ADMIN_EMAILS, createAdminSessionToken, isAllowedAdminEmail, isValidAdminSessionToken } = await import(
+const { ADMIN_EMAILS, createAdminSessionToken, isAllowedAdminEmail, isValidAdminSessionToken, isVerifiedAdminUser } =
+  await import(
   "./session"
 );
 
@@ -19,6 +20,14 @@ describe("Admin Email Authorization & Session Security", () => {
     expect(isAllowedAdminEmail("SH20RAJ@GMAIL.COM")).toBe(true);
     expect(isAllowedAdminEmail("BTECH10574.24@BITMESRA.AC.IN")).toBe(true);
     expect(isAllowedAdminEmail(" Sh20Raj@gmail.com ")).toBe(true);
+  });
+
+  it("grants email-based admin only when the primary email is verified", () => {
+    expect(isVerifiedAdminUser({ primaryEmail: "sh20raj@gmail.com", primaryEmailVerified: true })).toBe(true);
+    expect(isVerifiedAdminUser({ primaryEmail: "sh20raj@gmail.com", primaryEmailVerified: false })).toBe(false);
+    expect(isVerifiedAdminUser({ primaryEmail: "sh20raj@gmail.com" })).toBe(false);
+    expect(isVerifiedAdminUser({ primaryEmail: "hacker@malicious.com", primaryEmailVerified: true })).toBe(false);
+    expect(isVerifiedAdminUser(null)).toBe(false);
   });
 
   it("strictly rejects unauthorized emails and nullish values", () => {

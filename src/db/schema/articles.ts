@@ -84,6 +84,10 @@ export const articles = pgTable(
     isFeatured: boolean("is_featured").default(false).notNull(),
     isDemo: boolean("is_demo").default(false).notNull(),
     status: varchar("status", { length: 16 }).default("PUBLISHED").notNull(),
+    /** Search indexing: "index" (default) or "noindex". Set by scripts/articles/audit-articles.ts --apply. */
+    seoStatus: text("seo_status").$type<"index" | "noindex">().default("index").notNull(),
+    /** When set, /articles/<slug> 301s to /articles/<redirectToSlug> (merged near-duplicates). */
+    redirectToSlug: text("redirect_to_slug"),
     publishedAt: timestamp("published_at").defaultNow(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -96,6 +100,7 @@ export const articles = pgTable(
     index("articles_institution_idx").on(table.institutionId),
     index("articles_published_at_idx").on(table.publishedAt),
     index("articles_created_at_idx").on(table.createdAt),
+    index("articles_seo_status_idx").on(table.seoStatus),
   ]
 );
 

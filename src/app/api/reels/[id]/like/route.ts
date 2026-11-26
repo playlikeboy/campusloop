@@ -3,6 +3,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { reelLikes, reels } from "@/db/schema";
 import { requireProfile } from "@/lib/require-profile";
+import { requireCapability } from "@/lib/trust-server";
 
 export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
   try {
@@ -10,6 +11,8 @@ export async function POST(req: NextRequest, props: { params: Promise<{ id: stri
     const auth = await requireProfile();
     if (!auth.ok) return auth.response;
     const { profile } = auth;
+    const capabilityBlocked = await requireCapability(profile, "vote");
+    if (capabilityBlocked) return capabilityBlocked;
 
     const db = getDb();
 

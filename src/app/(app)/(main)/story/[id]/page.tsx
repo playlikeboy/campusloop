@@ -1,3 +1,4 @@
+import { PUBLIC_PROFILE_COLUMNS } from "@/lib/profile-columns";
 import { desc, eq, gt } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
@@ -16,7 +17,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const db = getDb();
   const story = await db.query.stories.findFirst({
     where: eq(stories.id, id),
-    with: { user: true },
+    with: { user: { columns: PUBLIC_PROFILE_COLUMNS } },
   });
   // Stories are private and last 24 hours: never indexed.
   return privateMetadata(story?.user ? `Story by ${story.user.displayName}` : "Story");
@@ -39,6 +40,7 @@ export default async function StoryPage({ params }: PageProps) {
     where: eq(stories.id, id),
     with: {
       user: {
+        columns: PUBLIC_PROFILE_COLUMNS,
         with: {
           institution: true,
         },

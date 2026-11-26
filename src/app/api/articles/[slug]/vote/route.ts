@@ -4,6 +4,7 @@ import { getDb } from "@/db";
 import { articles, articleVotes, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { awardPoints } from "@/lib/gamification-server";
+import { requireCapability } from "@/lib/trust-server";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +28,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     if (!currentProfile) {
       return NextResponse.json({ error: "Profile required" }, { status: 404 });
     }
+    const capabilityBlocked = await requireCapability(currentProfile, "vote");
+    if (capabilityBlocked) return capabilityBlocked;
 
     const article = await db.query.articles.findFirst({
       where: or(eq(articles.slug, slug), eq(articles.id, slug)),

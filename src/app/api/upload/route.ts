@@ -1,7 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { type NextRequest, NextResponse } from "next/server";
 import { putR2Object } from "@/lib/r2";
-import { getCachedAuthUser } from "@/lib/server-cache";
+import { getCachedAuthUser, getCachedBareProfile } from "@/lib/server-cache";
+import { requireCapability } from "@/lib/trust-server";
 import { timingSafeCompare } from "@/lib/security/timing";
 
 export const dynamic = "force-dynamic";
@@ -89,6 +90,16 @@ export async function POST(req: NextRequest) {
 
     if (!user) {
       return NextResponse.json({ error: "Please sign in to upload files" }, { status: 401 });
+    }
+
+    // Unverified members upload only while /admin/access allows it. Someone
+    // still in onboarding has no profile yet and can always set an avatar.
+    if (user.id !== "admin_api_user") {
+      const uploader = await getCachedBareProfile(user.id);
+      if (uploader) {
+        const capabilityBlocked = await requireCapability(uploader, "upload_media");
+        if (capabilityBlocked) return capabilityBlocked;
+      }
     }
 
     const formData = await req.formData();
@@ -179,8 +190,10 @@ export async function POST(req: NextRequest) {
     const randomId = randomUUID();
     const safeUserId = user.id.replace(/[^a-zA-Z0-9_-]/g, "");
 
+    // Private uploads (ID cards, verification) skip the public media branches below and always
+    // land under private/ on R2, which the files route only serves to the owner and admins.
     // ─── 1. Image Upload ───
-    if (isImage || category === "image") {
+    if ((isImage || category === "image") && !isPrivate) {
       if (size > 15 * 1024 * 1024) {
         return NextResponse.json(
           { error: "Image exceeds 15MB limit. Please choose a smaller photo." },
@@ -240,7 +253,7 @@ export async function POST(req: NextRequest) {
     }
 
     // ─── 2. Video Upload ───
-    if (isVideo || category === "video") {
+    if ((isVideo || category === "video") && !isPrivate) {
       if (size > 75 * 1024 * 1024) {
         return NextResponse.json(
           { error: "Video exceeds 75MB limit. Please select a shorter video." },
@@ -264,7 +277,7 @@ export async function POST(req: NextRequest) {
     }
 
     // ─── 3. Audio & Voice Notes ───
-    if (isAudio || category === "audio") {
+    if ((isAudio || category === "audio") && !isPrivate) {
       if (size > 30 * 1024 * 1024) {
         return NextResponse.json({ error: "Audio exceeds 30MB limit." }, { status: 400 });
       }

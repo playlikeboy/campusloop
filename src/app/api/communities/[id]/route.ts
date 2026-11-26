@@ -82,8 +82,17 @@ export async function GET(request: Request, { params }: RouteProps) {
       );
     const postsCount = postsCountRows[0]?.count ?? 0;
 
+    // The invite code is an access secret; only community admins may see it (the list route strips it too).
+    const viewerIsAdmin = Boolean(
+      currentProfileId &&
+        (comm.creatorId === currentProfileId ||
+          (userMembership?.role === "ADMIN" && userMembership?.status === "ACTIVE"))
+    );
+    const { inviteCode, ...publicComm } = comm;
+
     return NextResponse.json({
-      ...comm,
+      ...publicComm,
+      ...(viewerIsAdmin ? { inviteCode } : {}),
       membersCount: activeMembers.length,
       postsCount,
       isMember: Boolean(userMembership && userMembership.status === "ACTIVE"),
@@ -121,7 +130,8 @@ export async function PATCH(request: Request, { params }: RouteProps) {
       where: and(
         eq(communityMembers.communityId, comm.id),
         eq(communityMembers.userId, profile.id),
-        eq(communityMembers.role, "ADMIN")
+        eq(communityMembers.role, "ADMIN"),
+        eq(communityMembers.status, "ACTIVE")
       ),
     });
 

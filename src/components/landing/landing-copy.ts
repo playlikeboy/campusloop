@@ -9,8 +9,8 @@ export const HERO = {
   /** The headline is set in two lines; the second sits on a white sticker. */
   titleLead: "Your campus.",
   titleSticker: "Only your campus.",
-  lead: "Confessions, polls, events and notes from students at your college. Sign up with your college email to get in.",
-  cta: "Join with college email",
+  lead: "Confessions, polls, events and notes from students at your college. Join free with any email. Verified students get a badge.",
+  cta: "Join free",
 } as const;
 
 /** What lives on CampusLoop, as the running tape under the hero. Each word is a real section. */
@@ -28,8 +28,8 @@ export const TAPE_WORDS = [
 /** The safety promise, one fact per line. Wording matches what the product does today. */
 export const SAFETY_POINTS: ReadonlyArray<readonly [string, string]> = [
   [
-    "College email to get in",
-    "You sign up with your college email, so the people here are students from your college.",
+    "A badge for real students",
+    "Anyone can join. Students who verify with a college email or GitHub Student Pack get a verified badge, so you know who studies there.",
   ],
   ["No name on anonymous posts", "Anonymous posts never show your name to anyone."],
   [
@@ -43,7 +43,7 @@ export const SAFETY_COMPLIANCE = COMPLIANCE_LINE;
 export const FAQS: ReadonlyArray<readonly [string, string]> = [
   [
     "Who can join?",
-    "Any college student. Sign up with your college email to post, vote and chat. With a personal email you can still look around in read-only Campus Preview.",
+    "Anyone. Sign up with any email, pick your college and you can post, comment, vote and chat. Verify with your college email or the GitHub Student Developer Pack to get the verified badge and unlock things like anonymous posts and Campus Match.",
   ],
   ["Can anyone see who wrote an anonymous post?", ANONYMITY_STATEMENT],
   ["Is it free?", "Yes, joining is free. Notes, past papers and courses are free to open too."],

@@ -43,6 +43,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     const relatedEvents = await db.query.events.findMany({
       where: and(
         ne(events.id, currentEvent.id),
+        eq(events.status, "PUBLISHED"),
         visibilityCondition,
         or(eq(events.eventType, currentEvent.eventType), eq(events.institutionId, currentEvent.institutionId))
       ),

@@ -1,6 +1,6 @@
 /**
  * Every rate limit for public endpoints, in one place. Enforced by
- * src/middleware.ts for /api/*, /oauth/* and /.well-known/*, keyed by client IP.
+ * src/middleware.ts for /api/*, /oauth/*, /.well-known/* and /mcp/*, keyed by client IP.
  *
  * Rules are matched top to bottom; the first rule whose prefix and method
  * match wins. `store: "redis"` counts across all Workers (exact, costs one
@@ -8,6 +8,8 @@
  * for high-volume reads so the feed stays fast). Without Redis, redis rules
  * fall back to memory.
  */
+
+import type { Capability } from "./trust";
 
 export type MethodScope = "ALL" | "READ" | "WRITE";
 
@@ -42,11 +44,13 @@ export const RATE_LIMITS: RateRule[] = [
   { prefix: "/.well-known/", methods: "ALL", max: 300, windowSec: 60, store: "memory" },
 
   // Expensive or abusable endpoints
+  { prefix: "/api/verify/", methods: "ALL", max: 10, windowSec: 60, store: "redis" },
   { prefix: "/api/upload", methods: "ALL", max: 30, windowSec: 60, store: "redis" },
   { prefix: "/api/push/test", methods: "WRITE", max: 5, windowSec: 60, store: "redis" },
   { prefix: "/api/files", methods: "WRITE", max: 30, windowSec: 60, store: "redis" },
   { prefix: "/api/college-index-requests", methods: "WRITE", max: 5, windowSec: 600, store: "redis" },
   { prefix: "/api/mcp", methods: "ALL", max: 120, windowSec: 60, store: "redis" },
+  { prefix: "/mcp/", methods: "ALL", max: 120, windowSec: 60, store: "redis" },
   { prefix: "/api/search", methods: "READ", max: 120, windowSec: 60, store: "memory" },
   { prefix: "/api/invites", methods: "READ", max: 60, windowSec: 60, store: "memory" },
   { prefix: "/api/gifs", methods: "READ", max: 60, windowSec: 60, store: "memory" },
@@ -83,7 +87,12 @@ export const RATE_LIMITS: RateRule[] = [
 const WRITE = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
 export function isRateLimitedPath(path: string): boolean {
-  return path.startsWith("/api/") || path.startsWith("/oauth/") || path.startsWith("/.well-known/");
+  return (
+    path.startsWith("/api/") ||
+    path.startsWith("/oauth/") ||
+    path.startsWith("/.well-known/") ||
+    path.startsWith("/mcp/")
+  );
 }
 
 export function matchRateRule(path: string, method: string): RateRule | null {
@@ -96,3 +105,27 @@ export function matchRateRule(path: string, method: string): RateRule | null {
     ) ?? null
   );
 }
+
+/**
+ * Extra per-account budgets for unverified members, on top of the IP rules
+ * above. Counted per profile per hour by `requireCapability` in
+ * src/lib/trust-server.ts while "Stricter limits for members" is on in
+ * /admin/access. Verified students never hit these. Capabilities not listed
+ * have no extra budget.
+ */
+export const MEMBER_HOURLY_LIMITS: Partial<Record<Capability, number>> = {
+  post: 8,
+  comment: 40,
+  vote: 200,
+  chat_dm: 40,
+  join_community: 20,
+  create_community: 1,
+  anonymous_post: 3,
+  campus_match: 60,
+  secret_crush: 3,
+  events_create: 2,
+  events_register: 20,
+  upload_media: 20,
+  stories: 6,
+  play: 150,
+};

@@ -10,7 +10,7 @@ import {
 } from "@/db/schema";
 import { requireProfile } from "@/lib/require-profile";
 import { createNotification } from "@/lib/notifications";
-import { rejectViewerWrite } from "@/lib/viewer";
+import { requireCapability } from "@/lib/trust-server";
 
 export async function POST(req: Request) {
   try {
@@ -20,8 +20,8 @@ export async function POST(req: Request) {
 
     const db = getDb();
 
-    const viewerBlocked = await rejectViewerWrite(profile);
-    if (viewerBlocked) return viewerBlocked;
+    const capabilityBlocked = await requireCapability(profile, "campus_match");
+    if (capabilityBlocked) return capabilityBlocked;
 
     const body = (await req.json().catch(() => ({}))) as {
       targetId?: unknown;

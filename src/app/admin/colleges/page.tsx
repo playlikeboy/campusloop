@@ -4,10 +4,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
-import { getDb } from "@/db";
 import { institutions } from "@/db/schema";
 import { privateMetadata } from "@/lib/seo";
 import { AdminPageHeader } from "../_components/admin-page-header";
+import { getAdminDb } from "../_lib/guard";
 import { CollegesTable } from "./colleges-table";
 
 export const dynamic = "force-dynamic";
@@ -15,7 +15,8 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = privateMetadata("Colleges");
 
 export default async function CollegesAdminPage() {
-  const db = getDb();
+  // Guard in the page too: a soft navigation can render this segment without re-running the layout.
+  const db = await getAdminDb();
   const colleges = await db.query.institutions.findMany({
     orderBy: [desc(institutions.createdAt)],
     with: {

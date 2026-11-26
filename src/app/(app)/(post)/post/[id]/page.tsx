@@ -11,6 +11,7 @@ import { sanitizeAnonRow } from "@/lib/anonymity";
 import { formatApiFeedPosts, resolveFeedPage } from "@/lib/feed";
 import { loadFollowedPostActivity } from "@/lib/feed-social-context";
 import { getRecommendedUsers } from "@/lib/recommendations/recommended-users";
+import { communityPostVisibleSql, viewerCanReadPost } from "@/lib/post-visibility";
 import { getRelatedPosts } from "@/lib/recommendations/related-posts";
 import {
   absoluteUrl,
@@ -20,6 +21,7 @@ import {
   SITE_URL,
   serializeJsonLd,
 } from "@/lib/seo";
+import { fitDescription, fitTitle, TITLE_MAX } from "@/lib/seo/describe";
 import { getCachedAuthUser, getCachedPostDetail, getCachedUserProfile } from "@/lib/server-cache";
 import { cleanSnippet } from "@/lib/utils";
 
@@ -35,6 +37,12 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
   // so this is the last point a real 404 status can be sent.
   if (!post || post.status === "DELETED") notFound();
 
+  // Members-only (private community) and not-yet-public posts get generic, noindexed
+  // metadata: link unfurls must not quote a body the requester may not be allowed to read.
+  if (post.status !== "PUBLISHED" || !(await viewerCanReadPost(getDb(), post, null))) {
+    return buildMetadata({ title: "Post · CampusLoop", description: "A post on CampusLoop.", path: `/post/${id}`, noindex: true });
+  }
+
   const isPrivate =
     post.isSeeded ||
     post.status !== "PUBLISHED" ||
@@ -45,14 +53,25 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
   const campus = post.institution?.name?.split(",")[0] || "CampusLoop";
   const kind = post.type === "CONFESSION" ? "Confession" : post.type === "POLL" ? "Poll" : "Post";
 
-  const snippet = cleanSnippet(post.body, 155);
-  const headline = cleanSnippet(post.body, 48);
+  const snippet = cleanSnippet(post.body, 400);
+  const headline = cleanSnippet(post.body, 200);
   // "Hello" or "Test" is not a search result anyone wants.
   const isThin = snippet.length < 40;
+  // "<first line> · <campus>" when both fit in 60 characters with the site name, else the first line alone.
+  const withCampus = `${fitTitle(headline, TITLE_MAX - campus.length - 3)} · ${campus}`;
+  const title =
+    headline.length < 20
+      ? fitTitle(`${kind} by ${authorName} · ${campus}`)
+      : campus.length <= 20
+        ? withCampus
+        : fitTitle(headline);
 
   return buildMetadata({
-    title: headline.length >= 20 ? `${headline} · ${campus}` : `${kind} by ${authorName} · ${campus}`,
-    description: snippet || `A ${kind.toLowerCase()} from a student at ${campus}.`,
+    title,
+    description: fitDescription(snippet || `A ${kind.toLowerCase()} from a student at ${campus}`, [
+      `${kind} by ${authorName} at ${campus} on CampusLoop`,
+      "Read the replies and join the discussion",
+    ]),
     path: `/post/${id}`,
     type: "article",
     publishedTime: new Date(post.createdAt).toISOString(),
@@ -73,6 +92,16 @@ export default async function PostDetailPage({ params }: PostPageProps) {
   ]);
 
   if (!rawPost || rawPost.status === "DELETED") {
+    notFound();
+  }
+
+  // Same gate as GET /api/posts/[id]: held or hidden posts only for their author and staff,
+  // private-community posts only for members.
+  const isStaffViewer = profile?.role === "MODERATOR" || profile?.role === "ADMIN";
+  if (rawPost.status !== "PUBLISHED" && !isStaffViewer && (!profile || rawPost.authorId !== profile.id)) {
+    notFound();
+  }
+  if (!isStaffViewer && !(await viewerCanReadPost(db, rawPost, profile?.id))) {
     notFound();
   }
 
@@ -113,7 +142,7 @@ export default async function PostDetailPage({ params }: PostPageProps) {
       : Promise.resolve(new Map()),
     getRelatedPosts(id, { limit: 6, currentUserId: profile?.id }).catch(() => []),
     resolveFeedPage({
-      conditions: [eq(posts.status, "PUBLISHED"), eq(posts.isSeeded, false)],
+      conditions: [eq(posts.status, "PUBLISHED"), eq(posts.isSeeded, false), communityPostVisibleSql(profile?.id)],
       sort: "for_you",
       limit: 12,
       offset: 0,
@@ -227,6 +256,8 @@ export default async function PostDetailPage({ params }: PostPageProps) {
 
   const campusName = rawPost.institution?.name?.split(",")[0] || "Campus";
   const postTitle = `${rawPost.type === "CONFESSION" ? "Confession" : "Discussion"} in ${campusName}`;
+  // First line of the post, used as the page heading and the JSON-LD headline.
+  const postHeadline = cleanSnippet(rawPost.body, 110) || postTitle;
 
   const postPath = `/post/${rawPost.id}`;
   const isIndexable =
@@ -240,9 +271,10 @@ export default async function PostDetailPage({ params }: PostPageProps) {
     ? graphJsonLd(
         {
           "@type": "DiscussionForumPosting",
-          headline: postTitle,
+          headline: postHeadline,
           text: rawPost.body,
           datePublished: rawPost.createdAt.toISOString(),
+          dateModified: (rawPost.updatedAt ?? rawPost.createdAt).toISOString(),
           url: absoluteUrl(postPath),
           author: {
             "@type": "Person",
@@ -265,7 +297,7 @@ export default async function PostDetailPage({ params }: PostPageProps) {
         },
         breadcrumbJsonLd([
           rawPost.institution?.slug
-            ? { name: campusName, path: `/colleges/${rawPost.institution.slug}` }
+            ? { name: campusName, path: `/college/${rawPost.institution.slug}` }
             : { name: "Colleges", path: "/colleges" },
           { name: postTitle, path: postPath },
         ])
@@ -277,6 +309,11 @@ export default async function PostDetailPage({ params }: PostPageProps) {
       {jsonLd ? (
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }} />
       ) : null}
+      {/* The deck shows the post as a card, so the page heading is for screen readers and search engines. */}
+      <h1 className="sr-only">
+        {postHeadline}
+        {rawPost.isAnonymous ? "" : ` by ${rawPost.author?.displayName || "a student"}`} · {campusName}
+      </h1>
       <PostReelsDeck initialItems={initialItems} currentUserId={profile?.id} campusName={campusName} />
     </>
   );

@@ -690,7 +690,7 @@ export function FastCommentsModal({ post, isOpen, onClose, onCommentCountChange 
                 <div className="flex items-center justify-between gap-3 p-3 rounded-md bg-surface-muted w-full">
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-fg">Sign in to comment</p>
-                    <p className="text-xs text-fg-subtle">Use your college email to reply and like.</p>
+                    <p className="text-xs text-fg-subtle">Sign in to reply and like.</p>
                   </div>
                   <Link
                     href={`/sign-in?returnTo=${typeof window !== "undefined" ? encodeURIComponent(window.location.pathname) : ""}`}

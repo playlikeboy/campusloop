@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { DeviceSection, MoreSection, NotificationsSection } from "./account-section";
 import { AppSection, FeedSection, MessagesSection } from "./preferences-sections";
 import { ProfileSection } from "./profile-section";
+import { SettingsLink, SettingsSection } from "./settings-ui";
 
 interface SettingsClientProps {
   profile: {
@@ -22,6 +23,7 @@ interface SettingsClientProps {
     institutionName: string | null;
     anonymousUsername?: string | null;
     feedVisibility?: string;
+    isVerified?: boolean;
   };
 }
 
@@ -40,6 +42,17 @@ export function SettingsClient({ profile }: SettingsClientProps) {
 
       <div className="space-y-8">
         <ProfileSection profile={profile} />
+        <SettingsSection id="settings-student-status" title="Student status">
+          <SettingsLink
+            href="/settings/verify"
+            label={profile.isVerified ? "Verified student" : "Verify your student status"}
+            description={
+              profile.isVerified
+                ? "See how you were verified."
+                : "Use your college email or the GitHub Student Developer Pack to get the verified badge."
+            }
+          />
+        </SettingsSection>
         <FeedSection initialVisibility={profile.feedVisibility} />
         <MessagesSection />
         <NotificationsSection />

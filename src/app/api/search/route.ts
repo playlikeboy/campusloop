@@ -1,3 +1,5 @@
+import { communityPostVisibleSql } from "@/lib/post-visibility";
+import { PUBLIC_PROFILE_COLUMNS } from "@/lib/profile-columns";
 import { and, desc, eq, ilike, or } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
@@ -64,6 +66,7 @@ export async function GET(request: Request) {
 
     // Resolve viewer's campus for campus scope filtering
     let userInstitutionId: string | null = null;
+    let viewerProfileId: string | null = null;
     try {
       const user = await hexclaveServerApp.getUser();
       if (user) {
@@ -72,7 +75,10 @@ export async function GET(request: Request) {
           columns: { id: true, institutionId: true },
         });
         // Remembered searches personalise feed slots such as course picks.
-        if (profile) await rememberSearch(profile.id, rawQ);
+        if (profile) {
+          viewerProfileId = profile.id;
+          await rememberSearch(profile.id, rawQ);
+        }
         if (profile?.institutionId) {
           userInstitutionId = profile.institutionId;
         }
@@ -118,6 +124,7 @@ export async function GET(request: Request) {
               )
             ),
             limit: entityLimit,
+            columns: PUBLIC_PROFILE_COLUMNS,
             with: { institution: true },
           })
         : Promise.resolve([]),
@@ -127,6 +134,7 @@ export async function GET(request: Request) {
         ? db.query.posts.findMany({
             where: and(
               eq(posts.status, "PUBLISHED"),
+              communityPostVisibleSql(viewerProfileId),
               showSeeded ? undefined : eq(posts.isSeeded, false),
               scope === "CAMPUS" && userInstitutionId ? eq(posts.institutionId, userInstitutionId) : undefined,
               or(ilike(posts.body, searchPattern), ilike(posts.title, searchPattern))
@@ -134,14 +142,14 @@ export async function GET(request: Request) {
             limit: entityLimit,
             orderBy: [desc(posts.createdAt)],
             with: {
-              author: true,
+              author: { columns: PUBLIC_PROFILE_COLUMNS },
               institution: true,
               community: true,
               votes: true,
               comments: {
                 where: eq(comments.status, "PUBLISHED"),
                 orderBy: [desc(comments.createdAt)],
-                with: { author: true },
+                with: { author: { columns: PUBLIC_PROFILE_COLUMNS } },
               },
               pollOptions: {
                 with: { votes: true },
@@ -201,7 +209,7 @@ export async function GET(request: Request) {
             ),
             limit: entityLimit,
             orderBy: [desc(articles.publishedAt)],
-            with: { author: true },
+            with: { author: { columns: PUBLIC_PROFILE_COLUMNS } },
           })
         : Promise.resolve([]),
 
@@ -216,7 +224,7 @@ export async function GET(request: Request) {
             ),
             limit: entityLimit,
             orderBy: [desc(academicResources.createdAt)],
-            with: { institution: true, uploader: true },
+            with: { institution: true, uploader: { columns: PUBLIC_PROFILE_COLUMNS } },
           })
         : Promise.resolve([]),
 
@@ -229,7 +237,7 @@ export async function GET(request: Request) {
             ),
             limit: entityLimit,
             orderBy: [desc(academicPlaylists.createdAt)],
-            with: { creator: true },
+            with: { creator: { columns: PUBLIC_PROFILE_COLUMNS } },
           })
         : Promise.resolve([]),
     ]);

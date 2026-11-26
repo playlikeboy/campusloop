@@ -5,6 +5,7 @@ import { ItemListJsonLd } from "@/components/courses/catalog/item-list-json-ld";
 import { catalogHref, categoryFromSlug, parseCatalogParams } from "@/lib/courses/catalog-params";
 import { listCategoryCounts, listCourses } from "@/lib/courses/server";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
+import { fitDescription } from "@/lib/seo/describe";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +19,15 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   if (!category) notFound();
   const catalogParams = parseCatalogParams(await searchParams, category);
   const title = `Free ${category} courses${catalogParams.page > 1 ? ` (page ${catalogParams.page})` : ""}`;
-  const description = `Free ${category.toLowerCase()} video courses. Track each lecture, take notes and ask questions.`;
+  const total = (await listCategoryCounts().catch(() => [])).find((c) => c.category === category)?.count ?? 0;
+  const description = fitDescription(
+    `${total > 0 ? `${total} free` : "Free"} ${category.toLowerCase()} video courses from universities and YouTube teachers`,
+    [
+      "Track each lecture, take notes and ask questions as you watch",
+      "No sign-up needed to start",
+      "Made for college students in India",
+    ]
+  );
   const hasFilters = Boolean(
     catalogParams.q ||
       catalogParams.level ||

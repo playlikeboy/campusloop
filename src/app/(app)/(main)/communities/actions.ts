@@ -7,6 +7,7 @@ import { getDb } from "@/db";
 import { communities, communityMembers, communityWebhooks, posts, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { notifyCommunityJoinApproved, notifyCommunityJoinRequest } from "@/lib/community-notifications";
+import { assertCapability } from "@/lib/trust-server";
 
 export interface CreateCommunityInput {
   name: string;
@@ -27,6 +28,8 @@ export interface UpdateCommunitySettingsInput {
   category?: string;
   privacy?: "PUBLIC" | "PRIVATE" | "UNLISTED";
   allowAnonymousPosts?: boolean;
+  /** Only verified students can post in this community. */
+  verifiedOnlyPosting?: boolean;
   rules?: string;
   avatarUrl?: string;
   bannerUrl?: string;
@@ -56,6 +59,7 @@ export async function createCommunity(input: CreateCommunityInput) {
   });
 
   if (!profile) throw new Error("Profile not found");
+  await assertCapability(profile, "create_community");
 
   const baseSlug = input.slug?.trim() ? slugify(input.slug) : slugify(name);
   const randomSuffix = Math.random().toString(36).substring(2, 6);
@@ -121,7 +125,8 @@ export async function updateCommunitySettings(input: UpdateCommunitySettingsInpu
     where: and(
       eq(communityMembers.communityId, input.id),
       eq(communityMembers.userId, profile.id),
-      eq(communityMembers.role, "ADMIN")
+      eq(communityMembers.role, "ADMIN"),
+      eq(communityMembers.status, "ACTIVE")
     ),
   });
 
@@ -142,6 +147,7 @@ export async function updateCommunitySettings(input: UpdateCommunitySettingsInpu
       category: input.category || comm.category,
       privacy: input.privacy || comm.privacy,
       allowAnonymousPosts: input.allowAnonymousPosts ?? comm.allowAnonymousPosts,
+      verifiedOnlyPosting: input.verifiedOnlyPosting ?? comm.verifiedOnlyPosting,
       rules: input.rules !== undefined ? input.rules : comm.rules,
       avatarUrl: input.avatarUrl !== undefined ? input.avatarUrl : comm.avatarUrl,
       bannerUrl: input.bannerUrl !== undefined ? input.bannerUrl : comm.bannerUrl,
@@ -165,6 +171,7 @@ export async function joinCommunity(communityId: string) {
   });
 
   if (!profile) throw new Error("Profile not found");
+  await assertCapability(profile, "join_community");
 
   const comm = await db.query.communities.findFirst({
     where: eq(communities.id, communityId),
@@ -178,6 +185,8 @@ export async function joinCommunity(communityId: string) {
   });
 
   if (existing) {
+    // A ban is kept: toggling must not delete the row and let the member rejoin.
+    if (existing.status === "BANNED") throw new Error("You are banned from this community");
     // Leave community / cancel request
     await db
       .delete(communityMembers)
@@ -236,7 +245,8 @@ export async function approveJoinRequest(communityId: string, targetUserId: stri
     where: and(
       eq(communityMembers.communityId, communityId),
       eq(communityMembers.userId, profile.id),
-      eq(communityMembers.role, "ADMIN")
+      eq(communityMembers.role, "ADMIN"),
+      eq(communityMembers.status, "ACTIVE")
     ),
   });
 
@@ -293,7 +303,8 @@ export async function rejectJoinRequest(communityId: string, targetUserId: strin
     where: and(
       eq(communityMembers.communityId, communityId),
       eq(communityMembers.userId, profile.id),
-      eq(communityMembers.role, "ADMIN")
+      eq(communityMembers.role, "ADMIN"),
+      eq(communityMembers.status, "ACTIVE")
     ),
   });
   if (comm.creatorId !== profile.id && !callerMembership) {
@@ -367,7 +378,8 @@ export async function getCommunityWebhooks(communityId: string) {
     where: and(
       eq(communityMembers.communityId, comm.id),
       eq(communityMembers.userId, profile.id),
-      eq(communityMembers.role, "ADMIN")
+      eq(communityMembers.role, "ADMIN"),
+      eq(communityMembers.status, "ACTIVE")
     ),
   });
 
@@ -406,7 +418,8 @@ export async function createCommunityWebhook(input: CreateCommunityWebhookInput)
     where: and(
       eq(communityMembers.communityId, comm.id),
       eq(communityMembers.userId, profile.id),
-      eq(communityMembers.role, "ADMIN")
+      eq(communityMembers.role, "ADMIN"),
+      eq(communityMembers.status, "ACTIVE")
     ),
   });
 
@@ -459,7 +472,8 @@ export async function toggleCommunityWebhook(webhookId: string, isActive: boolea
     where: and(
       eq(communityMembers.communityId, comm.id),
       eq(communityMembers.userId, profile.id),
-      eq(communityMembers.role, "ADMIN")
+      eq(communityMembers.role, "ADMIN"),
+      eq(communityMembers.status, "ACTIVE")
     ),
   });
 
@@ -505,7 +519,8 @@ export async function regenerateCommunityWebhookToken(webhookId: string) {
     where: and(
       eq(communityMembers.communityId, comm.id),
       eq(communityMembers.userId, profile.id),
-      eq(communityMembers.role, "ADMIN")
+      eq(communityMembers.role, "ADMIN"),
+      eq(communityMembers.status, "ACTIVE")
     ),
   });
 
@@ -553,7 +568,8 @@ export async function deleteCommunityWebhook(webhookId: string) {
     where: and(
       eq(communityMembers.communityId, comm.id),
       eq(communityMembers.userId, profile.id),
-      eq(communityMembers.role, "ADMIN")
+      eq(communityMembers.role, "ADMIN"),
+      eq(communityMembers.status, "ACTIVE")
     ),
   });
 

@@ -59,8 +59,9 @@ export async function POST(req: Request) {
     }
 
     const userAgent = req.headers.get("user-agent");
-    const forwardedFor = req.headers.get("x-forwarded-for");
-    const ip = forwardedFor ? forwardedFor.split(",")[0].trim() : req.headers.get("cf-connecting-ip") || null;
+    // cf-connecting-ip is set by Cloudflare and can't be spoofed; x-forwarded-for is client-controlled.
+    const ip =
+      req.headers.get("cf-connecting-ip") || req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || null;
     const country = req.headers.get("cf-ipcountry") || null;
 
     const { device, browser, os } = parseUserAgent(userAgent);

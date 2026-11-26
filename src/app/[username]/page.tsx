@@ -47,8 +47,10 @@ export async function generateMetadata({ params }: VanityProfileProps): Promise<
   const { hasAt, username } = parseHandle((await params).username);
   const [profile, showSeeded] = await Promise.all([findProfile(username), getShowSeededPosts()]);
   if (!profile || (!showSeeded && profile.isSeeded)) {
-    // Streaming metadata would commit a 200 before notFound() ran here; the page body throws the real 404.
-    return { title: "Profile not found", robots: { index: false, follow: false } };
+    // Crawlers get blocking metadata, so notFound() here sends them a real 404 status
+    // (no soft 404s for /wp-login.php, /foo.xml, ...). Browsers get streamed metadata:
+    // the 200 is already committed and the page body renders the 404 view.
+    notFound();
   }
   if (!hasAt) redirect(`/@${username}`);
 

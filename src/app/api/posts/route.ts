@@ -13,7 +13,8 @@ import { notifyMentions } from "@/lib/notifications";
 import { notifyFollowersOfNewPost } from "@/lib/post-notifications";
 import { indexPostVector } from "@/lib/qdrant/indexer";
 import { recordStreakActivity } from "@/lib/streaks/streak-service";
-import { rejectViewerWrite } from "@/lib/viewer";
+import { isVerifiedStudent } from "@/lib/trust";
+import { requireCapability, shouldHoldMemberPost } from "@/lib/trust-server";
 
 const ALLOWED_POST_TYPES = new Set([
   "NORMAL",
@@ -36,8 +37,8 @@ export async function POST(req: Request) {
 
     const db = getDb();
 
-    const viewerBlocked = await rejectViewerWrite(profile);
-    if (viewerBlocked) return viewerBlocked;
+    const capabilityBlocked = await requireCapability(profile, "post");
+    if (capabilityBlocked) return capabilityBlocked;
 
     const data = await req.json().catch(() => ({}));
     const { body, type, scope, isAnonymous, title, options, communityId } = data as {
@@ -92,6 +93,10 @@ export async function POST(req: Request) {
 
     // Confessions are always anonymous, whatever the client sends.
     const anonymous = Boolean(isAnonymous) || postType === "CONFESSION";
+    if (anonymous) {
+      const anonBlocked = await requireCapability(profile, "anonymous_post");
+      if (anonBlocked) return anonBlocked;
+    }
 
     // Centralized safety engine (PII / doxxing / threats / abuse)
     const safety = runSafetyCheck({ title: trimmedTitle ?? undefined, body: trimmedBody });
@@ -109,10 +114,14 @@ export async function POST(req: Request) {
         targetCommunity = await assertCanCreateCommunityPost(profile.id, communityId.trim(), {
           isAnonymous: anonymous,
           type: postType,
+          isVerified: isVerifiedStudent(profile),
         });
       } catch (err) {
         if (err instanceof CommunityPostAuthError) {
-          return NextResponse.json({ error: err.message }, { status: err.status });
+          return NextResponse.json(
+            err.code ? { error: err.message, code: err.code, capability: "post" } : { error: err.message },
+            { status: err.status }
+          );
         }
         return NextResponse.json(
           { error: err instanceof Error ? err.message : "Community authorization error" },
@@ -151,6 +160,12 @@ export async function POST(req: Request) {
 
     const postId = randomUUID();
 
+    // An unverified member's first few named posts wait in the admin review
+    // queue (the count is set on /admin/access). A post the safety filter
+    // already held stays held either way.
+    const holdForReview = !anonymous && safety.status === "PUBLISHED" && (await shouldHoldMemberPost(profile));
+    const postStatus = holdForReview ? "PENDING_REVIEW" : safety.status;
+
     // Anonymous posts carry NO author foreign key. The real profile id is
     // AES-sealed into the identity vault; the post row holds the student's custom
     // anonymous username or falls back to the deterministic HMAC pseudonym handle.
@@ -181,7 +196,7 @@ export async function POST(req: Request) {
         isAnonymous: anonymous,
         title: trimmedTitle,
         communityId: targetCommunity ? targetCommunity.id : null,
-        status: safety.status,
+        status: postStatus,
         riskScore: safety.riskScore,
       })
       .returning();
@@ -220,6 +235,7 @@ export async function POST(req: Request) {
         text: trimmedBody,
         actorId: profile.id,
         referenceId: newPost.id,
+        anonymous,
       }),
       "post mention notifications"
     );
@@ -227,7 +243,8 @@ export async function POST(req: Request) {
     // Tell followers and friends there is something new. Anonymous posts are
     // filtered out inside the helper — an author-attributed ping would undo the
     // anonymity the post row is careful to preserve.
-    runInBackground(
+    // A post held for review stays quiet until an admin approves it.
+    if (postStatus === "PUBLISHED") runInBackground(
       notifyFollowersOfNewPost({
         postId: newPost.id,
         authorId: anonymous ? null : profile.id,

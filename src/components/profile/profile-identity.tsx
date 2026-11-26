@@ -5,6 +5,7 @@ import { ProfileSocialLinks } from "@/components/profile/profile-social-links";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { MentionTag, VerifiedSticker } from "@/components/ui/stickers";
+import { UnverifiedLabel } from "@/components/ui/unverified-label";
 import type { CustomLink } from "@/lib/social-links";
 import { cn, initialOf } from "@/lib/utils";
 
@@ -123,6 +124,7 @@ export function ProfileIdentity({
           {(isVerified || isOfficial || institution) && (
             <div className="flex flex-wrap items-center gap-2">
               {isVerified && <VerifiedSticker size="sm" className="sticker-pop" />}
+              {!isVerified && !isOfficial && <UnverifiedLabel />}
               {isOfficial && <Badge variant="brand">CampusLoop team</Badge>}
               {institution?.slug ? (
                 <MentionTag

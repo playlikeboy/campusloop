@@ -1,3 +1,5 @@
+import { viewerCanReadPost } from "@/lib/post-visibility";
+import { PUBLIC_PROFILE_COLUMNS } from "@/lib/profile-columns";
 import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
@@ -5,7 +7,7 @@ import { posts } from "@/db/schema";
 import { requireProfile } from "@/lib/require-profile";
 import { runInBackground } from "@/lib/background";
 import { createNotification } from "@/lib/notifications";
-import { rejectViewerWrite } from "@/lib/viewer";
+import { requireCapability } from "@/lib/trust-server";
 
 export const dynamic = "force-dynamic";
 
@@ -24,17 +26,23 @@ export async function POST(req: Request, { params }: RouteParams) {
 
     const db = getDb();
 
-    const viewerBlocked = await rejectViewerWrite(profile);
-    if (viewerBlocked) return viewerBlocked;
+    const capabilityBlocked = await requireCapability(profile, "post");
+    if (capabilityBlocked) return capabilityBlocked;
 
     // Fetch original post
     const originalPost = await db.query.posts.findFirst({
       where: eq(posts.id, id),
-      with: { author: true },
+      with: { author: { columns: PUBLIC_PROFILE_COLUMNS } },
     });
 
     if (!originalPost) {
       return NextResponse.json({ error: "Original post not found" }, { status: 404 });
+    }
+
+    // Only live posts can be reposted, and a private community's posts never leave it:
+    // the repost copies the body into a public row.
+    if (originalPost.status !== "PUBLISHED" || !(await viewerCanReadPost(db, originalPost, null))) {
+      return NextResponse.json({ error: "This post can't be reposted" }, { status: 403 });
     }
 
     // Insert new post into DB with repostOfId DB flag
@@ -82,8 +90,6 @@ export async function DELETE(_req: Request, { params }: RouteParams) {
     const { id } = await params;
     const db = getDb();
 
-    const viewerBlocked = await rejectViewerWrite(profile);
-    if (viewerBlocked) return viewerBlocked;
 
     const repost = await db.query.posts.findFirst({
       where: eq(posts.id, id),

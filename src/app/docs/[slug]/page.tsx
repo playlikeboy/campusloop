@@ -9,6 +9,7 @@ import { MarketingShell } from "@/components/shells/marketing-shell";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { DOCS_FEATURES, getDocsFeature, getDocsSlugs } from "@/lib/docs-features";
 import { absoluteUrl, breadcrumbJsonLd, buildMetadata, ogImageUrl, SITE_URL } from "@/lib/seo";
+import { fitDescription, fitTitle } from "@/lib/seo/describe";
 import { JsonLd } from "@/lib/seo/json-ld-script";
 
 const DOCS_AUTHOR = "Shaswat Raj";
@@ -24,8 +25,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const feature = getDocsFeature(slug);
   if (!feature) notFound();
   return buildMetadata({
-    title: `How ${feature.title} works`,
-    description: feature.description,
+    title: fitTitle(`How ${feature.title} works`),
+    description: fitDescription(feature.description, [
+      `How ${feature.title} works on CampusLoop, with answers to common questions`,
+    ]),
     path: `/docs/${feature.slug}`,
     image: ogImageUrl(feature.title, "How it works"),
     type: "article",

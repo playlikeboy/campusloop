@@ -7,6 +7,7 @@ import { Chip } from "@/components/ui/chip";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { VerifiedSticker } from "@/components/ui/stickers";
+import { CollegePicker, type PickedCollege } from "@/components/trust/college-picker";
 import { initialOf } from "@/lib/utils";
 import { CampusPicker } from "./onboarding-campus-picker";
 import { PROSPECTIVE_FIELDS, PROSPECTIVE_STAGES } from "./onboarding-options";
@@ -21,12 +22,19 @@ export interface OnboardingValues {
   fieldOfInterest: string;
   prospectiveStage: string;
   dreamCampusIds: string[];
+  /** The college an unverified member picks. Verified students get theirs from the email. */
+  college: PickedCollege | null;
+  /** Aspirant: not in college yet, joins Campus Preview instead of a campus. */
+  notInCollegeYet: boolean;
 }
 
 export interface StepProps {
   values: OnboardingValues;
   set: <K extends keyof OnboardingValues>(key: K, value: OnboardingValues[K]) => void;
+  /** Aspirant fields (stage, field, dream campuses) instead of year of study. */
   isViewer: boolean;
+  /** Signed up without a verified college email: picks their college here. */
+  isMember?: boolean;
 }
 
 export const YEARS = [1, 2, 3, 4, 5] as const;
@@ -52,6 +60,7 @@ export function StepYou({
   values,
   set,
   isViewer,
+  isMember = false,
   collegeName,
   avatarSrc,
   nameError,
@@ -91,14 +100,16 @@ export function StepYou({
           {collegeName ? (
             <VerifiedSticker variant="flat" size="sm" label="Your college" college={collegeName} />
           ) : (
-            <p className="text-sm font-semibold text-fg">Campus Preview</p>
+            <p className="text-sm font-semibold text-fg">{isViewer ? "Campus Preview" : "Member"}</p>
           )}
           <p className="text-sm text-fg-muted">
             {uploading
               ? "Uploading your photo…"
               : collegeName
                 ? "We matched you from your college email."
-                : "Look around now, join your college later."}
+                : isViewer
+                  ? "Look around now, join your college later."
+                  : "Verify your student status any time to get the verified badge."}
           </p>
         </div>
       </div>
@@ -135,6 +146,27 @@ export function StepYou({
           </div>
         </FormField>
       </div>
+
+      {isMember && (
+        <div className="space-y-3">
+          {!values.notInCollegeYet && (
+            <CollegePicker
+              value={values.college}
+              onChange={(college) => set("college", college)}
+              hint="You'll join it as an unverified member. You can verify later."
+            />
+          )}
+          <label className="flex min-h-11 cursor-pointer items-center gap-3 text-sm text-fg">
+            <input
+              type="checkbox"
+              className="size-4 accent-brand"
+              checked={values.notInCollegeYet}
+              onChange={(e) => set("notInCollegeYet", e.target.checked)}
+            />
+            I'm not in college yet
+          </label>
+        </div>
+      )}
 
       {isViewer ? (
         <>

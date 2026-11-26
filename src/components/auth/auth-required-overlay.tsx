@@ -21,7 +21,7 @@ export type AuthRequiredAction =
 
 type AuthRequiredDetail = { action?: AuthRequiredAction };
 
-const DESCRIPTION = "You need an account for this. Joining is free with your college email.";
+const DESCRIPTION = "You need an account for this. Joining is free with any email.";
 
 const TITLES: Record<AuthRequiredAction, string> = {
   like: "Sign in to like this",
@@ -91,7 +91,7 @@ export function AuthRequiredOverlay() {
         </DialogHeader>
         <div className="flex flex-col gap-2">
           <Button size="lg" onClick={handleLogin}>
-            Sign in with college email
+            Sign in or join
           </Button>
           <Button asChild variant="ghost">
             <Link href="/college-request" onClick={() => setOpen(false)}>

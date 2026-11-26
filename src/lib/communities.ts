@@ -4,10 +4,13 @@ import { communities, communityMembers, type Community } from "@/db/schema";
 
 export class CommunityPostAuthError extends Error {
   status: number;
+  /** "VERIFY_TO_UNLOCK" when only verification would let this student post here. */
+  code?: string;
 
-  constructor(message: string, status = 403) {
+  constructor(message: string, status = 403, code?: string) {
     super(message);
     this.status = status;
+    this.code = code;
     this.name = "CommunityPostAuthError";
   }
 }
@@ -15,6 +18,8 @@ export class CommunityPostAuthError extends Error {
 export interface AssertCanCreateCommunityPostOptions {
   isAnonymous?: boolean;
   type?: string;
+  /** Whether the poster is a verified student (see src/lib/trust.ts). */
+  isVerified?: boolean;
   db?: ReturnType<typeof getDb>;
 }
 
@@ -23,7 +28,8 @@ export interface AssertCanCreateCommunityPostOptions {
  *
  * Rules:
  * 1. Community must exist.
- * 2. If allowAnonymousPosts is false, reject anonymous posts and confessions.
+ * 2. If verifiedOnlyPosting is on, only verified students may post.
+ * 2b. If allowAnonymousPosts is false, reject anonymous posts and confessions.
  * 3. If community privacy is PRIVATE:
  *    - Creator is permitted unless explicitly banned.
  *    - Regular members must have an ACTIVE membership record.
@@ -42,6 +48,14 @@ export async function assertCanCreateCommunityPost(
 
   if (!community) {
     throw new CommunityPostAuthError("Community not found", 404);
+  }
+
+  if (community.verifiedOnlyPosting && options?.isVerified !== true) {
+    throw new CommunityPostAuthError(
+      "Only verified students can post in this community. Verify your student status to post here.",
+      403,
+      "VERIFY_TO_UNLOCK"
+    );
   }
 
   if (!community.allowAnonymousPosts && (options?.isAnonymous || options?.type === "CONFESSION")) {

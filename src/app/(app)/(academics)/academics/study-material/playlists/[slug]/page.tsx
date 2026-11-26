@@ -1,3 +1,4 @@
+import { PUBLIC_PROFILE_COLUMNS } from "@/lib/profile-columns";
 import type { Metadata } from "next";
 import { getDb } from "@/db";
 import { buildMetadata } from "@/lib/seo";
@@ -16,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const playlist = await db.query.academicPlaylists.findFirst({
     where: (pl, { or, eq }) => or(eq(pl.slug, slug), eq(pl.id, slug)),
     with: {
-      creator: true,
+      creator: { columns: PUBLIC_PROFILE_COLUMNS },
       institution: true,
     },
   });

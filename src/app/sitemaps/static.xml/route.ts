@@ -14,7 +14,9 @@ const PAGES: SitemapEntry[] = [
   { path: "/events", priority: 0.8, changefreq: "daily" },
   { path: "/communities", priority: 0.8, changefreq: "daily" },
   { path: "/guide", priority: 0.8, changefreq: "weekly" },
-  ...GUIDES.map((g): SitemapEntry => ({ path: `/guide/${g.slug}`, priority: 0.7, changefreq: "monthly" })),
+  ...GUIDES.map(
+    (g): SitemapEntry => ({ path: `/guide/${g.slug}`, priority: 0.7, changefreq: "monthly", lastmod: g.updated })
+  ),
   { path: "/docs", priority: 0.7, changefreq: "weekly" },
   ...getDocsSlugs().map(
     (slug): SitemapEntry => ({ path: `/docs/${slug}`, priority: 0.6, changefreq: "monthly" })
@@ -25,6 +27,7 @@ const PAGES: SitemapEntry[] = [
   { path: "/aspirants", priority: 0.7, changefreq: "monthly" },
   { path: "/safety", priority: 0.7, changefreq: "monthly" },
   { path: "/download", priority: 0.6, changefreq: "monthly" },
+  { path: "/products", priority: 0.6, changefreq: "monthly" },
   { path: "/help", priority: 0.7, changefreq: "weekly" },
   { path: "/contact", priority: 0.5, changefreq: "monthly" },
   { path: "/investors", priority: 0.5, changefreq: "monthly" },

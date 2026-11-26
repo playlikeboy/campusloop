@@ -1,3 +1,4 @@
+import { hidesNotificationActor } from "@/lib/notification-anonymity";
 import { and, eq, inArray } from "drizzle-orm";
 import { getDb } from "@/db";
 import { devicePushTokens, userProfiles } from "@/db/schema";
@@ -119,9 +120,9 @@ export async function pushExpoToUsers(
   if (rows.length === 0) return;
 
   try {
-    // CRUSH_ALERT never names the sender.
+    // CRUSH_ALERT and anonymous comments, replies and mentions never name the sender.
     let actorName = "Someone";
-    if (content.type !== "CRUSH_ALERT") {
+    if (!hidesNotificationActor(content.type)) {
       const actor = await db.query.userProfiles.findFirst({
         where: eq(userProfiles.id, content.actorId),
         columns: { displayName: true },

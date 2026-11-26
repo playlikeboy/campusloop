@@ -691,8 +691,10 @@ function stripAuthorForAnonymity<
   T extends { isAnonymous: boolean; pseudonym?: string | null; author?: unknown },
 >(post: T): Omit<T, "author"> {
   if (post.isAnonymous) {
-    const rest = { ...post } as Partial<Record<"author", unknown>>;
+    const rest = { ...post } as Partial<Record<"author", unknown>> & { authorId?: unknown };
     delete rest.author;
+    // Older rows (and pre-fix MCP writes) can still hold the real author id; never ship it.
+    if ("authorId" in rest) rest.authorId = null;
     return rest as Omit<T, "author">;
   }
   return post;

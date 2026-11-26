@@ -1,6 +1,7 @@
 import { and, eq, inArray, or } from "drizzle-orm";
 import { getDb } from "@/db";
 import { notificationMutes, notificationPreferences } from "@/db/schema";
+import { baseNotificationType } from "@/lib/notification-anonymity";
 
 /**
  * Delivery channels a student can silence. A channel groups the notification
@@ -43,7 +44,7 @@ export function isMuteChannel(value: unknown): value is MuteChannel {
  * notification type can never be silently swallowed by a stale mapping.
  */
 export function channelForType(type: string): NotificationChannel | null {
-  switch (type) {
+  switch (baseNotificationType(type)) {
     case "NEW_POST":
       return "POST";
     case "MESSAGE":

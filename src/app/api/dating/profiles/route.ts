@@ -11,8 +11,9 @@ import {
   resolveGenderPreference,
 } from "@/lib/dating";
 import { distanceBucketLabel, getPointsFor, haversineKm } from "@/lib/geo/location";
-import { getViewerInstitutionId, rejectViewerWrite } from "@/lib/viewer";
+import { getViewerInstitutionId } from "@/lib/viewer";
 import { getShowSeededPosts } from "@/lib/platform-config";
+import { requireCapability } from "@/lib/trust-server";
 
 export const dynamic = "force-dynamic";
 
@@ -35,8 +36,8 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 });
     }
 
-    const viewerBlocked = await rejectViewerWrite(profile);
-    if (viewerBlocked) return viewerBlocked;
+    const capabilityBlocked = await requireCapability(profile, "campus_match", { countUsage: false });
+    if (capabilityBlocked) return capabilityBlocked;
 
     // Strict Gate: Must have gender set to access matching
     const validGenders = ["MALE", "FEMALE", "OTHER"];

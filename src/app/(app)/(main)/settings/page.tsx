@@ -4,6 +4,7 @@ import { getDb } from "@/db";
 import { userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { privateMetadata } from "@/lib/seo";
+import { isVerifiedStudent } from "@/lib/trust";
 import { SettingsClient } from "./settings-client";
 
 export const dynamic = "force-dynamic";
@@ -40,6 +41,7 @@ export default async function SettingsPage() {
         institutionName: profile.institution?.name ?? null,
         anonymousUsername: profile.anonymousUsername,
         feedVisibility: profile.feedVisibility,
+        isVerified: isVerifiedStudent(profile),
       }}
     />
   );

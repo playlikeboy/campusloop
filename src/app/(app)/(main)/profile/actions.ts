@@ -1,6 +1,7 @@
 "use server";
 
 import { and, eq, ne, sql } from "drizzle-orm";
+import { isAnonHandleSealedToSomeoneElse } from "@/lib/anon-handle";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
 import { userProfiles } from "@/db/schema";
@@ -61,6 +62,14 @@ export async function updateProfile(
     });
 
     if (takenAnon) {
+      throw new Error("This anonymous username is already claimed by another student");
+    }
+
+    const ownProfile = await db.query.userProfiles.findFirst({
+      where: eq(userProfiles.userId, user.id),
+      columns: { id: true },
+    });
+    if (!ownProfile || (await isAnonHandleSealedToSomeoneElse(db, cleanAnon, ownProfile.id))) {
       throw new Error("This anonymous username is already claimed by another student");
     }
   }

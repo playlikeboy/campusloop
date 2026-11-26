@@ -60,6 +60,8 @@ export type BuildMetadataInput = {
   keywords?: string[];
   /** Keep the query string in the canonical, for listings where `?page=2` is its own page. */
   keepQuery?: boolean;
+  /** Full robots override (e.g. noindex,follow or max-image-preview). Wins over `noindex`. */
+  robots?: Metadata["robots"];
 };
 
 export function buildMetadata(input: BuildMetadataInput): Metadata {
@@ -91,9 +93,11 @@ export function buildMetadata(input: BuildMetadataInput): Metadata {
     alternates: { canonical: url },
     // Explicit on both branches: the (app) layout defaults to noindex, so
     // public pages inside it must opt back in.
-    robots: input.noindex
-      ? { index: false, follow: false, googleBot: { index: false, follow: false } }
-      : { index: true, follow: true },
+    robots:
+      input.robots ??
+      (input.noindex
+        ? { index: false, follow: false, googleBot: { index: false, follow: false } }
+        : { index: true, follow: true }),
     openGraph:
       input.type === "article"
         ? {
@@ -124,7 +128,9 @@ export function privateMetadata(title: string): Metadata {
 
 export {
   articleJsonLd,
+  authorProfileJsonLd,
   breadcrumbJsonLd,
+  collectionPageJsonLd,
   collegeJsonLd,
   eventJsonLd,
   graphJsonLd,

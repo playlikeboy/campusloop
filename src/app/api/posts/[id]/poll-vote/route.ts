@@ -5,7 +5,7 @@ import { pollOptions, pollVotes, posts } from "@/db/schema";
 import { requireProfile } from "@/lib/require-profile";
 import { runInBackground } from "@/lib/background";
 import { recordStreakActivity } from "@/lib/streaks/streak-service";
-import { rejectViewerWrite } from "@/lib/viewer";
+import { requireCapability } from "@/lib/trust-server";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -20,8 +20,8 @@ export async function POST(req: Request, { params }: RouteParams) {
     const { id: postId } = await params;
     const db = getDb();
 
-    const viewerBlocked = await rejectViewerWrite(profile);
-    if (viewerBlocked) return viewerBlocked;
+    const capabilityBlocked = await requireCapability(profile, "vote");
+    if (capabilityBlocked) return capabilityBlocked;
 
     const payload = (await req.json().catch(() => ({}))) as { optionId?: unknown };
     const { optionId } = payload;

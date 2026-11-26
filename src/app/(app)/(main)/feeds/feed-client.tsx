@@ -155,14 +155,15 @@ export function FeedClient({ forcedType }: { forcedType?: string }) {
 
     for (const post of feed) {
       if (!post?.id || seen.has(post.id)) continue;
-      // In Verified / Public Only mode, hide anonymous posts, confessions, AND posts from non-college-verified (Gmail) users
-      if (visibility === "public") {
+      // Named only hides anonymous posts and confessions. Verified only also
+      // hides posts from unverified members (the server filters too).
+      if (visibility === "public" || visibility === "verified") {
         if (post.isAnonymous || post.type === "CONFESSION") {
           continue;
         }
-        if (!post.author?.isCollegeVerified && !isCollegeVerifiedUser(post.author)) {
-          continue;
-        }
+      }
+      if (visibility === "verified" && !isCollegeVerifiedUser(post.author)) {
+        continue;
       }
       seen.add(post.id);
       uniquePosts.push(post);

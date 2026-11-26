@@ -15,6 +15,12 @@ export interface SendEmailOptions {
   from?: string; // Any address on mail.campusloop.space (e.g. welcome@mail.campusloop.space, notifications@mail.campusloop.space)
   fromName?: string;
   replyTo?: string;
+  /**
+   * Extra headers, e.g. List-Unsubscribe. Cloudflare Email Service allows only
+   * X-* and an allowlist (List-*, Precedence, Auto-Submitted, ...) and rejects
+   * the whole send for any other header, so only pass headers from that list.
+   */
+  headers?: Record<string, string>;
 }
 
 export interface SendEmailResult {
@@ -139,6 +145,10 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
         payload.reply_to = replyTo;
       }
 
+      if (options.headers && Object.keys(options.headers).length > 0) {
+        payload.headers = options.headers;
+      }
+
       const res = await fetch(
         `https://api.cloudflare.com/client/v4/accounts/${accountId}/email/sending/send`,
         {
@@ -181,6 +191,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
         text: plainText,
         html: htmlContent,
         replyTo: { email: replyTo, name: senderName },
+        ...(options.headers && Object.keys(options.headers).length > 0 ? { headers: options.headers } : {}),
       });
 
       return {

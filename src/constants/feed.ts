@@ -12,6 +12,7 @@ export const FEED_VISIBILITY_OPTIONS = [
   { id: "all", label: "Everyone" },
   { id: "anonymous", label: "Anonymous only" },
   { id: "public", label: "Named only" },
+  { id: "verified", label: "Verified only" },
 ] as const;
 
 export const FEED_CATEGORY_OPTIONS = [

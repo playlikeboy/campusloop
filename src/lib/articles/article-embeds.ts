@@ -208,7 +208,7 @@ export function resolveArticleEmbed(raw: string, opts: { start?: number } = {}):
   if (host === "calendly.com") {
     return { provider: "Calendly", kind: "iframe", src: `https://calendly.com${path}`, url, height: 660, title: "Calendly" };
   }
-  if (host.endsWith("typeform.com") && path.startsWith("/to/")) {
+  if ((host === "typeform.com" || host.endsWith(".typeform.com")) && path.startsWith("/to/")) {
     return { provider: "Typeform", kind: "iframe", src: url, url, height: 520, title: "Typeform" };
   }
 

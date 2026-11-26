@@ -15,7 +15,7 @@ const REASONS = new Set<string>(PLAY_REPORT_REASONS.map((r) => r.value));
  */
 export async function POST(req: Request) {
   try {
-    const auth = await requirePlayer({ write: true });
+    const auth = await requirePlayer({ write: true, capability: null });
     if (!auth.ok) return auth.response;
     const { profile } = auth;
     const body = (await req.json().catch(() => ({}))) as { targetType?: unknown; targetId?: unknown; reason?: unknown };

@@ -5,6 +5,7 @@ import { articleComments, articleCommentVotes, articles } from "@/db/schema";
 import { requireProfile } from "@/lib/require-profile";
 import { awardPoints } from "@/lib/gamification-server";
 import { createNotification } from "@/lib/notifications";
+import { requireCapability } from "@/lib/trust-server";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +21,8 @@ export async function POST(req: NextRequest, { params }: RouteProps) {
     const auth = await requireProfile();
     if (!auth.ok) return auth.response;
     const { profile } = auth;
+    const capabilityBlocked = await requireCapability(profile, "vote");
+    if (capabilityBlocked) return capabilityBlocked;
 
     const db = getDb();
 

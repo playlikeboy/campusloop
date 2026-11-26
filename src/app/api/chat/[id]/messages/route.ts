@@ -9,7 +9,7 @@ import { runInBackground } from "@/lib/background";
 import { requireConversationParticipant } from "@/lib/chat-auth";
 import { notifyNewMessage } from "@/lib/chat-notifications";
 import { recordHeartbeat } from "@/lib/presence-server";
-import { rejectViewerWrite } from "@/lib/viewer";
+import { requireCapability } from "@/lib/trust-server";
 
 export const dynamic = "force-dynamic";
 
@@ -87,8 +87,8 @@ export async function POST(req: Request, { params }: RouteParams) {
 
     recordHeartbeat(profile.id).catch(() => {});
 
-    const viewerBlocked = await rejectViewerWrite(profile);
-    if (viewerBlocked) return viewerBlocked;
+    const capabilityBlocked = await requireCapability(profile, "chat_dm");
+    if (capabilityBlocked) return capabilityBlocked;
 
     if (await isDirectChatBlocked(id, profile.id)) {
       return NextResponse.json({ error: "You can't message this person" }, { status: 403 });

@@ -20,6 +20,18 @@ export function isAllowedAdminEmail(email?: string | null): boolean {
   return ADMIN_EMAILS.some((adminEmail) => adminEmail.toLowerCase() === normalized);
 }
 
+/**
+ * Email-based admin grant for a signed-in user. The primary email must be verified:
+ * an unverified contact channel can be set to any address, so an unverified match
+ * would let anyone claim a staff email and be auto-promoted to ADMIN.
+ */
+export function isVerifiedAdminUser(
+  user: { primaryEmail?: string | null; primaryEmailVerified?: boolean | null } | null | undefined
+): boolean {
+  if (!user || user.primaryEmailVerified !== true) return false;
+  return isAllowedAdminEmail(user.primaryEmail);
+}
+
 function requireSecret(name: "ADMIN_SESSION_SECRET"): string {
   const value = process.env[name];
   if (value && value.length >= 6) return value;

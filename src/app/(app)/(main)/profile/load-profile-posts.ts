@@ -1,3 +1,4 @@
+import { PUBLIC_PROFILE_COLUMNS } from "@/lib/profile-columns";
 import { and, desc, eq, inArray, or } from "drizzle-orm";
 import { getDb } from "@/db";
 import { externalPosts, posts } from "@/db/schema";
@@ -63,7 +64,7 @@ export async function loadAuthorPosts(
     orderBy: [desc(posts.createdAt)],
     limit: 20,
     with: {
-      author: true,
+      author: { columns: PUBLIC_PROFILE_COLUMNS },
       institution: true,
       votes: true,
       comments: true,

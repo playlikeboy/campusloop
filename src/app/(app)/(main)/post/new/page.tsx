@@ -5,7 +5,7 @@ import { getDb } from "@/db";
 import { communities, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { privateMetadata } from "@/lib/seo";
-import { isViewerProfile } from "@/lib/viewer";
+import { checkCapability } from "@/lib/trust-server";
 import { PostComposer } from "./post-composer";
 
 const POST_TYPES = ["NORMAL", "MEME", "CONFESSION", "POLL", "QUESTION"] as const;
@@ -54,8 +54,9 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
     where: eq(userProfiles.userId, user.id),
   });
 
-  if (profile && (await isViewerProfile(profile))) {
-    redirect("/feeds");
+  // Unverified members post only while /admin/access allows it.
+  if (profile && !(await checkCapability(profile, "post", { countUsage: false })).ok) {
+    redirect("/settings/verify");
   }
 
   // Resolve preselected community if query param is provided

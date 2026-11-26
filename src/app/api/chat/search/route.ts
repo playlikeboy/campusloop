@@ -1,3 +1,4 @@
+import { PUBLIC_PROFILE_COLUMNS } from "@/lib/profile-columns";
 import { and, eq, ilike, ne, or } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
@@ -36,6 +37,7 @@ export async function GET(req: Request) {
         or(ilike(userProfiles.displayName, `%${query}%`), ilike(userProfiles.username, `%${query}%`))
       ),
       limit: 10,
+      columns: PUBLIC_PROFILE_COLUMNS,
     });
 
     return NextResponse.json(matches);

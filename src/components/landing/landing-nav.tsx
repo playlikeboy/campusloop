@@ -292,7 +292,7 @@ export function LandingNav() {
                   ring
                 )}
               >
-                Join free with college email
+                Join free
               </Link>
               <Link
                 href="/sign-in"

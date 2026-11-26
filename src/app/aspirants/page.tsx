@@ -105,7 +105,8 @@ export default function AspirantsPage() {
               ))}
             </ol>
             <p className="mt-8 text-sm text-fg-subtle">
-              Verified-only spaces, like Campus Match, open after you verify a college email.
+              Verified-only spaces, like Campus Match, open after you verify with a college email or the
+              GitHub Student Developer Pack.
             </p>
           </div>
         </section>

@@ -81,6 +81,9 @@ export function collegeJsonLd(input: {
   state?: string | null;
   logo?: string | null;
   alternateName?: string | null;
+  /** Other pages about the same college, e.g. its Wikipedia article. */
+  sameAs?: (string | null | undefined)[];
+  foundingYear?: number | null;
 }): Thing {
   const address =
     input.city || input.state
@@ -100,7 +103,8 @@ export function collegeJsonLd(input: {
     mainEntityOfPage: absoluteUrl(input.path),
     logo: input.logo ?? undefined,
     address,
-    sameAs: input.website ? [input.website] : undefined,
+    sameAs: [input.website, ...(input.sameAs ?? [])].filter((u): u is string => Boolean(u)),
+    foundingDate: input.foundingYear ? String(input.foundingYear) : undefined,
   });
 }
 
@@ -108,18 +112,29 @@ export function articleJsonLd(input: {
   headline: string;
   description?: string | null;
   path: string;
+  /** Cover image, or the dynamic OG card URL when there is no cover. */
   image?: string | null;
   datePublished: Date | string;
   dateModified?: Date | string | null;
   authorName: string;
-  /** Public profile path of the author, if they have one. */
+  /** Public author page path, e.g. "/authors/<username>". */
   authorPath?: string | null;
+  /** "Organization" for the CampusLoop Editorial byline. */
+  authorType?: "Person" | "Organization";
+  /** Category label, e.g. "Data Structures & Algorithms". */
+  articleSection?: string | null;
+  wordCount?: number | null;
+  keywords?: string[] | null;
+  /** Articles are free to read; defaults to true for Article/BlogPosting. */
+  isAccessibleForFree?: boolean;
   /** "Article" for long-form, "DiscussionForumPosting" for feed posts. */
   type?: "Article" | "BlogPosting" | "DiscussionForumPosting";
 }): Thing {
   const iso = (d: Date | string) => (typeof d === "string" ? d : d.toISOString());
+  const type = input.type ?? "Article";
+  const keywords = (input.keywords ?? []).map((k) => k.replace(/^#/, "").trim()).filter(Boolean);
   return compact({
-    "@type": input.type ?? "Article",
+    "@type": type,
     headline: input.headline.slice(0, 110),
     description: input.description ?? undefined,
     url: absoluteUrl(input.path),
@@ -128,13 +143,84 @@ export function articleJsonLd(input: {
     datePublished: iso(input.datePublished),
     dateModified: iso(input.dateModified ?? input.datePublished),
     author: compact({
-      "@type": "Person",
+      "@type": input.authorType ?? "Person",
       name: input.authorName,
       url: input.authorPath ? absoluteUrl(input.authorPath) : undefined,
     }),
     publisher: { "@id": ORG_ID },
+    articleSection: input.articleSection ?? undefined,
+    wordCount: input.wordCount && input.wordCount > 0 ? input.wordCount : undefined,
+    keywords: keywords.length ? keywords.join(", ") : undefined,
+    isAccessibleForFree:
+      input.isAccessibleForFree ?? (type === "DiscussionForumPosting" ? undefined : true),
     inLanguage: "en-IN",
   });
+}
+
+/** CollectionPage with an ItemList of links, for hub and listing pages. */
+export function collectionPageJsonLd(input: {
+  name: string;
+  path: string;
+  description?: string | null;
+  items: { name: string; path: string }[];
+  /** 1-based position of the first item, for page 2+ of a list. */
+  startPosition?: number;
+}): Thing {
+  const start = input.startPosition ?? 1;
+  return compact({
+    "@type": "CollectionPage",
+    name: input.name,
+    url: absoluteUrl(input.path),
+    description: input.description ?? undefined,
+    isPartOf: { "@id": WEBSITE_ID },
+    publisher: { "@id": ORG_ID },
+    inLanguage: "en-IN",
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: input.items.map((item, i) => ({
+        "@type": "ListItem",
+        position: start + i,
+        url: absoluteUrl(item.path),
+        name: item.name,
+      })),
+    },
+  });
+}
+
+/** ProfilePage about one article author (Person) or the editorial team (Organization). */
+export function authorProfileJsonLd(input: {
+  kind: "Person" | "Organization";
+  name: string;
+  path: string;
+  description?: string | null;
+  image?: string | null;
+  jobTitle?: string | null;
+  affiliation?: string | null;
+  sameAs?: string[] | null;
+  knowsAbout?: string[] | null;
+}): Thing {
+  const url = absoluteUrl(input.path);
+  return {
+    "@type": "ProfilePage",
+    url,
+    inLanguage: "en-IN",
+    mainEntity: compact({
+      "@type": input.kind,
+      "@id": `${url}#author`,
+      name: input.name,
+      url,
+      description: input.description ?? undefined,
+      image: input.image ? absoluteUrl(input.image) : undefined,
+      jobTitle: input.kind === "Person" ? (input.jobTitle ?? undefined) : undefined,
+      affiliation:
+        input.kind === "Person" && input.affiliation
+          ? { "@type": "CollegeOrUniversity", name: input.affiliation }
+          : undefined,
+      parentOrganization: input.kind === "Organization" ? { "@id": ORG_ID } : undefined,
+      sameAs: input.sameAs?.length ? input.sameAs : undefined,
+      knowsAbout: input.knowsAbout?.length ? input.knowsAbout : undefined,
+    }),
+  };
 }
 
 export function eventJsonLd(input: {
@@ -145,9 +231,18 @@ export function eventJsonLd(input: {
   endDate?: Date | string | null;
   image?: string | null;
   /** Venue name and optional address. Leave out for online-only events. */
-  venue?: { name: string; address?: string | null } | null;
+  venue?: {
+    name: string;
+    address?: string | null;
+    /** City or district, e.g. "Ranchi". */
+    locality?: string | null;
+    /** State, e.g. "Jharkhand". */
+    region?: string | null;
+  } | null;
   online?: boolean;
   organizerName?: string | null;
+  /** Organizer page on CampusLoop or the club's own site. */
+  organizerUrl?: string | null;
   status?: "scheduled" | "cancelled" | "postponed";
   /** Only when tickets really have a price. 0 for free registration. */
   price?: number | null;
@@ -172,9 +267,16 @@ export function eventJsonLd(input: {
       compact({
         "@type": "Place",
         name: input.venue.name,
-        address: input.venue.address
-          ? { "@type": "PostalAddress", streetAddress: input.venue.address, addressCountry: "IN" }
-          : undefined,
+        address:
+          input.venue.address || input.venue.locality || input.venue.region
+            ? compact({
+                "@type": "PostalAddress",
+                streetAddress: input.venue.address ?? undefined,
+                addressLocality: input.venue.locality ?? undefined,
+                addressRegion: input.venue.region ?? undefined,
+                addressCountry: "IN",
+              })
+            : undefined,
       })
     );
   }
@@ -191,7 +293,13 @@ export function eventJsonLd(input: {
     eventStatus: `https://schema.org/${statusMap[input.status ?? "scheduled"]}`,
     eventAttendanceMode: `https://schema.org/${mode}`,
     location: locations.length === 1 ? locations[0] : locations.length ? locations : undefined,
-    organizer: input.organizerName ? { "@type": "Organization", name: input.organizerName } : undefined,
+    organizer: input.organizerName
+      ? compact({
+          "@type": "Organization",
+          name: input.organizerName,
+          url: input.organizerUrl ? absoluteUrl(input.organizerUrl) : undefined,
+        })
+      : undefined,
     offers:
       typeof input.price === "number"
         ? {

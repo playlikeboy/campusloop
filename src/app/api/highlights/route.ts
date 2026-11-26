@@ -1,10 +1,11 @@
+import { PUBLIC_PROFILE_COLUMNS } from "@/lib/profile-columns";
 import { desc, eq, inArray } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { stories, storyHighlights, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { requireProfile } from "@/lib/require-profile";
-import { rejectViewerWrite } from "@/lib/viewer";
+import { requireCapability } from "@/lib/trust-server";
 
 export const dynamic = "force-dynamic";
 
@@ -52,7 +53,7 @@ export async function GET(req: Request) {
       const fetchedStories = await db.query.stories.findMany({
         where: inArray(stories.id, allStoryIds),
         with: {
-          user: true,
+          user: { columns: PUBLIC_PROFILE_COLUMNS },
           likes: true,
         },
       });
@@ -96,8 +97,8 @@ export async function POST(req: Request) {
 
     const db = getDb();
 
-    const viewerBlocked = await rejectViewerWrite(profile);
-    if (viewerBlocked) return viewerBlocked;
+    const capabilityBlocked = await requireCapability(profile, "stories");
+    if (capabilityBlocked) return capabilityBlocked;
 
     const data = await req.json();
     const { title, coverUrl, storyIds } = data as {

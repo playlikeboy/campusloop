@@ -1,0 +1,53 @@
+name: Bing submit
+
+# Daily: resubmit sitemaps to Bing Webmaster and push the newest URLs within the
+# daily quota (the Bing index also feeds Microsoft Copilot answers).
+on:
+  schedule:
+    # 09:00 Asia/Kolkata (03:30 UTC)
+    - cron: "30 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: campusloop-bing-submit
+  cancel-in-progress: false
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      BING_WEBMASTER_API_KEY: ${{ secrets.BING_WEBMASTER_API_KEY }}
+      BING_STATE_FILE: .bing-state/submitted.json
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Check configuration
+        run: |
+          if [ -z "$BING_WEBMASTER_API_KEY" ]; then
+            echo "::error::Configure BING_WEBMASTER_API_KEY in repository Actions secrets."
+            exit 1
+          fi
+
+      # Remembers which URLs were sent in the last 7 days so each run sends new ones.
+      - name: Restore submit history
+        uses: actions/cache/restore@v4
+        with:
+          path: .bing-state
+          key: bing-state-${{ github.run_id }}
+          restore-keys: bing-state-
+
+      - name: Submit to Bing
+        run: bun run scripts/seo/bing-submit.ts
+
+      - name: Save submit history
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: .bing-state
+          key: bing-state-${{ github.run_id }}

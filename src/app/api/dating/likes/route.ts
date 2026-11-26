@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { swipes, userProfiles } from "@/db/schema";
 import { requireProfile } from "@/lib/require-profile";
-import { rejectViewerWrite } from "@/lib/viewer";
+import { requireCapability } from "@/lib/trust-server";
 
 export const dynamic = "force-dynamic";
 
@@ -20,8 +20,8 @@ export async function GET() {
 
     const db = getDb();
 
-    const viewerBlocked = await rejectViewerWrite(profile);
-    if (viewerBlocked) return viewerBlocked;
+    const capabilityBlocked = await requireCapability(profile, "campus_match", { countUsage: false });
+    if (capabilityBlocked) return capabilityBlocked;
 
     const [likedMeRows, mySwipes] = await Promise.all([
       db

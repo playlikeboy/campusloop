@@ -5,7 +5,7 @@ import { stories, storyLikes } from "@/db/schema";
 import { requireProfile } from "@/lib/require-profile";
 import { runInBackground } from "@/lib/background";
 import { createNotification } from "@/lib/notifications";
-import { rejectViewerWrite } from "@/lib/viewer";
+import { requireCapability } from "@/lib/trust-server";
 
 export const dynamic = "force-dynamic";
 
@@ -22,8 +22,8 @@ export async function POST(req: Request, { params }: RouteParams) {
     const { id } = await params;
     const db = getDb();
 
-    const viewerBlocked = await rejectViewerWrite(profile);
-    if (viewerBlocked) return viewerBlocked;
+    const capabilityBlocked = await requireCapability(profile, "vote");
+    if (capabilityBlocked) return capabilityBlocked;
 
     const targetStory = await db.query.stories.findFirst({
       where: eq(stories.id, id),

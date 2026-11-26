@@ -1,3 +1,5 @@
+import { communityPostVisibleSql } from "@/lib/post-visibility";
+import { PUBLIC_PROFILE_COLUMNS } from "@/lib/profile-columns";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
@@ -57,6 +59,7 @@ export async function GET(req: Request) {
     const showSeeded = await getShowSeededPosts();
     const conditions = [
       eq(posts.status, "PUBLISHED"),
+      communityPostVisibleSql(null),
       ...(showSeeded ? [] : [eq(posts.isSeeded, false)]),
     ];
     if (requestedScope === "CAMPUS" && userInstitutionId) {
@@ -69,7 +72,7 @@ export async function GET(req: Request) {
       orderBy: [desc(posts.createdAt)],
       limit: 300,
       with: {
-        author: true,
+        author: { columns: PUBLIC_PROFILE_COLUMNS },
         institution: true,
         votes: true,
         comments: true,
@@ -145,10 +148,10 @@ export async function GET(req: Request) {
       recentPosts.length > 0
         ? recentPosts
         : await db.query.posts.findMany({
-            where: eq(posts.status, "PUBLISHED"),
+            where: and(eq(posts.status, "PUBLISHED"), communityPostVisibleSql(null)),
             orderBy: [desc(posts.createdAt)],
             limit: 50,
-            with: { author: true, institution: true, votes: true, comments: true },
+            with: { author: { columns: PUBLIC_PROFILE_COLUMNS }, institution: true, votes: true, comments: true },
           });
 
     const newsItems: NewsItem[] = newsSource

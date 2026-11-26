@@ -46,6 +46,7 @@ import { haptics } from "@/lib/haptics";
 import { extractMediaAttachments, stripMediaAttachmentMarkers } from "@/lib/media-attachments";
 import { sounds } from "@/lib/sounds";
 import { isCollegeVerifiedUser } from "@/lib/user-verification";
+import { UnverifiedLabel } from "@/components/ui/unverified-label";
 import { cleanSnippet, cn, formatTimeAgo, getAvatarUrl, getCollegeShortName, initialOf } from "@/lib/utils";
 import { extractVideoStreamInfo } from "@/lib/video/stream-helper";
 
@@ -1072,6 +1073,14 @@ export function PostReelCard({ post, currentUserId, onOpenComments, isActive = f
                     @{authorHandle}
                   </Link>
                 ))}
+              {!post.isAnonymous &&
+                typeof post.author?.isCollegeVerified === "boolean" &&
+                !isCollegeVerifiedUser(post.author) && (
+                  <>
+                    <span className="text-muted-foreground/40 shrink-0">·</span>
+                    <UnverifiedLabel />
+                  </>
+                )}
               <span className="text-muted-foreground/40 shrink-0">·</span>
               <span className="text-muted-foreground/90 shrink-0 whitespace-nowrap font-medium">
                 {formatTimeAgo(new Date(post.createdAt))}

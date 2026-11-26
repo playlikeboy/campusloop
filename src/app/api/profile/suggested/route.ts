@@ -1,3 +1,4 @@
+import { PUBLIC_PROFILE_COLUMNS } from "@/lib/profile-columns";
 import { and, desc, eq, ne, notInArray, sql } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
@@ -50,6 +51,7 @@ export async function GET(req: NextRequest) {
       where: and(...conditions),
       orderBy: [sql`random()`, desc(userProfiles.points)],
       limit: 40,
+      columns: PUBLIC_PROFILE_COLUMNS,
       with: {
         institution: true,
       },

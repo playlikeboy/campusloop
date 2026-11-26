@@ -20,8 +20,8 @@ import { getCachedAuthUser, getCachedBareProfile } from "@/lib/server-cache";
  *
  * Status codes and bodies are identical to the old inline block. Routes that
  * historically answered 403 for a missing profile pass `profileStatus: 403`.
- * `rejectViewerWrite(profile)` is intentionally not folded in: routes keep
- * calling it themselves so its position relative to other checks is unchanged.
+ * `requireCapability(profile, cap)` (src/lib/trust-server.ts) is intentionally
+ * not folded in: routes call it themselves with the capability they need.
  *
  * Both lookups are memoized per request with React `cache` and cached per
  * Worker isolate for 30s (see `src/lib/server-cache.ts`), so a layout, page,

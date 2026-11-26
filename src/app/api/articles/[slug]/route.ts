@@ -1,3 +1,4 @@
+import { PUBLIC_PROFILE_COLUMNS } from "@/lib/profile-columns";
 import { and, eq, or } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
@@ -7,6 +8,7 @@ import { LP_ACTION_REWARDS } from "@/constants/gamification";
 import { awardPoints } from "@/lib/gamification-server";
 import { smartifyMarkdown } from "@/lib/articles/smart-blocks";
 import { calculateReadingTime, createExcerpt } from "@/lib/articles/text";
+import { pingArticleIndexNow } from "@/lib/articles/indexnow";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +33,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       where: or(eq(articles.slug, slug), eq(articles.id, slug)),
       with: {
         author: {
+          columns: PUBLIC_PROFILE_COLUMNS,
           with: { institution: true },
         },
         institution: true,
@@ -149,6 +152,9 @@ async function handleUpdate(req: NextRequest, paramsPromise: Promise<{ slug: str
     }
 
     await db.update(articles).set(updateData).where(eq(articles.id, article.id));
+
+    // Tell Bing/IndexNow about real edits to public, indexable articles.
+    pingArticleIndexNow({ ...article, ...updateData });
 
     // Award +15 LP idempotently if transitioning from DRAFT to PUBLISHED
     if (wasDraft && isNowPublishing) {

@@ -3,6 +3,7 @@ import { FirstVisitNotificationPrompt } from "@/components/notifications/first-v
 import { AppShell } from "@/components/shells/app-shell";
 import { getCachedAuthUser, getCachedUserProfile, toShellProfile } from "@/lib/server-cache";
 import { isViewerProfile } from "@/lib/viewer";
+import { getClientTrust } from "@/lib/trust-server";
 
 /** Academics is browsable signed out; the shell shows Sign in instead of the profile. */
 export default async function AcademicsLayout({ children }: { children: React.ReactNode }) {
@@ -13,6 +14,7 @@ export default async function AcademicsLayout({ children }: { children: React.Re
 
   return (
     <AppShell
+      trust={await getClientTrust(signedIn ? profile : null)}
       profile={signedIn ? toShellProfile(profile) : undefined}
       collegeName={viewerMode ? "Viewer Mode" : (profile?.institution?.name ?? undefined)}
       isAdmin={profile?.role === "ADMIN"}

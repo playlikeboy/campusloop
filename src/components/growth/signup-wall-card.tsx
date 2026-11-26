@@ -27,7 +27,7 @@ function GoogleMark() {
 
 /**
  * The card a signed-out visitor sees after the preview posts. Google is the
- * default, one-tap way in; college email is the other.
+ * default, one-tap way in; email is the other.
  */
 export function SignupWallCard({
   placement,
@@ -46,7 +46,7 @@ export function SignupWallCard({
       await hexclaveClientApp.signInWithOAuth("google", { returnTo });
     } catch {
       setBusy(false);
-      toast.error("Google sign-in didn't open. Try your college email instead.");
+      toast.error("Google sign-in didn't open. Try your email instead.");
     }
   }
 
@@ -54,12 +54,12 @@ export function SignupWallCard({
     <Sticker pop className="mx-3 my-4 space-y-4 p-5 sm:mx-4">
       <p className="inline-flex items-center gap-1.5 text-sm font-semibold text-fg-muted">
         <Lock className="size-4" aria-hidden="true" />
-        Students only
+        Free to join
       </p>
       <h2 className="sticker-caption text-3xl text-fg">See what your college is saying</h2>
       <p className="text-base text-fg-muted">
-        Join with your college email to read every {what}, vote and post. Your name never shows on a
-        confession.
+        Join free with any email to read every {what}, vote and post. Verified students get a badge. Your
+        name never shows on a confession.
       </p>
       <div className="flex flex-col gap-2 sm:flex-row">
         <Button size="lg" className="flex-1" onClick={google} loading={busy}>
@@ -72,7 +72,7 @@ export function SignupWallCard({
             onClick={() => trackSignupWallCta(placement, "email")}
           >
             <Mail aria-hidden="true" />
-            Use college email
+            Use email
           </Link>
         </Button>
       </div>

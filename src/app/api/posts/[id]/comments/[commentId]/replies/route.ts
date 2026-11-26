@@ -55,6 +55,8 @@ export async function GET(req: Request, { params }: RouteParams) {
             avatarUrl: true,
             points: true,
             institutionId: true,
+            role: true,
+            isCollegeVerified: true,
           },
         },
         replyToUser: {

@@ -6,7 +6,6 @@ import { posts, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
 import { deriveAnonHandle } from "@/lib/anonymity";
 import { privateMetadata } from "@/lib/seo";
-import { isViewerProfile } from "@/lib/viewer";
 import { PostEditClient } from "./post-edit-client";
 
 interface EditPostPageProps {
@@ -35,10 +34,6 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
 
   if (!profile) {
     redirect("/sign-in");
-  }
-
-  if (await isViewerProfile(profile)) {
-    redirect("/feeds");
   }
 
   const post = await db.query.posts.findFirst({

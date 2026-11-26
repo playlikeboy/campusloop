@@ -97,7 +97,7 @@ export function CrushHints() {
             ))}
           </ul>
           <p className="text-sm text-fg">
-            Unlock by inviting {data.invitesNeeded} friends who join with their college email
+            Unlock by inviting {data.invitesNeeded} friends who join and get verified
             {invitesLeft < data.invitesNeeded ? ` (${invitesLeft} to go)` : ""}, or once for {data.cost} Loop
             Points.
           </p>

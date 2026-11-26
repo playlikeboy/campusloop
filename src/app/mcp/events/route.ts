@@ -1,3 +1,5 @@
+import { PUBLIC_PROFILE_COLUMNS } from "@/lib/profile-columns";
+import { timingSafeCompare } from "@/lib/security/timing";
 import { MCP_DOCS_TAILWIND } from "../docs-theme";
 import { randomUUID } from "node:crypto";
 import { and, desc, eq, ilike, or } from "drizzle-orm";
@@ -50,7 +52,7 @@ function verifyApiKey(req: Request): boolean {
     : null;
 
   const expectedKey = configuredKey.trim();
-  return [queryKey, headerKey, bearerKey].some((candidateKey) => candidateKey?.trim() === expectedKey);
+  return [queryKey, headerKey, bearerKey].some((candidateKey) => timingSafeCompare(candidateKey?.trim(), expectedKey));
 }
 
 /**
@@ -616,7 +618,7 @@ export async function GET(req: Request) {
         where: or(eq(events.id, singleLookup), eq(events.slug, singleLookup)),
         with: {
           institution: true,
-          organizer: true,
+          organizer: { columns: PUBLIC_PROFILE_COLUMNS },
         },
       });
 

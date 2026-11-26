@@ -1,6 +1,7 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import { mcpAuditLogs, userMcpKeys, userProfiles } from "@/db/schema";
+import { timingSafeCompare } from "@/lib/security/timing";
 import type { McpContext } from "./types";
 
 export function extractMcpKeyFromRequest(req: Request): string | null {
@@ -37,15 +38,13 @@ export async function authenticateMcpKey(keyString: string, clientInfo?: string 
     process.env.MCP_API_KEY ||
     process.env.MCP_EVENTS_API_KEY;
 
-  if (masterKey && cleanKey === masterKey.trim()) {
-    const primaryUser =
-      (await db.query.userProfiles.findFirst({
-        where: eq(userProfiles.role, "ADMIN"),
-        with: { institution: true },
-      })) ||
-      (await db.query.userProfiles.findFirst({
-        with: { institution: true },
-      }));
+  if (masterKey && timingSafeCompare(cleanKey, masterKey.trim())) {
+    // The master key acts as an ADMIN profile only. Never fall back to "any first profile":
+    // that would hand full read/write/chat access to an arbitrary student account.
+    const primaryUser = await db.query.userProfiles.findFirst({
+      where: and(eq(userProfiles.role, "ADMIN"), eq(userProfiles.status, "ACTIVE")),
+      with: { institution: true },
+    });
 
     if (primaryUser) {
       return {
@@ -81,6 +80,11 @@ export async function authenticateMcpKey(keyString: string, clientInfo?: string 
       throw new Error("Associated student profile not found");
     }
 
+    // A suspended or banned account must not keep acting through a previously issued key.
+    if (user.status !== "ACTIVE") {
+      throw new Error("Associated student profile is not active");
+    }
+
     // Asynchronously record request count and last used timestamp
     db.update(userMcpKeys)
       .set({
@@ -100,7 +104,7 @@ export async function authenticateMcpKey(keyString: string, clientInfo?: string 
       permissions:
         Array.isArray(keyRecord.permissions) && (keyRecord.permissions as string[]).length > 0
           ? (keyRecord.permissions as string[])
-          : ["read", "write", "chat", "exclusive"],
+          : ["read"],
       clientInfo: clientInfo || null,
     };
   }

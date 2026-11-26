@@ -1,3 +1,4 @@
+import { PUBLIC_PROFILE_COLUMNS } from "@/lib/profile-columns";
 import { and, asc, eq, or } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
@@ -7,6 +8,7 @@ import { requireProfile } from "@/lib/require-profile";
 import { runInBackground } from "@/lib/background";
 import { awardPoints } from "@/lib/gamification-server";
 import { createNotification } from "@/lib/notifications";
+import { requireCapability } from "@/lib/trust-server";
 
 export const dynamic = "force-dynamic";
 
@@ -48,6 +50,7 @@ export async function GET(req: NextRequest, { params }: RouteProps) {
       limit: 150,
       with: {
         author: {
+          columns: PUBLIC_PROFILE_COLUMNS,
           with: { institution: true },
         },
       },
@@ -105,6 +108,8 @@ export async function POST(req: NextRequest, { params }: RouteProps) {
     const auth = await requireProfile();
     if (!auth.ok) return auth.response;
     const { profile } = auth;
+    const capabilityBlocked = await requireCapability(profile, "comment");
+    if (capabilityBlocked) return capabilityBlocked;
 
     const db = getDb();
 
@@ -155,6 +160,7 @@ export async function POST(req: NextRequest, { params }: RouteProps) {
       where: eq(articleComments.id, commentId),
       with: {
         author: {
+          columns: PUBLIC_PROFILE_COLUMNS,
           with: { institution: true },
         },
       },

@@ -7,6 +7,7 @@ import {
   filterAllowedRecipients,
   isNotificationAllowed,
 } from "@/lib/notification-preferences";
+import { anonymousNotificationType } from "@/lib/notification-anonymity";
 import { dispatchNotificationEmail } from "@/lib/notifications-email";
 import { pushExpoToUsers } from "@/lib/expo-push";
 import { pushToUser } from "@/lib/push-dispatch";
@@ -37,7 +38,11 @@ export type NotificationType =
   | "GAMING_MATCH_READY"
   | "TOURNAMENT_UPDATE"
   /** Streak and campus reminders from the engagement cron (src/lib/engagement/run.ts). */
-  | "REMINDER";
+  | "REMINDER"
+  /** Stored twins of COMMENT, REPLY and MENTION for anonymous actions; see src/lib/notification-anonymity.ts. */
+  | "ANON_COMMENT"
+  | "ANON_REPLY"
+  | "ANON_MENTION";
 
 export interface CreateNotificationParams {
   userId: string;
@@ -53,6 +58,11 @@ export interface CreateNotificationParams {
    * list, but buzzing the phone they are holding is pure noise.
    */
   silent?: boolean;
+  /**
+   * The action was done anonymously (anonymous comment, reply or post). The row
+   * is stored under the ANON_* twin of `type`, so every reader hides the actor.
+   */
+  anonymous?: boolean;
 }
 
 /**
@@ -101,7 +111,11 @@ export function extractMentionUsernames(text: string): string[] {
  * placed on this specific actor, so a muted person's activity produces no row,
  * no push and no email — nothing for the student to dismiss later.
  */
-export async function createNotification(params: CreateNotificationParams): Promise<boolean> {
+export async function createNotification(input: CreateNotificationParams): Promise<boolean> {
+  const params: CreateNotificationParams = input.anonymous
+    ? { ...input, type: anonymousNotificationType(input.type) as NotificationType }
+    : input;
+
   // Prevent notifying oneself about one's own social actions
   if (params.userId === params.actorId && !SELF_ADDRESSED_TYPES.has(params.type)) {
     return false;
@@ -235,10 +249,13 @@ export async function notifyMentions({
   text,
   actorId,
   referenceId,
+  anonymous = false,
 }: {
   text: string;
   actorId: string;
   referenceId: string;
+  /** The text was posted anonymously, so the mention must not name its author. */
+  anonymous?: boolean;
 }): Promise<void> {
   const handles = extractMentionUsernames(text);
   if (handles.length === 0) return;
@@ -263,6 +280,7 @@ export async function notifyMentions({
           type: "MENTION",
           referenceId,
           previewText: snippet,
+          anonymous,
         });
       }
     }

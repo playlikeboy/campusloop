@@ -23,15 +23,15 @@ All mutation operations (creating articles, publishing, editing demo accounts, l
 
 1. **URL Query Parameter**:
    ```
-   https://campusloop.space/mcp/articles?apikey=HBEifejbwhfbiaqDQHW
+   https://campusloop.space/mcp/articles?apikey=YOUR_MCP_KEY
    ```
 2. **HTTP Header (`x-api-key`)**:
    ```http
-   x-api-key: HBEifejbwhfbiaqDQHW
+   x-api-key: YOUR_MCP_KEY
    ```
 3. **HTTP Authorization Header (Bearer)**:
    ```http
-   Authorization: Bearer HBEifejbwhfbiaqDQHW
+   Authorization: Bearer YOUR_MCP_KEY
    ```
 
 *Read-only queries (listing published articles, viewing categories, inspecting OpenAPI specs) are accessible openly or authenticated.*
@@ -185,7 +185,7 @@ To connect CampusLoop Articles to Composio:
 2. Configure authentication:
    - **Type**: API Key
    - **Header Name**: `x-api-key`
-   - **Value**: Your MCP key (e.g. `HBEifejbwhfbiaqDQHW`)
+   - **Value**: Your MCP key (from your Developer settings; never commit it)
 3. Connect your favorite LLM (Claude, Cursor, OpenAI GPT-4o, Gemini 2.5 Pro) and start discovering, authoring, and curating student articles across campus!
 
 ---

@@ -1,6 +1,6 @@
 "use client";
 
-import { BadgeCheck, CheckCircle2, Clock, Crown, Search, ShieldCheck, Users } from "lucide-react";
+import { CheckCircle2, Clock, Crown, Search, ShieldCheck, Users } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -8,6 +8,7 @@ import { approveJoinRequest, rejectJoinRequest } from "@/app/(app)/(main)/commun
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { VerifiedBadge } from "@/components/ui/verified-badge";
 import { initialOf } from "@/lib/utils";
 
 interface MemberItem {
@@ -233,12 +234,7 @@ function MemberName({ name, verified }: { name: string; verified?: boolean | nul
   return (
     <p className="line-clamp-2 text-sm leading-snug font-semibold break-words text-fg">
       {name}
-      {verified && (
-        <BadgeCheck
-          className="ml-1 inline size-3.5 align-[-2px] text-verified-text"
-          aria-label="Verified student"
-        />
-      )}
+      {verified && <VerifiedBadge size="xs" className="ml-1 align-[-3px]" />}
     </p>
   );
 }

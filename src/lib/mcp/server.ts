@@ -227,6 +227,15 @@ export async function handleMcpJsonRpc(
         const uri = String(params.uri || "").trim();
         let content = "";
 
+        // Every resource is backed by a read tool, so it needs the same "read" permission tools/call checks.
+        if (!context.permissions.includes("read")) {
+          return {
+            jsonrpc: "2.0",
+            id,
+            error: { code: -32003, message: "MCP key lacks required permission 'read' for resources/read." },
+          };
+        }
+
         if (uri === "campusloop://feed/latest") {
           const feed = await MCP_TOOL_EXECUTORS.campusloop_get_feed(context, { limit: 10 });
           content = JSON.stringify(feed, null, 2);

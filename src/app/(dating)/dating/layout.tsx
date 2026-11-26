@@ -5,6 +5,7 @@ import { MatchSubHeader } from "@/components/shells/match-sub-header";
 import { AppPullToRefresh } from "@/components/ui/app-pull-to-refresh";
 import { privateMetadata } from "@/lib/seo";
 import { getCachedAuthUser, getCachedUserProfile, toShellProfile } from "@/lib/server-cache";
+import { getClientTrust } from "@/lib/trust-server";
 
 export const metadata = privateMetadata("Campus Match");
 
@@ -33,7 +34,12 @@ export default async function DatingLayout({ children }: { children: React.React
   const collegeName = profile.institution?.name;
 
   return (
-    <AppShell profile={toShellProfile(profile)} collegeName={collegeName} isAdmin={profile.role === "ADMIN"}>
+    <AppShell
+      trust={await getClientTrust(profile)}
+      profile={toShellProfile(profile)}
+      collegeName={collegeName}
+      isAdmin={profile.role === "ADMIN"}
+    >
       <PresenceHeartbeat />
       <AppPullToRefresh>
         <MatchSubHeader collegeName={collegeName} />

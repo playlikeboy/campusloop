@@ -2,6 +2,7 @@ import { FirstVisitNotificationPrompt } from "@/components/notifications/first-v
 import { AppShell } from "@/components/shells/app-shell";
 import { getCachedAuthUser, getCachedUserProfile, toShellProfile } from "@/lib/server-cache";
 import { isViewerProfile } from "@/lib/viewer";
+import { getClientTrust } from "@/lib/trust-server";
 
 export default async function EventsLayout({ children }: { children: React.ReactNode }) {
   const user = await getCachedAuthUser();
@@ -11,6 +12,7 @@ export default async function EventsLayout({ children }: { children: React.React
 
   return (
     <AppShell
+      trust={await getClientTrust(profile)}
       profile={toShellProfile(profile)}
       collegeName={viewerMode ? "Viewer Mode" : (college?.name ?? "CampusLoop")}
       isAdmin={profile?.role === "ADMIN"}

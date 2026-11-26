@@ -5,8 +5,8 @@ import { anonIdentityVault, posts, reelLikes, reels, votes } from "@/db/schema";
 import { requireProfile } from "@/lib/require-profile";
 import { openSealedIdentity } from "@/lib/anonymity";
 import { createNotification } from "@/lib/notifications";
-import { rejectViewerWrite } from "@/lib/viewer";
 import { bumpPostStat } from "@/lib/recommendations/engagement-stats";
+import { requireCapability } from "@/lib/trust-server";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -60,8 +60,8 @@ export async function POST(req: Request, { params }: RouteParams) {
     const { id } = await params;
     const db = getDb();
 
-    const viewerBlocked = await rejectViewerWrite(profile);
-    if (viewerBlocked) return viewerBlocked;
+    const capabilityBlocked = await requireCapability(profile, "vote");
+    if (capabilityBlocked) return capabilityBlocked;
 
     const { value } = (await req.json()) as { value: number };
 

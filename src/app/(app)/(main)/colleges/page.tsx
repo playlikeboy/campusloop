@@ -9,6 +9,7 @@ import {
   getCollegeDirectoryPage,
 } from "@/lib/colleges/directory";
 import { absoluteUrl, breadcrumbJsonLd, buildMetadata } from "@/lib/seo";
+import { fitDescription } from "@/lib/seo/describe";
 import { JsonLd } from "@/lib/seo/json-ld-script";
 import CollegesClient from "./colleges-client";
 
@@ -30,7 +31,7 @@ function parseDirectoryParams(sp: Record<string, string | string[] | undefined>)
 }
 
 const DESCRIPTION =
-  "Find your college on CampusLoop. Each college page has student posts, communities, events and study material.";
+  "Find your college on CampusLoop. Search Indian colleges by name or state, then see student posts, events, notes and PYQs from each campus.";
 
 function directoryTitle(page: number, state: string) {
   if (state !== "ALL") return page > 1 ? `Colleges in ${state} · Page ${page}` : `Colleges in ${state}`;
@@ -47,7 +48,9 @@ export async function generateMetadata({ searchParams }: { searchParams: SearchP
     title: directoryTitle(page, state),
     description:
       state !== "ALL"
-        ? `Find colleges in ${state} on CampusLoop. Open a college to see student posts, communities and study material.`
+        ? fitDescription(`Colleges in ${state} on CampusLoop. Open a college to see student posts, events, notes and PYQs`, [
+            `Search by name or city, then join your campus for free`,
+          ])
         : DESCRIPTION,
     path: collegesHref({ page, state }),
     keepQuery: true,

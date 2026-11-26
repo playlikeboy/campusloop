@@ -39,7 +39,7 @@ interface CollegeHeroHeaderProps {
   isEnrolledHere: boolean;
   /** The college has a confirmed student email domain. */
   isVerifiedCollege?: boolean;
-  /** Signed-out visitors see "Join with college email" instead of "Ask seniors". */
+  /** Signed-out visitors see "Join free" instead of "Ask seniors". */
   isSignedIn?: boolean;
   onAskSeniorClick?: () => void;
   onViewAcademicsClick?: () => void;
@@ -167,7 +167,7 @@ export function CollegeHeroHeader({
                 <Link
                   href={`/sign-up?college=${college.slug}${primaryDomain ? `&domain=${primaryDomain}` : ""}`}
                 >
-                  Join with college email
+                  Join free
                 </Link>
               </Button>
             )}

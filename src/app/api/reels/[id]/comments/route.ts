@@ -3,6 +3,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { reelComments, reels, userProfiles } from "@/db/schema";
 import { hexclaveServerApp } from "@/hexclave/server";
+import { requireCapability } from "@/lib/trust-server";
 
 export async function GET(req: NextRequest, props: { params: Promise<{ id: string }> }) {
   try {
@@ -67,6 +68,8 @@ export async function POST(req: NextRequest, props: { params: Promise<{ id: stri
     if (!profile) {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 });
     }
+    const capabilityBlocked = await requireCapability(profile, "comment");
+    if (capabilityBlocked) return capabilityBlocked;
 
     const [newComment] = await db
       .insert(reelComments)

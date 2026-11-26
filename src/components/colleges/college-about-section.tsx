@@ -7,18 +7,45 @@ interface NearbyLink {
   slug: string;
 }
 
+interface EventLink {
+  id: string;
+  slug: string | null;
+  title: string;
+  startDate: Date | string;
+}
+
+interface NoteLink {
+  id: string;
+  title: string;
+  subjectName?: string | null;
+}
+
 interface CollegeAboutSectionProps {
   facts: CollegeFactsInput;
   description?: string | null;
   state?: string | null;
   nearby: NearbyLink[];
+  /** Public events hosted at this college, newest first. */
+  events?: EventLink[];
+  /** Top study material from this college. */
+  notes?: NoteLink[];
 }
+
+const linkCard =
+  "block rounded-md border border-border bg-surface px-3 py-2.5 text-sm transition-ui hover:bg-surface-muted";
 
 /**
  * Always-rendered facts, description, FAQ and nearby colleges for a college
  * page. A server component, so the text is in the HTML whichever tab is open.
  */
-export function CollegeAboutSection({ facts, description, state, nearby }: CollegeAboutSectionProps) {
+export function CollegeAboutSection({
+  facts,
+  description,
+  state,
+  nearby,
+  events = [],
+  notes = [],
+}: CollegeAboutSectionProps) {
   const short = collegeShortName(facts.name);
   const rows = collegeFacts(facts);
   const faqs = collegeFaqs(facts);
@@ -59,6 +86,61 @@ export function CollegeAboutSection({ facts, description, state, nearby }: Colle
           ))}
         </div>
       </section>
+
+      {events.length > 0 && (
+        <nav aria-label={`Events at ${short}`} className="space-y-3">
+          <h2 className="text-xl font-bold text-fg">Events at {short}</h2>
+          <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {events.map((ev) => (
+              <li key={ev.id}>
+                <Link href={`/e/${ev.slug || ev.id}`} className={linkCard}>
+                  <span className="block truncate font-semibold text-fg">{ev.title}</span>
+                  <span className="block text-fg-muted tabular-nums">
+                    {new Date(ev.startDate).toLocaleDateString("en-IN", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                      timeZone: "Asia/Kolkata",
+                    })}
+                  </span>
+                </Link>
+              </li>
+            ))}
+            <li>
+              <Link
+                href="/events"
+                className="block rounded-md px-3 py-2.5 text-sm font-semibold text-brand-text underline-offset-4 hover:underline"
+              >
+                See all events
+              </Link>
+            </li>
+          </ul>
+        </nav>
+      )}
+
+      {notes.length > 0 && (
+        <nav aria-label={`Notes and PYQs from ${short}`} className="space-y-3">
+          <h2 className="text-xl font-bold text-fg">Notes and PYQs from {short}</h2>
+          <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {notes.map((note) => (
+              <li key={note.id}>
+                <Link href={`/academics/study-material/${note.id}`} className={linkCard}>
+                  <span className="block truncate font-semibold text-fg">{note.title}</span>
+                  {note.subjectName && <span className="block truncate text-fg-muted">{note.subjectName}</span>}
+                </Link>
+              </li>
+            ))}
+            <li>
+              <Link
+                href="/academics"
+                className="block rounded-md px-3 py-2.5 text-sm font-semibold text-brand-text underline-offset-4 hover:underline"
+              >
+                Browse all study material
+              </Link>
+            </li>
+          </ul>
+        </nav>
+      )}
 
       {nearby.length > 0 && (
         <nav aria-label={`More colleges in ${state ?? "this state"}`} className="space-y-3">

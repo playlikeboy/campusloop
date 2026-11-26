@@ -1,3 +1,5 @@
+import { communityPostVisibleSql } from "@/lib/post-visibility";
+import { PUBLIC_PROFILE_COLUMNS } from "@/lib/profile-columns";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
@@ -81,11 +83,13 @@ export async function GET(req: Request) {
       db.query.posts.findMany({
         where: and(
           eq(posts.status, "PUBLISHED"),
+          // Public surface (no viewer context here): members-only community posts stay out.
+          communityPostVisibleSql(null),
           requestedScope === "CAMPUS" && userInstitutionId ? eq(posts.institutionId, userInstitutionId) : undefined
         ),
         orderBy: [desc(posts.createdAt)],
         limit: 30,
-        with: { author: true, institution: true, votes: true, comments: true },
+        with: { author: { columns: PUBLIC_PROFILE_COLUMNS }, institution: true, votes: true, comments: true },
       }).catch(() => []),
 
       // 3. Communities

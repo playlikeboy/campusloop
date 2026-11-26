@@ -28,11 +28,12 @@ interface OnboardingFormProps {
   /** Real top posts for the taste swipe. */
   quizPosts?: TastePost[];
   /**
-   * `student` is the verified college-email flow. `viewer` is Campus Preview:
-   * an aspirant signing up with a personal email, who cannot post or follow
-   * yet, so their flow ends after the taste swipe.
+   * `student` is the verified college-email flow. `member` signed up with a
+   * personal (or unconfirmed college) email: they pick their college and join
+   * it as an unverified member, or tick "not in college yet" and join Campus
+   * Preview as an aspirant, whose flow ends after the taste swipe.
    */
-  variant?: "student" | "viewer";
+  variant?: "student" | "member";
 }
 
 type Screen = "you" | "taste" | "follow" | "post";
@@ -58,8 +59,7 @@ export function OnboardingForm({
   variant = "student",
 }: OnboardingFormProps) {
   const router = useRouter();
-  const isViewer = variant === "viewer";
-  const screens: Screen[] = isViewer ? ["you", "taste"] : ["you", "taste", "follow", "post"];
+  const isMember = variant === "member";
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [screen, setScreen] = useState<Screen>("you");
   const [uploading, setUploading] = useState(false);
@@ -74,7 +74,12 @@ export function OnboardingForm({
     fieldOfInterest: PROSPECTIVE_FIELDS[0],
     prospectiveStage: PROSPECTIVE_STAGES[0],
     dreamCampusIds: [],
+    college: null,
+    notInCollegeYet: false,
   });
+  // Aspirants (no college yet) get the short Campus Preview flow.
+  const isViewer = isMember && values.notInCollegeYet;
+  const screens: Screen[] = isViewer ? ["you", "taste"] : ["you", "taste", "follow", "post"];
 
   const set = <K extends keyof OnboardingValues>(key: K, value: OnboardingValues[K]) =>
     setValues((prev) => ({ ...prev, [key]: value }));
@@ -86,6 +91,7 @@ export function OnboardingForm({
     Boolean(nameVal?.isValid) &&
     Boolean(userVal?.isValid) &&
     !isUsernameBlocking(usernameStatus) &&
+    (!isMember || values.notInCollegeYet || Boolean(values.college)) &&
     !uploading;
 
   async function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {
@@ -122,8 +128,9 @@ export function OnboardingForm({
       fd.set("branch", values.fieldOfInterest);
       fd.set("aspirantStage", values.prospectiveStage);
       fd.set("targetInstitutionIds", JSON.stringify(values.dreamCampusIds));
-    } else if (values.year) {
-      fd.set("year", String(values.year));
+    } else {
+      if (isMember && values.college) fd.set("institutionId", values.college.id);
+      if (values.year) fd.set("year", String(values.year));
     }
 
     try {
@@ -192,6 +199,7 @@ export function OnboardingForm({
               values={values}
               set={set}
               isViewer={isViewer}
+              isMember={isMember}
               collegeName={collegeName}
               avatarSrc={values.avatarUrl || getAvatarUrl(null, values.username, values.displayName)}
               nameError={nameVal && !nameVal.isValid ? nameVal.error : undefined}
@@ -219,7 +227,7 @@ export function OnboardingForm({
 
         {screen === "post" && (
           <StepFirstPost
-            collegeName={collegeName ? collegeName.split(",")[0].trim() : null}
+            collegeName={(collegeName ?? values.college?.name ?? null)?.split(",")[0].trim() ?? null}
             onDone={(posted) => {
               trackOnboardingStep("first_post", { posted });
               finish(posted);

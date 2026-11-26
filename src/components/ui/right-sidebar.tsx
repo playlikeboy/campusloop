@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight, Clock, Code2, Globe, Heart, MoreHorizontal, Plus, RotateCw, School, ShieldCheck, Trophy, Zap } from "lucide-react";
+import { ArrowUpRight, Clock, Globe, MoreHorizontal, Plus, RotateCw, School, ShieldCheck, Trophy, Zap } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import useSWR from "swr";
 import { SearchAutocomplete } from "@/components/search/search-autocomplete";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { OTHER_PRODUCTS, productBadge } from "@/constants/products";
 import { SOCIAL_LINKS } from "@/constants/socials";
 import type { Institution, UserProfile } from "@/db/schema";
 import { useScrollIsolation } from "@/hooks/use-scroll-isolation";
@@ -16,6 +17,9 @@ import { fetcher } from "@/lib/api";
 import { haptics } from "@/lib/haptics";
 import { sounds } from "@/lib/sounds";
 import { cn, initialOf } from "@/lib/utils";
+
+/** Campus apps and betas first; the full list lives on /products. */
+const SIDEBAR_PRODUCTS = OTHER_PRODUCTS.filter((p) => p.group === "campus").slice(0, 5);
 
 type SuggestedPeer = UserProfile & { institution?: Institution | null };
 
@@ -382,61 +386,53 @@ export function RightSidebar({ className }: { className?: string } = {}) {
         </>
       )}
 
-      {/* ─── CampusLoop Ecosystem Products ─── */}
+      {/* ─── CampusLoop Ecosystem Products (shared list in constants/products) ─── */}
       <section className="rounded-2xl border border-border/40 bg-card/60 p-3.5 space-y-2.5 shadow-2xs">
         <div className="flex items-center justify-between px-1">
-          <span className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
-            <span>Other CampusLoop apps</span>
-          </span>
+          <h2 className="text-sm font-bold text-foreground">More apps from us</h2>
+          <Link href="/products" className="text-xs font-semibold text-primary hover:underline">
+            See all
+          </Link>
         </div>
 
-        <div className="space-y-2">
-          {/* DSALoop */}
-          <a
-            href="https://dsaloop.campusloop.space"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex items-start gap-2.5 p-2 rounded-xl border border-border/40 bg-muted/20 hover:bg-muted/40 hover:border-primary/40 transition-ui cursor-pointer"
-          >
-            <div className="flex size-7 items-center justify-center rounded-lg bg-verified-subtle text-verified-text font-mono font-bold text-xs shrink-0">
-              <Code2 className="size-3.5" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1">
-                <span className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
-                  DSALoop
-                </span>
-                <ArrowUpRight className="size-3 text-muted-foreground group-hover:text-primary transition-colors" />
-              </div>
-              <p className="text-[10px] text-muted-foreground line-clamp-1">
-                DSA patterns, 185+ company tracks &amp; system design
-              </p>
-            </div>
-          </a>
-
-          {/* baby */}
-          <a
-            href="https://baby.campusloop.space"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex items-start gap-2.5 p-2 rounded-xl border border-border/40 bg-muted/20 hover:bg-muted/40 hover:border-brand-subtle-border transition-ui cursor-pointer"
-          >
-            <div className="flex size-7 items-center justify-center rounded-lg bg-brand-subtle text-brand-text shrink-0">
-              <Heart className="size-3.5" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1">
-                <span className="text-xs font-bold text-foreground group-hover:text-brand-text transition-colors">
-                  baby · AI Journal
-                </span>
-                <ArrowUpRight className="size-3 text-muted-foreground group-hover:text-brand-text transition-colors" />
-              </div>
-              <p className="text-[10px] text-muted-foreground line-clamp-1">
-                A calm companion &amp; mindful thoughts sanctuary
-              </p>
-            </div>
-          </a>
-        </div>
+        <ul className="space-y-1.5">
+          {SIDEBAR_PRODUCTS.map((app) => {
+            const AppIcon = app.icon;
+            const badge = productBadge(app);
+            return (
+              <li key={app.id}>
+                <a
+                  href={app.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center gap-2.5 rounded-xl p-2 hover:bg-muted/40 transition-ui"
+                >
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted text-foreground">
+                    <AppIcon className="size-4" aria-hidden="true" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-center gap-1.5">
+                      <span className="truncate text-sm font-bold text-foreground group-hover:text-primary transition-colors">
+                        {app.name}
+                      </span>
+                      {badge && (
+                        <span className="shrink-0 rounded-full border border-border px-1.5 text-[10px] font-semibold text-muted-foreground">
+                          {badge}
+                        </span>
+                      )}
+                    </span>
+                    <span className="block truncate text-xs text-muted-foreground">{app.tagline}</span>
+                  </span>
+                  <ArrowUpRight
+                    className="size-3.5 shrink-0 text-muted-foreground group-hover:text-primary transition-colors"
+                    aria-hidden="true"
+                  />
+                  <span className="sr-only">(opens in a new tab)</span>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
       </section>
 
       <hr className="border-border/30 my-3" />
